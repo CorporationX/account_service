@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account-service_account.sql
+  - include:
+      file: db/changelog/changeset/V002__insert_accounts.sql
+  - include:
+      file: db/changelog/changeset/V003__balance_insert.sql

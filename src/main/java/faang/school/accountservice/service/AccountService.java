@@ -1,25 +1,30 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.Status;
+import faang.school.accountservice.exception.AccountInactiveException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final BalanceService balanceService;
 
     public AccountDto get(long id) {
         return accountMapper.toDto(getAccount(id));
@@ -28,6 +33,9 @@ public class AccountService {
     @Retryable(retryFor = OptimisticLockException.class)
     public AccountDto open(AccountDto accountDto) {
         accountDto.setStatus(Status.ACTIVE);
+        Currency accountDtoCurrency = accountDto.getCurrency();
+        BalanceDto createdBalance = balanceService.createBalance(accountDtoCurrency);
+        accountDto.setBalance(createdBalance);
         Account newAccount = accountRepository.save(accountMapper.toEntity(accountDto));
         return accountMapper.toDto(newAccount);
     }
@@ -58,6 +66,16 @@ public class AccountService {
     public void blockStatusValidate(Status status) {
         if (status != Status.BLOCKED && status != Status.SUSPENDED) {
             throw new IllegalArgumentException("You can use only BLOCKED or SUSPENDED status");
+        }
+    }
+
+    public void accountAvailable(String number) {
+        Account account = accountRepository.findByNumber(number)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+        log.info("Not found account with number: {}", number);
+        if (!account.getStatus().equals(Status.ACTIVE)) {
+            log.info("Account is not active: {}", number);
+            throw new AccountInactiveException("Account is not active");
         }
     }
 }
