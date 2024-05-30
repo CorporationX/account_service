@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "${services.user-service.name}", url = "${services.user-service.host}:${services.user-service.port}")
 public interface UserServiceClient {
 
-    @GetMapping("/users/{userId}")
-    UserDto getUser(@PathVariable long userId);
+    @GetMapping("/users/{id}")
+    UserDto getUser(@PathVariable long id);
 
 }
