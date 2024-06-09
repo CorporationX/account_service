@@ -39,3 +39,6 @@ services:
 logging:
   level:
     root: info
+
+account_numbers:
+  batchSize: 1000
