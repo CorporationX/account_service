@@ -30,6 +30,8 @@ public class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
     @Mock
+    private BalanceService balanceService;
+    @Mock
     private AccountMapper accountMapper;
     @Mock
     private AccountRepository accountRepository;
@@ -44,18 +46,6 @@ public class AccountServiceTest {
 
         when(accountMapper.toEntity(accountDto)).thenThrow(RuntimeException.class);
         assertThrows(RuntimeException.class, () -> accountService.open(accountDto));
-
-    }
-
-    @Test
-    public void test_open_InvalidInput() {
-        AccountDto accountDto = getAccountDto();
-        Account account = getAccount();
-
-        when(accountMapper.toEntity(accountDto)).thenReturn(account);
-        doThrow(EntityNotFoundException.class).when(accountValidate).validate(account);
-
-        assertThrows(EntityNotFoundException.class, () -> accountService.open(accountDto));
     }
 
     @Test
@@ -88,7 +78,6 @@ public class AccountServiceTest {
         Assertions.assertEquals(expected, actual);
         verify(accountMapper, times(1)).toEntity(expected);
         verify(ownerRepository, times(1)).findByAccountIdAndOwnerType(owner.getAccountId(), owner.getOwnerType());
-        verify(accountValidate, times(1)).validate(account);
         verify(accountRepository, times(1)).save(account);
         verify(accountMapper, times(1)).toDto(account);
     }

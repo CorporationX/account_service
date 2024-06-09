@@ -65,4 +65,7 @@ public class Account {
     @Column(nullable = false)
     private long version;
 
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
+
 }

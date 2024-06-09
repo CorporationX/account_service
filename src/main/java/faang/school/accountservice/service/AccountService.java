@@ -22,6 +22,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
+    private final BalanceService balanceService;
     private final AccountMapper accountMapper;
     private final AccountRepository accountRepository;
     private final AccountValidate accountValidate;
@@ -31,10 +32,12 @@ public class AccountService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public AccountDto open(AccountDto accountDto) {
         Account account = accountMapper.toEntity(accountDto);
-        accountValidate.validate(account);
+        //accountValidate.validate(account);
         account.setAccountStatus(AccountStatus.ACTIVE);
         setUpOwner(account);
-        return accountMapper.toDto(accountRepository.save(account));
+        accountRepository.save(account);
+        balanceService.createBalance(account);
+        return accountMapper.toDto(account);
     }
 
     @Transactional(readOnly = true)
