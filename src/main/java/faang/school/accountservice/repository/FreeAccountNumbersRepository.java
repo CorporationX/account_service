@@ -22,6 +22,4 @@ public interface FreeAccountNumbersRepository extends JpaRepository<AccountNumbe
                             """)
     @Modifying
     Optional<AccountNumber> getFreeNumber(String type);
-
-    AccountNumber findByNumber(long number);
 }

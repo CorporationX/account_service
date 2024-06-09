@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public class FreeAccountNumbersService {
     private final static long DEBIT = 4200_0000_0000_0000L;
     private final static long CREDIT = 5236_0000_0000_0000L;
-    @Value("${account_numbers.bathSize}")
+    @Value("${account_numbers.batchSize}")
     private int batchSize;
 
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
@@ -39,7 +39,6 @@ public class FreeAccountNumbersService {
             AccountNumber accountNumber = new AccountNumber(accountNumberId);
             accountNumbers.add(accountNumber);
         }
-        //freeAccountNumbersRepository.save(accountNumbers.get(0));
         freeAccountNumbersRepository.saveAll(accountNumbers);
     }
 
