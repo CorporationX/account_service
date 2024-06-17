@@ -18,8 +18,21 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 server:
-  port: 8090
+  port: 8091
+
+services:
+  user-service:
+    name: user-service
+    host: http://localhost
+    port: 8080
+  project-service:
+    name: project-service
+    host: http://localhost
+    port: 8082
 
 logging:
   level:
     root: info
+
+api:
+  version: v1
