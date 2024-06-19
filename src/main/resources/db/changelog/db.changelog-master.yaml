@@ -4,4 +4,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V002__account-service_balance_create.sql
   - include:
-      file: db/changelog/changeset/V003__fill_account_balance_owner.sql
+      file: db/changelog/changeset/V003__fill-tables_owner_account_balance.sql
