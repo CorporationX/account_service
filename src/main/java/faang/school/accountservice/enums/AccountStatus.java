@@ -1,4 +1,4 @@
-package faang.school.accountservice.model;
+package faang.school.accountservice.enums;
 
 public enum AccountStatus {
     CURRENT, FROZEN, CLOSED

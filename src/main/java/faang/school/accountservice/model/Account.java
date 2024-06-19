@@ -1,14 +1,20 @@
 package faang.school.accountservice.model;
 
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OptimisticLocking;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
+@Data
+@OptimisticLocking
 @Entity
 @Table(name = "account")
 public class Account {
@@ -24,14 +30,15 @@ public class Account {
     @Column(name = "owner_id")
     private long ownerId;
 
-    @Column(name = "type")
     @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private AccountType type;
 
-    @Size(min = 3, max = 3)
-    @Column(name = "currency", nullable = false, columnDefinition = "USD")
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency", nullable = false)
+    private Currency currency;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private AccountStatus status;
 
@@ -48,7 +55,6 @@ public class Account {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
