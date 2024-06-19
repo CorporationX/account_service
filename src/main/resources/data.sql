@@ -22,7 +22,6 @@ VALUES ('123456789012', 1, 'INDIVIDUAL', 'USD', 'ACTIVE', null, 1),
        ('123456789020', 9, 'SAVINGS', 'USD', 'ACTIVE', null, 1),
        ('123456789021', 10, 'INVESTMENT', 'USD', 'ACTIVE', null, 1);
 
-
 INSERT INTO balance (account_id, authorization_Balance, actual_Balance, version)
 VALUES (1, 1000.00, 1200.00, 1),
        (2, 1500.00, 1500.00, 2),
