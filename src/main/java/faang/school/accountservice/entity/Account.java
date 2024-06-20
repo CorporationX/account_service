@@ -30,16 +30,16 @@ import java.time.LocalDateTime;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "number", length = 20, nullable = false)
     private String number;
 
     @Column(name = "owner_user_id")
-    private long ownerUserId;
+    private Long ownerUserId;
 
-    @Column(name = "owner_user_id")
-    private long ownerProjectId;
+    @Column(name = "owner_project_id")
+    private Long ownerProjectId;
 
     @Column(name = "type", length = 128, nullable = false)
     private AccountType type;
@@ -66,5 +66,5 @@ public class Account {
 
     @Version()
     @Column(name = "version", nullable = false)
-    private long version;
+    private Long version = 0L;
 }
