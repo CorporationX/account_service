@@ -3,10 +3,8 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.exception.DataOperationException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
-import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
-import static faang.school.accountservice.exception.message.AccountExceptionMessage.CLOSED_ACCOUNT_UPDATE_EXCEPTION;
 import static faang.school.accountservice.exception.message.AccountExceptionMessage.NON_EXISTING_ACCOUNT_EXCEPTION;
 
 @Service
@@ -42,16 +39,13 @@ public class AccountService {
     @Transactional
     public AccountDto changeStatus(Long accountId, AccountStatus status) {
         Account account = getAccountModel(accountId);
+        accountVerifier.verifyStatusBeforeUpdate(account);
 
-        if(account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new DataOperationException(CLOSED_ACCOUNT_UPDATE_EXCEPTION.getMessage());
-        }
-
-        if(status.equals(AccountStatus.CLOSED)) {
+        if (status.equals(AccountStatus.CLOSED)) {
             account.setClosedAt(LocalDateTime.now());
         }
-
         account.setStatus(status);
+
         Account updatedAccount = accountRepository.save(account);
         return accountMapper.toDto(updatedAccount);
     }

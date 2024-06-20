@@ -21,6 +21,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new Error(e.getMessage()));
     }
 
+    @ExceptionHandler(DataOperationException.class)
+    public ResponseEntity<Error> handleDataOperationException(DataOperationException e) {
+        return ResponseEntity.internalServerError().body(new Error(e.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<Error>> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
         List<Error> exceptionList = methodArgumentNotValidException.getBindingResult()
