@@ -5,6 +5,8 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,12 +43,15 @@ public class Account {
     @Column(name = "owner_project_id")
     private Long ownerProjectId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", length = 128, nullable = false)
     private AccountType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency", length = 3, nullable = false)
     private Currency currency;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 32, nullable = false)
     private AccountStatus status;
 
@@ -65,6 +70,6 @@ public class Account {
     private LocalDateTime closedAt;
 
     @Version()
-    @Column(name = "version", nullable = false)
-    private Long version = 0L;
+    @Column(name = "version")
+    private long version;
 }
