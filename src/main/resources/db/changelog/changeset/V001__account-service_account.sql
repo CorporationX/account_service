@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS account (
     id BIGSERIAL PRIMARY KEY,
-    number VARCHAR(20) NOT NULL,
+    number VARCHAR(20) NOT NULL UNIQUE,
     owner_user_id BIGINT,
     owner_project_id BIGINT,
     type VARCHAR(128) NOT NULL,

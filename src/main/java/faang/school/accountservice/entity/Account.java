@@ -34,7 +34,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", length = 20, nullable = false)
+    @Column(name = "number", length = 20, unique = true, nullable = false)
     private String number;
 
     @Column(name = "owner_user_id")
