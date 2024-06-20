@@ -2,12 +2,16 @@ package faang.school.accountservice.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,12 +31,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<Error>> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
-        List<Error> exceptionList = methodArgumentNotValidException.getBindingResult()
-                .getAllErrors().stream()
-                .map(e -> new Error(e.getDefaultMessage()))
-                .toList();
-        return ResponseEntity.badRequest().body(exceptionList);
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
+        Map<String, String> exceptionMap = methodArgumentNotValidException.getBindingResult().getAllErrors().stream()
+                .collect(Collectors.toMap(
+                        error -> ((FieldError) error).getField(),
+                        error -> Objects.requireNonNullElse(error.getDefaultMessage(), "")
+                ));
+        return ResponseEntity.badRequest().body(exceptionMap);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

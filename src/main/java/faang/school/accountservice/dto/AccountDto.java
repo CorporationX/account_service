@@ -25,22 +25,21 @@ import static faang.school.accountservice.exception.message.AccountExceptionMess
 public class AccountDto {
     private Long id;
 
-    @NotNull(message = "An account must have a number")
-    @NotBlank(message = "An account must have a not blank number")
-    @Size(min = 12, max = 20, message = "An account must have a number with size between 12 and 20 symbols")
+    @NotBlank(message = "An account must have an not blank number.")
+    @Size(min = 12, max = 20, message = "An account must have a number with size between 12 and 20 symbols.")
     private String number;
 
     private Long ownerUserId;
 
     private Long ownerProjectId;
 
-    @NotNull(message = "An account must have a type")
+    @NotNull(message = "An account must have a type.")
     private AccountType type;
 
-    @NotNull(message = "An account must have a currency")
+    @NotNull(message = "An account must have a currency.")
     private Currency currency;
 
-    @NotNull(message = "An account must have a status")
+    @NotNull(message = "An account must have a status.")
     private AccountStatus status;
 
     private LocalDateTime createdAt;
