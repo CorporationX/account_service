@@ -57,7 +57,7 @@ public class AccountService {
     public AccountDto deposit(String number, BigDecimal summa) {
         log.info("Deposit account: {}, summa: {}", number, summa);
         Account account = accountRepository.findByNumber(number);
-        accountValidator.accountStatusValidate(summa, account.getStatus());
+        accountValidator.accountStatusValidate(account.getStatus());
 
         account.setBalance(account.getBalance().add(summa));
         return accountMapper.toDto(accountJpaRepository.save(account));
@@ -67,7 +67,7 @@ public class AccountService {
     public AccountDto writeOff(String number, BigDecimal summa) {
         log.info("WriteOff account: {}, summa: {}", number, summa);
         Account account = accountRepository.findByNumber(number);
-        accountValidator.accountStatusValidate(summa, account.getStatus());
+        accountValidator.accountStatusValidate(account.getStatus());
         accountValidator.accountBalanceValidate(number, summa, account.getBalance());
         account.setBalance(account.getBalance().subtract(summa));
         return accountMapper.toDto(accountJpaRepository.save(account));

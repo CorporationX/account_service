@@ -36,9 +36,9 @@ public class AccountValidator {
         }
     }
 
-    public void accountStatusValidate(BigDecimal summa, AccountStatus accountStatus) {
+    public void accountStatusValidate(AccountStatus accountStatus) {
         if (!accountStatus.equals(AccountStatus.CURRENT)) {
-            String errMessage = "Account should be current for deposit";
+            String errMessage = "Account should be current for operations";
             log.error(errMessage);
             throw new DataValidationException(errMessage);
         }
