@@ -5,6 +5,7 @@ import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ class BalanceServiceImplTest {
     private BalanceRepository balanceRepository;
 
     @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
     private BalanceMapper balanceMapper;
 
     @InjectMocks
@@ -39,6 +43,7 @@ class BalanceServiceImplTest {
     @BeforeEach
     void setUp() {
         account = new Account();
+        account.setId(1L);
         balance = new Balance();
         balance.setAccount(account);
         balance.setActualBalance(BigDecimal.ZERO);
@@ -49,9 +54,10 @@ class BalanceServiceImplTest {
 
     @Test
     void testCreateBalance() {
+        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(account));
         when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
 
-        balanceService.createBalance(1l);
+        balanceService.createBalance(1L);
 
         verify(balanceRepository).save(any(Balance.class));
         verifyNoMoreInteractions(balanceRepository);
@@ -59,6 +65,7 @@ class BalanceServiceImplTest {
 
     @Test
     void testUpdateBalance() {
+        when(balanceRepository.findById(anyLong())).thenReturn(Optional.of(balance));
         when(balanceMapper.toEntity(any(BalanceDto.class))).thenReturn(balance);
         when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
         when(balanceMapper.toDto(any(Balance.class))).thenReturn(balanceDto);

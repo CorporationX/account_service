@@ -53,6 +53,7 @@ class AccountValidatorTest {
         owner.setAccountId(1L);
 
         account = new Account();
+        account.setId(1L);
         account.setOwner(owner);
         account.setNumber("12345");
         account.setAccountStatus(AccountStatus.ACTIVE);
@@ -126,7 +127,7 @@ class AccountValidatorTest {
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> accountValidator.validateBlock(account));
 
-        assertEquals("Status should be ACTIVE, but account: 0 is FROZEN", exception.getMessage());
+        assertEquals("Status should be ACTIVE, but account: 1 is FROZEN", exception.getMessage());
     }
 
     @Test
@@ -142,7 +143,7 @@ class AccountValidatorTest {
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> accountValidator.validateUnblock(account));
 
-        assertEquals("Status should be FROZEN, but account: 0 is ACTIVE", exception.getMessage());
+        assertEquals("Status should be FROZEN, but account: 1 is ACTIVE", exception.getMessage());
     }
 
     @Test
@@ -157,6 +158,6 @@ class AccountValidatorTest {
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> accountValidator.validateClose(account));
 
-        assertEquals("Account: 0 already closed", exception.getMessage());
+        assertEquals("Account: 1 already closed", exception.getMessage());
     }
 }
