@@ -29,7 +29,6 @@ public class AccountService {
         return accountMapper.toDto(createdAccount);
     }
 
-    @Transactional
     public AccountDto getAccount(Long accountId) {
         Account account = getAccountModel(accountId);
 
@@ -50,6 +49,7 @@ public class AccountService {
         return accountMapper.toDto(updatedAccount);
     }
 
+    @Transactional(readOnly = true)
     public Account getAccountModel(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> {

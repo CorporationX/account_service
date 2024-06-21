@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +35,7 @@ public class AccountController {
     }
 
     @PutMapping("{accountId}")
-    public AccountDto get(@PathVariable Long accountId, @RequestParam AccountStatus status) {
+    public AccountDto changeStatus(@PathVariable Long accountId, @RequestParam AccountStatus status) {
         return accountService.changeStatus(accountId, status);
     }
 }
