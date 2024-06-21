@@ -73,7 +73,6 @@ class AccountServiceImplTest {
 
         assertNotNull(result);
         verify(accountRepository).save(account);
-        verify(balanceService).createBalance(account);
         verify(accountMapper).toDto(account);
     }
 

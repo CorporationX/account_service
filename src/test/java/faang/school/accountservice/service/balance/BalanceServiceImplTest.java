@@ -51,7 +51,7 @@ class BalanceServiceImplTest {
     void testCreateBalance() {
         when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
 
-        balanceService.createBalance(account);
+        balanceService.createBalance(1l);
 
         verify(balanceRepository).save(any(Balance.class));
         verifyNoMoreInteractions(balanceRepository);

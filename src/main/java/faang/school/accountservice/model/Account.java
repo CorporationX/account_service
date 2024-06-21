@@ -26,8 +26,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.Instant;
-
+import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -37,9 +36,9 @@ import java.time.Instant;
 @Table(name = "account")
 public class Account {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "number", nullable = false, length = 20, unique = true)
     @Size(min = 12, max = 20, message = "The number account length must be from 12 to 20 characters.")
@@ -63,22 +62,22 @@ public class Account {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private Instant createdAt;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "closed_at")
-    private Instant closedAt;
+    private LocalDateTime closedAt;
 
     @Version
     @Column(nullable = false)
-    private long version;
+    private Long version;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Balance balance;
 }

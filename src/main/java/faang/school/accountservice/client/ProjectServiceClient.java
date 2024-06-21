@@ -18,7 +18,7 @@ public interface ProjectServiceClient {
     @PostMapping("${api.version}/projects/by-ids")
     List<ProjectDto> getProjectsByIds(@RequestBody List<Long> ids);
 
-    @GetMapping("${api.version}/projects/{projectId}/check/owner/{userId}")
+    @GetMapping("${api.version}/projects/{projectId}/owner/{userId}")
     boolean checkProjectOwner(@PathVariable("projectId") long projectId,
                               @PathVariable("userId") long userId);
 }

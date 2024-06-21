@@ -14,9 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AccountDtoToUpdate {
 
-    @NotNull(message = "The account type cannot be empty")
     private AccountType accountType;
 
-    @NotNull(message = "The currency cannot be empty")
     private Currency currency;
 }

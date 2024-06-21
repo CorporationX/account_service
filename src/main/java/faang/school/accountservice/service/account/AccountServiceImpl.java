@@ -9,7 +9,6 @@ import faang.school.accountservice.model.Owner;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
-import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +18,13 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
-    private final BalanceService balanceService;
     private final AccountMapper accountMapper;
     private final AccountRepository accountRepository;
     private final AccountValidator accountValidator;
@@ -40,12 +38,11 @@ public class AccountServiceImpl implements AccountService {
         accountValidator.validateCreate(account);
 
         account.setAccountStatus(AccountStatus.ACTIVE);
-        account.setVersion(1);
+        account.setVersion(1L);
         setAccountOwner(account);
 
-        balanceService.createBalance(account);
         accountRepository.save(account);
-        log.info("Created new account: {}", account.getId());
+        log.info("Created new account");
         return accountMapper.toDto(account);
     }
 
@@ -104,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
 
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setVersion(account.getVersion() + 1);
-        account.setClosedAt(Instant.now());
+        account.setClosedAt(LocalDateTime.now());
 
         accountRepository.save(account);
         log.info("Closed account: {}", accountId);

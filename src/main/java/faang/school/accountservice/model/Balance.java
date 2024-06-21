@@ -19,7 +19,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @Entity
@@ -28,9 +28,11 @@ import java.time.Instant;
 @AllArgsConstructor
 @Table(name = "balance")
 public class Balance {
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
+
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
@@ -44,12 +46,12 @@ public class Balance {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_at")
-    private Instant createAt;
+    private LocalDateTime createAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_at")
-    private Instant updateAt;
+    private LocalDateTime updateAt;
 
     @Version
     @Column(name = "version")

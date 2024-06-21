@@ -6,9 +6,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface BalanceService {
-    void createBalance(Account account);
+    BalanceDto createBalance(long accountId);
 
     BalanceDto updateBalance(BalanceDto balanceDto);
 
     BalanceDto getBalance(long balanceId);
+
+    void deleteBalance(long balanceId);
 }
