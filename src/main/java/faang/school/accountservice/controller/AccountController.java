@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -58,5 +60,23 @@ public class AccountController {
                                    @Pattern(regexp = "\\d+", message = ONLY_NUMBERS_MSG)
                                    @PathVariable String number) {
         return accountService.closeAccount(number);
+    }
+
+    @PutMapping("/deposit/{number}/summa/{summa}")
+    public AccountDto deposit(@Size(min = 12, message = NUMBER_MORE_MSG)
+                              @Size(max = 20, message = NUMBER_LESS_MSG)
+                              @Pattern(regexp = "\\d+", message = ONLY_NUMBERS_MSG)
+                              @PathVariable String number,
+                              @PathVariable BigDecimal summa) {
+        return accountService.deposit(number, summa);
+    }
+
+    @PutMapping("/writeoff/{number}/summa/{summa}")
+    public AccountDto writeoff(@Size(min = 12, message = NUMBER_MORE_MSG)
+                              @Size(max = 20, message = NUMBER_LESS_MSG)
+                              @Pattern(regexp = "\\d+", message = ONLY_NUMBERS_MSG)
+                              @PathVariable String number,
+                              @PathVariable BigDecimal summa) {
+        return accountService.writeOff(number, summa);
     }
 }

@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.jpa.AccountJpaRepository;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
@@ -33,8 +32,8 @@ public class AccountService {
 
     @Transactional
     public AccountDto openAccount(AccountDto accountDto) {
-        //Проверить что пользователь существует
-        //Если это счет для физ лиц, то проверить user_id, если для юридических лиц то project_id
+        accountValidator.accountOwnerValidate(accountDto);
+
         Account account = accountMapper.toEntity(accountDto);
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
@@ -56,16 +55,21 @@ public class AccountService {
 
     @Transactional
     public AccountDto deposit(String number, BigDecimal summa) {
+        log.info("Deposit account: {}, summa: {}", number, summa);
         Account account = accountRepository.findByNumber(number);
+        accountValidator.accountStatusValidate(summa, account.getStatus());
+
         account.setBalance(account.getBalance().add(summa));
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
 
     @Transactional
     public AccountDto writeOff(String number, BigDecimal summa) {
+        log.info("WriteOff account: {}, summa: {}", number, summa);
         Account account = accountRepository.findByNumber(number);
-        accountValidator.validateBalance(number, summa, account.getBalance());
-        account.setBalance(account.getBalance().add(summa));
+        accountValidator.accountStatusValidate(summa, account.getStatus());
+        accountValidator.accountBalanceValidate(number, summa, account.getBalance());
+        account.setBalance(account.getBalance().subtract(summa));
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
 }
