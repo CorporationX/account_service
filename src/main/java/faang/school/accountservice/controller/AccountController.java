@@ -4,7 +4,6 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +29,13 @@ public class AccountController {
     }
 
     @GetMapping("{accountId}")
-    public AccountDto get(@PathVariable Long accountId) {
-        return accountService.getAccount(accountId);
+    public AccountDto getById(@PathVariable Long accountId) {
+        return accountService.getAccountById(accountId);
+    }
+
+    @GetMapping
+    public AccountDto getByNumber(@RequestParam String accountNumber) {
+        return accountService.getAccountByNumber(accountNumber);
     }
 
     @PutMapping("{accountId}")

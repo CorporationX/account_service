@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
-import static faang.school.accountservice.exception.message.AccountExceptionMessage.NON_EXISTING_ACCOUNT_EXCEPTION;
+import static faang.school.accountservice.exception.message.AccountExceptionMessage.NON_EXISTING_ACCOUNT_BY_ID_EXCEPTION;
+import static faang.school.accountservice.exception.message.AccountExceptionMessage.NON_EXISTING_ACCOUNT_BY_NUMBER_EXCEPTION;
 
 @Service
 @RequiredArgsConstructor
@@ -29,15 +30,21 @@ public class AccountService {
         return accountMapper.toDto(createdAccount);
     }
 
-    public AccountDto getAccount(Long accountId) {
-        Account account = getAccountModel(accountId);
+    public AccountDto getAccountById(Long accountId) {
+        Account account = getAccountModelById(accountId);
+
+        return accountMapper.toDto(account);
+    }
+
+    public AccountDto getAccountByNumber(String accountNumber) {
+        Account account = getAccountModelByNumber(accountNumber);
 
         return accountMapper.toDto(account);
     }
 
     @Transactional
     public AccountDto changeStatus(Long accountId, AccountStatus status) {
-        Account account = getAccountModel(accountId);
+        Account account = getAccountModelById(accountId);
         accountVerifier.verifyStatusBeforeUpdate(account);
 
         if (status.equals(AccountStatus.CLOSED)) {
@@ -50,10 +57,19 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public Account getAccountModel(Long accountId) {
+    public Account getAccountModelById(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> {
-                    String message = String.format(NON_EXISTING_ACCOUNT_EXCEPTION.getMessage(), accountId);
+                    String message = String.format(NON_EXISTING_ACCOUNT_BY_ID_EXCEPTION.getMessage(), accountId);
+                    return new NoSuchElementException(message);
+                });
+    }
+
+    @Transactional(readOnly = true)
+    public Account getAccountModelByNumber(String accountNumber) {
+        return accountRepository.findByNumber(accountNumber)
+                .orElseThrow(() -> {
+                    String message = String.format(NON_EXISTING_ACCOUNT_BY_NUMBER_EXCEPTION.getMessage(), accountNumber);
                     return new NoSuchElementException(message);
                 });
     }
