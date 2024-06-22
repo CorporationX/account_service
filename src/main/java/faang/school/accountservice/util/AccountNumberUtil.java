@@ -5,7 +5,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AccountNumberUtil {
 
-    public static String getAccountNumber(int code, int length, int count) {
+    public String getAccountNumber(int code, int length, int count) {
 
         String codeStr = String.valueOf(code);
         String lengthStr = String.valueOf(length);
