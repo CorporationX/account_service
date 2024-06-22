@@ -47,7 +47,7 @@ public class AccountServiceImpl implements AccountService {
         setAccountOwner(account);
 
         accountNumberService.getUniqueAccountNumber(
-                freeNumber -> account.setNumber(freeNumber.getNumber()),
+                freeNumber -> account.setNumber(freeNumber.getId().getNumber()),
                 account.getAccountType()
         );
 

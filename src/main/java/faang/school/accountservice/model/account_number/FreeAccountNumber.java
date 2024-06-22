@@ -1,24 +1,15 @@
 package faang.school.accountservice.model.account_number;
 
-import faang.school.accountservice.model.enums.AccountType;
-import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -35,22 +26,8 @@ import java.util.Objects;
 })
 public class FreeAccountNumber {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(name = "number", nullable = false, length = 20, unique = true)
-    @Size(min = 12, max = 20, message = "The number account length must be from 12 to 20 characters.")
-    private String number;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false, length = 32)
-    private AccountType accountType;
-
-    @Version
-    @Column(name = "version", nullable = false)
-    @ColumnDefault(value = "1")
-    private long version;
+    @EmbeddedId
+    private FreeAccountNumberId id;
 
     @Override
     public final boolean equals(Object o) {

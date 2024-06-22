@@ -2,6 +2,7 @@ package faang.school.accountservice.service.account_number;
 
 import faang.school.accountservice.model.account_number.AccountNumberSequence;
 import faang.school.accountservice.model.account_number.FreeAccountNumber;
+import faang.school.accountservice.model.account_number.FreeAccountNumberId;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
@@ -47,13 +48,15 @@ public class AccountNumberServiceImpl implements AccountNumberService {
                 .orElse(accountNumbersSequenceRepository.createSequence(accountType));
 
         int count = accountNumberSequence.getCount();
-        accountNumbersSequenceRepository.incrementIfNumberEquals(count, accountType);
+
+        boolean canIncrement = accountNumbersSequenceRepository.incrementIfNumberEquals(count, accountType);
+        if (!canIncrement) {
+            throw new OptimisticLockingFailureException("Account number=" + count + " already in use");
+        }
 
         String value = AccountNumberUtil.getAccountNumber(code, length, count);
 
-        return FreeAccountNumber.builder()
-                .number(value)
-                .accountType(accountType)
-                .build();
+        FreeAccountNumberId numberId = new FreeAccountNumberId(accountType, value);
+        return new FreeAccountNumber(numberId);
     }
 }

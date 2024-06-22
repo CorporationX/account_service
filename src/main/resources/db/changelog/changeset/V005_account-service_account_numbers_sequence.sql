@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS account_numbers_sequence
 (
     id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE NOT NULL,
-    count          INT DEFAULT 0                                          NOT NULL,
+    count          INTEGER DEFAULT 0                                      NOT NULL,
     account_type   VARCHAR(32)                                            NOT NULL,
     version        BIGINT DEFAULT 1                                       NOT NULL
 );
