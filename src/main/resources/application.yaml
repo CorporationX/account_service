@@ -23,3 +23,8 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    bucket:
+      size: 1
