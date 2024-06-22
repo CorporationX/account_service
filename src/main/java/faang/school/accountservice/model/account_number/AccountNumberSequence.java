@@ -58,7 +58,7 @@ public class AccountNumberSequence {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        FreeAccountNumber that = (FreeAccountNumber) o;
+        AccountNumberSequence that = (AccountNumberSequence) o;
         return Objects.equals(getId(), that.getId());
     }
 

@@ -15,8 +15,8 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     @Query(nativeQuery = true, value = """
             DELETE FROM free_account_number
-            WHERE id = (
-                SELECT id
+            WHERE number = (
+                SELECT number
                 FROM free_account_number
                 WHERE account_type = ?
                 LIMIT 1
