@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.AccountDtoToUpdate;
 import faang.school.accountservice.exception.NotFoundException;
@@ -42,6 +43,7 @@ class AccountServiceImplTest {
     @InjectMocks
     private AccountServiceImpl accountService;
 
+    private AccountCreateDto accountCreateDto;
     private AccountDto accountDto;
     private AccountDtoToUpdate accountDtoToUpdate;
     private Account account;
@@ -49,23 +51,24 @@ class AccountServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        accountDto = new AccountDto();
+        accountCreateDto = new AccountCreateDto();
         accountDtoToUpdate = new AccountDtoToUpdate();
         account = new Account();
         owner = new Owner();
         account.setOwner(owner);
         account.setVersion(1L);
+        accountDto = new AccountDto();
     }
 
     @Test
     void testOpen() {
-        when(accountMapper.toEntity(accountDto)).thenReturn(account);
+        when(accountMapper.toEntity(accountCreateDto)).thenReturn(account);
         doNothing().when(accountValidator).validateCreate(account);
         when(ownerRepository.findByAccountIdAndOwnerType(anyLong(), any())).thenReturn(Optional.empty());
         when(ownerRepository.save(any(Owner.class))).thenReturn(owner);
         when(accountMapper.toDto(any(Account.class))).thenReturn(accountDto);
 
-        AccountDto result = accountService.open(accountDto);
+        AccountDto result = accountService.open(accountCreateDto);
 
         assertNotNull(result);
         verify(accountRepository).save(account);

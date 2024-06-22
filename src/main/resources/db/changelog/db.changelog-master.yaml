@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V002__account-service_balance_create.sql
   - include:
       file: db/changelog/changeset/V003__fill-tables_owner_account_balance.sql
+  - include:
+      file: db/changelog/changeset/V004_account-service_free_account_numbers.sql
+  - include:
+      file: db/changelog/changeset/V005_account-service_account_numbers_sequence.sql

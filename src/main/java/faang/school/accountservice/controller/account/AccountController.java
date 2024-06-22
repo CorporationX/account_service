@@ -1,5 +1,6 @@
 package faang.school.accountservice.controller.account;
 
+import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.AccountDtoToUpdate;
 import faang.school.accountservice.service.account.AccountService;
@@ -21,8 +22,8 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/open")
-    public AccountDto open(@RequestBody @Valid AccountDto accountDto) {
-        return accountService.open(accountDto);
+    public AccountDto open(@RequestBody @Valid AccountCreateDto accountCreateDto) {
+        return accountService.open(accountCreateDto);
     }
 
     @PutMapping("/{accountId}")
