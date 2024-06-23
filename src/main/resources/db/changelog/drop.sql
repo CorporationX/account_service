@@ -1,4 +1,8 @@
 DROP INDEX account_user_project;
 DROP TABLE account;
 
-DELETE FROM databasechangelog;
+DROP TABLE free_account_numbers;
+DROP TABLE account_numbers_sequence;
+
+DELETE
+FROM databasechangelog;
