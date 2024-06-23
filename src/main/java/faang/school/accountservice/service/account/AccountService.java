@@ -15,19 +15,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.retry.annotation.Retryable;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @Service
 @AllArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final FreeAccountNumberService freeAccountNumberService;
 
+    @Transactional
     public AccountDto open(AccountDto accountDto) {
+        BigInteger accountNumber = freeAccountNumberService.getFreeNumber(accountDto.getAccountType());
         Account account = accountMapper.toEntity(accountDto);
         Balance balance = new Balance();
         balance.setCurrentBalance(BigDecimal.ZERO);
         account.setBalance(balance);
         account.setAccountStatus(AccountStatus.ACTIVE);
+        account.setNumber(accountNumber);
         Account savedAccount = accountRepository.save(account);
         savedAccount.getBalance().setAccount(account);
         return accountMapper.toDto(accountRepository.save(savedAccount));

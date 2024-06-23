@@ -1,0 +1,1 @@
+alter table accounts alter column number type numeric using number::NUMERIC;

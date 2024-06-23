@@ -1,6 +1,7 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
@@ -27,6 +28,8 @@ class AccountServiceTest {
     private AccountRepository accountRepository;
     @Mock
     private AccountMapper accountMapper;
+    @Mock
+    private FreeAccountNumberService freeAccountNumberService;
     @InjectMocks
     private AccountService accountService;
 
@@ -37,9 +40,11 @@ class AccountServiceTest {
     void setUp() {
         accountDto = AccountDto.builder()
                 .id(ACCOUNT_ID)
+                .accountType(AccountType.CHECKING)
                 .build();
         account = Account.builder()
                 .id(ACCOUNT_ID)
+                .accountType(AccountType.CHECKING)
                 .build();
     }
 
@@ -49,6 +54,7 @@ class AccountServiceTest {
         when(accountRepository.save(account)).thenReturn(account);
         when(accountMapper.toDto(account)).thenReturn(accountDto);
         AccountDto actual = accountService.open(accountDto);
+        verify(freeAccountNumberService).getFreeNumber(AccountType.CHECKING);
         assertThat(actual).isEqualTo(accountDto);
     }
 
