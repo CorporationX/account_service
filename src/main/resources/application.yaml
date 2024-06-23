@@ -23,3 +23,12 @@ server:
 logging:
   level:
     root: info
+
+free_accounts:
+  numbers:
+    min_quantity: 5
+    generation_of_new:
+      when_min_threshold: 5
+
+thread_pools:
+  size: 4

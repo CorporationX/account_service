@@ -8,4 +8,12 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V004_alter_accounts_and_balance_tables_rename_columns.sql
   - include:
-      file: db/changelog/changeset/V004_update_balance_table_v1.sql
+      file: db/changelog/changeset/V005_update_balance_table_v1.sql
+  - include:
+      file: db/changelog/changeset/V006_alter_accounts_table_change_data_type.sql
+  - include:
+      file: db/changelog/changeset/V007_create_free_account_numbers_table.sql
+  - include:
+      file: db/changelog/changeset/V008_create_and_insert_into_account_numbers_sequence_table.sql
+  - include:
+      file: db/changelog/changeset/V009_alter_accounts_table_drop_column_balance_id.sql

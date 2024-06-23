@@ -5,7 +5,6 @@ import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
@@ -26,9 +26,8 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    @Pattern(regexp = "\\d{12,20}", message = "Account number must contains from 12 to 20 numbers")
-    private String number;
+    @Column(length = 20, nullable = false)
+    private BigInteger number;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
