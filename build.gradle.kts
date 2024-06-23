@@ -14,6 +14,11 @@ repositories {
 
 dependencies {
     /**
+     * Swagger
+     */
+    implementation ("io.springfox:springfox-swagger2:2.9.2")
+
+    /**
      * Spring boot starters
      */
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
