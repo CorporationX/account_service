@@ -5,16 +5,15 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AccountNumberUtil {
 
-    public String getAccountNumber(int code, int length, int count) {
+    public String getAccountNumber(int code, int length, long count) {
 
         String codeStr = String.valueOf(code);
-        String lengthStr = String.valueOf(length);
         String countStr = String.valueOf(count);
 
         StringBuilder builder = new StringBuilder();
         builder.append(codeStr);
 
-        int dif = lengthStr.length() - codeStr.length() - countStr.length();
+        int dif = length - codeStr.length() - countStr.length();
 
         if (dif < 0) {
             throw new IllegalArgumentException("count is greater than length");

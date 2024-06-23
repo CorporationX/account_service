@@ -40,7 +40,7 @@ public class AccountNumberSequence {
 
     @Column(name = "count", nullable = false)
     @ColumnDefault(value = "0")
-    private int count;
+    private long count;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false, length = 32)

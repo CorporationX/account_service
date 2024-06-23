@@ -31,7 +31,7 @@ public class AccountNumberServiceImpl implements AccountNumberService {
     public void getUniqueAccountNumber(Consumer<FreeAccountNumber> action, AccountType accountType) {
 
         FreeAccountNumber accountNumber = freeAccountNumbersRepository.getAndDeleteFirst(accountType)
-                .orElse(generateAccountNumber(accountType));
+                .orElseGet(() -> generateAccountNumber(accountType));
 
         action.accept(accountNumber);
     }
@@ -45,11 +45,11 @@ public class AccountNumberServiceImpl implements AccountNumberService {
         int length = accountType.getLength();
 
         AccountNumberSequence accountNumberSequence = accountNumbersSequenceRepository.findByAccountType(accountType)
-                .orElse(accountNumbersSequenceRepository.createSequence(accountType));
+                .orElseGet(() -> accountNumbersSequenceRepository.createAndGetSequence(accountType));
 
-        int count = accountNumberSequence.getCount();
+        long count = accountNumberSequence.getCount();
 
-        boolean canIncrement = accountNumbersSequenceRepository.incrementIfNumberEquals(count, accountType);
+        boolean canIncrement = accountNumbersSequenceRepository.incrementIfEquals(count, accountType);
         if (!canIncrement) {
             throw new OptimisticLockingFailureException("Account number=" + count + " already in use");
         }
