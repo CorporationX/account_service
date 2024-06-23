@@ -5,6 +5,7 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import static faang.school.accountservice.exception.message.AccountExceptionMess
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountServiceValidator accountServiceValidator;
+    private final FreeAccountNumbersService freeAccountNumbersService;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
@@ -26,7 +28,10 @@ public class AccountService {
     public AccountDto open(AccountDto accountDto) {
         accountServiceValidator.validateOwnerExistence(accountDto.getOwnerUserId(), accountDto.getOwnerProjectId());
 
-        Account createdAccount = accountRepository.save(accountMapper.toEntity(accountDto));
+        Account accountToBeOpened = accountMapper.toEntity(accountDto);
+        freeAccountNumbersService.consumeFreeNumber(accountDto.getType(), accountToBeOpened::setNumber);
+
+        Account createdAccount = accountRepository.save(accountToBeOpened);
         return accountMapper.toDto(createdAccount);
     }
 
