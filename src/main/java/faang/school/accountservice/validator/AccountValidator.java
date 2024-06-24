@@ -29,10 +29,10 @@ public class AccountValidator {
     }
 
     public void accountOwnerValidate(AccountDto accountDto) {
-        if (accountDto.getType().equals(AccountType.CURRENT_INDIVIDUALS)) {
-            userServiceClient.getUser(accountDto.getOwnerId());
-        } else if (accountDto.getType().equals(AccountType.CURRENT_LEGAL)) {
+        if (accountDto.getType().equals(AccountType.CURRENT_LEGAL)) {
             projectServiceClient.getProject(accountDto.getOwnerId());
+        } else {
+            userServiceClient.getUser(accountDto.getOwnerId());
         }
     }
 
