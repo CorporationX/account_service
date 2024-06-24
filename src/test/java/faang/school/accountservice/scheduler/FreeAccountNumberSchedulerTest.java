@@ -1,9 +1,7 @@
-package faang.school.accountservice.service.account;
+package faang.school.accountservice.scheduler;
 
 import faang.school.accountservice.enums.account.AccountType;
-import faang.school.accountservice.model.FreeAccountNumber;
-import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
-import faang.school.accountservice.repository.FreeAccountNumberRepository;
+import faang.school.accountservice.service.account.FreeAccountNumberService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +15,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigInteger;
 import static org.assertj.core.api.Assertions.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -26,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.yaml")
 @Transactional
-class FreeAccountNumberServiceTest {
+class FreeAccountNumberSchedulerTest {
     private static final AccountType ACCOUNT_TYPE = AccountType.CHECKING;
 
     @Container
@@ -37,13 +34,10 @@ class FreeAccountNumberServiceTest {
                     .withPassword("testPassword");
 
     @Autowired
+    private FreeAccountNumberScheduler freeAccountNumberScheduler;
+
+    @Autowired
     private FreeAccountNumberService freeAccountNumberService;
-
-    @Autowired
-    private FreeAccountNumberRepository freeAccountNumberRepository;
-
-    @Autowired
-    private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
     @BeforeAll
     public static void setup() {
@@ -56,29 +50,18 @@ class FreeAccountNumberServiceTest {
     }
 
     @Test
-    public void testGetFreeNumber() {
-        BigInteger freeNumber = freeAccountNumberService.getFreeNumber(ACCOUNT_TYPE);
-        assertThat(freeNumber).isNotNull();
+    public void generateNewAccounts_ShouldGenerateAccounts() {
+        int initialCount = freeAccountNumberService.countFreeAccountNumbersByType(ACCOUNT_TYPE).intValue();
+        freeAccountNumberScheduler.generateNewAccounts();
+        int newCount = freeAccountNumberService.countFreeAccountNumbersByType(ACCOUNT_TYPE).intValue();
+        assertThat(newCount).isEqualTo(initialCount + freeAccountNumberScheduler.getQuantityOneTimeInDayRefilling());
     }
 
     @Test
-    public void testGenerateFreeAccount() {
-        FreeAccountNumber freeAccountNumber = freeAccountNumberService.generateFreeAccount(ACCOUNT_TYPE);
-        assertThat(freeAccountNumber).isNotNull();
-        assertThat(freeAccountNumber.getAccountNumber()).isNotNull();
-    }
-
-    @Test
-    public void testCountFreeAccountNumbersByType() {
-        int expectedCount = 7;
-        generateFreeAccountNumbers(2, ACCOUNT_TYPE);
-        BigInteger count = freeAccountNumberService.countFreeAccountNumbersByType(ACCOUNT_TYPE);
-        assertThat(BigInteger.valueOf(expectedCount)).isEqualTo(count);
-    }
-
-    private void generateFreeAccountNumbers(int quantity, AccountType accountType) {
-        for (int i = 0; i < quantity; i++) {
-            freeAccountNumberService.generateFreeAccount(accountType);
-        }
+    public void generateMissingAccounts_ShouldGenerateMissingAccounts() {
+        int initialCount = freeAccountNumberService.countFreeAccountNumbersByType(ACCOUNT_TYPE).intValue();
+        freeAccountNumberScheduler.generateMissingAccounts();
+        int newCount = freeAccountNumberService.countFreeAccountNumbersByType(ACCOUNT_TYPE).intValue();
+        assertThat(newCount).isGreaterThanOrEqualTo(initialCount);
     }
 }

@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+free_accounts:
+  numbers:
+    min_quantity: 5
+    generation_of_new:
+      when_min_threshold: 5
+
+thread_pools:
+  size: 4
