@@ -46,7 +46,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Balance balance;
 
     @Column(name = "created_at")

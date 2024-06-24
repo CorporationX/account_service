@@ -1,12 +1,12 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.Balance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface BalanceRepository extends JpaRepository<Balance, Long> {
 
-    Optional<Account> findById(Long accountId);
+    Optional<Balance> findByAccountId(Long accountId);
 }
