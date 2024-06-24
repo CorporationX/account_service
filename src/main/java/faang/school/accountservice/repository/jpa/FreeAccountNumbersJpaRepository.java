@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface FreeAccountNumbersJpaRepository extends JpaRepository<FreeAccountNumber, Long> {
 
@@ -13,7 +15,7 @@ public interface FreeAccountNumbersJpaRepository extends JpaRepository<FreeAccou
                     WHERE type = :type
                     LIMIT 1
             """)
-    FreeAccountNumber getReferenceByType(String type);
+    Optional<FreeAccountNumber> getReferenceByType(String type);
 
     void deleteById(Long id);
 }

@@ -20,28 +20,26 @@ public class FreeAccountNumbersService {
 
     @Transactional
     public void createNewAccountNumber(AccountType type) {
-        AccountNumbersSequence accountNumbersSequence = null;
-        try {
-            accountNumbersSequence = accountNumbersSequenceRepository.getByType(type);
-        } catch (NoSuchElementException e) {
-            accountNumbersSequenceRepository.createAccountNumbersSequence(type);
-            accountNumbersSequence = accountNumbersSequenceRepository.getByType(type);
-        } finally {
-            assert accountNumbersSequence != null;
-            accountNumbersSequenceRepository.incrementAccountNumbersSequence(type);
-            freeAccountNumbersRepository.createNewFreeNumber(accountNumbersSequence);
-        }
+        AccountNumbersSequence accountNumbersSequence = accountNumbersSequenceRepository.getByType(type);
+
+        accountNumbersSequenceRepository.incrementAccountNumbersSequence(accountNumbersSequence);
+        freeAccountNumbersRepository.createNewFreeNumber(accountNumbersSequence);
     }
 
     @Transactional
     public void consumeFreeNumber(AccountType type, Consumer<String> numberConsumer) {
-        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getFreeAccountNumber(type);
-
-        if (freeAccountNumber == null) {
-            createNewAccountNumber(type);
-            freeAccountNumber = freeAccountNumbersRepository.getFreeAccountNumber(type);
-        }
+        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getFreeAccountNumber(type)
+                .orElseGet(() -> createAndGetFreeNumber(type));
 
         numberConsumer.accept(freeAccountNumber.getNumber());
+    }
+
+    private FreeAccountNumber createAndGetFreeNumber(AccountType type) {
+        createNewAccountNumber(type);
+        return freeAccountNumbersRepository.getFreeAccountNumber(type)
+                .orElseThrow(() -> {
+                    String message = String.format("There is no free number for type %s", type.name());
+                    return new NoSuchElementException(message);
+                });
     }
 }

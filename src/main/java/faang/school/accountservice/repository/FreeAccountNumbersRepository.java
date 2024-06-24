@@ -7,6 +7,8 @@ import faang.school.accountservice.repository.jpa.FreeAccountNumbersJpaRepositor
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class FreeAccountNumbersRepository {
@@ -26,14 +28,10 @@ public class FreeAccountNumbersRepository {
         repository.save(freeAccountNumber);
     }
 
-    public FreeAccountNumber getFreeAccountNumber(AccountType type) {
-        FreeAccountNumber accountNumber = repository.getReferenceByType(type.name());
+    public Optional<FreeAccountNumber> getFreeAccountNumber(AccountType type) {
+        Optional<FreeAccountNumber> accountNumber = repository.getReferenceByType(type.name());
 
-        if (accountNumber == null) {
-            return null;
-        }
-
-        repository.deleteById(accountNumber.getId());
+        accountNumber.ifPresent(freeAccountNumber -> repository.deleteById(freeAccountNumber.getId()));
 
         return accountNumber;
     }

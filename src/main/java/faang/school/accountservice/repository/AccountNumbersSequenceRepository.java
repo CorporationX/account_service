@@ -6,28 +6,23 @@ import faang.school.accountservice.repository.jpa.AccountNumbersSequenceJpaRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.NoSuchElementException;
-
 @Repository
 @RequiredArgsConstructor
 public class AccountNumbersSequenceRepository {
     private final AccountNumbersSequenceJpaRepository repository;
 
-    public void createAccountNumbersSequence(AccountType type) {
+    public AccountNumbersSequence createAccountNumbersSequence(AccountType type) {
         var accountNumbersSequence = AccountNumbersSequence.builder()
                 .sequence(0L)
                 .type(type)
                 .code(String.valueOf(type.getCode()))
                 .build();
 
-        var savedNumber = repository.save(accountNumbersSequence);
-        System.out.println(savedNumber);
+        return repository.save(accountNumbersSequence);
     }
 
-    public boolean incrementAccountNumbersSequence(AccountType type) {
+    public boolean incrementAccountNumbersSequence(AccountNumbersSequence sequence) {
         try {
-            AccountNumbersSequence sequence = getByType(type);
-
             sequence.incrementSequence();
             repository.save(sequence);
         } catch (RuntimeException e) {
@@ -38,10 +33,6 @@ public class AccountNumbersSequenceRepository {
     }
 
     public AccountNumbersSequence getByType(AccountType type) {
-        return repository.findByType(type.name())
-                .orElseThrow(() -> {
-                    String message = String.format("There is no number sequence for type %s", type.name());
-                    return new NoSuchElementException(message);
-                });
+        return repository.findByType(type.name()).orElseGet(() -> createAccountNumbersSequence(type));
     }
 }
