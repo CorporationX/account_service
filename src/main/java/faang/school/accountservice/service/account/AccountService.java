@@ -18,13 +18,13 @@ import static faang.school.accountservice.exception.message.AccountExceptionMess
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-    private final AccountVerifier accountVerifier;
+    private final AccountServiceValidator accountServiceValidator;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
     @Transactional
     public AccountDto open(AccountDto accountDto) {
-        accountVerifier.verifyOwnerExistence(accountDto.getOwnerUserId(), accountDto.getOwnerProjectId());
+        accountServiceValidator.validateOwnerExistence(accountDto.getOwnerUserId(), accountDto.getOwnerProjectId());
 
         Account createdAccount = accountRepository.save(accountMapper.toEntity(accountDto));
         return accountMapper.toDto(createdAccount);
@@ -45,7 +45,7 @@ public class AccountService {
     @Transactional
     public AccountDto changeStatus(Long accountId, AccountStatus status) {
         Account account = getAccountModelById(accountId);
-        accountVerifier.verifyStatusBeforeUpdate(account);
+        accountServiceValidator.validateStatusBeforeUpdate(account);
 
         if (status.equals(AccountStatus.CLOSED)) {
             account.setClosedAt(LocalDateTime.now());

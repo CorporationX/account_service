@@ -15,34 +15,34 @@ import static faang.school.accountservice.exception.message.CommonExceptionMessa
 
 @Component
 @RequiredArgsConstructor
-class AccountVerifier {
+class AccountServiceValidator {
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
 
-    public void verifyOwnerExistence(Long userId, Long projectId) {
+    public void validateOwnerExistence(Long userId, Long projectId) {
         if (userId != null) {
-            verifyUserExistence(userId);
+            validateUserExistence(userId);
         }
 
         if (projectId != null) {
-            verifyProjectExistence(projectId);
+            validateProjectExistence(projectId);
         }
     }
 
-    public void verifyUserExistence(long userId) {
+    public void validateUserExistence(long userId) {
         if (!userServiceClient.existsById(userId)) {
             throw new DataValidationException(NON_EXISTING_USER_EXCEPTION.getMessage());
         }
     }
 
-    public void verifyProjectExistence(long projectId) {
+    public void validateProjectExistence(long projectId) {
         if (!projectServiceClient.existsById(projectId)) {
             throw new DataValidationException(NON_EXISTING_PROJECT_EXCEPTION.getMessage());
         }
     }
 
-    public void verifyStatusBeforeUpdate(Account account) {
-        if(account.getStatus().equals(AccountStatus.CLOSED)) {
+    public void validateStatusBeforeUpdate(Account account) {
+        if (account.getStatus().equals(AccountStatus.CLOSED)) {
             throw new DataValidationException(CLOSED_ACCOUNT_UPDATE_EXCEPTION.getMessage());
         }
     }
