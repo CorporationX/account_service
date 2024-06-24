@@ -42,6 +42,8 @@ class AccountServiceTest {
     private AccountMapper accountMapper;
     @Mock
     private AccountValidator accountValidator;
+    @Mock
+    private FreeAccountNumbersService freeAccountNumbersService;
 
     @InjectMocks
     private AccountService accountService;
