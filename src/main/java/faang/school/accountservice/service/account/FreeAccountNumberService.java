@@ -9,7 +9,7 @@ import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumberRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.PersistenceException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FreeAccountNumberService {
     private final FreeAccountNumberRepository freeAccountNumberRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
@@ -64,6 +64,9 @@ public class FreeAccountNumberService {
         return saved;
     }
 
+    public synchronized BigInteger countFreeAccountNumbersByType(AccountType accountType) {
+        return freeAccountNumberRepository.getFreeAccountNumbersCountByType(accountType.name());
+    }
 
     private void generateNewFreeAccountNumbers(int quantity, AccountType accountType) {
         CompletableFuture.runAsync(() -> {
@@ -83,7 +86,7 @@ public class FreeAccountNumberService {
     }
 
     private boolean isNotEnoughFreeAccounts(AccountType accountType) {
-        return freeAccountNumberRepository.getFreeAccountNumbersCountByType(accountType.getValue()).intValueExact() <= minAccountsNumbersQuantity;
+        return freeAccountNumberRepository.getFreeAccountNumbersCountByType(accountType.name()).intValueExact() <= minAccountsNumbersQuantity;
     }
 
     @PostConstruct
