@@ -1,4 +1,4 @@
-package faang.school.accountservice.config.context;
+package faang.school.accountservice.config.context.user;
 
 import org.springframework.stereotype.Component;
 
@@ -18,4 +18,5 @@ public class UserContext {
     public void clear() {
         userIdHolder.remove();
     }
+
 }

@@ -1,4 +1,4 @@
-package faang.school.accountservice.config.context;
+package faang.school.accountservice.config.context.balance;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

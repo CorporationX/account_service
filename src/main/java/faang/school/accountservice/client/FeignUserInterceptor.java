@@ -1,6 +1,6 @@
 package faang.school.accountservice.client;
 
-import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.config.context.user.UserContext;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;

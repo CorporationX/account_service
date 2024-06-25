@@ -1,9 +1,10 @@
-package faang.school.accountservice.config.context;
+package faang.school.accountservice.config.context.balance;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class BalanceContext {
+
     private final ThreadLocal<Long> balanceIdHolder = new ThreadLocal<>();
 
     public void setBalanceId(long id){

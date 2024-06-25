@@ -1,6 +1,6 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.config.context.BalanceContext;
+import faang.school.accountservice.config.context.balance.BalanceContext;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.service.BalanceService;
 import jakarta.validation.constraints.NotNull;
