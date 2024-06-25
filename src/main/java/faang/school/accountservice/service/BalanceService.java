@@ -1,10 +1,10 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.dto.BalanceDto;
 import java.math.BigDecimal;
 
 public interface BalanceService {
-    Balance createBalance(Long accountId);
-    Balance getBalance(Long accountId);
-    Balance updateBalance(Long accountId, BigDecimal newCurrentBalance, BigDecimal newAuthorizedBalance);
+    BalanceDto createBalance(Long accountId);
+    BalanceDto getBalance(Long accountId);
+    BalanceDto updateBalance(Long accountId, BigDecimal newCurrentBalance, BigDecimal newAuthorizedBalance);
 }
