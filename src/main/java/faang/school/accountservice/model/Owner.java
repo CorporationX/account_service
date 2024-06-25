@@ -1,6 +1,6 @@
 package faang.school.accountservice.model;
 
-import faang.school.accountservice.model.enums.OwnerType;
+import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

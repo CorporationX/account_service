@@ -1,7 +1,7 @@
 package faang.school.accountservice.dto.account;
 
-import faang.school.accountservice.model.enums.AccountType;
-import faang.school.accountservice.model.enums.Currency;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
