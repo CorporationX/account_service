@@ -24,6 +24,7 @@ public class AccountService {
     private final AccountJpaRepository accountJpaRepository;
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Transactional
     public AccountDto findByAccountNumber(String number) {
@@ -33,8 +34,11 @@ public class AccountService {
     @Transactional
     public AccountDto openAccount(AccountDto accountDto) {
         accountValidator.accountOwnerValidate(accountDto);
-
         Account account = accountMapper.toEntity(accountDto);
+
+        String accountNumber = freeAccountNumbersService.getFreeNumber(account.getType());
+        account.setNumber(accountNumber);
+
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
 

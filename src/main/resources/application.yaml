@@ -23,6 +23,10 @@ server:
 logging:
   level:
     root: info
+    org:
+      springframework:
+        jdbc:
+          core: INFO
 
 services:
   user-service:
@@ -31,3 +35,7 @@ services:
   project-service:
     host: http://localhost
     port: 8082
+
+account:
+  number:
+    length: 16
