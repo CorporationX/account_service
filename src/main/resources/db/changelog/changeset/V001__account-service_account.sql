@@ -14,6 +14,18 @@ CREATE TABLE account
     version        BIGINT       NOT NULL DEFAULT 0
 );
 
+CREATE TABLE balance_audit
+(
+    id                      BIGSERIAL PRIMARY KEY UNIQUE,
+    account_id              BIGSERIAL    NOT NULL,
+    balance_audit_version   BIGINT NOT NULL,
+    auth_balance            BIGINT,
+    actual_balance          BIGINT,
+    operation_id            BIGINT,
+    audit_timestamp         timestamptz default current_timestamp,
+    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id)
+);
+
 CREATE INDEX index_number_payment ON account (number);
 CREATE INDEX index_owner_id ON account (owner_id);
 
