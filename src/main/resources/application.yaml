@@ -23,3 +23,21 @@ server:
 logging:
   level:
     root: info
+
+free_accounts:
+  numbers:
+    min_quantity: 5
+    generation_of_new:
+      when_min_threshold: 5
+
+thread_pools:
+  size: 4
+
+schedulers:
+  free_account_numbers:
+    refilling:
+      one_time_per_day:
+        quantity: 5
+        cron: "0 0 * * * *" # every day at 00:00
+      one_time_in_three_hours:
+        cron: "0 */3 * * * *" # one time in 3 hours

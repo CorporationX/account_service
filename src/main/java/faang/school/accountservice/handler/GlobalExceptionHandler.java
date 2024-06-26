@@ -1,5 +1,6 @@
 package faang.school.accountservice.handler;
 
+import faang.school.accountservice.exception.TypeNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(new HashMap<>() {{
                     put("message", "Some of fields is empty");
+                    put("details", e.getMessage());
+                }});
+    }
+
+    @ExceptionHandler(TypeNotFoundException.class)
+    public ResponseEntity<?> handleTypeNotFoundException(TypeNotFoundException e) {
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest()
+                .body(new HashMap<>() {{
+                    put("message", "Number of type is wrong");
                     put("details", e.getMessage());
                 }});
     }
