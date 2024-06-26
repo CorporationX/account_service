@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,6 +15,6 @@ public class BalanceDto {
 
     private long id;
     private long accountId;
-    private long authorizedBalance;
-    private long actual_balance;
+    private BigDecimal authorizationBalance;
+    private BigDecimal actualBalance;
 }
