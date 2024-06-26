@@ -65,7 +65,7 @@ public class FreeAccountNumberServiceTest {
             expectedAccountNumbers.add(new FreeAccountNumber(accountTypeDebit, DEBIT_PATTERN + i));
         }
 
-        freeAccountNumbersService.generateAccountNumbers(accountTypeDebit);
+        freeAccountNumbersService.generateAccountNumbers(accountTypeDebit, batchSize);
 
         verify(accountNumbersSequenceRepository, timeout(1)).incrementCounter(accountTypeDebit.name(), batchSize);
         verify(freeAccountNumbersRepository, times(1)).saveAll(expectedAccountNumbers);
@@ -87,10 +87,27 @@ public class FreeAccountNumberServiceTest {
             expectedAccountNumbers.add(new FreeAccountNumber(accountTypeSavings, SAVINGS_PATTERN + i));
         }
 
-        freeAccountNumbersService.generateAccountNumbers(accountTypeSavings);
+        freeAccountNumbersService.generateAccountNumbers(accountTypeSavings, batchSize);
 
         verify(accountNumbersSequenceRepository, timeout(1)).incrementCounter(accountTypeSavings.name(), batchSize);
         verify(freeAccountNumbersRepository, times(1)).saveAll(expectedAccountNumbers);
+    }
+
+    @Test
+    public void testGenerateAccountNumbersUpToQuantity() {
+        AccountNumberSequence accountNumberSequence = AccountNumberSequence
+                .builder()
+                .accountType(accountTypeDebit)
+                .currentCounter(5L)
+                .previousCounter(0L)
+                .build();
+
+        when(freeAccountNumbersRepository.getCurrentQuantityOfNumbersByType(accountTypeDebit.name())).thenReturn(5);
+        when(accountNumbersSequenceRepository.incrementCounter(accountTypeDebit.name(), 5)).thenReturn(accountNumberSequence);
+        freeAccountNumbersService.generateAccountNumbersUpToQuantity(accountTypeDebit, 10);
+
+        verify(freeAccountNumbersRepository, times(1)).saveAll(anyCollection());
+
     }
 
     @Test
@@ -119,7 +136,7 @@ public class FreeAccountNumberServiceTest {
                 .build();
 
         when(freeAccountNumbersRepository.getAndDeleteAccountByType(accountTypeDebit.name())).thenReturn(null);
-        when(accountNumbersSequenceRepository.incrementCounter(accountTypeDebit.name(), batchSize)).thenReturn(accountNumberSequence);
+        when(accountNumbersSequenceRepository.incrementCounter(accountTypeDebit.name(), 1)).thenReturn(accountNumberSequence);
 
         freeAccountNumbersService.getAndHandleAccountNumber(accountTypeDebit, numberConsumer);
 

@@ -26,5 +26,6 @@ logging:
 
 account:
   number:
+    cron: "0 0 0 * * *"
     batch:
       size: 5

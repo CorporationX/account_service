@@ -19,4 +19,11 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
             RETURNING fan.account_number, fan.type
             """)
     FreeAccountNumber getAndDeleteAccountByType(String accountType);
+
+    @Query(nativeQuery = true, value = """
+            SELECT count(*)
+            FROM free_account_numbers fan
+            WHERE fan."type" = :accountType
+            """)
+    int getCurrentQuantityOfNumbersByType(String accountType);
 }
