@@ -22,12 +22,13 @@ public class AccountDto {
     @NotBlank(message = "account number can't be blank")
     private String number;
 
+    @NotNull(message = "owner Id required")
     private Long ownerId;
 
-    @NotNull(message = "account type can't be blank")
+    @NotNull(message = "account type can't be null")
     private AccountType accountType;
 
-    @NotNull(message = "account currency can't be blank")
+    @NotNull(message = "account currency can't be null")
     private Currency currency;
 
     private AccountStatus accountStatus;
