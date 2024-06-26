@@ -8,4 +8,6 @@ CREATE TABLE IF NOT EXISTS balance (
     version INT NOT NULL DEFAULT 1,
 
     CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
-)
+);
+
+CREATE INDEX version_idx ON balance (version);
