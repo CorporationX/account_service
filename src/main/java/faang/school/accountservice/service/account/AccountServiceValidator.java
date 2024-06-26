@@ -19,6 +19,13 @@ class AccountServiceValidator {
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
 
+
+    public void validateStatusBeforeUpdate(Account account) {
+        if (account.getStatus().equals(AccountStatus.CLOSED)) {
+            throw new DataValidationException(CLOSED_ACCOUNT_UPDATE_EXCEPTION.getMessage());
+        }
+    }
+
     public void validateOwnerExistence(Long userId, Long projectId) {
         if (userId != null) {
             validateUserExistence(userId);
@@ -29,21 +36,15 @@ class AccountServiceValidator {
         }
     }
 
-    public void validateUserExistence(long userId) {
+    private void validateUserExistence(long userId) {
         if (!userServiceClient.existsById(userId)) {
             throw new DataValidationException(NON_EXISTING_USER_EXCEPTION.getMessage());
         }
     }
 
-    public void validateProjectExistence(long projectId) {
+    private void validateProjectExistence(long projectId) {
         if (!projectServiceClient.existsById(projectId)) {
             throw new DataValidationException(NON_EXISTING_PROJECT_EXCEPTION.getMessage());
-        }
-    }
-
-    public void validateStatusBeforeUpdate(Account account) {
-        if (account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new DataValidationException(CLOSED_ACCOUNT_UPDATE_EXCEPTION.getMessage());
         }
     }
 }

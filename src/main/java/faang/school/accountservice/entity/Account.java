@@ -71,5 +71,5 @@ public class Account {
 
     @Version()
     @Column(name = "version")
-    private long version;
+    private Long version;
 }
