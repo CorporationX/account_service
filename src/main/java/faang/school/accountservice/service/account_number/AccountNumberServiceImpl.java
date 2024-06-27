@@ -56,7 +56,6 @@ public class AccountNumberServiceImpl implements AccountNumberService {
 
         String value = AccountNumberUtil.getAccountNumber(code, length, count);
 
-        FreeAccountNumberId numberId = new FreeAccountNumberId(accountType, value);
-        return new FreeAccountNumber(numberId);
+        return new FreeAccountNumber(new FreeAccountNumberId(accountType, value));
     }
 }
