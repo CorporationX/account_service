@@ -1,12 +1,14 @@
 package faang.school.accountservice.service.balance;
 
-import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.balance.BalanceUpdateDto;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.service.balance_audit.BalanceAuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,12 +35,16 @@ class BalanceServiceImplTest {
     @Mock
     private BalanceMapper balanceMapper;
 
+    @Mock
+    private BalanceAuditService balanceAuditService;
+
     @InjectMocks
     private BalanceServiceImpl balanceService;
 
     private Account account;
     private Balance balance;
     private BalanceDto balanceDto;
+    private BalanceUpdateDto balanceUpdateDto;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +56,14 @@ class BalanceServiceImplTest {
         balance.setAuthorizationBalance(BigDecimal.ZERO);
 
         balanceDto = new BalanceDto();
+
+        balanceUpdateDto = BalanceUpdateDto.builder()
+                .id(1L)
+                .accountId(2L)
+                .actualBalance(3L)
+                .authorizedBalance(4L)
+                .paymentNumber(5L)
+                .build();
     }
 
     @Test
@@ -66,14 +80,15 @@ class BalanceServiceImplTest {
     @Test
     void testUpdateBalance() {
         when(balanceRepository.findById(anyLong())).thenReturn(Optional.of(balance));
-        when(balanceMapper.toEntity(any(BalanceDto.class))).thenReturn(balance);
+        when(balanceMapper.toEntity(any(BalanceUpdateDto.class))).thenReturn(balance);
         when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
         when(balanceMapper.toDto(any(Balance.class))).thenReturn(balanceDto);
 
-        BalanceDto result = balanceService.updateBalance(balanceDto);
+        BalanceDto result = balanceService.updateBalance(balanceUpdateDto);
 
         assertNotNull(result);
-        verify(balanceMapper).toEntity(balanceDto);
+        verify(balanceMapper).toEntity(balanceUpdateDto);
+        verify(balanceAuditService).createNewAudit(balanceUpdateDto);
         verify(balanceRepository).save(balance);
         verify(balanceMapper).toDto(balance);
     }

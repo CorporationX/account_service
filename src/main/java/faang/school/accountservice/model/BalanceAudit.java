@@ -6,11 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.persistence.Version;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
@@ -33,7 +32,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "balance_audit", indexes = {
-        @Index(name = "idx_balance_audit_number", columnList = "number", unique = true)
+        @Index(name = "idx_balance_audit_account_id", columnList = "account_id")
 })
 public class BalanceAudit {
 
@@ -41,9 +40,9 @@ public class BalanceAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "number", nullable = false, length = 20)
-    @Size(min = 12, max = 20, message = "The number account length must be from 12 to 20 characters.")
-    private String number;
+    @OneToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
     @Column(name = "authorization_balance", nullable = false)
     private BigDecimal authorizationBalance;
@@ -51,16 +50,12 @@ public class BalanceAudit {
     @Column(name = "actual_balance", nullable = false)
     private BigDecimal actualBalance;
 
-    @Column(name = "payment_id", nullable = false)
-    private long paymentId;
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Version
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private long version;
 
     @Override

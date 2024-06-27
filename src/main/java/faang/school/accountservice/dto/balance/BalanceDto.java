@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.balance;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class BalanceDto {
-
-    private long id;
-    private long accountId;
-    private long authorizedBalance;
-    private long actual_balance;
+    private Long id;
+    private Long accountId;
+    private Long authorizedBalance;
+    private Long actual_balance;
 }

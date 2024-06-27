@@ -1,10 +1,4 @@
 ALTER TABLE balance
-    RENAME COLUMN authorization_Balance TO authorization_balance;
-
-ALTER TABLE balance
-    RENAME COLUMN actual_Balance TO actual_balance;
-
-ALTER TABLE balance
     RENAME COLUMN create_at TO created_at;
 
 ALTER TABLE balance
@@ -12,12 +6,14 @@ ALTER TABLE balance
 
 CREATE TABLE IF NOT EXISTS balance_audit
 (
-    id                      BIGINT      PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    number                  VARCHAR(20) NOT NULL UNIQUE CHECK (LENGTH(number) BETWEEN 12 AND 20),
-    payment_id              BIGINT      NOT NULL,
-    authorization_balance   MONEY,
-    actual_balance          MONEY,
+    id                      BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
+    account_id              BIGINT      NOT NULL,
+    authorization_balance   NUMERIC     NOT NULL,
+    actual_balance          NUMERIC     NOT NULL,
     version                 BIGINT      NOT NULL,
     created_at              timestamptz DEFAULT CURRENT_TIMESTAMP,
-    updated_at              timestamptz DEFAULT CURRENT_TIMESTAMP
-)
+
+    CONSTRAINT fk_account_balance FOREIGN KEY (account_id) REFERENCES account (id)
+);
+
+CREATE INDEX idx_balance_audit_account_id ON balance_audit (account_id);
