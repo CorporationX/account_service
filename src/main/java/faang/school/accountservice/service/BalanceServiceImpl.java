@@ -77,6 +77,5 @@ public class BalanceServiceImpl implements BalanceService{
     private void createBalanceAudit(Balance balance, Long operationId){
         BalanceAudit balanceAudit = balanceAuditMapper.fromBalance(balance, operationId);
         balanceAuditRepository.save(balanceAudit);
-
     }
 }

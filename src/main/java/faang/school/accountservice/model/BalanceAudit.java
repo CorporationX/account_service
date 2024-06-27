@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,8 +28,8 @@ public class BalanceAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", nullable = false)
-    private String accountNumber;
+    @Column(name = "account_number", nullable = false, insertable = false, updatable = false)
+    private Long accountNumber;
 
     @Column(name = "authorized_amount", nullable = false)
     private BigDecimal authorizedAmount;
@@ -43,6 +44,7 @@ public class BalanceAudit {
     private LocalDateTime createdAt;
 
     @Column(name = "balance_version", nullable = false)
+    @Version
     private Long balanceVersion;
 
     @ManyToOne

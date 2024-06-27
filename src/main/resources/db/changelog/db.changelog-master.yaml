@@ -17,3 +17,8 @@ databaseChangeLog:
       file: db/changelog/changeset/V008_create_and_insert_into_account_numbers_sequence_table.sql
   - include:
       file: db/changelog/changeset/V009_alter_accounts_table_drop_column_balance_id.sql
+  - include:
+      file: db/changelog/changeset/V005_create_balance_audit_table.sql
+      file: db/changelog/changeset/V004_update_balance_table_v1.sql
+  - include:
+      file: db/changelog/changeset/V005_create_balance_audit_table.sql

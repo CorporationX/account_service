@@ -7,11 +7,10 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface BalanceAuditMapper {
-    BalanceAudit toBalanceAudit(Balance balance);
 
     default BalanceAudit fromBalance(Balance balance, Long operationId){
         return BalanceAudit.builder()
-                .accountNumber(balance.getAccount().getNumber())
+                .accountNumber(Long.parseLong(balance.getAccount().getNumber()))
                 .authorizedAmount(balance.getAuthorizedBalance())
                 .currentAmount(balance.getCurrentBalance())
                 .operationId(operationId)
