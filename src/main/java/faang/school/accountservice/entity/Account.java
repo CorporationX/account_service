@@ -58,11 +58,11 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+  
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Version()
     @Column(name = "version")
-    private long version;
-
-    @OneToOne(mappedBy = "account")
-    private Balance balance;
+    private Long version;
 }
