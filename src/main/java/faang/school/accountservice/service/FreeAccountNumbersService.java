@@ -22,23 +22,14 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
-    private final long SAVINGS_PATTERN = 5236_0000_0000_0000L;
-    private final long DEBIT_PATTERN = 4200_0000_0000_0000L;
-
     @Transactional
     public void generateAccountNumbers(AccountType accountType, int batchSize) {
         List<FreeAccountNumber> accountNumbers = new ArrayList<>();
         AccountNumberSequence ans = accountNumbersSequenceRepository.incrementCounter(accountType.name(), batchSize);
 
-        if (accountType == AccountType.SAVINGS) {
             for (long i = ans.getPreviousCounter(); i < ans.getCurrentCounter(); i++) {
-                accountNumbers.add(new FreeAccountNumber(accountType, SAVINGS_PATTERN + i));
+                accountNumbers.add(new FreeAccountNumber(accountType, accountType.getPattern() + i));
             }
-        } else if (accountType == AccountType.DEBIT) {
-            for (long i = ans.getPreviousCounter(); i < ans.getCurrentCounter(); i++) {
-                accountNumbers.add(new FreeAccountNumber(accountType, DEBIT_PATTERN + i));
-            }
-        }
 
         freeAccountNumbersRepository.saveAll(accountNumbers);
     }
@@ -58,7 +49,7 @@ public class FreeAccountNumbersService {
     }
 
     @Transactional
-    public void getAndHandleAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
+    public void retrieveAndHandleAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
         FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getAndDeleteAccountByType(accountType.name());
 
         if (freeAccountNumber == null) {

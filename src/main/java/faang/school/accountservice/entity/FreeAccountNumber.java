@@ -21,5 +21,5 @@ public class FreeAccountNumber {
 
     @Id
     @Column(name = "account_number", nullable = false, unique = true)
-    private long account_number;
+    private long accountNumber;
 }
