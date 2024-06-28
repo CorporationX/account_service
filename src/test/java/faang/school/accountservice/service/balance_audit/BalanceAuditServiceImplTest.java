@@ -7,6 +7,7 @@ import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.BalanceAuditRepository;
+import faang.school.accountservice.service.balance_audit.filter.service.BalanceAuditFilterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

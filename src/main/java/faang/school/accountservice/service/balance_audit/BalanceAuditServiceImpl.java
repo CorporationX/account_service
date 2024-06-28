@@ -6,6 +6,7 @@ import faang.school.accountservice.dto.balance_audit.BalanceAuditFilterDto;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.BalanceAuditRepository;
+import faang.school.accountservice.service.balance_audit.filter.service.BalanceAuditFilterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

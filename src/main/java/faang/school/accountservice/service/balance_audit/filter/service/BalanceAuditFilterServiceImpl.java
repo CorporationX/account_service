@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.balance_audit;
+package faang.school.accountservice.service.balance_audit.filter.service;
 
 import faang.school.accountservice.dto.balance_audit.BalanceAuditFilterDto;
 import faang.school.accountservice.model.BalanceAudit;
