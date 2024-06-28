@@ -34,7 +34,7 @@ public class BalanceServiceImpl implements BalanceService{
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
         Balance balance = createNewBalance(account);
-        createBalanceAudit(balance, null);
+        createBalanceAudit(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -74,8 +74,8 @@ public class BalanceServiceImpl implements BalanceService{
         balanceRepository.save(balance);
     }
 
-    private void createBalanceAudit(Balance balance, Long operationId){
-        BalanceAudit balanceAudit = balanceAuditMapper.fromBalance(balance, operationId);
+    private void createBalanceAudit(Balance balance){
+        BalanceAudit balanceAudit = balanceAuditMapper.fromBalance(balance);
         balanceAuditRepository.save(balanceAudit);
     }
 }

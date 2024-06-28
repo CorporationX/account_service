@@ -83,7 +83,7 @@ class BalanceServiceImplTest {
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
         when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
         when(balanceMapper.toDto(balance)).thenReturn(balanceDto);
-        when(balanceAuditMapper.fromBalance(balance, null)).thenReturn(new BalanceAudit());
+        when(balanceAuditMapper.fromBalance(balance)).thenReturn(new BalanceAudit());
         BalanceDto result = balanceService.createBalance(account.getId());
         assertThat(result).isEqualTo(balanceDto);
         verify(balanceAuditRepository, times(1)).save(any(BalanceAudit.class));
