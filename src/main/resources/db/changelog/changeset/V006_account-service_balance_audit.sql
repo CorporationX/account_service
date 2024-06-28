@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS balance_audit
 (
     id                      BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
     account_id              BIGINT      NOT NULL,
+    payment_number          BIGINT      NOT NULL,
     authorization_balance   NUMERIC     NOT NULL,
     actual_balance          NUMERIC     NOT NULL,
     version                 BIGINT      NOT NULL,

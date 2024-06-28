@@ -24,6 +24,6 @@ public class BalanceUpdateDto {
     @NotNull(message = "actualBalance should not be null")
     private Long actualBalance;
 
-    @NotNull(message = "id should not be null")
+    @NotNull(message = "paymentNumber should not be null")
     private Long paymentNumber;
 }

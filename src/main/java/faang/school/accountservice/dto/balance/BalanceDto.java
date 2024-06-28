@@ -13,5 +13,5 @@ public class BalanceDto {
     private Long id;
     private Long accountId;
     private Long authorizedBalance;
-    private Long actual_balance;
+    private Long actualBalance;
 }

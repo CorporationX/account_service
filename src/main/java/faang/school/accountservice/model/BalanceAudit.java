@@ -44,6 +44,9 @@ public class BalanceAudit {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
+    @Column(name = "payment_number", nullable = false)
+    private long paymentNumber;
+
     @Column(name = "authorization_balance", nullable = false)
     private BigDecimal authorizationBalance;
 

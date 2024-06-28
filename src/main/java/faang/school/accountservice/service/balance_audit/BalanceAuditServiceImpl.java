@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -30,6 +31,8 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
         BalanceAudit audit = balanceAuditMapper.toAudit(balanceUpdateDto);
 
         balanceAuditRepository.save(audit);
+
+        log.info("Created new audit: {}", audit);
     }
 
     @Override
@@ -39,6 +42,7 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
         Stream<BalanceAudit> balanceAuditStream = balanceAuditRepository.findAllByAccountId(accountId).stream();
 
         return balanceAuditFilterService.acceptAll(balanceAuditStream, balanceAuditFilterDto)
+                .sorted(Comparator.comparing(BalanceAudit::getCreatedAt))
                 .map(balanceAuditMapper::toDto)
                 .toList();
     }
