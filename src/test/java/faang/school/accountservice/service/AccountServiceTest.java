@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static faang.school.accountservice.enums.AccountType.RUBLE_ACCOUNT_FOR_INDIVIDUALS;
+import static faang.school.accountservice.enums.AccountType.DEBIT;
 import static faang.school.accountservice.enums.Currency.RUB;
 import static faang.school.accountservice.enums.Status.ACTIVE;
 import static faang.school.accountservice.enums.Status.CLOSED;
@@ -61,21 +61,21 @@ public class AccountServiceTest {
                 .id(3L)
                 .number("1324123413241234")
                 .ownerId(10L)
-                .type(RUBLE_ACCOUNT_FOR_INDIVIDUALS)
+                .type(DEBIT)
                 .currency(RUB)
                 .status(ACTIVE)
                 .build();
 
         accountDto = AccountDto.builder()
                 .ownerId(3L)
-                .type(RUBLE_ACCOUNT_FOR_INDIVIDUALS)
+                .type(DEBIT)
                 .currency(RUB)
                 .build();
 
         accountId = 3L;
         freeAccountNumber = FreeAccountNumber.builder()
-                .account_number(123456789L)
-                .type(RUBLE_ACCOUNT_FOR_INDIVIDUALS)
+                .accountNumber(123456789L)
+                .type(DEBIT)
                 .build();
     }
 
@@ -91,11 +91,11 @@ public class AccountServiceTest {
     void testOpenAccount() {
         AccountDto accountDto = new AccountDto();
         Account account = new Account();
-        account.setType(RUBLE_ACCOUNT_FOR_INDIVIDUALS);
+        account.setType(DEBIT);
         Account savedAccount = new Account();
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber();
-        freeAccountNumber.setAccount_number(123456789L);
-        freeAccountNumber.setType(RUBLE_ACCOUNT_FOR_INDIVIDUALS);
+        freeAccountNumber.setAccountNumber(123456789L);
+        freeAccountNumber.setType(DEBIT);
 
         doNothing().when(accountValidator).initValidation(accountDto);
         when(accountMapper.toEntity(accountDto)).thenReturn(account);
@@ -103,7 +103,7 @@ public class AccountServiceTest {
             Consumer<FreeAccountNumber> consumer = invocation.getArgument(1);
             consumer.accept(freeAccountNumber);
             return null;
-        }).when(freeAccountNumbersService).getAndHandleAccountNumber(eq(account.getType()), any());
+        }).when(freeAccountNumbersService).retrieveAndHandleAccountNumber(eq(account.getType()), any());
         when(accountRepository.save(account)).thenReturn(savedAccount);
         when(accountMapper.toDto(savedAccount)).thenReturn(accountDto);
 
@@ -111,7 +111,7 @@ public class AccountServiceTest {
 
         verify(accountValidator).initValidation(accountDto);
         verify(accountMapper).toEntity(accountDto);
-        verify(freeAccountNumbersService).getAndHandleAccountNumber(eq(account.getType()), any());
+        verify(freeAccountNumbersService).retrieveAndHandleAccountNumber(eq(account.getType()), any());
         verify(accountRepository).save(account);
         verify(accountMapper).toDto(savedAccount);
 

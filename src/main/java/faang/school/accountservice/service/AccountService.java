@@ -31,9 +31,9 @@ public class AccountService {
         accountValidator.initValidation(accountDto);
         Account account = accountMapper.toEntity(accountDto);
 
-        freeAccountNumbersService.getAndHandleAccountNumber(account.getType(),
+        freeAccountNumbersService.retrieveAndHandleAccountNumber(account.getType(),
                 (freeAccountNumber -> {
-                    account.setNumber(String.valueOf(freeAccountNumber.getAccount_number()));
+                    account.setNumber(String.valueOf(freeAccountNumber.getAccountNumber()));
                 }));
         account.setStatus(Status.ACTIVE);
         Account savedAccount = accountRepository.save(account);
