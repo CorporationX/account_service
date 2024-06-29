@@ -1,13 +1,12 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.entity.FreeAccountNumber;
-import faang.school.accountservice.enums.AccountType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, AccountType> {
+public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, Long> {
 
     @Query(nativeQuery = true, value = """
             DELETE FROM free_account_numbers fan

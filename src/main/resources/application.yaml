@@ -23,3 +23,9 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    cron: "0 0 0 * * *"
+    batch:
+      size: 5

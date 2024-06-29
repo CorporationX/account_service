@@ -1,12 +1,7 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.AccountType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,5 +21,5 @@ public class FreeAccountNumber {
 
     @Id
     @Column(name = "account_number", nullable = false, unique = true)
-    private long account_number;
+    private long accountNumber;
 }
