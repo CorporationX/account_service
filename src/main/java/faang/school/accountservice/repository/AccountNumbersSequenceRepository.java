@@ -32,7 +32,7 @@ public class AccountNumbersSequenceRepository {
         return true;
     }
 
-    public AccountNumbersSequence getByType(AccountType type) {
+    public AccountNumbersSequence findOrCreateByType(AccountType type) {
         return repository.findByType(type.name()).orElseGet(() -> createAccountNumbersSequence(type));
     }
 }

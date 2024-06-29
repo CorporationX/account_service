@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS free_account_numbers
     id      BIGSERIAL PRIMARY KEY,
     number  VARCHAR(20)  NOT NULL UNIQUE,
     type    VARCHAR(128) NOT NULL,
-    version BIGINT       NOT NULL
+    version INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS account_numbers_sequence
@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS account_numbers_sequence
     sequence BIGINT       NOT NULL,
     type     VARCHAR(128) NOT NULL UNIQUE,
     code     CHAR(4)      NOT NULL UNIQUE,
-    version  BIGINT       NOT NULL
+    version INT NOT NULL
 );

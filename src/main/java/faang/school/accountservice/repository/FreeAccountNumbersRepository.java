@@ -16,7 +16,7 @@ public class FreeAccountNumbersRepository {
     private final FreeAccountNumbersJpaRepository repository;
 
     public void createNewFreeNumber(AccountNumbersSequence accountNumbersSequence) {
-        String number = String.format(FORMAT,
+        var number = String.format(FORMAT,
                 accountNumbersSequence.getType().getCode(),
                 accountNumbersSequence.getSequence());
 

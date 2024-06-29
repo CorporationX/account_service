@@ -20,7 +20,7 @@ public class FreeAccountNumbersService {
 
     @Transactional
     public void createNewAccountNumber(AccountType type) {
-        AccountNumbersSequence accountNumbersSequence = accountNumbersSequenceRepository.getByType(type);
+        AccountNumbersSequence accountNumbersSequence = accountNumbersSequenceRepository.findOrCreateByType(type);
 
         accountNumbersSequenceRepository.incrementAccountNumbersSequence(accountNumbersSequence);
         freeAccountNumbersRepository.createNewFreeNumber(accountNumbersSequence);
