@@ -16,12 +16,18 @@ import java.util.function.Consumer;
 public class FreeAccountNumbersService {
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
+    private long number = 1234_4123_1234_11234L;
 
     @Transactional
     public void getAndHandleAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
-        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getAndDeleteAccountByType(accountType.name());
-
+        FreeAccountNumber freeAccountNumber = testMethod(accountType);
         numberConsumer.accept(freeAccountNumber);
+    }
 
+    public FreeAccountNumber testMethod(AccountType type) {
+        return FreeAccountNumber.builder()
+                .account_number(number++)
+                .type(type)
+                .build();
     }
 }

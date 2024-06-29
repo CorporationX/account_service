@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.validator.AccountValidator;
@@ -19,17 +20,13 @@ public class AccountService {
     private final AccountValidator accountValidator;
     private final FreeAccountNumbersService freeAccountNumbersService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AccountDto getAccount(Long id) {
         Account account = getById(id);
         return accountMapper.toDto(account);
     }
 
-    private Account getById(long id) {
-        return accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Entity account with id " + id + " not found"));
-    }
-
+    @Transactional
     public AccountDto openAccount(AccountDto accountDto) {
         accountValidator.initValidation(accountDto);
         Account account = accountMapper.toEntity(accountDto);
@@ -38,7 +35,31 @@ public class AccountService {
                 (freeAccountNumber -> {
                     account.setNumber(String.valueOf(freeAccountNumber.getAccount_number()));
                 }));
+        account.setStatus(Status.ACTIVE);
+        Account savedAccount = accountRepository.save(account);
+        return accountMapper.toDto(savedAccount);
+    }
 
-        return accountMapper.toDto(account);
+    @Transactional
+    public void blockAccount(long id) {
+        Account account = getById(id);
+        account.setStatus(Status.FROZEN);
+    }
+
+    @Transactional
+    public void closeAccount(long id) {
+        Account account = getById(id);
+        account.setStatus(Status.CLOSED);
+    }
+
+    @Transactional
+    public void activateAccount(long id) {
+        Account account = getById(id);
+        account.setStatus(Status.ACTIVE);
+    }
+
+    private Account getById(long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity account with id " + id + " not found"));
     }
 }

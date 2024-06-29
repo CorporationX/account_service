@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.Status;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ public class AccountDto {
     private String number;
     private Long ownerId;
     private Long projectId;
+    private AccountType type;
     private Currency currency;
     private Status status;
 }
