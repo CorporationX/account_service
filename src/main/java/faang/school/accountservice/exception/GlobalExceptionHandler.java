@@ -3,7 +3,6 @@ package faang.school.accountservice.exception;
 import faang.school.accountservice.dto.Error;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
-import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
@@ -54,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Map<String, String>> handleDataValidationException(EntityNotFoundException e) {
-        return ResponseEntity.badRequest().body(buildExceptionMessage(e.getMessage()));
+    public ResponseEntity<Error> handleDataValidationException(EntityNotFoundException e) {
+        return ResponseEntity.badRequest().body(new Error("Entity not found", e.getMessage()));
     }
 }
