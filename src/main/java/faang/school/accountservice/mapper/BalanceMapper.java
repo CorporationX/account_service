@@ -12,5 +12,7 @@ public interface BalanceMapper {
     Balance toEntity(BalanceDto balanceDto);
 
     @Mapping(source = "account.id", target = "accountId")
+    @Mapping(source = "authorization_Balance", target = "authorizationBalance")
+    @Mapping(source = "actual_Balance", target = "actualBalance")
     BalanceDto toDto(Balance balance);
 }
