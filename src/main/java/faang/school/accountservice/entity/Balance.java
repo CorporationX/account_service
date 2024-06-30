@@ -28,7 +28,10 @@ public class Balance {
     private Account account;
 
     @Column(name = "authorization_balance", nullable = false)
-    private BigDecimal authorizationBalance;
+    private BigDecimal authorization_Balance;
+
+    @Column(name = "actual_balance", nullable = false)
+    private BigDecimal actual_balance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
