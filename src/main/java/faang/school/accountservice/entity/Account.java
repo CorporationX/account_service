@@ -3,7 +3,19 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +24,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -58,9 +71,15 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
-  
+
     @OneToOne(mappedBy = "account")
     private Balance balance;
+
+    @OneToMany(mappedBy = "debitAccount")
+    private List<PaymentRequest> debitRequests;
+
+    @OneToMany(mappedBy = "creditAccount")
+    private List<PaymentRequest> creditRequests;
 
     @Version()
     @Column(name = "version")
