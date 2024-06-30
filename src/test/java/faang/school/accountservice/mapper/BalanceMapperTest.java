@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -26,7 +27,7 @@ class BalanceMapperTest {
     void shouldMapBalanceToDto() {
         Account account = mock(Account.class);
         when(account.getId()).thenReturn(1L);
-        when(account.getNumber()).thenReturn("123456789012");
+        when(account.getNumber()).thenReturn(new BigInteger("123456789012"));
         when(account.getAccountType()).thenReturn(AccountType.CHECKING);
         when(account.getCurrency()).thenReturn(Currency.USD);
         when(account.getAccountStatus()).thenReturn(AccountStatus.ACTIVE);

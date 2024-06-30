@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -66,4 +67,7 @@ public class Account {
     @Column(name = "version", nullable = false)
     @Version
     private Long version;
+
+    @OneToMany(mappedBy = "account")
+    private List<BalanceAudit> balanceAudits;
 }

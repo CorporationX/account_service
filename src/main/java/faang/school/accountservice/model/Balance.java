@@ -3,6 +3,7 @@ package faang.school.accountservice.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,12 +14,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "balance")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
