@@ -31,7 +31,7 @@ public class Balance {
     private BigDecimal authorization_Balance;
 
     @Column(name = "actual_balance", nullable = false)
-    private BigDecimal actual_balance;
+    private BigDecimal actual_Balance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

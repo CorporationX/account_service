@@ -34,7 +34,7 @@ public class BalanceService {
         Balance balance = Balance.builder()
                 .account(account)
                 .authorization_Balance(BigDecimal.ZERO)
-                .actual_balance(BigDecimal.ZERO)
+                .actual_Balance(BigDecimal.ZERO)
                 .build();
 
         return balanceMapper.toDto(balanceRepository.save(balance));
