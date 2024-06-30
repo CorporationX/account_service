@@ -27,22 +27,23 @@ public class FreeAccountNumbersService {
         List<FreeAccountNumber> accountNumbers = new ArrayList<>();
         AccountNumberSequence ans = accountNumbersSequenceRepository.incrementCounter(accountType.name(), batchSize);
 
-            for (long i = ans.getPreviousCounter(); i < ans.getCurrentCounter(); i++) {
-                accountNumbers.add(new FreeAccountNumber(accountType, accountType.getPattern() + i));
-            }
+        for (long i = ans.getPreviousCounter(); i < ans.getCurrentCounter(); i++) {
+            accountNumbers.add(new FreeAccountNumber(accountType, accountType.getPattern() + i));
+        }
+        log.info("Generated {} {} account number", batchSize, accountType);
 
         freeAccountNumbersRepository.saveAll(accountNumbers);
     }
 
     @Transactional
     public void generateAccountNumbersUpToQuantity(AccountType accountType, int quantity) {
-        int requiredQuantity = quantity - freeAccountNumbersRepository
-                .getCurrentQuantityOfNumbersByType(accountType.name());
+        int requiredQuantity = quantity - freeAccountNumbersRepository.getCurrentQuantityOfNumbersByType(accountType.name());
 
         if (requiredQuantity > 0) {
             generateAccountNumbers(accountType, requiredQuantity);
         } else {
-            log.info("There are already " + quantity + " available account numbers type: " + accountType.name() + " in the database");
+            log.info("There are already " + quantity + " available account numbers type: "
+                    + accountType.name() + " in the database");
             throw new AccountNumberException("There are already " + quantity
                     + " available account numbers type: " + accountType.name() + " in the database");
         }
