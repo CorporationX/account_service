@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.AccountDtoToUpdate;
 import faang.school.accountservice.exception.NotFoundException;
@@ -9,6 +10,7 @@ import faang.school.accountservice.model.Owner;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import faang.school.accountservice.service.account_number.AccountNumberService;
 import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,15 +27,18 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
+
     private final AccountMapper accountMapper;
     private final AccountRepository accountRepository;
     private final AccountValidator accountValidator;
     private final OwnerRepository ownerRepository;
+    private final AccountNumberService accountNumberService;
 
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
-    public AccountDto open(AccountDto accountDto) {
-        Account account = accountMapper.toEntity(accountDto);
+    public AccountDto open(AccountCreateDto accountCreateDto) {
+
+        final Account account = accountMapper.toEntity(accountCreateDto);
 
         accountValidator.validateCreate(account);
 
@@ -41,9 +46,14 @@ public class AccountServiceImpl implements AccountService {
         account.setVersion(1L);
         setAccountOwner(account);
 
-        accountRepository.save(account);
+        accountNumberService.getUniqueAccountNumber(
+                freeNumber -> account.setNumber(freeNumber.getId().getNumber()),
+                account.getAccountType()
+        );
+
+        Account savedAccount = accountRepository.save(account);
         log.info("Created new account");
-        return accountMapper.toDto(account);
+        return accountMapper.toDto(savedAccount);
     }
 
     @Transactional
