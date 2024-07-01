@@ -9,6 +9,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 @Component
 @RequiredArgsConstructor
 public class FreeAccountNumberScheduler {
@@ -44,5 +47,13 @@ public class FreeAccountNumberScheduler {
                     currentQuantity++;
                 }
         }
+    }
+
+    @Async("getThreadPool")
+    @Scheduled(cron = "${schedulers.free_account_numbers.refilling.one_time_in_three_hours.cron}")
+    public void generateNewSavingsAccountNumbers(){
+        Arrays.stream(accountTypes)
+                .forEach(type -> IntStream.range(0, quantityOneTimeInDayRefilling)
+                        .forEach(i -> freeAccountNumberService.generateFreeAccount(type)));
     }
 }
