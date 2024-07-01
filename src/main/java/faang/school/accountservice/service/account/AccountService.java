@@ -6,6 +6,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.NoSuchElementException;
 import static faang.school.accountservice.exception.message.AccountExceptionMessage.NON_EXISTING_ACCOUNT_BY_ID_EXCEPTION;
 import static faang.school.accountservice.exception.message.AccountExceptionMessage.NON_EXISTING_ACCOUNT_BY_NUMBER_EXCEPTION;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -61,6 +63,8 @@ public class AccountService {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> {
                     String message = String.format(NON_EXISTING_ACCOUNT_BY_ID_EXCEPTION.getMessage(), accountId);
+                    log.error(message);
+
                     return new NoSuchElementException(message);
                 });
     }
@@ -70,6 +74,8 @@ public class AccountService {
         return accountRepository.findByNumber(accountNumber)
                 .orElseThrow(() -> {
                     String message = String.format(NON_EXISTING_ACCOUNT_BY_NUMBER_EXCEPTION.getMessage(), accountNumber);
+                    log.error(message);
+
                     return new NoSuchElementException(message);
                 });
     }
