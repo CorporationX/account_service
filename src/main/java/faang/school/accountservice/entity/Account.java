@@ -66,6 +66,9 @@ public class Account {
     @Column(name = "version", nullable = false)
     private long version;
 
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
+
     @PreUpdate
     protected void onUpdate() {
         if (Status.CLOSED.equals(this.status) && this.closedAt == null) {
