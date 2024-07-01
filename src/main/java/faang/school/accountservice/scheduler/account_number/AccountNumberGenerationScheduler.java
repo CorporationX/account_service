@@ -23,7 +23,7 @@ public class AccountNumberGenerationScheduler {
 
         for (Map.Entry<AccountType, Integer> entry : accountNumberGenerationAmountProperties.getAmounts().entrySet()) {
 
-            accountNumberGenerationService.fillFreeNumbersTo(entry.getValue(), entry.getKey());
+            accountNumberGenerationService.generateFreeAccountNumbers(entry.getValue(), entry.getKey());
 
             log.info("{} account numbers generation for {}", entry.getKey(), entry.getValue());
         }

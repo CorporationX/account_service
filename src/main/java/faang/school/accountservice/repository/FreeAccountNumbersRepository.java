@@ -21,7 +21,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
     @Query("SELECT count(f) FROM FreeAccountNumber f WHERE f.id.type = ?1")
     long countByType(AccountType type);
 
-
     @Transactional
     default Optional<FreeAccountNumber> getAndDeleteFirst(AccountType accountType) {
         FreeAccountNumber freeAccountNumber = findByIdType(accountType)

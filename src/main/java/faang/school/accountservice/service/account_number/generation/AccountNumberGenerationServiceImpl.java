@@ -16,7 +16,7 @@ public class AccountNumberGenerationServiceImpl implements AccountNumberGenerati
 
     @Override
     @Transactional
-    public void fillFreeNumbersTo(int amount, AccountType accountType) {
+    public void generateFreeAccountNumbers(int amount, AccountType accountType) {
 
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than 0");
