@@ -7,6 +7,7 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.jpa.AccountJpaRepository;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,12 +28,12 @@ import static org.mockito.Mockito.when;
 class AccountServiceTest {
 
     private static final String ACCOUNT_NUMBER = "123456789123456";
-    private static final BigDecimal ACCOUNT_BALANCE = BigDecimal.valueOf(1000);
+    private static final Balance ACCOUNT_BALANCE = Balance.builder().actualBalance(BigDecimal.valueOf(1000)).build();
     private static final Long ACCOUNT_ID = 1L;
     private static final LocalDateTime ACCOUNT_CREATED_AT = LocalDateTime.of(2024, 6, 20, 18, 25, 25);
     private static final LocalDateTime ACCOUNT_CLOSED_AT = LocalDateTime.of(2024, 7, 20, 18, 25, 25);
-    private static final BigDecimal ACCOUNT_DEPOSIT_BALANCE = BigDecimal.valueOf(1500);
-    private static final BigDecimal ACCOUNT_WRITEOFF_BALANCE = BigDecimal.valueOf(500);
+    private static final Balance ACCOUNT_DEPOSIT_BALANCE = Balance.builder().actualBalance(BigDecimal.valueOf(1500)).build();
+    private static final Balance ACCOUNT_WRITEOFF_BALANCE = Balance.builder().actualBalance(BigDecimal.valueOf(500)).build();
 
     @Mock
     private AccountRepository accountRepository;

@@ -1,5 +1,6 @@
 package faang.school.accountservice.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -13,7 +14,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OptimisticLocking;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -48,8 +48,9 @@ public class Account {
     @Column(name = "status", nullable = false)
     private AccountStatus status;
 
-    @Column(name = "balance")
-    private BigDecimal balance;
+    @JsonManagedReference
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Balance balance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
