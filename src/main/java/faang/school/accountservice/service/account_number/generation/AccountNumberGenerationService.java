@@ -4,5 +4,5 @@ import faang.school.accountservice.model.enums.AccountType;
 
 public interface AccountNumberGenerationService {
 
-    void fillFreeNumbersTo(long amount, AccountType accountType);
+    void fillFreeNumbersTo(int amount, AccountType accountType);
 }

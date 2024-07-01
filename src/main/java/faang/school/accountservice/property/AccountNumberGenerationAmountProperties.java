@@ -13,5 +13,5 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties(prefix = "scheduling.account-number-generation")
 public class AccountNumberGenerationAmountProperties {
-    private Map<AccountType, Long> amounts;
+    private Map<AccountType, Integer> amounts;
 }

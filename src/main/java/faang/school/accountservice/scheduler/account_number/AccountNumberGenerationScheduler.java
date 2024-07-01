@@ -21,7 +21,7 @@ public class AccountNumberGenerationScheduler {
     @Scheduled(cron = "${scheduling.account-number-generation.cron}")
     public void getAccountNumberGenerationService() {
 
-        for (Map.Entry<AccountType, Long> entry : accountNumberGenerationAmountProperties.getAmounts().entrySet()) {
+        for (Map.Entry<AccountType, Integer> entry : accountNumberGenerationAmountProperties.getAmounts().entrySet()) {
 
             accountNumberGenerationService.fillFreeNumbersTo(entry.getValue(), entry.getKey());
 

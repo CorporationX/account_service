@@ -16,7 +16,11 @@ public class AccountNumberGenerationServiceImpl implements AccountNumberGenerati
 
     @Override
     @Transactional
-    public void fillFreeNumbersTo(long amount, AccountType accountType) {
+    public void fillFreeNumbersTo(int amount, AccountType accountType) {
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
 
         long currentNumbersAmount = freeAccountNumbersRepository.countByType(accountType);
         long dif = amount - currentNumbersAmount;
@@ -25,7 +29,7 @@ public class AccountNumberGenerationServiceImpl implements AccountNumberGenerati
             throw new RuntimeException("There are no free accounts: currentNumbersAmount=" + currentNumbersAmount + ", dif=" + dif);
         }
 
-        for (long i = 0; i < dif; i++) {
+        for (int i = 0; i < dif; i++) {
             accountNumberService.generateAccountNumber(accountType);
         }
     }
