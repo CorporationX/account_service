@@ -8,6 +8,7 @@ import faang.school.accountservice.validator.BalanceValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
     private final BalanceValidator balanceValidator;
 
+    @Transactional(readOnly = true)
     public BalanceDto getBalance(Long balanceId) {
         balanceValidator.checkIsNull(balanceId);
         return balanceMapper.toDto(balanceRepository.findById(balanceId).orElseThrow(() ->
