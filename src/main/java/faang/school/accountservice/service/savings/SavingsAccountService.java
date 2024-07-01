@@ -1,11 +1,12 @@
 package faang.school.accountservice.service.savings;
 
-import faang.school.accountservice.dto.savings.SavingsAccountDto;
-import faang.school.accountservice.dto.savings.SavingsAccountToCreateDto;
+import faang.school.accountservice.model.SavingsAccount;
 
 public interface SavingsAccountService {
 
-    SavingsAccountDto openSavingsAccount(SavingsAccountToCreateDto dto);
+    SavingsAccount openSavingsAccount(Long accountId, Long initialTariffId);
 
-    SavingsAccountDto getSavingsAccount(Long id);
+    SavingsAccount getSavingsAccount(Long id);
+
+    SavingsAccount getSavingsAccountByClientId(Long clientId);
 }

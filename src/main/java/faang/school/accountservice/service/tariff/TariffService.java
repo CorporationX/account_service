@@ -1,17 +1,15 @@
 package faang.school.accountservice.service.tariff;
 
-import faang.school.accountservice.dto.tariff.CreateTariffDto;
-import faang.school.accountservice.dto.tariff.TariffDto;
-import faang.school.accountservice.dto.tariff.UpdateTariffDto;
+import faang.school.accountservice.model.Tariff;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface TariffService {
 
-    TariffDto createTariff(CreateTariffDto tariffDto);
+    Tariff createTariff(String name, List<BigDecimal> rateHistory);
 
-    TariffDto updateTariffRate(UpdateTariffDto tariffDto);
+    Tariff updateTariffRate(Long id, BigDecimal newRate);
 
-    TariffDto getTariff(Long id);
+    Tariff getTariff(Long id);
 }

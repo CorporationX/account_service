@@ -1,66 +1,49 @@
 package faang.school.accountservice.service.tariff;
 
-import faang.school.accountservice.dto.tariff.CreateTariffDto;
-import faang.school.accountservice.dto.tariff.TariffDto;
-import faang.school.accountservice.dto.tariff.UpdateTariffDto;
 import faang.school.accountservice.exception.NotFoundException;
-import faang.school.accountservice.mapper.TariffMapper;
-import faang.school.accountservice.model.Rate;
 import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.repository.TariffRepository;
-import faang.school.accountservice.service.rate.RateService;
-import faang.school.accountservice.validator.tariff.TariffValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class TariffServiceImpl implements TariffService {
 
-    private final TariffRepository tariffRepository;
-    private final TariffMapper tariffMapper;
-    private final TariffValidator tariffValidator;
-    private final RateService rateService;
+    private TariffRepository tariffRepository;
 
     @Override
     @Transactional
-    public TariffDto createTariff(CreateTariffDto tariffDto) {
-        Tariff tariff = tariffMapper.toEntity(tariffDto);
-
-        tariffValidator.validateCreation(tariffDto);
-
-        Rate rate = rateService.getRate(tariffDto.getType(), tariffDto.getPercent());
-        List<Rate> rateHistory = List.of(rate);
+    public Tariff createTariff(String name, List<BigDecimal> rateHistory) {
+        Tariff tariff = new Tariff();
+        tariff.setName(name);
         tariff.setRateHistory(rateHistory);
 
-        tariffRepository.save(tariff);
-
-        return tariffMapper.toDto(tariff);
+        return tariffRepository.save(tariff);
     }
 
     @Override
     @Transactional
-    public TariffDto updateTariffRate(UpdateTariffDto tariffDto) {
-        Tariff tariff = tariffRepository.findById(tariffDto.getId())
+    public Tariff updateTariffRate(Long id, BigDecimal newRate) {
+        Tariff tariff = tariffRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tariff not found"));
 
-        tariffValidator.validateUpdate(tariffDto);
+        List<BigDecimal> rateHistory = new ArrayList<>(tariff.getRateHistory());
+        rateHistory.add(newRate);
+        tariff.setRateHistory(rateHistory);
 
-        Rate rate = rateService.getRate(tariff.getType(), tariffDto.getPercent());
-        tariff.getRateHistory().add(rate);
-
-        tariffRepository.save(tariff);
-
-        return tariffMapper.toDto(tariff);
+        return tariffRepository.save(tariff);
     }
 
     @Override
-    public TariffDto getTariff(Long id) {
-        Tariff tariff = tariffRepository.findById(id)
+    public Tariff getTariff(Long id) {
+        return tariffRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tariff not found"));
-        return tariffMapper.toDto(tariff);
     }
+
 }

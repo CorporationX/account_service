@@ -1,14 +1,12 @@
 package faang.school.accountservice.model;
 
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -38,13 +36,12 @@ public class SavingsAccount {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
-    @OneToOne
-    @JoinColumn(name = "tariffHistory_id", referencedColumnName = "id")
-    private TariffHistory tariffHistory;
+    @Convert(converter = JsonConverter.class)
+    private List<Long> tariffHistory;
 
     private LocalDate lastInterestCalculationDate;
 
-    private long version;
+    private Integer version;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
