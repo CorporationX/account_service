@@ -13,6 +13,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.function.Consumer;
@@ -37,7 +38,7 @@ public class AccountNumberServiceImpl implements AccountNumberService {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public FreeAccountNumber generateAccountNumber(AccountType accountType) {
 
@@ -55,7 +56,10 @@ public class AccountNumberServiceImpl implements AccountNumberService {
         }
 
         String value = AccountNumberUtil.getAccountNumber(code, length, count);
+        FreeAccountNumber freeAccountNumber = new FreeAccountNumber(new FreeAccountNumberId(accountType, value));
 
-        return new FreeAccountNumber(new FreeAccountNumberId(accountType, value));
+        freeAccountNumbersRepository.saveAndFlush(freeAccountNumber);
+
+        return freeAccountNumber;
     }
 }

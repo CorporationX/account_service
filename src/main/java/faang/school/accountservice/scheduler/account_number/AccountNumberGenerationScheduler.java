@@ -1,0 +1,31 @@
+package faang.school.accountservice.scheduler.account_number;
+
+import faang.school.accountservice.model.enums.AccountType;
+import faang.school.accountservice.property.AccountNumberGenerationAmountProperties;
+import faang.school.accountservice.service.account_number.generation.AccountNumberGenerationService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class AccountNumberGenerationScheduler {
+
+    private final AccountNumberGenerationAmountProperties accountNumberGenerationAmountProperties;
+    private final AccountNumberGenerationService accountNumberGenerationService;
+
+    @Scheduled(cron = "${scheduling.account-number-generation.cron}")
+    public void getAccountNumberGenerationService() {
+
+        for (Map.Entry<AccountType, Long> entry : accountNumberGenerationAmountProperties.getAmounts().entrySet()) {
+
+            accountNumberGenerationService.fillFreeNumbersTo(entry.getValue(), entry.getKey());
+
+            log.info("{} account numbers generation for {}", entry.getKey(), entry.getValue());
+        }
+    }
+}

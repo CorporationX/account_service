@@ -36,3 +36,12 @@ logging:
 
 api:
   version: v1
+
+scheduling:
+  account-number-generation:
+    amounts:
+      INDIVIDUAL: 500
+      SAVINGS: 200
+      CORPORATE: 100
+      INVESTMENT: 100
+    cron: "0 0 * * * ?" #every day in 00:00
