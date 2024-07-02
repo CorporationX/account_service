@@ -1,4 +1,4 @@
-package faang.school.accountservice.model.enums;
+package faang.school.accountservice.enums;
 
 import lombok.Getter;
 
