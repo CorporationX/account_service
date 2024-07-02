@@ -7,20 +7,25 @@ import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.mapper.PaymentOperationMapper;
 import faang.school.accountservice.service.account.AccountService;
 import faang.school.accountservice.service.account.BalanceService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class AuthorizationPaymentHandler implements PaymentOperationHandler {
-    private final PaymentOperationService paymentOperationService;
-    private final BalanceService balanceService;
+public class AuthorizationPaymentHandler extends PaymentOperationHandler {
     private final AccountService accountService;
     private final PaymentOperationMapper mapper;
 
+    public AuthorizationPaymentHandler(PaymentOperationService paymentOperationService,
+                                       BalanceService balanceService,
+                                       AccountService accountService,
+                                       PaymentOperationMapper mapper) {
+        super(paymentOperationService, balanceService);
+
+        this.accountService = accountService;
+        this.mapper = mapper;
+    }
 
     @Transactional
     @Override
