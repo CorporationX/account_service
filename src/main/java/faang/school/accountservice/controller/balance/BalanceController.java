@@ -1,6 +1,7 @@
 package faang.school.accountservice.controller.balance;
 
-import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.balance.BalanceUpdateDto;
 import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,8 @@ public class BalanceController {
     }
 
     @PutMapping()
-    public BalanceDto updateBalance(@RequestBody @Valid BalanceDto balanceDto) {
-        return balanceService.updateBalance(balanceDto);
+    public BalanceDto updateBalance(@RequestBody @Valid BalanceUpdateDto balanceUpdateDto) {
+        return balanceService.updateBalance(balanceUpdateDto);
     }
 
     @DeleteMapping("/{balanceId}")
