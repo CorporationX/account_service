@@ -8,8 +8,9 @@ import org.springframework.data.redis.listener.ChannelTopic;
 @Configuration
 public class PaymentTopic {
 
-    @Value("${spring.data.redis.channel.payment.request}")
+    @Value("${spring.data.channel.payment.request}")
     private String paymentRequestChannelName;
+
     @Bean
     public ChannelTopic paymentRequestTopic() {
         return new ChannelTopic(paymentRequestChannelName);

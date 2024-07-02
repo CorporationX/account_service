@@ -9,9 +9,10 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channel:
-        payment:
-          request: payment-request_channel
+
+    channel:
+      payment:
+        request: payment-request_channel
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
