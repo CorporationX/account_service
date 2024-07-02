@@ -2,7 +2,7 @@ package faang.school.accountservice.validator;
 
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
-import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.config.context.user.UserContext;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.model.Account;

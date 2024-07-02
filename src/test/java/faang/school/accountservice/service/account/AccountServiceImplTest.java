@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.AccountDtoToUpdate;
 import faang.school.accountservice.exception.NotFoundException;
@@ -9,6 +10,7 @@ import faang.school.accountservice.model.Owner;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import faang.school.accountservice.service.account_number.AccountNumberService;
 import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,10 +21,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
@@ -39,9 +46,13 @@ class AccountServiceImplTest {
     @Mock
     private OwnerRepository ownerRepository;
 
+    @Mock
+    private AccountNumberService accountNumberService;
+
     @InjectMocks
     private AccountServiceImpl accountService;
 
+    private AccountCreateDto accountCreateDto;
     private AccountDto accountDto;
     private AccountDtoToUpdate accountDtoToUpdate;
     private Account account;
@@ -49,28 +60,31 @@ class AccountServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        accountDto = new AccountDto();
+        accountCreateDto = new AccountCreateDto();
         accountDtoToUpdate = new AccountDtoToUpdate();
         account = new Account();
         owner = new Owner();
         account.setOwner(owner);
         account.setVersion(1L);
+        accountDto = new AccountDto();
     }
 
     @Test
     void testOpen() {
-        when(accountMapper.toEntity(accountDto)).thenReturn(account);
+        when(accountMapper.toEntity(accountCreateDto)).thenReturn(account);
         doNothing().when(accountValidator).validateCreate(account);
         when(ownerRepository.findByAccountIdAndOwnerType(anyLong(), any())).thenReturn(Optional.empty());
         when(ownerRepository.save(any(Owner.class))).thenReturn(owner);
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
         when(accountMapper.toDto(any(Account.class))).thenReturn(accountDto);
 
-        AccountDto result = accountService.open(accountDto);
+        AccountDto result = accountService.open(accountCreateDto);
 
         assertNotNull(result);
         verify(accountRepository).save(account);
         verify(accountMapper).toDto(account);
         verify(accountValidator).validateCreate(account);
+        verify(accountNumberService).getUniqueAccountNumber(any(), eq(accountCreateDto.getAccountType()));
     }
 
     @Test

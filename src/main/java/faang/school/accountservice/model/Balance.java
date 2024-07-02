@@ -38,21 +38,21 @@ public class Balance {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "authorization_Balance", nullable = false)
+    @Column(name = "authorization_balance", nullable = false)
     private BigDecimal authorizationBalance;
 
-    @Column(name = "actual_Balance", nullable = false)
+    @Column(name = "actual_balance", nullable = false)
     private BigDecimal actualBalance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_at")
-    private LocalDateTime createAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "update_at")
-    private LocalDateTime updateAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Version
     @Column(name = "version")

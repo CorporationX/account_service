@@ -1,12 +1,13 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.AccountDtoToUpdate;
 import org.springframework.stereotype.Component;
 
 @Component
 public interface AccountService {
-    AccountDto open(AccountDto accountDto);
+    AccountDto open(AccountCreateDto accountCreateDto);
 
     AccountDto update(long accountId, AccountDtoToUpdate accountDto);
 

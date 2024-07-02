@@ -1,4 +1,4 @@
-package faang.school.accountservice.config.context;
+package faang.school.accountservice.config.context.user;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

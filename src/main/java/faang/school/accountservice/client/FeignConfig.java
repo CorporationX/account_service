@@ -1,7 +1,7 @@
 package faang.school.accountservice.client;
 
 
-import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.config.context.user.UserContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
