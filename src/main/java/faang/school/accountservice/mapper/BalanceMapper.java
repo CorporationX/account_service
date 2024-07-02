@@ -9,8 +9,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BalanceMapper {
 
-
-    @Mapping(target = "accountId", ignore = true)
+    @Mapping(target = "account", ignore = true)
     Balance toEntity(BalanceDto balanceDto);
 
     @Mapping(source = "account.id", target = "accountId")
