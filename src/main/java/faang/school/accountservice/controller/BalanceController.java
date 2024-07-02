@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 
 import faang.school.accountservice.dto.BalanceDto;
-import faang.school.accountservice.service.BalanceService;
+import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

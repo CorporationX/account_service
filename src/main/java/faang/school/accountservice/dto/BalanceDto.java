@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class BalanceDto {
     private Long id;
+    @NotNull
     private Long accountId;
     @NotNull
     private BigDecimal authorizationBalance;

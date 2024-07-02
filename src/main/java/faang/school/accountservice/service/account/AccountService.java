@@ -5,6 +5,7 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +22,14 @@ public class AccountService {
     private final AccountServiceValidator accountServiceValidator;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final BalanceService balanceService;
 
     @Transactional
     public AccountDto open(AccountDto accountDto) {
         accountServiceValidator.validateOwnerExistence(accountDto.getOwnerUserId(), accountDto.getOwnerProjectId());
 
         Account createdAccount = accountRepository.save(accountMapper.toEntity(accountDto));
+        balanceService.createBalance(createdAccount);
         return accountMapper.toDto(createdAccount);
     }
 
