@@ -26,6 +26,12 @@ public class FreeAccountNumbersService {
         freeAccountNumbersRepository.createNewFreeNumber(accountNumbersSequence);
     }
 
+    /**
+     * Метод для использования свободного номера аккаунта. (Используется в другом сервисе)
+     *
+     * @param type           тип счета
+     * @param numberConsumer операция, поглощающая свободный номер
+     */
     @Transactional
     public void consumeFreeNumber(AccountType type, Consumer<String> numberConsumer) {
         FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getFreeAccountNumber(type)
