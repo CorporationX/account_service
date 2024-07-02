@@ -1,5 +1,6 @@
 package faang.school.accountservice.controller.transaction;
 
+import faang.school.accountservice.config.context.user.UserContext;
 import faang.school.accountservice.dto.transaction.TransactionDto;
 import faang.school.accountservice.dto.transaction.TransactionDtoToCreate;
 import faang.school.accountservice.service.transaction.TransactionService;
@@ -12,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/transactions")
 public class TransactionController {
     private final TransactionService transactionService;
+    private final UserContext userContext;
 
     @PostMapping
-    public void createTransaction(@RequestBody @Valid TransactionDtoToCreate dto) {
-        return transactionService.createTransaction(dto);
+    public TransactionDto createTransaction(@RequestBody @Valid TransactionDtoToCreate dto) {
+        Long userId = userContext.getUserId();
+        return transactionService.createTransaction(userId, dto);
     }
 
     @GetMapping("/{transactionId}")
@@ -24,7 +27,8 @@ public class TransactionController {
     }
 
     @GetMapping("/cancel/{transactionId}")
-    public void cancelTransaction(@PathVariable("transactionId") long id) {
+    public TransactionDto cancelTransaction(@PathVariable("transactionId") long id) {
+        Long userId = userContext.getUserId();
         return transactionService.cancelTransaction(id);
     }
 }

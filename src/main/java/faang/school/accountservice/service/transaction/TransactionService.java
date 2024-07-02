@@ -4,10 +4,11 @@ import faang.school.accountservice.dto.transaction.TransactionDto;
 import faang.school.accountservice.dto.transaction.TransactionDtoToCreate;
 
 public interface TransactionService {
-    
-    void createTransaction(Long userId, TransactionDtoToCreate dto);
 
-    TransactionDto getTransaction(long id);
+    TransactionDto createTransaction(Long userId, TransactionDtoToCreate dto);
 
-    void cancelTransaction(long id);
+    TransactionDto getTransaction(Long id);
+
+    TransactionDto cancelTransaction(Long userid, Long transactionId);
+
 }
