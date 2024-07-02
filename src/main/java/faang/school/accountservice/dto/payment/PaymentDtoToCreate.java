@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto.transaction;
+package faang.school.accountservice.dto.payment;
 
 import faang.school.accountservice.enums.Currency;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class TransactionDtoToCreate {
+public class PaymentDtoToCreate {
 
     private UUID idempotencyKey;
     private String senderAccountNumber;

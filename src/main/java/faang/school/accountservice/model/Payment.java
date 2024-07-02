@@ -1,10 +1,11 @@
 package faang.school.accountservice.model;
 
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.TransactionStatus;
+import faang.school.accountservice.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "transaction")
-public class Transaction {
+public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,12 +37,13 @@ public class Transaction {
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
-    @Column(name = "transaction_status", nullable = false)
-    private TransactionStatus transactionStatus;
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
 
     @Column(name = "scheduled_at", nullable = false)
     private LocalDateTime scheduledAt;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS transaction
+CREATE TABLE IF NOT EXISTS payment
 (
     id                      bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     idempotency_key         UUID           NOT NULL UNIQUE,

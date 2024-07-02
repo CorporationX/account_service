@@ -1,9 +1,9 @@
 package faang.school.accountservice.enums;
 
-public enum TransactionStatus {
+public enum PaymentStatus {
     NEW,
     READY_TO_CLEAR,
     CLEAR,
-    REFUND,
+    CANCELED,
     FAILURE
 }
