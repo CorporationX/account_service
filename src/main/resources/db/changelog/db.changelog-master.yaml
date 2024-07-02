@@ -10,4 +10,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V005_account-service_account_numbers_sequence.sql
   - include:
+      file: db/changelog/changeset/V006_account-service_balance_audit.sql
+  - include:
       file: db/changelog/changeset/V007_aacount-service_update-free-account-number-index.sql
