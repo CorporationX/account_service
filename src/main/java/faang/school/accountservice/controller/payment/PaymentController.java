@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
     private final PaymentService paymentService;
 
-    @PostMapping("/create/{paymentId}")
-    public void createPayment(@PathVariable("paymentId") Long paymentId) {
-        paymentService.createPayment(paymentId);
+    @PutMapping("/auth/{paymentId}")
+    public void authorizePayment(@PathVariable("paymentId") Long paymentId) {
+        paymentService.authorizePayment(paymentId);
     }
 
     @GetMapping("/cancel/{paymentId}/user/{userId}")

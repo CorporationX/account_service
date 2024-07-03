@@ -1,11 +1,13 @@
 package faang.school.accountservice.service.payment;
 
-import faang.school.accountservice.enums.PaymentStatus;
+import faang.school.accountservice.event.CancelPaymentEvent;
 import faang.school.accountservice.event.NewPaymentEvent;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.Payment;
+import faang.school.accountservice.model.enums.PaymentStatus;
+import faang.school.accountservice.publisher.CancelPaymentPublisher;
 import faang.school.accountservice.publisher.NewPaymentPublisher;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.repository.PaymentRepository;
@@ -24,10 +26,11 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final BalanceRepository balanceRepository;
     private final NewPaymentPublisher newPaymentPublisher;
+    private final CancelPaymentPublisher cancelPaymentPublisher;
 
     @Transactional
-    @Retryable (retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
-    public void createPayment(Long paymentId) {
+    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
+    public void authorizePayment(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException("Payment not found"));
 
@@ -85,6 +88,16 @@ public class PaymentServiceImpl implements PaymentService {
 
         payment.setPaymentStatus(PaymentStatus.CANCELED);
         paymentRepository.save(payment);
+
+        CancelPaymentEvent event = new CancelPaymentEvent(
+                senderBalance.getId(),
+                receiverBalance.getId(),
+                payment.getCurrency(),
+                payment.getAmount()
+        );
+
+        cancelPaymentPublisher.publish(event);
+        log.info("Payment with ID={} has been canceled", paymentId);
     }
 
     @Transactional
@@ -92,20 +105,27 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException("Payment not found"));
 
-        Balance senderBalance = balanceRepository.findBalanceByAccountNumber(payment.getSenderAccountNumber())
-                .orElseThrow(() -> new NotFoundException("Sender balance hasn't been found"));
-        Balance receiverBalance = balanceRepository.findBalanceByAccountNumber(payment.getReceiverAccountNumber())
-                .orElseThrow(() -> new NotFoundException("Receiver balance hasn't been found"));
+        try {
+            Balance senderBalance = balanceRepository.findBalanceByAccountNumber(payment.getSenderAccountNumber())
+                    .orElseThrow(() -> new NotFoundException("Sender balance hasn't been found"));
+            Balance receiverBalance = balanceRepository.findBalanceByAccountNumber(payment.getReceiverAccountNumber())
+                    .orElseThrow(() -> new NotFoundException("Receiver balance hasn't been found"));
 
-        senderBalance.setAuthorizationBalance(senderBalance.getAuthorizationBalance().subtract(payment.getAmount()));
-        receiverBalance.setAuthorizationBalance(receiverBalance.getAuthorizationBalance().add(payment.getAmount()));
-        balanceRepository.save(senderBalance);
-        balanceRepository.save(receiverBalance);
+            senderBalance.setActualBalance(senderBalance.getActualBalance().subtract(payment.getAmount()));
+            receiverBalance.setActualBalance(receiverBalance.getActualBalance().add(payment.getAmount()));
+            balanceRepository.save(senderBalance);
+            balanceRepository.save(receiverBalance);
 
-        payment.setPaymentStatus(PaymentStatus.CLEAR);
-        paymentRepository.save(payment);
+            payment.setPaymentStatus(PaymentStatus.CLEAR);
+            paymentRepository.save(payment);
 
-        log.info("Successfully cleared payment with ID {} and credited amount {} to account {}",
-                paymentId, payment.getAmount(), payment.getReceiverAccountNumber());
+            log.info("Successfully cleared payment with ID {} and credited amount {} to account {}",
+                    paymentId, payment.getAmount(), payment.getReceiverAccountNumber());
+        } catch (Exception e) {
+            payment.setPaymentStatus(PaymentStatus.FAILURE);
+            paymentRepository.save(payment);
+            log.error("Failed to process payment with ID={}. Error: {}", paymentId, e.getMessage());
+            throw e;
+        }
     }
 }

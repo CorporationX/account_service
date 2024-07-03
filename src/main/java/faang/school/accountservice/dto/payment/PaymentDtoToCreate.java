@@ -1,6 +1,6 @@
 package faang.school.accountservice.dto.payment;
 
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.model.enums.Currency;
 import lombok.Getter;
 import lombok.Setter;
 

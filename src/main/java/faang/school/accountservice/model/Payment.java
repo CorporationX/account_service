@@ -1,7 +1,7 @@
 package faang.school.accountservice.model;
 
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.PaymentStatus;
+import faang.school.accountservice.model.enums.Currency;
+import faang.school.accountservice.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.model.enums.OwnerType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

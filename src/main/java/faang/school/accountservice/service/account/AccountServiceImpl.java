@@ -7,7 +7,7 @@ import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Owner;
-import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
 import faang.school.accountservice.service.account_number.AccountNumberService;
