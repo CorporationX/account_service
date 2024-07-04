@@ -39,4 +39,7 @@ public class Owner {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Account> accounts;
+
+    @Column(name = "account_owner_Id", nullable = false)
+    private long accountOwnerId;
 }

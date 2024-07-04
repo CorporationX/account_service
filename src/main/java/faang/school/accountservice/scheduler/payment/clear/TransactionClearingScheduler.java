@@ -18,7 +18,7 @@ public class TransactionClearingScheduler {
     private final PaymentRepository paymentRepository;
     private final PaymentService paymentService;
 
-    @Scheduled(fixedRate = 5000)
+//    @Scheduled(fixedRate = 5000)
     public void clearTransactions() {
         List<Payment> payments = paymentRepository.findReadyToClearTransactions();
 

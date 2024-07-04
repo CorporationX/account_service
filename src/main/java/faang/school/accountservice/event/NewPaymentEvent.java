@@ -9,8 +9,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class NewPaymentEvent implements Event {
-    private Long senderBalanceId;
-    private Long receiverBalanceId;
-    private Currency currency;
-    private BigDecimal amount;
+    private Long userId;
+    private Long paymentId;
 }

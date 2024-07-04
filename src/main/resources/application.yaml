@@ -10,9 +10,19 @@ spring:
       port: 6379
       host: localhost
 
+    kafka:
+      port: 9092
+      host: localhost
+      group-id: notification_service
+
     channel:
       payment:
-        request: payment-request_channel
+        new:
+          name: new-payment_channel
+        cancel:
+          name: payment-cancel_channel
+        clear:
+          name: payment-clear_channel
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

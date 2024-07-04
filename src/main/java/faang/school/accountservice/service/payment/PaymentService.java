@@ -2,9 +2,9 @@ package faang.school.accountservice.service.payment;
 
 public interface PaymentService {
 
-    void authorizePayment(Long paymentId);
+    void authorizePayment(Long userId, Long paymentId);
 
-    void cancelPayment(Long userid, Long transactionId);
+    void cancelPayment(Long userId, Long paymentId);
 
     void clearPayment(Long paymentId);
 }
