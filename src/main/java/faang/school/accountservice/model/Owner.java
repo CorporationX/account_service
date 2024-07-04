@@ -30,7 +30,7 @@ public class Owner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "account_id", nullable = false)
+    @Column(name = "account_owner_id", nullable = false)
     private long accountId;
 
     @Column(name = "owner_type", nullable = false)

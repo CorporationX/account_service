@@ -13,7 +13,7 @@ spring:
     kafka:
       port: 9092
       host: localhost
-      group-id: notification_service
+      group-id: account_service
 
     channel:
       payment:

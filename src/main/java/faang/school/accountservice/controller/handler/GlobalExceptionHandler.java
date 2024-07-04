@@ -43,13 +43,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(e, request, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRuntimeException(RuntimeException e, HttpServletRequest request) {
-        log.error("Runtime exception: {}", e.getMessage(), e);
-        return buildErrorResponse(e, request, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     private ErrorResponse buildErrorResponse(Exception e, HttpServletRequest request, HttpStatus status) {
         return ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
