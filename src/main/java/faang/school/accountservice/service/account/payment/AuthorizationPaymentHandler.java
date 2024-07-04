@@ -17,10 +17,11 @@ public class AuthorizationPaymentHandler extends PaymentOperationHandler {
     private final AccountService accountService;
     private final PaymentOperationMapper mapper;
 
-    public AuthorizationPaymentHandler(PaymentOperationService paymentOperationService,
-                                       BalanceService balanceService,
-                                       AccountService accountService,
-                                       PaymentOperationMapper mapper) {
+    public AuthorizationPaymentHandler(
+            PaymentOperationService paymentOperationService,
+            BalanceService balanceService,
+            AccountService accountService,
+            PaymentOperationMapper mapper) {
         super(paymentOperationService, balanceService);
 
         this.accountService = accountService;
