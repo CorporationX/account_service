@@ -73,7 +73,7 @@ class AccountServiceImplTest {
     void testOpen() {
         when(accountMapper.toEntity(accountCreateDto)).thenReturn(account);
         doNothing().when(accountValidator).validateCreate(account);
-        when(ownerRepository.findByAccountIdAndOwnerType(anyLong(), any())).thenReturn(Optional.empty());
+        when(ownerRepository.findByProjectOrUserIdAndOwnerType(anyLong(), any())).thenReturn(Optional.empty());
         when(ownerRepository.save(any(Owner.class))).thenReturn(owner);
         when(accountRepository.save(any(Account.class))).thenReturn(account);
         when(accountMapper.toDto(any(Account.class))).thenReturn(accountDto);

@@ -55,7 +55,7 @@ public class AccountValidator {
 
         if (OwnerType.USER.equals(account.getOwner().getOwnerType())) {
             long userId = userContext.getUserId();
-            if (userId != account.getOwner().getAccountId()) {
+            if (userId != account.getOwner().getCustodianId()) {
                 throw new DataValidationException(
                         "UserContext and accountId is different, only author could create new account");
             }
@@ -66,13 +66,13 @@ public class AccountValidator {
 
         if (OwnerType.PROJECT.equals(account.getOwner().getOwnerType())) {
             boolean isOwner = projectServiceClient.checkProjectOwner(
-                    account.getOwner().getAccountId(),
+                    account.getOwner().getCustodianId(),
                     userContext.getUserId());
 
             if (!isOwner) {
                 throw new DataValidationException(
                         String.format("Only project owner could create account for project %d",
-                                account.getOwner().getAccountId()));
+                                account.getOwner().getCustodianId()));
             }
         }
     }
@@ -81,13 +81,13 @@ public class AccountValidator {
     private void validateUserOrProjectExist(Account account) {
         try {
             if (OwnerType.USER.equals(account.getOwner().getOwnerType())) {
-                userServiceClient.getUser(account.getOwner().getAccountId());
+                userServiceClient.getUser(account.getOwner().getCustodianId());
             } else if (OwnerType.PROJECT.equals(account.getOwner().getOwnerType())) {
-                projectServiceClient.getProject(account.getOwner().getAccountId());
+                projectServiceClient.getProject(account.getOwner().getCustodianId());
             }
         } catch (FeignException ex) {
             throw new NotFoundException(String.format("%s with id %d not found",
-                    account.getOwner().getOwnerType(), account.getOwner().getAccountId()));
+                    account.getOwner().getOwnerType(), account.getOwner().getCustodianId()));
         }
     }
 

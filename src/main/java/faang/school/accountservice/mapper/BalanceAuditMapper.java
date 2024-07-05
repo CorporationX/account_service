@@ -12,6 +12,7 @@ public interface BalanceAuditMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "accountId", target = "account.id")
+    @Mapping(source = "authorizedBalance", target = "authorizationBalance")
     BalanceAudit toAudit(BalanceUpdateDto balanceUpdateDto);
 
     @Mapping(source = "account.id", target = "accountId")

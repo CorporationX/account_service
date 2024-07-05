@@ -6,6 +6,7 @@ import faang.school.accountservice.dto.balance_audit.BalanceAuditFilterDto;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.BalanceAudit;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.service.balance_audit.filter.service.BalanceAuditFilterService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -35,6 +37,8 @@ class BalanceAuditServiceImplTest {
     @Mock
     private BalanceAuditRepository balanceAuditRepository;
     @Mock
+    private AccountRepository accountRepository;
+    @Mock
     private BalanceAuditFilterService balanceAuditFilterService;
 
     @InjectMocks
@@ -43,6 +47,7 @@ class BalanceAuditServiceImplTest {
     private final long accountId = 1L;
     private BalanceAuditDto balanceAuditDto;
     private BalanceAudit balanceAudit;
+    private Account account;
 
     @BeforeEach
     void setUp() {
@@ -53,7 +58,7 @@ class BalanceAuditServiceImplTest {
         LocalDateTime createdAt = LocalDateTime.now();
         long version = 3L;
 
-        Account account = Account.builder().id(accountId).build();
+        account = Account.builder().id(accountId).build();
 
         balanceAudit = BalanceAudit.builder()
                 .id(balanceId)
@@ -78,8 +83,10 @@ class BalanceAuditServiceImplTest {
     void createNewAudit() {
 
         BalanceUpdateDto balanceUpdateDto = new BalanceUpdateDto();
+        balanceUpdateDto.setAccountId(accountId);
 
         when(balanceAuditMapper.toAudit(balanceUpdateDto)).thenReturn(balanceAudit);
+        when(accountRepository.findById(balanceUpdateDto.getAccountId())).thenReturn(Optional.of(account));
 
         balanceAuditService.createNewAudit(balanceUpdateDto);
 
