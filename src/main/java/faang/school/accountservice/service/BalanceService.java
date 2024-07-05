@@ -2,10 +2,15 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.validator.BalanceValidator;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,26 +22,44 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
     private final BalanceValidator balanceValidator;
+    private final BalanceAuditRepository balanceAuditRepository;
 
     @Transactional(readOnly = true)
     public BalanceDto getBalance(Long balanceId) {
         balanceValidator.checkIsNull(balanceId);
-        return balanceMapper.toDto(balanceRepository.findById(balanceId).orElseThrow(() ->
-                new EntityNotFoundException("The balance with id " + balanceId + " does not exist in the database")));
+        return balanceMapper.toDto(findById(balanceId));
     }
 
-    public BalanceDto createBalance(BalanceDto balanceDto) {
-        balanceValidator.checkIsNull(balanceDto);
+    @Transactional
+    public BalanceDto createBalance(@Valid @NotNull BalanceDto balanceDto, @Positive long operationId) {
+        balanceValidator.checkAbsenceBalanceByAccountIdInBd(balanceDto);
 
         Balance balance = balanceMapper.toEntity(balanceDto);
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        Balance updateBalance = balanceRepository.save(balance);
+
+        BalanceAudit balanceAudit = balanceMapper.toBalanceAudit(updateBalance, operationId);
+        balanceAuditRepository.save(balanceAudit);
+
+        return balanceMapper.toDto(updateBalance);
     }
 
-    public BalanceDto updateBalance(BalanceDto balanceDto) {
-        balanceValidator.checkIsNull(balanceDto);
-        balanceValidator.checkExistsBalanceInBd(balanceDto);
+    @Transactional
+    public BalanceDto updateBalance(@Valid @NotNull BalanceDto balanceDto, @Positive long operationId) {
+        balanceValidator.checkExistsBalanceByIdInBd(balanceDto);
 
-        Balance balance = balanceMapper.toEntity(balanceDto);
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        Balance balance = findById(balanceDto.getId());
+        balanceMapper.updateBalanceFromDto(balanceDto, balance);
+
+        Balance updateBalance = balanceRepository.save(balance);
+        BalanceAudit balanceAudit = balanceMapper.toBalanceAudit(updateBalance, operationId);
+
+        balanceAuditRepository.save(balanceAudit);
+
+        return balanceMapper.toDto(updateBalance);
+    }
+
+    private Balance findById(long id) {
+        return balanceRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("The balance with id " + id + " is not in the database"));
     }
 }

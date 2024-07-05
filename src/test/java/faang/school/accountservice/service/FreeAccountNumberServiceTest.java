@@ -105,7 +105,7 @@ public class FreeAccountNumberServiceTest {
 
         freeAccountNumbersService.retrieveAndHandleAccountNumber(accountTypeDebit, numberConsumer);
 
-        verify(freeAccountNumbersRepository, times(1)).getAndDeleteAccountByType(accountTypeDebit.name());
+        verify(freeAccountNumbersRepository, times(2)).getAndDeleteAccountByType(accountTypeDebit.name());
         verify(numberConsumer, times(1)).accept(freeAccountNumber);
     }
 
@@ -117,5 +117,7 @@ public class FreeAccountNumberServiceTest {
         freeAccountNumbersService.retrieveAndHandleAccountNumber(accountTypeDebit, numberConsumer);
 
         verify(freeAccountNumbersRepository, times(2)).getAndDeleteAccountByType(accountTypeDebit.name());
+        verify(accountNumbersSequenceRepository, times(1)).incrementCounter(accountTypeDebit.name(), 1);
+        verify(freeAccountNumbersRepository, times(1)).saveAll(anyCollection());
     }
 }

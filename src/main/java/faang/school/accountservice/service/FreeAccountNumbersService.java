@@ -55,9 +55,7 @@ public class FreeAccountNumbersService {
 
         if (freeAccountNumber == null) {
             generateAccountNumbers(accountType, 1);
-            numberConsumer.accept(freeAccountNumbersRepository.getAndDeleteAccountByType(accountType.name()));
-        } else {
-            numberConsumer.accept(freeAccountNumber);
         }
+        numberConsumer.accept(freeAccountNumbersRepository.getAndDeleteAccountByType(accountType.name()));
     }
 }

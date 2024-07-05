@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -20,7 +19,4 @@ public class BalanceDto {
     private Long accountId;
     private BigDecimal currentAuthorizationBalance;
     private BigDecimal currentActualBalance;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private long version;
 }
