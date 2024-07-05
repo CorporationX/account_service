@@ -25,6 +25,18 @@ public class FreeAccountNumbersService {
     private int numberLength;
 
     @Transactional
+    public void generateAccountNumbersUpTo(long upToSize, AccountType accountType) {
+        log.info("Create new free numbers for Account Type: {} up to {}", accountType.name(), upToSize);
+        long newCounter = accountNumbersSequenceRepository.getByType(accountType.name()).getCounter();
+        long batchSize = upToSize - newCounter;
+        if (batchSize > 0) {
+            generateAccountNumbers((int) batchSize, accountType);
+        } else {
+            log.info("Number of accounts is already equal to or greater than required: {}",  upToSize);
+        }
+    }
+
+    @Transactional
     public void generateAccountNumbers(int batchSize, AccountType accountType) {
         log.info("Create new {} free numbers for Account Type: {}", batchSize, accountType.name());
         long newCounter = accountNumbersSequenceRepository.getByType(accountType.name()).getCounter();
