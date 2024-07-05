@@ -26,4 +26,8 @@ public class SavingsAccountDto {
     private BigDecimal currentBalance;
 
     private BigDecimal authorizedBalance;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

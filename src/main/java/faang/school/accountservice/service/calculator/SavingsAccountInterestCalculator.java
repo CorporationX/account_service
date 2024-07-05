@@ -1,12 +1,17 @@
 package faang.school.accountservice.service.calculator;
 
+import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.SavingsAccount;
+import faang.school.accountservice.model.SavingsAccountTariffHistory;
 import faang.school.accountservice.model.Tariff;
+import faang.school.accountservice.model.TariffRateHistory;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.service.TariffService;
+
+import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.retry.annotation.Backoff;
@@ -41,12 +46,12 @@ public class SavingsAccountInterestCalculator {
                 .join();
     }
 
-    private void calculateAndUpdateInterest(SavingsAccount savingsAccount){
+    protected void calculateAndUpdateInterest(SavingsAccount savingsAccount){
         LocalDate lastInterestCalculatedDate = savingsAccount.getLastInterestCalculatedDate().toLocalDate();
         LocalDate currentDate = LocalDate.now();
-        if (lastInterestCalculatedDate.isBefore(currentDate)){
-            Long currentTariffId = getCurrentTariffId(savingsAccount);
-            Tariff currentTariff = tariffService.getTariff(currentTariffId);
+        if (lastInterestCalculatedDate.isBefore(currentDate)) {
+            SavingsAccountTariffHistory currentTariffHistory = getCurrentTariffHistory(savingsAccount);
+            Tariff currentTariff = currentTariffHistory.getTariff();
             BigDecimal currentRate = getCurrentRate(currentTariff);
 
             Account account = savingsAccount.getAccount();
@@ -55,7 +60,6 @@ public class SavingsAccountInterestCalculator {
 
             LocalDate startDate = lastInterestCalculatedDate.plusDays(1);
             long daysCount = ChronoUnit.DAYS.between(startDate, currentDate);
-
             BigDecimal interest = calculateInterest(currentBalance, currentRate, daysCount);
             BigDecimal newBalance = currentBalance.add(interest);
 
@@ -65,17 +69,20 @@ public class SavingsAccountInterestCalculator {
         }
     }
 
-    private Long getCurrentTariffId(SavingsAccount savingsAccount){
-        String tariffHistory = savingsAccount.getTariffHistory();
-        String[] tariffIds = tariffHistory.substring(1, tariffHistory.length() - 1).split(",");
-        return Long.parseLong(tariffIds[tariffIds.length - 1].trim());
+    private SavingsAccountTariffHistory getCurrentTariffHistory(SavingsAccount savingsAccount){
+        List<SavingsAccountTariffHistory> tariffHistory = savingsAccount.getTariffHistory();
+        return tariffHistory.stream()
+                .filter(history -> history.getEndDate() == null)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Current tariff history not found"));
     }
 
     private BigDecimal getCurrentRate(Tariff tariff){
-        String rateHistory = tariff.getRateHistory();
-        String[] rates = rateHistory.substring(1, rateHistory.length() - 1).split(",");
-        String lastRate = rates[rates.length - 1];
-        return  new BigDecimal(lastRate.replace("%","")).divide(BigDecimal.valueOf(100));
+        List<TariffRateHistory> rateHistory = tariff.getRateHistory();
+        TariffRateHistory currentRate = rateHistory.stream()
+                .max(Comparator.comparing(TariffRateHistory::getCreatedAt))
+                .orElseThrow(() -> new ResourceNotFoundException("Current rate not found"));
+        return currentRate.getRate();
     }
 
     private BigDecimal calculateInterest(BigDecimal balance, BigDecimal rate, long daysCount) {

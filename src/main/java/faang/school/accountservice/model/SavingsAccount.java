@@ -1,38 +1,34 @@
 package faang.school.accountservice.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "savings_account")
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SavingsAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "tariff_history")
-    private String tariffHistory;
 
     @Column(name = "last_interest_calculated_date", nullable = false)
     private LocalDateTime lastInterestCalculatedDate;
@@ -50,7 +46,24 @@ public class SavingsAccount {
     private LocalDateTime updatedAt;
 
     @OneToOne
-    @MapsId
     @JoinColumn(name = "id")
     private Account account;
+
+    @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SavingsAccountTariffHistory> tariffHistory;
+
+    @Builder
+    public SavingsAccount(Long id, LocalDateTime lastInterestCalculatedDate, Long version, LocalDateTime createdAt, LocalDateTime updatedAt, Account account, List<SavingsAccountTariffHistory> tariffHistory) {
+        this.id = id;
+        this.lastInterestCalculatedDate = lastInterestCalculatedDate;
+        this.version = version;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.account = account;
+        this.tariffHistory = tariffHistory != null ? tariffHistory : new ArrayList<>();
+    }
+
+    public SavingsAccount() {
+        this.tariffHistory = new ArrayList<>();
+    }
 }

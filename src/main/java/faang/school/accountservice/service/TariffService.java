@@ -4,8 +4,9 @@ import faang.school.accountservice.dto.CreateTariffRequest;
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.dto.UpdateTariffRequest;
 import faang.school.accountservice.exception.ResourceNotFoundException;
-import faang.school.accountservice.mapper.EntityMapper;
+import faang.school.accountservice.mapper.TariffMapper;
 import faang.school.accountservice.model.Tariff;
+import faang.school.accountservice.model.TariffRateHistory;
 import faang.school.accountservice.repository.TariffRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,23 +15,34 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TariffService {
     private final TariffRepository tariffRepository;
-    private final EntityMapper entityMapper;
+    private final TariffMapper tariffMapper;
 
-    public TariffDto createTariff(CreateTariffRequest request){
+    public TariffDto createTariff(CreateTariffRequest request) {
         Tariff tariff = Tariff.builder()
                 .name(request.getName())
-                .rateHistory("[" + request.getInitialRate() + "]")
                 .build();
-        tariffRepository.save(tariff);
-        return entityMapper.toDto(tariff);
+        tariff = tariffRepository.save(tariff);
+
+        TariffRateHistory initialRateHistory = TariffRateHistory.builder()
+                .tariff(tariff)
+                .rate(request.getInitialRate())
+                .build();
+        tariff.getRateHistory().add(initialRateHistory);
+
+        return tariffMapper.toDto(tariff);
     }
+
 
     public TariffDto updateTariff(Long id, UpdateTariffRequest request){
         Tariff tariff = getTariff(id);
-        String newRateHistory = tariff.getRateHistory() + ", " + request.getNewRate();
-        tariff.setRateHistory(newRateHistory);
-        tariffRepository.save(tariff);
-        return entityMapper.toDto(tariff);
+
+        TariffRateHistory newRateHistory = TariffRateHistory.builder()
+                .tariff(tariff)
+                .rate(request.getNewRate())
+                .build();
+        tariff.getRateHistory().add(newRateHistory);
+        tariff = tariffRepository.save(tariff);
+        return tariffMapper.toDto(tariff);
     }
 
     public Tariff getTariff(Long id) {
@@ -40,6 +52,6 @@ public class TariffService {
 
     public TariffDto getTariffById(Long id) {
         Tariff tariff = getTariff(id);
-        return entityMapper.toDto(tariff);
+        return tariffMapper.toDto(tariff);
     }
 }
