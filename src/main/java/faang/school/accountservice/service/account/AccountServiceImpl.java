@@ -125,12 +125,12 @@ public class AccountServiceImpl implements AccountService {
 
     private void setAccountOwner(Account account) {
         Owner owner = account.getOwner();
-        Optional<Owner> existingOwner = ownerRepository.findByAccountIdAndOwnerType(
-                owner.getAccountId(), owner.getOwnerType());
+        Optional<Owner> existingOwner = ownerRepository.findByProjectOrUserIdAndOwnerType(
+                owner.getCustodianId(), owner.getOwnerType());
 
         if (existingOwner.isEmpty()) {
             Owner newOwner = new Owner();
-            newOwner.setAccountId(owner.getAccountId());
+            newOwner.setCustodianId(owner.getCustodianId());
             newOwner.setOwnerType(owner.getOwnerType());
             newOwner = ownerRepository.save(newOwner);
             account.setOwner(newOwner);

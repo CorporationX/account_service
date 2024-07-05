@@ -1,12 +1,10 @@
 package faang.school.accountservice.validator.payment;
 
-import faang.school.accountservice.dto.payment.PaymentDtoToCreate;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.Payment;
 import faang.school.accountservice.model.enums.PaymentStatus;
 import faang.school.accountservice.repository.BalanceRepository;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +14,21 @@ public class PaymentValidator {
     private final BalanceRepository balanceRepository;
 
     public void validateUserIsBalanceOwner(Long balanceId, Long userId) {
-        try {
-            Boolean isOwner = balanceRepository.isBalanceOwner(balanceId, userId);
-            if (!isOwner) {
-                throw new DataValidationException(
-                        String.format("Only balance owner could send money from balance {}", balanceId));
-            }
-        } catch (FeignException e) {
-            throw e;
+        if (!balanceRepository.isBalanceOwner(balanceId, userId)) {
+            throw new DataValidationException(
+                    String.format("Only balance owner could send money from balance %s", balanceId));
         }
     }
 
-    public void validateSenderHaveEnoughMoneyOnBalance(Balance senderBalance, Payment payment) {
+    public void validateSenderHaveEnoughMoneyOnAuthorizationBalance(Balance senderBalance, Payment payment) {
         if (senderBalance.getAuthorizationBalance().compareTo(payment.getAmount()) < 0) {
-            throw new DataValidationException("Not enough money");
+            throw new DataValidationException("Not enough money on authorization balance");
+        }
+    }
+
+    public void validateSenderHaveEnoughMoneyOnActualBalance(Balance senderBalance, Payment payment) {
+        if (senderBalance.getAuthorizationBalance().compareTo(payment.getAmount()) < 0) {
+            throw new DataValidationException("Not enough money on actual balance");
         }
     }
 
@@ -41,18 +40,18 @@ public class PaymentValidator {
         }
     }
 
-    public void validateAuthorizeStatus(Payment payment) {
-        if(!payment.getPaymentStatus().equals(PaymentStatus.NEW)) {
+    public void validateStatus(Payment payment, PaymentStatus paymentStatus) {
+        if (!payment.getPaymentStatus().equals(paymentStatus)) {
             throw new DataValidationException(
-                    String.format("Incorrect payment status {}", payment.getPaymentStatus()));
+                    String.format("Incorrect payment status, " +
+                            "should be %s, but status is %s", paymentStatus, payment.getPaymentStatus()));
         }
     }
 
-    public void validateStatus(Payment payment, PaymentStatus paymentStatus) {
-        if(!payment.getPaymentStatus().equals(paymentStatus)) {
+    public void validatePaymentStatusIsAlreadyCorrect(Payment payment, PaymentStatus status) {
+        if (payment.getPaymentStatus().equals(status)) {
             throw new DataValidationException(
-                    String.format("Incorrect payment status, " +
-                            "should be {}, but status is {}", paymentStatus, payment.getPaymentStatus()));
+                    String.format("Payment status is already %s", payment.getPaymentStatus()));
         }
     }
 }

@@ -50,7 +50,7 @@ class AccountValidatorTest {
     void setUp() {
         owner = new Owner();
         owner.setOwnerType(OwnerType.USER);
-        owner.setAccountId(1L);
+        owner.setCustodianId(1L);
 
         account = new Account();
         account.setId(1L);

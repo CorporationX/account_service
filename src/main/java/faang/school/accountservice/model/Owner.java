@@ -30,8 +30,8 @@ public class Owner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "account_owner_id", nullable = false)
-    private long accountId;
+    @Column(name = "custodian_id", nullable = false)
+    private long custodianId; // Project or User id
 
     @Column(name = "owner_type", nullable = false)
     @Enumerated(value = EnumType.STRING)
@@ -39,7 +39,4 @@ public class Owner {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Account> accounts;
-
-    @Column(name = "account_owner_Id", nullable = false)
-    private long accountOwnerId;
 }
