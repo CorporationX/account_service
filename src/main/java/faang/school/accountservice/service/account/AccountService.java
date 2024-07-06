@@ -42,6 +42,10 @@ public class AccountService {
         return accountMapper.toDto(findAccountEntityById(accountId));
     }
 
+    public AccountDto getByNumber(BigInteger number) {
+        return accountMapper.toDto(findAccountEntityByNumber(number));
+    }
+
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000, multiplier = 2.0))
     public void block(long accountId) {
@@ -58,8 +62,17 @@ public class AccountService {
         accountRepository.save(account);
     }
 
+    public boolean existsByNumber(BigInteger number) {
+        return accountRepository.existsAccountByNumber(number);
+    }
+
     private Account findAccountEntityById(long id) {
         return accountRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("account with id = %d not found", id)));
+    }
+
+    private Account findAccountEntityByNumber(BigInteger number) {
+        return accountRepository.findByNumber(number).orElseThrow(
+                () -> new EntityNotFoundException(String.format("account with number = %s not found", number)));
     }
 }
