@@ -75,10 +75,10 @@ public class Account {
     @OneToOne(mappedBy = "account")
     private Balance balance;
 
-    @OneToMany(mappedBy = "debitAccount")
+    @OneToMany(mappedBy = "senderAccount")
     private List<PaymentOperation> debitRequests;
 
-    @OneToMany(mappedBy = "creditAccount")
+    @OneToMany(mappedBy = "receiverAccount")
     private List<PaymentOperation> creditRequests;
 
     @Version()

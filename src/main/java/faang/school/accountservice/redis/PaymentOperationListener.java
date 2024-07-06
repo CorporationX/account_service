@@ -1,7 +1,7 @@
 package faang.school.accountservice.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.dto.PaymentEventDto;
+import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.service.account.payment.PaymentOperationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,18 +15,18 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentEventListener implements MessageListener {
+public class PaymentOperationListener implements MessageListener {
     private final ObjectMapper objectMapper;
     private final List<PaymentOperationHandler> handlers;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            PaymentEventDto paymentEvent = objectMapper.readValue(message.getBody(), PaymentEventDto.class);
+            PaymentOperationDto paymentOperation = objectMapper.readValue(message.getBody(), PaymentOperationDto.class);
 
             handlers.stream()
-                    .filter(handler -> handler.getRequiredOperationType().name().equals(paymentEvent.getType()))
-                    .forEach(handler -> handler.handlePaymentOperation(paymentEvent));
+                    .filter(handler -> handler.getRequiredOperationStatus().equals(paymentOperation.getStatus()))
+                    .forEach(handler -> handler.handlePaymentOperation(paymentOperation));
         } catch (IOException e) {
             log.error("Received message decoding failed: {1}", e);
         }

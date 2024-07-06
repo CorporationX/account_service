@@ -1,8 +1,8 @@
 package faang.school.accountservice.service.account.payment;
 
-import faang.school.accountservice.dto.PaymentEventDto;
+import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.entity.PaymentOperation;
-import faang.school.accountservice.enums.OperationType;
+import faang.school.accountservice.enums.OperationStatus;
 import faang.school.accountservice.service.account.BalanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,21 +16,20 @@ public class CancelingPaymentHandler extends PaymentOperationHandler {
         super(paymentOperationService, balanceService);
     }
 
-    @Transactional
     @Override
-    public void handlePaymentOperation(PaymentEventDto paymentEventDto) {
-        PaymentOperation pendingOperation = paymentOperationService.findById(paymentEventDto.getPaymentNumber());
+    @Transactional
+    public void handlePaymentOperation(PaymentOperationDto paymentOperationDto) {
+        PaymentOperation pendingOperation = paymentOperationService.findById(paymentOperationDto.getPaymentId());
 
-        balanceService.releasePaymentAmount(pendingOperation.getDebitAccount().getId(), pendingOperation.getAmount());
+        balanceService.releasePaymentAmount(pendingOperation.getSenderAccount().getId(), pendingOperation.getAmount());
 
-        pendingOperation.setIsCleared(true);
-        pendingOperation.setType(OperationType.CANCELING);
-
+        pendingOperation.setStatus(OperationStatus.CANCELED);
         paymentOperationService.saveOperation(pendingOperation);
+        log.info("Operation with id {} was canceled", pendingOperation.getId());
     }
 
     @Override
-    public OperationType getRequiredOperationType() {
-        return OperationType.CANCELING;
+    public OperationStatus getRequiredOperationStatus() {
+        return OperationStatus.CANCELING;
     }
 }

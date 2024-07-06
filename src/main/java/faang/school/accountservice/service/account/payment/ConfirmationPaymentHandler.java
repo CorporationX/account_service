@@ -1,8 +1,8 @@
 package faang.school.accountservice.service.account.payment;
 
-import faang.school.accountservice.dto.PaymentEventDto;
+import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.entity.PaymentOperation;
-import faang.school.accountservice.enums.OperationType;
+import faang.school.accountservice.enums.OperationStatus;
 import faang.school.accountservice.service.account.BalanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,28 +18,27 @@ public class ConfirmationPaymentHandler extends PaymentOperationHandler {
 
     @Transactional
     @Override
-    public void handlePaymentOperation(PaymentEventDto paymentEventDto) {
-        PaymentOperation pendingOperation = paymentOperationService.findById(paymentEventDto.getPaymentNumber());
+    public void handlePaymentOperation(PaymentOperationDto clearingOperationDto) {
+        PaymentOperation pendingOperation = paymentOperationService.findById(clearingOperationDto.getPaymentId());
 
-        moveFoundsFromDebitToCreditAccount(paymentEventDto, pendingOperation);
+        moveFoundsFromDebitToCreditAccount(clearingOperationDto, pendingOperation);
 
-        pendingOperation.setIsCleared(true);
-        pendingOperation.setType(OperationType.CONFIRMATION);
-
+        pendingOperation.setStatus(OperationStatus.CONFIRMED);
         paymentOperationService.saveOperation(pendingOperation);
+        log.info("Operation with id {} was confirmed", pendingOperation.getId());
     }
 
-    private void moveFoundsFromDebitToCreditAccount(PaymentEventDto paymentEventDto, PaymentOperation pendingOperation) {
-        Long debitAccountId = pendingOperation.getDebitAccount().getId();
-        Long creditAccountId = pendingOperation.getCreditAccount().getId();
+    private void moveFoundsFromDebitToCreditAccount(PaymentOperationDto paymentOperationDto, PaymentOperation pendingOperation) {
+        Long debitAccountId = pendingOperation.getSenderAccount().getId();
+        Long creditAccountId = pendingOperation.getReceiverAccount().getId();
 
         balanceService.releasePaymentAmount(debitAccountId, pendingOperation.getAmount());
-        balanceService.withdrawFromBalance(debitAccountId, paymentEventDto.getAmount());
-        balanceService.depositToBalance(creditAccountId, paymentEventDto.getAmount());
+        balanceService.withdrawFromBalance(debitAccountId, paymentOperationDto.getAmount());
+        balanceService.depositToBalance(creditAccountId, paymentOperationDto.getAmount());
     }
 
     @Override
-    public OperationType getRequiredOperationType() {
-        return OperationType.CONFIRMATION;
+    public OperationStatus getRequiredOperationStatus() {
+        return OperationStatus.CONFIRMATION;
     }
 }

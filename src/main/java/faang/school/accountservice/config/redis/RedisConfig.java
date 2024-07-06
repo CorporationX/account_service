@@ -1,6 +1,6 @@
 package faang.school.accountservice.config.redis;
 
-import faang.school.accountservice.redis.PaymentEventListener;
+import faang.school.accountservice.redis.PaymentOperationListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 @RequiredArgsConstructor
 public class RedisConfig {
     private final RedisProperties redisProperties;
-    private final PaymentEventListener paymentEventLister;
+    private final PaymentOperationListener paymentEventLister;
 
     @Bean
     public ChannelTopic paymentTopic() {
