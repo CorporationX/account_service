@@ -4,9 +4,11 @@ import faang.school.accountservice.data.AccountTestData;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static faang.school.accountservice.enums.AccountStatus.CLOSED;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -43,6 +46,8 @@ class AccountServiceTest {
     private AccountService accountService;
     @Mock
     private AccountServiceValidator accountServiceValidator;
+    @Mock
+    private FreeAccountNumbersService freeAccountNumbersService;
     @Mock
     private AccountRepository accountRepository;
     @Mock
@@ -70,6 +75,7 @@ class AccountServiceTest {
 
             assertDoesNotThrow(() -> accountService.open(dto));
 
+            verify(freeAccountNumbersService).consumeFreeNumber(any(AccountType.class), any(Consumer.class));
             verify(mapper).toDto(entity);
         }
 
