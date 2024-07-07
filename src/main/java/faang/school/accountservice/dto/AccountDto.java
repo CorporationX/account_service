@@ -3,6 +3,7 @@ package faang.school.accountservice.dto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.model.Balance;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -35,7 +36,7 @@ public class AccountDto {
     private AccountType type;
     private Currency currency;
     private AccountStatus status;
-    private BigDecimal balance;
+    private Balance balance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime closedAt;

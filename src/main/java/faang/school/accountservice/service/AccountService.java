@@ -5,6 +5,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.jpa.AccountJpaRepository;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,12 @@ public class AccountService {
 
         String accountNumber = freeAccountNumbersService.getFreeNumber(account.getType());
         account.setNumber(accountNumber);
+        Balance balance = Balance.builder()
+                .account(account)
+                .build();
+
+        balance.setAccount(account);
+        account.setBalance(balance);
 
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
@@ -62,8 +69,8 @@ public class AccountService {
         log.info("Deposit account: {}, summa: {}", number, summa);
         Account account = accountRepository.findByNumber(number);
         accountValidator.accountStatusValidate(account.getStatus());
-
-        account.setBalance(account.getBalance().add(summa));
+        BigDecimal actualBalance = account.getBalance().getActualBalance();
+        account.getBalance().setActualBalance(actualBalance.add(summa));
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
 
@@ -72,8 +79,9 @@ public class AccountService {
         log.info("WriteOff account: {}, summa: {}", number, summa);
         Account account = accountRepository.findByNumber(number);
         accountValidator.accountStatusValidate(account.getStatus());
-        accountValidator.accountBalanceValidate(number, summa, account.getBalance());
-        account.setBalance(account.getBalance().subtract(summa));
+        BigDecimal actualBalance = account.getBalance().getActualBalance();
+        accountValidator.accountBalanceValidate(number, summa, actualBalance);
+        account.getBalance().setActualBalance(actualBalance.subtract(summa));
         return accountMapper.toDto(accountJpaRepository.save(account));
     }
 }
