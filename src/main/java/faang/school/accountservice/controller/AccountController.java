@@ -24,6 +24,7 @@ public class AccountController {
 
     @PostMapping
     public AccountDto open(@Valid @RequestBody AccountDto accountDto) {
+        validator.validateAccountNumberAbsence(accountDto);
         validator.validateCreationStatus(accountDto);
         validator.validateAccountOwners(accountDto);
 
