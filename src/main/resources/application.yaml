@@ -29,6 +29,14 @@ services:
     name: project-service
     host: http://localhost
     port: 8082
+  s3:
+    endpoint: http://127.0.0.1:9000/
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    targetWidth: 1080
+    targetHeight: 566
+    maxFilesAmount: 10
 
 logging:
   level:
@@ -36,3 +44,8 @@ logging:
 
 api:
   version: v1
+
+servlet:
+  multipart:
+    max-file-size: 5MB
+
