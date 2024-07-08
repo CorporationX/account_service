@@ -5,6 +5,25 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+
+    kafka:
+      port: 9092
+      host: localhost
+      group-id: account_service
+
+    channel:
+      payment:
+        new:
+          name: new-payment_channel
+        cancel:
+          name: payment-cancel_channel
+        clear:
+          name: payment-clear_channel
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

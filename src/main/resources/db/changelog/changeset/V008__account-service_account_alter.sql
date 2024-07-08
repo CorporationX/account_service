@@ -1,0 +1,1 @@
+ALTER TABLE owner RENAME COLUMN account_id TO custodian_id;
