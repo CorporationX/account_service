@@ -14,8 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
@@ -23,6 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
     private static final long ACCOUNT_ID = 1L;
+    private static final BigInteger ACCOUNT_NUMBER = new BigInteger("4220000000000001");
 
     @Mock
     private AccountRepository accountRepository;
@@ -99,5 +102,32 @@ class AccountServiceTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
         accountService.close(ACCOUNT_ID);
         verify(accountRepository).save(account);
+    }
+
+    @Test
+    public void whenGetByNumberAndAccountExistThenAccountDto() {
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account));
+        when(accountMapper.toDto(account)).thenReturn(accountDto);
+        AccountDto actual = accountService.getByNumber(ACCOUNT_NUMBER);
+        assertThat(actual).isEqualTo(accountDto);
+    }
+
+    @Test
+    public void whenGetByNumberAndAccountNotExistThenException() {
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.empty());
+        Assert.assertThrows(EntityNotFoundException.class,
+                () -> accountService.getByNumber(ACCOUNT_NUMBER));
+    }
+
+    @Test
+    public void whenExistsByNumberThenTrue() {
+        when(accountRepository.existsAccountByNumber(ACCOUNT_NUMBER)).thenReturn(true);
+        assertThat(accountService.existsByNumber(ACCOUNT_NUMBER)).isTrue();
+    }
+
+    @Test
+    public void whenExistsByNumberThenFalse() {
+        when(accountRepository.existsAccountByNumber(ACCOUNT_NUMBER)).thenReturn(true);
+        assertThat(accountService.existsByNumber(ACCOUNT_NUMBER)).isFalse();
     }
 }
