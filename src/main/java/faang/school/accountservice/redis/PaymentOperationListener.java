@@ -2,7 +2,7 @@ package faang.school.accountservice.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.PaymentOperationDto;
-import faang.school.accountservice.service.account.payment.PaymentOperationHandler;
+import faang.school.accountservice.service.payment.PaymentOperationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;

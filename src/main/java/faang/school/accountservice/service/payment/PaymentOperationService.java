@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.account.payment;
+package faang.school.accountservice.service.payment;
 
 
 import faang.school.accountservice.dto.PaymentOperationDto;

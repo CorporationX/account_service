@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.dto.PaymentResponseDto;
-import faang.school.accountservice.service.account.payment.PaymentOperationService;
+import faang.school.accountservice.service.payment.PaymentOperationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

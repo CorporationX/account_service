@@ -16,9 +16,9 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PaymentOperationDto {
     @NotNull
     private UUID paymentId;
