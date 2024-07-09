@@ -1,9 +1,17 @@
-=spring:
+spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        tariff_rate_change_channel:
+          name: tariff_rate_change_channel
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -41,3 +49,10 @@ schedulers:
         cron: "0 0 * * * *" # every day at 00:00
       one_time_in_three_hours:
         cron: "0 */3 * * * *" # one time in 3 hours
+  savings_accounts:
+    interest_calculation:
+      cron: "0 0 * * * *"
+
+notification-service:
+  host: localhost
+  port: 8083
