@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
 public class AccountDto {
     private Long id;
 
-    @NotBlank(message = "An account must have an not blank number.")
     @Size(min = 12, max = 20, message = "An account must have a number with size between 12 and 20 symbols.")
     private String number;
 
