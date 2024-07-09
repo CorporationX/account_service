@@ -27,3 +27,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V011_create_savings_account_tariff_history_table.sql
   - include:
       file: db/changelog/changeset/V011_create_tariff_rate_history_table.sql
+  - include:
+      file: db/changelog/changeset/V012_create_tariff_rate_change_request_table.sql

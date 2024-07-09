@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.CreateTariffRequest;
 import faang.school.accountservice.dto.TariffDto;
-import faang.school.accountservice.dto.UpdateTariffRequest;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.mapper.TariffMapper;
 import faang.school.accountservice.model.Tariff;
@@ -10,6 +9,8 @@ import faang.school.accountservice.model.TariffRateHistory;
 import faang.school.accountservice.repository.TariffRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +33,15 @@ public class TariffService {
         return tariffMapper.toDto(tariff);
     }
 
-
-    public TariffDto updateTariff(Long id, UpdateTariffRequest request){
+    public void updateTariff(Long id, BigDecimal newRate){
         Tariff tariff = getTariff(id);
 
         TariffRateHistory newRateHistory = TariffRateHistory.builder()
                 .tariff(tariff)
-                .rate(request.getNewRate())
+                .rate(newRate)
                 .build();
         tariff.getRateHistory().add(newRateHistory);
-        tariff = tariffRepository.save(tariff);
-        return tariffMapper.toDto(tariff);
+        tariffRepository.save(tariff);
     }
 
     public Tariff getTariff(Long id) {

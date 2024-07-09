@@ -5,6 +5,14 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        tariff_rate_change_channel:
+          name: tariff_rate_change_channel
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -44,3 +52,7 @@ schedulers:
   savings_accounts:
     interest_calculation:
       cron: "0 0 * * * *"
+
+notification-service:
+  host: localhost
+  port: 8083

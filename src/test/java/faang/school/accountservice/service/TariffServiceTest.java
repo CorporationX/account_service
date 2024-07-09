@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.CreateTariffRequest;
 import faang.school.accountservice.dto.TariffDto;
-import faang.school.accountservice.dto.UpdateTariffRequest;
 import faang.school.accountservice.mapper.TariffMapper;
 import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.model.TariffRateHistory;
@@ -15,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -39,7 +40,7 @@ class TariffServiceTest {
     void setUp(){
         tariffId = 1L;
         tariffName = "Test Tariff";
-        tariff  = Tariff.builder().build();
+        tariff = Tariff.builder().build();
     }
 
     @Test
@@ -68,25 +69,14 @@ class TariffServiceTest {
     @Test
     void shouldUpdateTariff() {
         BigDecimal newRate = BigDecimal.valueOf(0.06);
-        UpdateTariffRequest request = UpdateTariffRequest.builder()
-                .newRate(newRate)
-                .build();
-        Tariff existingTariff = Tariff.builder().id(tariffId).build();
-        Tariff updatedTariff = Tariff.builder().id(tariffId).rateHistory(existingTariff.getRateHistory()).build();
-        TariffRateHistory newRateHistory = TariffRateHistory.builder()
+        when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(tariff));
+        tariffService.updateTariff(tariffId, newRate);
+        Tariff updatedTariff = tariff;
+        updatedTariff.getRateHistory().add(TariffRateHistory.builder()
                 .tariff(updatedTariff)
                 .rate(newRate)
-                .build();
-        updatedTariff.getRateHistory().add(newRateHistory);
-        TariffDto expectedTariffDto = TariffDto.builder()
-                .id(tariffId)
-                .currentRate(newRate)
-                .build();
-        when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(existingTariff));
-        when(tariffRepository.save(updatedTariff)).thenReturn(updatedTariff);
-        when(tariffMapper.toDto(updatedTariff)).thenReturn(expectedTariffDto);
-        TariffDto updatedTariffDto = tariffService.updateTariff(tariffId, request);
-        assertEquals(expectedTariffDto, updatedTariffDto);
+                .build());
+        verify(tariffRepository, times(1)).save(updatedTariff);
     }
 
     @Test

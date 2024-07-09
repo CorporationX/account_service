@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.dto.UpdateTariffRequest;
 import faang.school.accountservice.service.TariffService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/v1/tariffs")
@@ -25,8 +28,9 @@ public class TariffController {
     }
 
     @PutMapping("/{id}")
-    public TariffDto updateTariff(@PathVariable Long id, @RequestBody UpdateTariffRequest request){
-        return tariffService.updateTariff(id, request);
+    public ResponseEntity<Void> updateTariff(@PathVariable Long id, @RequestBody BigDecimal request){
+        tariffService.updateTariff(id, request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
