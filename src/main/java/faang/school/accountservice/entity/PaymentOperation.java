@@ -1,39 +1,40 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OperationStatus;
 import faang.school.accountservice.enums.OperationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Data
 @Entity
 @Table(name = "payment_operation")
 public class PaymentOperation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "debit_account_id", nullable = false)
-    private Account debitAccount;
+    @ManyToOne()
+    @JoinColumn(name = "sender_account_id", nullable = false)
+    private Account senderAccount;
 
-    @ManyToOne
-    @JoinColumn(name = "credit_account_id", nullable = false)
-    private Account creditAccount;
+    @ManyToOne()
+    @JoinColumn(name = "receiver_account_id", nullable = false)
+    private Account receiverAccount;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -46,8 +47,9 @@ public class PaymentOperation {
     @Column(name = "operation_type", nullable = false)
     private OperationType type;
 
-    @Column(name = "is_cleared", nullable = false)
-    private Boolean isCleared;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "operation_status", nullable = false)
+    private OperationStatus status;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

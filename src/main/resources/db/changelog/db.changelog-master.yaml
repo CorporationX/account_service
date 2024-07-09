@@ -16,4 +16,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V007__account-service_account_number_index.sql
   - include:
+      file: db/changelog/changeset/V005__account-service_payment_operation.sql
+  - include:
       file: db/changelog/changeset/V008__account-service_free_account_numbers.sql
