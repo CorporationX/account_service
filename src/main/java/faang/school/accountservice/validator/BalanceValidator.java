@@ -28,9 +28,15 @@ public class BalanceValidator {
         }
     }
 
-    public void checkExistsBalanceInBd(BalanceDto balanceDto) {
+    public void checkExistsBalanceByIdInBd(BalanceDto balanceDto) {
         if (!balanceRepository.existsById(balanceDto.getId())) {
-            throw new DataBalanceValidation("The balance with id " + balanceDto.getId() + " does not exist in the database");
+            throw new DataBalanceValidation("The balance with accountId " + balanceDto.getAccountId() + " does not exist in the database");
+        }
+    }
+
+    public void checkAbsenceBalanceByAccountIdInBd(BalanceDto balanceDto) {
+        if (balanceRepository.existsByAccountId(balanceDto.getAccountId())) {
+            throw new DataBalanceValidation("The balance with accountId " + balanceDto.getAccountId() + " already in the database");
         }
     }
 }

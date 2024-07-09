@@ -1,7 +1,7 @@
 CREATE TABLE balance
 (
     id                            bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    account_id                    bigint NOT NULL,
+    account_id                    bigint NOT NULL UNIQUE,
     current_authorization_balance decimal,
     current_actual_balance        decimal,
     created_at                    timestamptz DEFAULT current_timestamp,

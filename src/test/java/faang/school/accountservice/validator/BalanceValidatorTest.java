@@ -29,7 +29,7 @@ public class BalanceValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        balanceDto = BalanceDto.builder().id(1L).build();
+        balanceDto = BalanceDto.builder().id(1L).accountId(5L).build();
         balanceId = 1L;
     }
 
@@ -44,8 +44,14 @@ public class BalanceValidatorTest {
     }
 
     @Test
-    public void testCheckExistsBalanceInBd() {
+    public void testCheckExistsBalanceByIdInBd() {
         when(balanceRepository.existsById(balanceId)).thenReturn(false);
-        assertThrows(DataBalanceValidation.class, () -> balanceValidator.checkExistsBalanceInBd(balanceDto));
+        assertThrows(DataBalanceValidation.class, () -> balanceValidator.checkExistsBalanceByIdInBd(balanceDto));
+    }
+
+    @Test
+    public void testCheckAbsenceBalanceByAccountIdInBd() {
+        when(balanceRepository.existsByAccountId(balanceDto.getAccountId())).thenReturn(true);
+        assertThrows(DataBalanceValidation.class, () -> balanceValidator.checkAbsenceBalanceByAccountIdInBd(balanceDto));
     }
 }

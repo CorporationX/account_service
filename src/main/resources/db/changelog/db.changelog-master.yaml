@@ -7,4 +7,6 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__balance_init.sql
   - include:
       file: db/changelog/changeset/V004__add_account_types.sql
+  - include:
+      file: db/changelog/changeset/V005__balance_audit_init.sql
 

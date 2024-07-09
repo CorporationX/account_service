@@ -6,48 +6,40 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "balance")
-public class Balance {
+@Table(name = "balance_audit")
+public class BalanceAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @ManyToOne
+    @JoinColumn(name = "balance_id")
+    private Balance balance;
 
-    @Column(name = "current_authorization_balance")
+    @Column(name = "balance_version", nullable = false)
+    private long balanceVersion;
+
+    @Column(name = "authorization_balance", nullable = false)
     private BigDecimal currentAuthorizationBalance;
 
-    @Column(name = "current_actual_balance")
+    @Column(name = "actual_balance", nullable = false)
     private BigDecimal currentActualBalance;
+
+    @Column(name = "operation_id", nullable = false)
+    private long operationId;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "balance")
-    private List<BalanceAudit> balanceAudit;
-
-    @Version
-    @Column(name = "version", nullable = false)
-    private long version;
 }
