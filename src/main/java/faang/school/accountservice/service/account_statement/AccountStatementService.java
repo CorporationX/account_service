@@ -1,19 +1,19 @@
 package faang.school.accountservice.service.account_statement;
 
-import faang.school.accountservice.dto.account_statement.AccountStatementDto;
-import faang.school.accountservice.model.AccountStatement;
+import faang.school.accountservice.dto.account_statement.AccountStatementDtoToCreate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.List;
 
 public interface AccountStatementService {
 
-    AccountStatement findById(Long id);
+    InputStream getHistory(AccountStatementDtoToCreate accountId, long userId);
 
-    List<AccountStatementDto> create(Long postId, Long userId, List<MultipartFile> files);
+    InputStream getFile(String key, long userId);
 
-    InputStream downloadResource(String key);
+    void createFileAndUpload(MultipartFile file, long userId);
 
     void deleteFile(String key, Long userId);
+
+    InputStream downloadFile(String key, long userId);
 }

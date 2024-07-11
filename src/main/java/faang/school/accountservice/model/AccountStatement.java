@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "resource")
+@Table(name = "account_statement")
 public class AccountStatement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,13 +34,6 @@ public class AccountStatement {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "name", length = 150)
-    private String name;
-
-    @Column(name = "type", length = 150)
-    private String type;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @Column(name = "account_id", length = 150)
+    private Account account;
 }

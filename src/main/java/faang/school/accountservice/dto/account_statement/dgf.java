@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountStatementDto {
-
-    private Long accountId;
-    private LocalDateTime from;
-    private LocalDateTime to;
+public class dgf {
+    private Long id;
+    private String key;
+    private long size;
+    private LocalDateTime createdAt;
+    private String name;
+    private String type;
 }

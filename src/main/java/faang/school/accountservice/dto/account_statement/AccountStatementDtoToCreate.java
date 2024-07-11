@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountStatementDto {
+public class AccountStatementDtoToCreate {
 
     private Long accountId;
     private LocalDateTime from;
