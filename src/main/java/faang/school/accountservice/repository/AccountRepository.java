@@ -16,4 +16,9 @@ public class AccountRepository {
         return accountJpaRepository.findByNumber(number)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Account: %s not found", number)));
     }
+
+    public Account findById(Long id) {
+        return accountJpaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Account with id %s not found", id)));
+    }
 }

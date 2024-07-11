@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
+    id ("org.liquibase.gradle") version "2.0.4"
 }
 
 group = "faang.school"
