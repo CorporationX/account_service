@@ -7,6 +7,7 @@ import faang.school.accountservice.repository.AccountStatementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +34,19 @@ public class AccountStatementValidator {
         if (!postAuthorId.equals(resourceUserId) && !postProjectId.equals(resourceUserId)) {
             throw new NotFoundException("Mismatch postAuthorIdId and resourceUserId");
         }
+    }
+
+    public void validateGetFile(String key, long userId) {
+    }
+
+    public void validateUploadFile(MultipartFile file, long userId) {
+    }
+
+    public void validateDownloadFile(String key, long userId) {
+    }
+
+    public void validateDeleteFile(String key, Long userId) {
+        accountStatementRepository.findByKey(key)
+                .orElseThrow(() -> new NotFoundException("Account statement not found for key: " + key));
     }
 }

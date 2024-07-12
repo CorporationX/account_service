@@ -62,6 +62,11 @@ dependencies {
      * Swagger / SpringDoc
      */
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+
+    /**
+     * Creating PDF files
+     */
+    implementation("org.apache.pdfbox:pdfbox:2.0.24")
 }
 
 tasks.withType<Test> {

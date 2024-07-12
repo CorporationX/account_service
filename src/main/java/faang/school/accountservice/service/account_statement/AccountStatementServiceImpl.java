@@ -1,23 +1,25 @@
 package faang.school.accountservice.service.account_statement;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import faang.school.accountservice.dto.account_statement.AccountStatementDtoToCreate;
-import faang.school.accountservice.mapper.AccountStatementMapper;
 import faang.school.accountservice.model.AccountStatement;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.AccountStatementRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
-import faang.school.accountservice.service.balance_audit.BalanceAuditService;
 import faang.school.accountservice.service.s3.AmazonS3Service;
-import faang.school.accountservice.exception.NotFoundException;
-import faang.school.accountservice.exception.S3Exception;
 import faang.school.accountservice.validator.AccountStatementValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -27,28 +29,79 @@ import java.util.List;
 public class AccountStatementServiceImpl implements AccountStatementService {
 
     private final AccountStatementRepository accountStatementRepository;
-    private final AccountStatementMapper accountStatementMapper;
     private final AccountStatementValidator accountStatementValidator;
     private final AmazonS3Service amazonS3Service;
     private final BalanceAuditRepository balanceAuditRepository;
 
     @Override
-    public MultipartFile getHistory(AccountStatementDtoToCreate dto, long userId) {
+    public InputStream createAccountStatementPDFfile(AccountStatementDtoToCreate dto, long userId) {
         List<BalanceAudit> balanceAudits = balanceAuditRepository.findAllAuditsByInterval(dto.getAccountId(), dto.getFrom(), dto.getTo());
 
-        throw new UnsupportedOperationException("Method not implemented yet.");
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                contentStream.beginText();
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20);
+                contentStream.newLineAtOffset(100, 750);
+                contentStream.showText("Statement of Account");
+                contentStream.endText();
+
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(50, 700);
+                contentStream.showText("Date");
+                contentStream.newLineAtOffset(100, 0);
+                contentStream.showText("Charges");
+                contentStream.newLineAtOffset(100, 0);
+                contentStream.showText("Credits");
+                contentStream.newLineAtOffset(100, 0);
+                contentStream.showText("Account Balance");
+                contentStream.endText();
+
+                contentStream.setFont(PDType1Font.HELVETICA, 12);
+                int yPosition = 680;
+                for (BalanceAudit audit : balanceAudits) {
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(50, yPosition);
+                    contentStream.showText(audit.getCreatedAt().toString());
+                    contentStream.newLineAtOffset(100, 0);
+                    contentStream.showText(audit.getAuthorizationBalance().toString());
+                    contentStream.newLineAtOffset(100, 0);
+                    contentStream.showText(audit.getActualBalance().toString());
+                    contentStream.newLineAtOffset(100, 0);
+                    contentStream.showText(String.valueOf(audit.getVersion()));
+                    contentStream.endText();
+
+                    yPosition -= 20;
+                }
+            }
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            document.save(byteArrayOutputStream);
+            document.close();
+
+            return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create PDF", e);
+        }
     }
 
     @Override
-    public MultipartFile getFile(String key, long userId) {
-        accountStatementValidator.validateExistenceByKey(key);
-        MultipartFile file = amazonS3Service.downloadFile(key);
-        return file; // This method should just send user on page where the PDF file is opened, not download on the computer
-    }
+    public InputStream getFileFromS3(String key, long userId) {
+        accountStatementValidator.validateGetFile(key, userId);
 
+        InputStream fileInputStream = amazonS3Service.downloadFile(key);
+
+        log.info("File with key {} retrieved successfully for user {}", key, userId);
+
+        return fileInputStream;
+    }
     @Override
-    public void createFileAndUpload(MultipartFile file, long userId) {
-        accountStatementValidator.validateCreateFileAndUpload(file, userId);
+    public void uploadPdfFileToS3(MultipartFile file, long userId) {
+        accountStatementValidator.validateUploadFile(file, userId);
 
         String key = amazonS3Service.uploadFile(file);
         AccountStatement accountStatement = AccountStatement.builder()
@@ -61,16 +114,17 @@ public class AccountStatementServiceImpl implements AccountStatementService {
     }
 
     @Override
-    public InputStream downloadFile(String key, long userId) {
-        accountStatementValidator.validateExistenceByKey(key);
+    public InputStream downloadFileFromS3(String key, long userId) {
+        accountStatementValidator.validateDownloadFile(key, userId);
+
         return amazonS3Service.downloadFile(key);
     }
 
     @Override
     @Transactional
-    public void deleteFile(String key, Long userId) {
-        AccountStatement accountStatementToRemove = accountStatementRepository.findByKey(key)
-                .orElseThrow(() -> new NotFoundException("Account statement not found for key: " + key));
+    public void deleteFileFromS3(String key, Long userId) {
+        accountStatementValidator.validateDeleteFile(key, userId);
+
         accountStatementValidator.validateExistenceByKey(key);
 
         accountStatementRepository.deleteByKey(key);

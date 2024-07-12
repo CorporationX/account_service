@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller.account_statement;
 
 import faang.school.accountservice.config.context.user.UserContext;
-import faang.school.accountservice.dto.account_statement.AccountStatementDto;
 import faang.school.accountservice.dto.account_statement.AccountStatementDtoToCreate;
 import faang.school.accountservice.service.account_statement.AccountStatementService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,14 +25,14 @@ public class AccountStatementController {
     @GetMapping
     public InputStream getAccountPaymentHistory(
             @RequestBody AccountStatementDtoToCreate dto) {
-        return accountStatementService.getHistory(dto, userContext.getUserId());
+        return accountStatementService.createAccountStatementPDFfile(dto, userContext.getUserId());
     }
 
     @Operation(summary = "Get account statement PDF file from Amazon S3, previously saved.")
     @GetMapping("/{key}")
     public InputStream getAccountStatementFile(
             @PathVariable("key") String key) {
-        return accountStatementService.getFile(key, userContext.getUserId());
+        return accountStatementService.getFileFromS3(key, userContext.getUserId());
     }
 
     @Operation(summary = "Upload account statement PDF file.")
@@ -46,20 +45,20 @@ public class AccountStatementController {
         if (!Objects.equals(file.getContentType(), "application/pdf")) {
             throw new IllegalArgumentException("File must be a PDF.");
         }
-        accountStatementService.createFileAndUpload(file, userContext.getUserId());
+        accountStatementService.uploadPdfFileToS3(file, userContext.getUserId());
     }
 
     @Operation(summary = "Delete account statement PDF file.")
     @DeleteMapping("/{key}")
     public void deleteAccountStatementFile(
             @PathVariable("key") String key) {
-        accountStatementService.deleteFile(key, userContext.getUserId());
+        accountStatementService.deleteFileFromS3(key, userContext.getUserId());
     }
 
     @Operation(summary = "Download account statement PDF file from Amazon S3.")
     @GetMapping("/download/{key}")
     public InputStream downloadAccountStatementFile(
             @PathVariable("key") String key) {
-        return accountStatementService.downloadFile(key, userContext.getUserId());
+        return accountStatementService.downloadFileFromS3(key, userContext.getUserId());
     }
 }

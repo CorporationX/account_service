@@ -7,13 +7,13 @@ import java.io.InputStream;
 
 public interface AccountStatementService {
 
-    InputStream getHistory(AccountStatementDtoToCreate accountId, long userId);
+    InputStream createAccountStatementPDFfile(AccountStatementDtoToCreate accountId, long userId);
 
-    InputStream getFile(String key, long userId);
+    InputStream getFileFromS3(String key, long userId);
 
-    void createFileAndUpload(MultipartFile file, long userId);
+    void uploadPdfFileToS3(MultipartFile file, long userId);
 
-    void deleteFile(String key, Long userId);
+    void deleteFileFromS3(String key, Long userId);
 
-    InputStream downloadFile(String key, long userId);
+    InputStream downloadFileFromS3(String key, long userId);
 }
