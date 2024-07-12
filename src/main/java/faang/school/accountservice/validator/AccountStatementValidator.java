@@ -17,13 +17,6 @@ public class AccountStatementValidator {
     private final AmazonS3Properties amazonS3Properties;
 
     @Transactional
-    public void validateCountFilesPerPost(Long postId, int filesToAdd) {
-        if (accountStatementRepository.countAllByPost_Id(postId) + filesToAdd > amazonS3Properties.getMaxFilesAmount()) {
-            throw new DataValidationException(String.format("Max files per post = %s", amazonS3Properties.getMaxFilesAmount()));
-        }
-    }
-
-    @Transactional
     public void validateExistenceByKey(String key) {
         if (!accountStatementRepository.existsByKey(key)) {
             throw new NotFoundException(String.format("Resource with key $s not found", key));

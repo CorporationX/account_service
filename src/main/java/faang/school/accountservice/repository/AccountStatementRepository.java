@@ -13,7 +13,5 @@ public interface AccountStatementRepository extends JpaRepository<AccountStateme
 
     Optional<AccountStatement> findByKey(String key);
 
-    int countAllByPost_Id(Long postId);
-
     void deleteByKey(String key);
 }

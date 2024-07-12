@@ -14,6 +14,4 @@ public class dgf {
     private String key;
     private long size;
     private LocalDateTime createdAt;
-    private String name;
-    private String type;
 }

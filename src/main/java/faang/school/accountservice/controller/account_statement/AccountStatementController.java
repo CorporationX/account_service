@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("accountStatement")
+@RequestMapping("/accountStatement")
 @RequiredArgsConstructor
 @Tag(name = "AccountStatement")
 public class AccountStatementController {
