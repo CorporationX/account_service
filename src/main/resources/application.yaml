@@ -41,4 +41,4 @@ account:
   number:
     length: 16
   generate:
-    cron: "* 7 * * * *"
+    cron: "0 7 * * * *"
