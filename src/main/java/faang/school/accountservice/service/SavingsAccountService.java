@@ -5,7 +5,6 @@ import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.SavingsAccount;
-import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.model.TariffHistory;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -25,6 +23,7 @@ import java.util.function.Supplier;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final SavingsAccountMapper savingsAccountMapper;
@@ -36,7 +35,7 @@ public class SavingsAccountService {
         log.info("Trying create saving account.");
 
         Account account = accountRepository.findById(accountId);
-        Tariff tariff = checkTariffId(tariffId);
+        checkTariffId(tariffId);
 
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setAccount(account);
@@ -71,8 +70,8 @@ public class SavingsAccountService {
         });
     }
 
-    private Tariff checkTariffId(Long tariffId) {
-        return tariffRepository.findById(tariffId).orElseThrow(() -> {
+    private void checkTariffId(Long tariffId) {
+        tariffRepository.findById(tariffId).orElseThrow(() -> {
             log.error("");
             return new EntityNotFoundException(String.format("No tariff with this id %s", tariffId));
         });

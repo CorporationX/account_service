@@ -22,5 +22,6 @@ public class RateHistory {
     @JoinColumn(name = "tariff")
     private Tariff tariff;
 
+    @Column(name = "rate")
     private Double rate;
 }

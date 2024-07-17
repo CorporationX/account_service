@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.model.Account;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,8 +17,7 @@ import java.time.LocalDateTime;
 public class SavingsAccountDto {
     @NotNull
     private Long id;
-    @NotBlank
-    private String account;
+    private Account account;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

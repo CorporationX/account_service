@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TariffService {
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
@@ -37,6 +39,7 @@ public class TariffService {
                 }).toList());
         tariff.setCreatedAt(LocalDateTime.now());
         tariff.setUpdatedAt(LocalDateTime.now());
+        tariffRepository.save(tariff);
         return tariffMapper.toDto(tariff);
     }
 
@@ -45,12 +48,18 @@ public class TariffService {
         log.info("Trying updated tariff with id - {}", tariffId);
         TariffDto tariffDto = getTariffById(tariffId);
         Tariff tariff = tariffMapper.toEntity(tariffDto);
+
+        List<RateHistory> rateHistoryList = new ArrayList<>(tariff.getRateHistory());
         RateHistory rateHistory = RateHistory.builder()
                 .rate(newRate)
                 .tariff(tariff)
                 .build();
-        tariff.getRateHistory().add(rateHistory);
+        rateHistoryList.add(rateHistory);
+
+        tariff.setRateHistory(rateHistoryList);
         tariff.setUpdatedAt(LocalDateTime.now());
+        tariffRepository.save(tariff);
+
         return tariffDto;
     }
 
