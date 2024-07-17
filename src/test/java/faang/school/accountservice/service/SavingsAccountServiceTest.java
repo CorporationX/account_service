@@ -41,11 +41,11 @@ public class SavingsAccountServiceTest {
     @Mock
     private TariffRepository tariffRepository;
 
-    Tariff tariff;
-    Account account;
-    SavingsAccount savingsAccount;
-    SavingsAccountDto savingsAccountDto;
-    TariffHistory tariffHistory;
+    private Tariff tariff;
+    private Account account;
+    private SavingsAccount savingsAccount;
+    private SavingsAccountDto savingsAccountDto;
+    private TariffHistory tariffHistory;
 
     @BeforeEach
     void setUp() {

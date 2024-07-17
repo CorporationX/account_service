@@ -11,6 +11,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/tariff")
 public class TariffController {
     private final TariffService tariffService;
 
