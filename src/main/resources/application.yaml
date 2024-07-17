@@ -42,3 +42,8 @@ account:
     length: 16
   generate:
     cron: "* 7 * * * *"
+
+savings_account:
+  interest_calculation:
+    cron: "0 0 0 * * ?"
+    thread_pool: 10

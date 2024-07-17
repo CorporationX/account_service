@@ -11,6 +11,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -72,6 +73,7 @@ public class SavingsAccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test create savings account.")
     public void testCreateSavingsAccount() {
         when(accountRepository.findById(anyLong())).thenReturn(account);
         when(tariffRepository.findById(anyLong())).thenReturn(Optional.of(tariff));
@@ -87,6 +89,7 @@ public class SavingsAccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test create savings account with exception.")
     public void testCreateAccountWithException() {
         when(accountRepository.findById(anyLong())).thenReturn(account);
         when(tariffRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -101,6 +104,7 @@ public class SavingsAccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test get savings account by id.")
     public void testGetSavingsAccountById() {
         when(savingsAccountRepository.findById(anyLong())).thenReturn(Optional.of(savingsAccount));
         when(savingsAccountMapper.toDto(any(SavingsAccount.class))).thenReturn(savingsAccountDto);
@@ -114,6 +118,7 @@ public class SavingsAccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test get savings account by account id.")
     public void testGetSavingsAccountByAccountId() {
         when(savingsAccountRepository.findByAccountId(anyLong())).thenReturn(Optional.of(savingsAccount));
         when(savingsAccountMapper.toDto(any(SavingsAccount.class))).thenReturn(savingsAccountDto);

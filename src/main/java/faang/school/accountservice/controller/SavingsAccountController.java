@@ -3,6 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.service.SavingsAccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ public class SavingsAccountController {
     private final SavingsAccountService savingsAccountService;
 
     @PostMapping("/{accountId}")
+    @ResponseStatus(HttpStatus.CREATED)
     public SavingsAccountDto createSavingAccount(@PathVariable Long accountId,
                                                  @RequestParam Long tariffId) {
         return savingsAccountService.createSavingAccount(accountId, tariffId);
