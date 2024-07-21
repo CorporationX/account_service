@@ -1,6 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.BalanceAuditDto;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Validated
 @RestController
@@ -78,5 +80,10 @@ public class AccountController {
                               @PathVariable String number,
                               @PathVariable BigDecimal summa) {
         return accountService.writeOff(number, summa);
+    }
+
+    @GetMapping("/audit/{accountId}")
+    public List<BalanceAuditDto> getAccountBalanceAudit(@PathVariable long accountId) {
+        return accountService.getAccountBalanceAudit(accountId);
     }
 }

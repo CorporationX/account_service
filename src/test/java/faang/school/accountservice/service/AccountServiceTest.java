@@ -6,9 +6,12 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.jpa.AccountJpaRepository;
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +25,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +50,10 @@ class AccountServiceTest {
     private AccountValidator accountValidator;
     @Mock
     private FreeAccountNumbersService freeAccountNumbersService;
+    @Mock
+    private BalanceAuditMapper balanceAuditMapper;
+    @Mock
+    private BalanceAuditRepository balanceAuditRepository;
 
     @InjectMocks
     private AccountService accountService;
@@ -53,6 +62,7 @@ class AccountServiceTest {
     AccountDto savedAccountDto;
     Account newAccount;
     Account savedAccount;
+    BalanceAudit balanceAudit;
 
     @BeforeEach
     public void init() {
@@ -87,6 +97,9 @@ class AccountServiceTest {
                 .balance(ACCOUNT_BALANCE)
                 .createdAt(ACCOUNT_CREATED_AT)
                 .build();
+        balanceAudit = BalanceAudit.builder()
+                .accountId(ACCOUNT_ID)
+                .build();
 
     }
 
@@ -115,10 +128,12 @@ class AccountServiceTest {
         when(accountMapper.toEntity(newAccountDto)).thenReturn(newAccount);
         when(accountJpaRepository.save(newAccount)).thenReturn(savedAccount);
         when(accountMapper.toDto(savedAccount)).thenReturn(savedAccountDto);
+        when(balanceAuditMapper.toBalanceAudit(any(Balance.class))).thenReturn(balanceAudit);
 
         AccountDto actualResult = accountService.openAccount(newAccountDto);
 
         assertEquals(savedAccountDto, actualResult);
+        verify(balanceAuditRepository).save(balanceAudit);
     }
 
     @Test
@@ -128,10 +143,12 @@ class AccountServiceTest {
 
         when(accountRepository.findByNumber(ACCOUNT_NUMBER)).thenReturn(savedAccount);
         when(accountMapper.toDto(savedAccount)).thenReturn(savedAccountDto);
+        when(balanceAuditMapper.toBalanceAudit(any(Balance.class))).thenReturn(balanceAudit);
 
         AccountDto actualResult = accountService.freezeAccount(ACCOUNT_NUMBER);
 
         assertEquals(savedAccountDto, actualResult);
+        verify(balanceAuditRepository).save(balanceAudit);
     }
 
     @Test
@@ -142,10 +159,12 @@ class AccountServiceTest {
 
         when(accountRepository.findByNumber(ACCOUNT_NUMBER)).thenReturn(savedAccount);
         when(accountMapper.toDto(savedAccount)).thenReturn(savedAccountDto);
+        when(balanceAuditMapper.toBalanceAudit(any(Balance.class))).thenReturn(balanceAudit);
 
         AccountDto actualResult = accountService.closeAccount(ACCOUNT_NUMBER);
 
         assertEquals(savedAccountDto, actualResult);
+        verify(balanceAuditRepository).save(balanceAudit);
     }
 
     @Test
@@ -158,10 +177,12 @@ class AccountServiceTest {
         when(accountRepository.findByNumber(ACCOUNT_NUMBER)).thenReturn(newAccount);
         when(accountJpaRepository.save(newAccount)).thenReturn(savedAccount);
         when(accountMapper.toDto(savedAccount)).thenReturn(savedAccountDto);
+        when(balanceAuditMapper.toBalanceAudit(any(Balance.class))).thenReturn(balanceAudit);
 
         AccountDto actualResult = accountService.deposit(ACCOUNT_NUMBER, BigDecimal.valueOf(500));
 
         assertEquals(savedAccountDto, actualResult);
+        verify(balanceAuditRepository).save(balanceAudit);
     }
 
     @Test
@@ -174,9 +195,11 @@ class AccountServiceTest {
         when(accountRepository.findByNumber(ACCOUNT_NUMBER)).thenReturn(newAccount);
         when(accountJpaRepository.save(newAccount)).thenReturn(savedAccount);
         when(accountMapper.toDto(newAccount)).thenReturn(savedAccountDto);
+        when(balanceAuditMapper.toBalanceAudit(any(Balance.class))).thenReturn(balanceAudit);
 
         AccountDto actualResult = accountService.writeOff(ACCOUNT_NUMBER, BigDecimal.valueOf(500));
 
         assertEquals(savedAccountDto, actualResult);
+        verify(balanceAuditRepository).save(balanceAudit);
     }
 }
