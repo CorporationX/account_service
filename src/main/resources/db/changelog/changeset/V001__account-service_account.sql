@@ -11,5 +11,6 @@ CREATE TABLE account (
     update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     close_at TIMESTAMP,
     version INT NOT NULL DEFAULT 0
-    )
-CREATE INDEX owner_idx ON account (owner_id)
+    );
+
+CREATE INDEX idx_owner_id ON account (owner_id);

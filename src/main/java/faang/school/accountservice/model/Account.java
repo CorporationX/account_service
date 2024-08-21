@@ -20,13 +20,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "account")
+@Table(name = "account",
+        indexes = {@Index(name = "idx_owner_id", columnList = "owner_id")})
 public class Account {
 
+    //UUID uuid = UUID.randomUUID();
+    // private final UUID eventId = UUID.randomUUID();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    //    @Pattern
     @Size(min = 12, max = 20, message = "Number must be between 12 and 20 characters")
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
@@ -52,12 +56,12 @@ public class Account {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updateAt;
 
     @Temporal(TemporalType.TIMESTAMP)
