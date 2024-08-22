@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    @Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
     Optional<Account> findWithLockingById(BigInteger id);
 }
