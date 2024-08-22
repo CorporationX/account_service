@@ -26,7 +26,6 @@ public class AccountDto {
     private OwnerType owner;
 
     @Positive
-    @NotNull
     private long ownerId;
 
     @NotNull
