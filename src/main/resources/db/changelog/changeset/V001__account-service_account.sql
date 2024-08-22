@@ -1,4 +1,3 @@
--- Write your sql migration here!
 CREATE TABLE account (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     number VARCHAR(20) NOT NULL UNIQUE,
@@ -8,9 +7,9 @@ CREATE TABLE account (
     currency SMALLINT NOT NULL,
     account_status SMALLINT NOT NULL,
     create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     close_at TIMESTAMP,
-    version INT NOT NULL DEFAULT 0
+    version BIGINT NOT NULL DEFAULT 0
     );
 
-CREATE INDEX idx_owner_id ON account (owner_id);
+CREATE INDEX idx_number ON account (number);

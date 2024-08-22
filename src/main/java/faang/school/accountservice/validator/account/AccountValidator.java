@@ -1,7 +1,7 @@
 package faang.school.accountservice.validator.account;
 
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.AccountStatus;
+import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

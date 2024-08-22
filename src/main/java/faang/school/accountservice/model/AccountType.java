@@ -1,4 +1,4 @@
-package faang.school.accountservice.enums;
+package faang.school.accountservice.model;
 
 public enum AccountType {
     SETTLEMENT_ACCOUNT("Settlement accounts"),
