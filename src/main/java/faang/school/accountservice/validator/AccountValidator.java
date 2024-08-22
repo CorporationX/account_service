@@ -1,6 +1,5 @@
 package faang.school.accountservice.validator;
 
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.DataValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -34,13 +33,13 @@ public class AccountValidator {
 
         if (ownerType.equals(OwnerType.PROJECT)) {
             if (ownerUserId != null && ownerProjectId == null) {
-                log.error("Owner project ID is null, owner user id is not null - Owner Type mismatch");
-                throw new DataValidationException("Owner project ID is null, owner user id is not null - Owner Type mismatch");
+                log.error("Owner project ID is null, owner user id is not null - Owner Type mismatch. Owner type - Project");
+                throw new DataValidationException("Owner project ID is null, owner user id is not null - Owner Type mismatch. Owner type - Project");
             }
         } else if (ownerType.equals(OwnerType.USER)) {
             if (ownerProjectId != null && ownerUserId == null) {
-                log.error("Owner project ID is not null, owner user id is  null - Owner Type mismatch");
-                throw new DataValidationException("Owner project ID is null, owner user id is not null - Owner Type mismatch");
+                log.error("Owner project ID is null, owner user id is not null - Owner Type mismatch. Owner type - User");
+                throw new DataValidationException("Owner project ID is null, owner user id is not null - Owner Type mismatch. Owner type - User");
             }
         }
     }
