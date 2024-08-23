@@ -19,8 +19,9 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/{ownerId}")
-    public ResponseEntity<List<AccountDto>> getAllAccounts(@PathVariable("ownerId") long ownerId) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccounts(ownerId));
+    public ResponseEntity<List<AccountDto>> getAllAccounts(@PathVariable("ownerId") long ownerId,
+                                                           @RequestParam("owner") String owner) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccounts(ownerId, owner));
     }
 
     @GetMapping

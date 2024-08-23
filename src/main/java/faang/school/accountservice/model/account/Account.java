@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "account",
-        indexes = {@Index(name = "idx_number", columnList = "number")})
+@Table(name = "account")
 public class Account {
 
     @Id

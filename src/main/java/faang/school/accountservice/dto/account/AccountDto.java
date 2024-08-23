@@ -34,6 +34,7 @@ public class AccountDto {
     @NotNull
     private Currency currency;
 
+    @Builder.Default
     private AccountStatus accountStatus = AccountStatus.VALID;
 
     @JsonProperty("accountStatus")
