@@ -1,1 +1,0 @@
-CREATE INDEX idx_owner_id ON account (owner_id);
