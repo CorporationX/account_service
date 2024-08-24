@@ -3,11 +3,11 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.exception.ExceptionMessage;
 import faang.school.accountservice.mapper.account.AccountMapper;
+import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.model.OwnerType;
 import faang.school.accountservice.model.account.Account;
-import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.ServiceHelper;
+import faang.school.accountservice.service.EnumConverter;
 import faang.school.accountservice.validator.account.AccountValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +24,11 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
-    private final ServiceHelper serviceHelper;
+    private final EnumConverter enumConverter;
 
     @Transactional
     public List<AccountDto> getAllAccounts(long ownerId, String owner) {
-        OwnerType newOwner = serviceHelper.checkEnumAndTransformation(owner, OwnerType.class);
+        OwnerType newOwner = enumConverter.checkEnumAndTransformation(owner, OwnerType.class);
 
         List<Account> accounts = accountRepository.findAllByOwnerIdAndOwner(ownerId, newOwner);
         return accounts.stream().map(accountMapper::toDto).toList();
@@ -41,9 +41,9 @@ public class AccountService {
 
     @Transactional
     public AccountDto createAccount(AccountDto accountDto) {
-        Account account = accountMapper.toEntity(accountDto);
+        accountValidator.checkExistenceOfTheNumber(accountDto);
 
-        accountValidator.checkExistenceOfTheNumber(account);
+        Account account = accountMapper.toEntity(accountDto);
         accountRepository.save(account);
 
         return accountMapper.toDto(account);
@@ -52,7 +52,7 @@ public class AccountService {
     @Transactional
     public AccountDto updateStatusAccount(String number, String status) {
         Account account = findAccountAndValid(number);
-        AccountStatus newStatus = serviceHelper.checkEnumAndTransformation(status, AccountStatus.class);
+        AccountStatus newStatus = enumConverter.checkEnumAndTransformation(status, AccountStatus.class);
 
         if (account.getAccountStatus() == AccountStatus.CLOSED) {
             log.error(ExceptionMessage.CHANGE_STATUS_EXCEPTION + number);

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ServiceHelper {
+public class EnumConverter {
 
     public <E extends Enum<E>> E checkEnumAndTransformation(String accountEnum, Class<E> enumClass) {
         E newAccountEnum;
