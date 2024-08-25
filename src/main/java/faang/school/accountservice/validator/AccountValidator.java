@@ -9,21 +9,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AccountValidator {
 
-    public void validateAccountNumber(String accountNumber) {
-        if (accountNumber == null || accountNumber.isBlank()) {
-            log.error("The number of account is null or blank");
-            throw new DataValidationException("The number of account is null or blank");
-        }
-        if (!accountNumber.matches("\\d+")) {
-            log.error("The number of account must contain only numbers");
-            throw new DataValidationException("The number of account must contain only numbers");
-        }
-        if (accountNumber.length() < 12 || accountNumber.length() > 20) {
-            log.error("The number account length must be from 12 to 20 characters.");
-            throw new DataValidationException("The number account length must be from 12 to 20 characters.");
-        }
-    }
-
     public void validateAccountOwner(OwnerType ownerType, Long ownerProjectId, Long ownerUserId) {
 
         if (ownerProjectId == null && ownerUserId == null) {

@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
@@ -37,9 +39,9 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "number", length = 20, nullable = false, unique = true)
-    @Size(min = 12, max = 20, message = "The number account length must be from 12 to 20 characters.")
-    private String number;
+    @Column(name = "number", nullable = false, unique = true)
+    @Min(0)
+    private BigInteger number;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
