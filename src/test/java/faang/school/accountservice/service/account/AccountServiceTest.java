@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -31,7 +32,7 @@ class AccountServiceTest {
     private AccountMapper accountMapper;
     @Mock
     private AccountValidator accountValidator;
-    @Mock
+    @Spy
     private EnumConverter enumConverter;
     @InjectMocks
     private AccountService accountService;
@@ -62,7 +63,7 @@ class AccountServiceTest {
     @Test
     @DisplayName("getAllAccountsCheckEnumAndTransformationException")
     void testCheckEnumAndTransformationException() {
-        when(enumConverter.checkEnumAndTransformation(anyString(), eq(OwnerType.class)))
+        when(enumConverter.checkEnumAndTransformation(owner, OwnerType.class))
                 .thenThrow(new RuntimeException("ошибка"));
         Exception exception = assertThrows(RuntimeException.class, () ->
                 accountService.getAllAccounts(ownerId, owner));
@@ -73,7 +74,7 @@ class AccountServiceTest {
     @Test
     @DisplayName("getAllAccountsFindAllByOwnerIdAndOwnerException")
     void testFindAllByOwnerIdAndOwnerException() {
-        when(enumConverter.checkEnumAndTransformation(anyString(), eq(OwnerType.class)))
+        when(enumConverter.checkEnumAndTransformation(owner, OwnerType.class))
                 .thenReturn(newOwner);
         when(accountRepository.findAllByOwnerIdAndOwner(anyLong(), any(OwnerType.class)))
                 .thenThrow(new RuntimeException("ошибка"));
@@ -88,7 +89,7 @@ class AccountServiceTest {
     void testAccountMapperValid() {
         List<Account> accountList = List.of(account);
 
-        when(enumConverter.checkEnumAndTransformation(anyString(), eq(OwnerType.class)))
+        when(enumConverter.checkEnumAndTransformation(owner, OwnerType.class))
                 .thenReturn(newOwner);
         when(accountRepository.findAllByOwnerIdAndOwner(anyLong(), any(OwnerType.class)))
                 .thenReturn(accountList);
@@ -182,7 +183,7 @@ class AccountServiceTest {
 
         when(accountRepository.findByNumber(number))
                 .thenReturn(Optional.ofNullable(account));
-        when(enumConverter.checkEnumAndTransformation(anyString(), eq(AccountStatus.class)))
+        when(enumConverter.checkEnumAndTransformation(status, AccountStatus.class))
                 .thenReturn(newStatus);
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(new Account());
@@ -200,7 +201,7 @@ class AccountServiceTest {
 
         when(accountRepository.findByNumber(number))
                 .thenReturn(Optional.ofNullable(account));
-        when(enumConverter.checkEnumAndTransformation(anyString(), eq(AccountStatus.class)))
+        when(enumConverter.checkEnumAndTransformation(status, AccountStatus.class))
                 .thenReturn(newStatus);
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(new Account());
