@@ -8,13 +8,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 public class AccountDto {
     private long id;
-    private String number;
+    private BigInteger number;
     @NonNull
     private OwnerType ownerType;
     private Long ownerProjectId;

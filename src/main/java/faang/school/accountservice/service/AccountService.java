@@ -50,7 +50,7 @@ public class AccountService {
 
     @Transactional
     public AccountDto openAccount(AccountDto accountDto) {
-        accountValidator.validateAccountNumber(accountDto.getNumber());
+
         accountValidator.validateAccountOwner(accountDto.getOwnerType(), accountDto.getOwnerProjectId(),
                 accountDto.getOwnerUserId());
 

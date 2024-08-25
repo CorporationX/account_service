@@ -28,7 +28,7 @@ public class AccountController {
         return accountService.openAccount(accountDto);
     }
 
-    @PutMapping("/{accountId}/update")
+    @PutMapping("/update/{accountId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public AccountDto updateAccount(@PathVariable long accountId, @RequestBody @Valid UpdateAccountDto updateAccountDto) {
         return accountService.updateAccount(accountId, updateAccountDto);
@@ -41,20 +41,17 @@ public class AccountController {
         return accountService.getAccount(accountId);
     }
 
-    @PutMapping("/{accountId}/block")
-    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("block/{accountId}")
     public void blockAccount(@PathVariable long accountId) {
         accountService.blockAccount(accountId);
     }
 
-    @PutMapping("/{accountId}/unblock")
-    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("unblock/{accountId}")
     public void unblockAccount(@PathVariable long accountId) {
         accountService.unblockAccount(accountId);
     }
 
-    @PutMapping("/{accountId}/close")
-    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("close/{accountId}")
     public void closeAccount(@PathVariable long accountId) {
         accountService.closeAccount(accountId);
     }

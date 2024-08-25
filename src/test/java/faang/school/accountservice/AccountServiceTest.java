@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -54,7 +55,7 @@ public class AccountServiceTest {
     void init() {
         account = Account.builder()
                 .id(1L)
-                .number("123456789101112")
+                .number(BigInteger.TEN)
                 .ownerType(OwnerType.PROJECT)
                 .ownerProjectId(1L)
                 .currency(Currency.USD)
@@ -65,7 +66,7 @@ public class AccountServiceTest {
                 .build();
 
         accountDto = AccountDto.builder()
-                .number("123456789101112")
+                .number(BigInteger.TEN)
                 .ownerType(OwnerType.PROJECT)
                 .ownerProjectId(1L)
                 .currency(Currency.USD)
@@ -75,23 +76,12 @@ public class AccountServiceTest {
     }
 
 
-    @Test
-    @DisplayName("Test Account open | Wrong input data - Number of Account")
-    public void testAccountOpenWrongAccountNumber() {
-        String errorMessage = "The number of account is null or blank";
 
-        doThrow(new DataValidationException(errorMessage)).when(accountValidator).validateAccountNumber(anyString());
-
-        Exception exception = assertThrows(DataValidationException.class, () -> accountService.openAccount(accountDto));
-        verifyNoMoreInteractions(accountRepository, accountValidator);
-        assertEquals(errorMessage, exception.getMessage());
-    }
 
     @Test
     @DisplayName("Test Account open | Wrong input data - Wrong account owner")
     public void testAccountOpenWrongAccountOwner() {
         String errorMessage = "Owner project_id and Owner user_id cannot be both null";
-        doNothing().when(accountValidator).validateAccountNumber(anyString());
 
         doThrow(new DataValidationException(errorMessage)).when(accountValidator).validateAccountOwner(any(), any(), any());
 
@@ -103,14 +93,14 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test Account open | Successfully")
     public void testAccountOpenOk() {
-        doNothing().when(accountValidator).validateAccountNumber(anyString());
+
         doNothing().when(accountValidator).validateAccountOwner(any(), any(), any());
 
         when(accountRepository.save(any())).thenReturn(account);
 
         AccountDto result = accountService.openAccount(accountDto);
 
-        assertEquals("123456789101112", result.getNumber());
+        assertEquals(BigInteger.TEN, result.getNumber());
     }
 
     @Test
@@ -143,7 +133,5 @@ public class AccountServiceTest {
         assertEquals(AccountStatus.CLOSED, account.getAccountStatus());
         assertNotNull(account.getClosedAt());
     }
-
-
 
 }
