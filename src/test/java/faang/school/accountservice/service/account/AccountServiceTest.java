@@ -63,19 +63,17 @@ class AccountServiceTest {
     @Test
     @DisplayName("getAllAccountsCheckEnumAndTransformationException")
     void testCheckEnumAndTransformationException() {
-        when(enumConverter.checkEnumAndTransformation(owner, OwnerType.class))
-                .thenThrow(new RuntimeException("ошибка"));
-        Exception exception = assertThrows(RuntimeException.class, () ->
-                accountService.getAllAccounts(ownerId, owner));
+        String invalidOwner = "l";
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                accountService.getAllAccounts(ownerId, invalidOwner));
 
-        assertEquals("ошибка", exception.getMessage());
+        assertEquals("Bad enum passed: l", exception.getMessage());
     }
 
     @Test
     @DisplayName("getAllAccountsFindAllByOwnerIdAndOwnerException")
     void testFindAllByOwnerIdAndOwnerException() {
-        when(enumConverter.checkEnumAndTransformation(owner, OwnerType.class))
-                .thenReturn(newOwner);
+        enumConverter.checkEnumAndTransformation(owner, OwnerType.class);
         when(accountRepository.findAllByOwnerIdAndOwner(anyLong(), any(OwnerType.class)))
                 .thenThrow(new RuntimeException("ошибка"));
         Exception exception = assertThrows(RuntimeException.class, () ->
