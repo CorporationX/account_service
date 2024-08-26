@@ -87,8 +87,7 @@ class AccountServiceTest {
     void testAccountMapperValid() {
         List<Account> accountList = List.of(account);
 
-        when(enumConverter.checkEnumAndTransformation(owner, OwnerType.class))
-                .thenReturn(newOwner);
+        enumConverter.checkEnumAndTransformation(owner, OwnerType.class);
         when(accountRepository.findAllByOwnerIdAndOwner(anyLong(), any(OwnerType.class)))
                 .thenReturn(accountList);
         when(accountMapper.toDto(any(Account.class)))
@@ -181,8 +180,7 @@ class AccountServiceTest {
 
         when(accountRepository.findByNumber(number))
                 .thenReturn(Optional.ofNullable(account));
-        when(enumConverter.checkEnumAndTransformation(status, AccountStatus.class))
-                .thenReturn(newStatus);
+        enumConverter.checkEnumAndTransformation(status, AccountStatus.class);
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(new Account());
 
@@ -199,8 +197,7 @@ class AccountServiceTest {
 
         when(accountRepository.findByNumber(number))
                 .thenReturn(Optional.ofNullable(account));
-        when(enumConverter.checkEnumAndTransformation(status, AccountStatus.class))
-                .thenReturn(newStatus);
+        enumConverter.checkEnumAndTransformation(status, AccountStatus.class);
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(new Account());
         when(accountMapper.toDto(any(Account.class)))
