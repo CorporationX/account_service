@@ -6,14 +6,18 @@ import faang.school.accountservice.model.FreeAccountNumber;
 import faang.school.accountservice.model.FreeAccountNumberId;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+
+import java.math.BigInteger;
 import java.util.function.Consumer;
 
 @Service
@@ -23,7 +27,7 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 5000L))
     public FreeAccountNumber generateNewAccountNumberByType(AccountType accountType) {
         log.info("Starting generate new account, type = {}", accountType.toString());
@@ -36,10 +40,10 @@ public class FreeAccountNumbersService {
         long currentCount = accountNumberSequence.getCount();
         if (!accountNumbersSequenceRepository.isIncremented(currentCount, accountType)) {
             throw new OptimisticLockingFailureException("Couldn't increment count of account type: "
-                    + accountType + "current count = " + currentCount);
+                    + accountType + " current count = " + currentCount);
         }
 
-        String uniqNumber = createUniqNumberByType(prefix, currentCount, length);
+        BigInteger uniqNumber = createUniqNumberByType(prefix, currentCount, length);
         FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
                 .id(
                         FreeAccountNumberId.builder()
@@ -48,8 +52,7 @@ public class FreeAccountNumbersService {
                                 .build()
                 )
                 .build();
-
-        return freeAccountNumbersRepository.save(freeAccountNumber);
+        return freeAccountNumbersRepository.saveAndFlush(freeAccountNumber);
     }
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 5000L))
@@ -60,19 +63,18 @@ public class FreeAccountNumbersService {
         consumer.accept(accountNumber);
     }
 
-    private String createUniqNumberByType(int prefixValue, long countValue, int length) {
-        StringBuilder uniqNumber = new StringBuilder();
+    private BigInteger createUniqNumberByType(int prefixValue, long countValue, int length) {
+        BigInteger uniqNumber = BigInteger.valueOf(prefixValue);
         String prefix = String.valueOf(prefixValue);
         String count = String.valueOf(countValue);
 
-        int numberOfZeros = length - prefix.length() - count.length();
-        if (numberOfZeros < 0) {
+        int numberOfZeros = length - prefix.length();
+        if (numberOfZeros < count.length()) {
             throw new IllegalArgumentException("Current sequence count is greater than the maximum length");
         }
-        uniqNumber.append(prefix);
-        uniqNumber.append("0".repeat(numberOfZeros));
-        uniqNumber.append(count);
+        uniqNumber = uniqNumber.multiply(BigInteger.valueOf(10).pow(numberOfZeros));
+        uniqNumber = uniqNumber.add(BigInteger.valueOf(countValue));
 
-        return uniqNumber.toString();
+        return uniqNumber;
     }
 }

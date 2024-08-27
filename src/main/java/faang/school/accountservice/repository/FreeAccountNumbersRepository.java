@@ -4,8 +4,8 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.FreeAccountNumber;
 import faang.school.accountservice.model.FreeAccountNumberId;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +19,21 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
             """)
     long countByAccountType(AccountType accountType);
 
-    Optional<FreeAccountNumber> findByIdAccountType(AccountType accountType);
+    @Query(nativeQuery = true, value = """
+        SELECT f.account_type, f.number 
+        FROM free_account_number f 
+        WHERE f.account_type = :#{#accountType.toString()} 
+        ORDER BY f.number ASC 
+        LIMIT 1
+        """)
+    @Transactional(readOnly = true)
+    Optional<FreeAccountNumber> findFirstByAccountType(@Param("accountType") AccountType accountType);
 
     void deleteById(FreeAccountNumberId freeAccountNumberId);
 
     @Transactional
     default Optional<FreeAccountNumber> getFirstAndDelete(AccountType accountType) {
-        FreeAccountNumber freeAccountNumber = findByIdAccountType(accountType).orElse(null);
+        FreeAccountNumber freeAccountNumber = findFirstByAccountType(accountType).orElse(null);
 
         if (freeAccountNumber == null) {
             return Optional.empty();

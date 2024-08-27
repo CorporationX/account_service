@@ -18,8 +18,20 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 server:
-  port: 8091
+  port: 8090
 
 logging:
   level:
     root: info
+
+
+task:
+  accounts-generation:
+    types:
+      accountsQuantity:
+        CORPORATE: 20
+        INDIVIDUAL: 20
+        INVESTMENT: 10
+        RETIREMENT: 5
+    schedule:
+      frequency : "@daily"

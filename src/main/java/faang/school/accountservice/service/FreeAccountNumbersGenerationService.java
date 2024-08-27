@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.LongStream;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -18,11 +16,17 @@ public class FreeAccountNumbersGenerationService {
 
     @Transactional
     public void generateNewAccounts(AccountType accountType, long quantity) {
-        long currentQuantity = freeAccountNumbersRepository.countByAccountType(accountType);
-
-        long requiredQuantity = quantity - currentQuantity;
-        for (long i = 0; i < requiredQuantity; i++) {
+        for (long i = 0; i < quantity; i++) {
             freeAccountNumbersService.generateNewAccountNumberByType(accountType);
+        }
+    }
+
+    @Transactional
+    public void generateAccountsUpToLimit(AccountType accountType, long limit) {
+        long currentQuantity = freeAccountNumbersRepository.countByAccountType(accountType);
+        long requiredQuantity = limit - currentQuantity;
+        if (requiredQuantity > 0) {
+            generateNewAccounts(accountType, requiredQuantity);
         }
     }
 }

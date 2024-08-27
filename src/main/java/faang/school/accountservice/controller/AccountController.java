@@ -6,7 +6,6 @@ import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +33,6 @@ public class AccountController {
         return accountService.updateAccount(accountId, updateAccountDto);
     }
 
-
     @GetMapping("/{accountId}")
     @ResponseStatus(HttpStatus.FOUND)
     public AccountDto getAccount(@PathVariable long accountId) {
@@ -55,6 +53,5 @@ public class AccountController {
     public void closeAccount(@PathVariable long accountId) {
         accountService.closeAccount(accountId);
     }
-
 
 }
