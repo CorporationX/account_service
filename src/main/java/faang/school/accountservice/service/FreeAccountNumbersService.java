@@ -44,22 +44,20 @@ public class FreeAccountNumbersService {
         }
 
         BigInteger uniqNumber = createUniqNumberByType(prefix, currentCount, length);
-        FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
-                .id(
-                        FreeAccountNumberId.builder()
-                                .accountType(accountType)
-                                .number(uniqNumber)
-                                .build()
-                )
-                .build();
+        FreeAccountNumber freeAccountNumber = getFreeAccountNumber(accountType, uniqNumber);
         return freeAccountNumbersRepository.saveAndFlush(freeAccountNumber);
     }
+
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 5000L))
     public void getUniqueAccountNumberByType(Consumer<FreeAccountNumber> consumer, AccountType accountType) {
 
         FreeAccountNumber accountNumber = freeAccountNumbersRepository.getFirstAndDelete(accountType)
-                .orElseGet(() -> generateNewAccountNumberByType(accountType));
+                .orElseGet(() -> {
+                    FreeAccountNumber freeAccountNumber = generateNewAccountNumberByType(accountType);
+                    freeAccountNumbersRepository.deleteById(freeAccountNumber.getId());
+                    return freeAccountNumber;
+                });
         consumer.accept(accountNumber);
     }
 
@@ -76,5 +74,17 @@ public class FreeAccountNumbersService {
         uniqNumber = uniqNumber.add(BigInteger.valueOf(countValue));
 
         return uniqNumber;
+    }
+
+    private  FreeAccountNumber getFreeAccountNumber(AccountType accountType, BigInteger uniqNumber) {
+        FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
+                .id(
+                        FreeAccountNumberId.builder()
+                                .accountType(accountType)
+                                .number(uniqNumber)
+                                .build()
+                )
+                .build();
+        return freeAccountNumber;
     }
 }

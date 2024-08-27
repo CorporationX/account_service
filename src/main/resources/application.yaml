@@ -29,9 +29,9 @@ task:
   accounts-generation:
     types:
       accountsQuantity:
-        CORPORATE: 20
-        INDIVIDUAL: 20
-        INVESTMENT: 10
-        RETIREMENT: 5
+        CORPORATE: 2
+        INDIVIDUAL: 2
+        INVESTMENT: 2
+        RETIREMENT: 2
     schedule:
       frequency : "@daily"
