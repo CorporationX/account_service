@@ -1,4 +1,4 @@
-CREATE TABLE payment_account (
+CREATE TABLE account (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     number varchar(20) UNIQUE NOT NULL,
     owner_id bigint NOT NULL,
