@@ -2,8 +2,8 @@ CREATE TABLE account
 (
     id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     number         VARCHAR(20) NOT NULL CHECK (number ~ '^[0-9]{12,20}$'),
-    user_id        BIGSERIAL,
-    project_id     BIGSERIAL,
+    user_id        BIGINT,
+    project_id     BIGINT,
     account_type   VARCHAR(30) NOT NULL,
     currency       VARCHAR(10) NOT NULL,
     account_status VARCHAR(15) NOT NULL,
