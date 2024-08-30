@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.DataValidationException;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -30,6 +31,14 @@ public class AccountService {
         Account account = accountRepository.findByNumber(number).orElseThrow(() ->
                 new DataValidationException("Account with number = " + number + " not found"));
         log.info("Account with number = {} found", number);
+        return accountMapper.toDto(account);
+    }
+
+    public AccountDto getAccountByOwner(Long ownerId, OwnerType ownerType) {
+        Account account = accountRepository.findByOwner(ownerId, ownerType).orElseThrow(() ->
+                new DataValidationException("Account by owner with ID = " + ownerId +
+                        " and type: " + ownerType + " not found"));
+        log.info("Account by owner with ID = {} and type: {} found", ownerId, ownerType);
         return accountMapper.toDto(account);
     }
 

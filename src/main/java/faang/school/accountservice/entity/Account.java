@@ -39,8 +39,7 @@ public class Account {
     private long id;
 
     @Column(name = "number", nullable = false, length = 20)
-    @Size(min = 12)
-    @Size(max = 20)
+    @Size(min = 12, max = 20)
     private String number;
 
     @Column(name = "owner_id", nullable = false)
@@ -74,9 +73,10 @@ public class Account {
 
     @Timestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
 
     @Version
+    @Column(name = "version", nullable = false)
     private int version;
 }
