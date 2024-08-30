@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -26,6 +27,16 @@ public class GlobalExceptionHandler {
                         objectError -> Objects.requireNonNullElse(objectError.getDefaultMessage(), ""))
                 );
     }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        String message = "You may have entered an incorrect identifier. " +
+                "Please check the information you entered.";
+        log.error(exception.getMessage(), exception);
+        return new ErrorResponse(LocalDateTime.now(), message);
+    }
+
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
