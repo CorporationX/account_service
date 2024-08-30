@@ -23,3 +23,13 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    length: 12
+  pool:
+    min: 100
+
+scheduler:
+  account-generator:
+    cron: "0 */10 * * * *"
