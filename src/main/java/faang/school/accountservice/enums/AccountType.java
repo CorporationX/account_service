@@ -4,5 +4,6 @@ public enum AccountType {
     CORPORATE,
     INDIVIDUAL,
     INVESTMENT,
-    RETIREMENT;
+    RETIREMENT,
+    SAVINGS
 }
