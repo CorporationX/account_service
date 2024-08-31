@@ -44,7 +44,7 @@ public class AccountDto {
 
     private LocalDateTime updatedAt;
 
-    private LocalDateTime deletedAt;
+    private LocalDateTime closedAt;
 
     @NotNull
     private int version;

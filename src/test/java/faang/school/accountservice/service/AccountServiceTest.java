@@ -2,10 +2,9 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.NotFoundException;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,14 +31,14 @@ public class AccountServiceTest {
     AccountRepository accountRepository;
 
     @Spy
-    AccountMapper accountMapper;
+    AccountMapperImpl accountMapper;
 
     @InjectMocks
     AccountService accountService;
 
     Account testAccount = new Account();
     Long testOwnerId = 1L;
-    OwnerType testOwnerType = OwnerType.PROJECT;
+    String testOwnerType = "PROJECT";
     OpenAccountDto testOpenAccountDto = new OpenAccountDto();
 
     @Test
@@ -114,6 +113,23 @@ public class AccountServiceTest {
 
         verify(accountRepository, times(1)).save(any());
         assertEquals(testAccount.getStatus(), Status.FROZEN);
+    }
+
+    @Test
+    public void testUnblockAccountIfAccountNotFound() {
+        when(accountRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> accountService.unblockAccount(anyLong()));
+    }
+
+    @Test
+    public void testUnblockAccountSuccessful() {
+        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(testAccount));
+
+        accountService.unblockAccount(anyLong());
+
+        verify(accountRepository, times(1)).save(any());
+        assertEquals(testAccount.getStatus(), Status.ACTIVE);
     }
 
     @Test

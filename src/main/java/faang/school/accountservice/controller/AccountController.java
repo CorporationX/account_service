@@ -2,7 +2,6 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.OpenAccountDto;
-import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -41,8 +40,7 @@ public class AccountController {
     @GetMapping("/get_by_owner/{ownerId}")
     public AccountDto getAccountByOwner(@Positive @PathVariable Long ownerId,
                                         @RequestParam("ownerType") String ownerType) {
-        OwnerType type = OwnerType.valueOf(ownerType);
-        return accountService.getAccountByOwner(ownerId, type);
+        return accountService.getAccountByOwner(ownerId, ownerType);
     }
 
     @PostMapping
@@ -51,12 +49,17 @@ public class AccountController {
         return accountService.openAccount(openAccountDto);
     }
 
-    @PutMapping("/block/{Id}")
+    @PutMapping("/block/{id}")
     public AccountDto blockAccount(@Positive @PathVariable Long id){
         return accountService.blockAccount(id);
     }
 
-    @PutMapping("/close/{Id}")
+    @PutMapping("/unblock/{id}")
+    public AccountDto unblockAccount(@Positive @PathVariable Long id){
+        return accountService.unblockAccount(id);
+    }
+
+    @PutMapping("/close/{id}")
     public AccountDto closeAccount(@Positive @PathVariable Long id){
         return accountService.closeAccount(id);
     }
