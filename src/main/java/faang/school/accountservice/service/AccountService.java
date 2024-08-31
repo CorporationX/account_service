@@ -5,7 +5,7 @@ import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.enums.Status;
-import faang.school.accountservice.exeption.DataValidationException;
+import faang.school.accountservice.exeption.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,21 +22,21 @@ public class AccountService {
 
     public AccountDto getAccount(Long id) {
         Account account = accountRepository.findById(id).orElseThrow(() ->
-                new DataValidationException("Account with ID = " + id + " not found"));
+                new NotFoundException("Account with ID = " + id + " not found"));
         log.info("Account with ID = {} found", id);
         return accountMapper.toDto(account);
     }
 
     public AccountDto getAccountByNumber(String number) {
         Account account = accountRepository.findByNumber(number).orElseThrow(() ->
-                new DataValidationException("Account with number = " + number + " not found"));
+                new NotFoundException("Account with number = " + number + " not found"));
         log.info("Account with number = {} found", number);
         return accountMapper.toDto(account);
     }
 
     public AccountDto getAccountByOwner(Long ownerId, OwnerType ownerType) {
         Account account = accountRepository.findByOwner(ownerId, ownerType).orElseThrow(() ->
-                new DataValidationException("Account by owner with ID = " + ownerId +
+                new NotFoundException("Account by owner with ID = " + ownerId +
                         " and type: " + ownerType + " not found"));
         log.info("Account by owner with ID = {} and type: {} found", ownerId, ownerType);
         return accountMapper.toDto(account);
@@ -51,7 +51,7 @@ public class AccountService {
 
     public AccountDto blockAccount(Long id) {
         Account account = accountRepository.findById(id).orElseThrow(() ->
-                new DataValidationException("Account with ID = " + id + " not found"));
+                new NotFoundException("Account with ID = " + id + " not found"));
         account.setStatus(Status.FROZEN);
         Account blockAccount = accountRepository.save(account);
         log.info("Account with ID = {} blocked", id);
@@ -60,7 +60,7 @@ public class AccountService {
 
     public AccountDto closeAccount(Long id) {
         Account account = accountRepository.findById(id).orElseThrow(() ->
-                new DataValidationException("Account with ID = " + id + " not found"));
+                new NotFoundException("Account with ID = " + id + " not found"));
         account.setStatus(Status.CLOSED);
         Account closeAccount = accountRepository.save(account);
         log.info("Account with ID = {} closed", id);
