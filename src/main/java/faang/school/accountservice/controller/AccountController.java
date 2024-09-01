@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
     private final AccountService accountService;
 
-    @GetMapping()
+    @GetMapping
     public AccountDto getAccount(@RequestParam("number") String accountNumber){
         return accountService.getAccountByNumber(accountNumber);
     }
