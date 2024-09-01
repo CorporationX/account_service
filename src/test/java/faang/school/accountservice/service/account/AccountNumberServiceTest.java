@@ -25,38 +25,39 @@ public class AccountNumberServiceTest {
     @InjectMocks
     private AccountNumberService accountNumberService;
 
+    private String accountNumber;
+    private AccountNumberPool accountNumberPool;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        accountNumber = "1234567890";
+
+        accountNumberPool = new AccountNumberPool();
+        accountNumberPool.setAccountNumber(accountNumber);
+        accountNumberPool.setId(UUID.randomUUID());
     }
 
     @Test
     void testGetAccountNumber_FromPool() {
-        AccountNumberPool accountNumberPool = new AccountNumberPool();
-        accountNumberPool.setAccountNumber("1234567890");
-        accountNumberPool.setId(UUID.randomUUID());
-
         when(accountNumberPoolRepository.findTopByOrderByIdAsc()).thenReturn(accountNumberPool);
 
-        String accountNumber = accountNumberService.getAccountNumber();
+        String resultAccountNumber = accountNumberService.getAccountNumber();
 
-        assertEquals("1234567890", accountNumber);
+        assertEquals(accountNumber, resultAccountNumber);
         verify(accountNumberPoolRepository, times(1)).deleteByAccountNumber("1234567890");
     }
 
     @Test
     void testGetAccountNumber_WhenPoolIsEmpty() {
-        AccountNumberPool accountNumberPool = new AccountNumberPool();
-        accountNumberPool.setAccountNumber("1234567890");
-        accountNumberPool.setId(UUID.randomUUID());
-
         when(accountNumberPoolRepository.findTopByOrderByIdAsc()).thenReturn(null).thenReturn(accountNumberPool);
 
-        String accountNumber = accountNumberService.getAccountNumber();
+        String resultAccountNumber = accountNumberService.getAccountNumber();
 
-        assertEquals("1234567890", accountNumber);
+        assertEquals(accountNumber, resultAccountNumber);
         verify(accountNumberPoolRepository, times(2)).findTopByOrderByIdAsc();
-        verify(accountNumberPoolRepository, times(1)).deleteByAccountNumber("1234567890");
+        verify(accountNumberPoolRepository, times(1)).deleteByAccountNumber(accountNumber);
         verify(accountNumberPoolRepository, times(10)).save(any(AccountNumberPool.class));  // 10 вызовов на сохранение новых номеров
     }
 
@@ -64,7 +65,7 @@ public class AccountNumberServiceTest {
 
     @Test
     void testPopulateAccountNumbers() {
-        when(accountNumberGenerator.generateAccountNumber()).thenReturn("1234567890");
+        when(accountNumberGenerator.generateAccountNumber()).thenReturn(accountNumber);
 
         accountNumberService.populateAccountNumbers(1);
 

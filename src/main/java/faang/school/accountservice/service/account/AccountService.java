@@ -29,14 +29,18 @@ public class AccountService {
         String accountNumber = accountNumberService.getAccountNumber();
         account.setAccountNumber(accountNumber);
 
-        return accountMapper.toDto(accountRepository.save(account));
+        account = accountRepository.save(account);
+
+        return accountMapper.toDto(account);
     }
 
     @Transactional
     public AccountDto freezeAccount(UUID id) {
         Account account = getValidAccount(id);
         account.setStatus(AccountStatus.FROZEN);
-        return accountMapper.toDto(accountRepository.save(account));
+        account = accountRepository.save(account);
+
+        return accountMapper.toDto(account);
     }
 
     @Transactional
@@ -44,7 +48,9 @@ public class AccountService {
         Account account = getValidAccount(id);
         account.setStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
-        return accountMapper.toDto(accountRepository.save(account));
+        account = accountRepository.save(account);
+
+        return accountMapper.toDto(account);
     }
 
     @Transactional(readOnly = true)

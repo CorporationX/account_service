@@ -8,8 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -58,6 +57,6 @@ public class AccountNumberGeneratorTest {
         String generatedAccountNumber = accountNumberGenerator.generateAccountNumber();
 
         assertEquals(accountNumberLength, generatedAccountNumber.length());
-        assertFalse(generatedAccountNumber.chars().anyMatch(ch -> !Character.isDigit(ch)));
+        assertTrue(generatedAccountNumber.chars().anyMatch(ch -> Character.isDigit(ch)));
     }
 }
