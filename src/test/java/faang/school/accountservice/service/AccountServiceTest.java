@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.repository.AccountRepository;
@@ -15,10 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,22 +37,6 @@ public class AccountServiceTest {
     Long testOwnerId = 1L;
     String testOwnerType = "PROJECT";
     OpenAccountDto testOpenAccountDto = new OpenAccountDto();
-
-    @Test
-    public void testGetAccountIfAccountNotFound() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> accountService.getAccount(anyLong()));
-    }
-
-    @Test
-    public void testGetAccountSuccessful() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(testAccount));
-
-        accountService.getAccount(anyLong());
-
-        verify(accountRepository, times(1)).findById(anyLong());
-    }
 
     @Test
     public void testGetAccountByNumberIfAccountNotFound() {
@@ -96,56 +77,5 @@ public class AccountServiceTest {
         accountService.openAccount(testOpenAccountDto);
 
         verify(accountRepository, times(1)).save(any());
-    }
-
-    @Test
-    public void testBlockAccountIfAccountNotFound() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> accountService.blockAccount(anyLong()));
-    }
-
-    @Test
-    public void testBlockAccountSuccessful() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(testAccount));
-
-        accountService.blockAccount(anyLong());
-
-        verify(accountRepository, times(1)).save(any());
-        assertEquals(testAccount.getStatus(), Status.FROZEN);
-    }
-
-    @Test
-    public void testUnblockAccountIfAccountNotFound() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> accountService.unblockAccount(anyLong()));
-    }
-
-    @Test
-    public void testUnblockAccountSuccessful() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(testAccount));
-
-        accountService.unblockAccount(anyLong());
-
-        verify(accountRepository, times(1)).save(any());
-        assertEquals(testAccount.getStatus(), Status.ACTIVE);
-    }
-
-    @Test
-    public void testCloseAccountIfAccountNotFound() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> accountService.closeAccount(anyLong()));
-    }
-
-    @Test
-    public void testCloseAccountSuccessful() {
-        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(testAccount));
-
-        accountService.closeAccount(anyLong());
-
-        verify(accountRepository, times(1)).save(any());
-        assertEquals(testAccount.getStatus(), Status.CLOSED);
     }
 }

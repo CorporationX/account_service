@@ -2,7 +2,9 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.OpenAccountDto;
+import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.AccountUtilService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AccountUtilService accountUtilService;
 
     @GetMapping("/{id}")
     public AccountDto getAccount(@Positive @PathVariable Long id){
@@ -51,16 +54,19 @@ public class AccountController {
 
     @PutMapping("/block/{id}")
     public AccountDto blockAccount(@Positive @PathVariable Long id){
-        return accountService.blockAccount(id);
+        String status = Status.FROZEN.name();
+        return accountUtilService.changeAccountStatus(id, status);
     }
 
     @PutMapping("/unblock/{id}")
     public AccountDto unblockAccount(@Positive @PathVariable Long id){
-        return accountService.unblockAccount(id);
+        String status = Status.ACTIVE.name();
+        return accountUtilService.changeAccountStatus(id, status);
     }
 
     @PutMapping("/close/{id}")
     public AccountDto closeAccount(@Positive @PathVariable Long id){
-        return accountService.closeAccount(id);
+        String status = Status.CLOSED.name();
+        return accountUtilService.changeAccountStatus(id, status);
     }
 }

@@ -7,13 +7,9 @@ import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,12 +17,11 @@ import java.time.LocalDateTime;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountUtilService accountUtilService;
     private final AccountMapper accountMapper;
 
     public AccountDto getAccount(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Account with ID = " + id + " not found"));
-        log.info("Account with ID = {} found", id);
+        Account account = accountUtilService.getById(id);
         return accountMapper.toDto(account);
     }
 
@@ -51,33 +46,5 @@ public class AccountService {
         Account openAccount = accountRepository.save(account);
         log.info("Account with number = {} opened", openAccountDto.getNumber());
         return accountMapper.toDto(openAccount);
-    }
-
-    public AccountDto blockAccount(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Account with ID = " + id + " not found"));
-        account.setStatus(Status.FROZEN);
-        Account blockAccount = accountRepository.save(account);
-        log.info("Account with ID = {} blocked", id);
-        return accountMapper.toDto(blockAccount);
-    }
-
-    public AccountDto unblockAccount(@Positive @PathVariable Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Account with ID = " + id + " not found"));
-        account.setStatus(Status.ACTIVE);
-        Account blockAccount = accountRepository.save(account);
-        log.info("Account with ID = {} unblocked", id);
-        return accountMapper.toDto(blockAccount);
-    }
-
-    public AccountDto closeAccount(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Account with ID = " + id + " not found"));
-        account.setStatus(Status.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
-        Account closeAccount = accountRepository.save(account);
-        log.info("Account with ID = {} closed", id);
-        return accountMapper.toDto(closeAccount);
     }
 }
