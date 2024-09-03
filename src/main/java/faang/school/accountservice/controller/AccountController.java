@@ -23,7 +23,7 @@ public class AccountController {
         return accountService.getAccountByNumber(accountNumber);
     }
 
-    @PostMapping()
+    @PostMapping
     public AccountDto openAccount(@RequestBody AccountDto accountDto){
         return accountService.openAccount(accountDto);
     }

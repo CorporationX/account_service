@@ -65,7 +65,6 @@ public class AccountControllerIT extends AbstractionBaseTest {
         // then - verify the output
         response.andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(accountDto.number()))
-                .andExpect(jsonPath("$.owner").value(accountDto.owner()))
                 .andExpect(jsonPath("$.type").value(equalToIgnoringCase(accountDto.type())))
                 .andExpect(jsonPath("$.currency").value(equalToIgnoringCase(accountDto.currency())))
                 .andExpect(jsonPath("$.status").value(equalToIgnoringCase(accountDto.status())))

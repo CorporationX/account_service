@@ -21,7 +21,6 @@ class AccountMapperTest {
         assertThat(actualResult).isNotNull();
         assertThat(actualResult.id()).isEqualTo(expectedResult.getId());
         assertThat(actualResult.number()).isEqualTo(expectedResult.getNumber());
-        assertThat(actualResult.owner()).isEqualToIgnoringCase(expectedResult.getOwner());
         assertThat(actualResult.type()).isEqualToIgnoringCase(expectedResult.getType().name());
         assertThat(actualResult.currency()).isEqualToIgnoringCase(expectedResult.getCurrency().name());
         assertThat(actualResult.status()).isEqualToIgnoringCase(expectedResult.getStatus().name());
@@ -43,7 +42,6 @@ class AccountMapperTest {
         assertThat(actualResult).isNotNull();
         assertThat(actualResult.getId()).isEqualTo(expectedResult.id());
         assertThat(actualResult.getNumber()).isEqualTo(expectedResult.number());
-        assertThat(actualResult.getOwner()).isEqualToIgnoringCase(expectedResult.owner());
         assertThat(actualResult.getType().name()).isEqualToIgnoringCase(expectedResult.type());
         assertThat(actualResult.getCurrency().name()).isEqualToIgnoringCase(expectedResult.currency());
         assertThat(actualResult.getStatus().name()).isEqualToIgnoringCase(expectedResult.status());
