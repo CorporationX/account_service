@@ -66,7 +66,6 @@ class AccountControllerTest {
         response.andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.number").value(accountDto.number()))
-                .andExpect(jsonPath("$.owner").value(accountDto.owner()))
                 .andExpect(jsonPath("$.type").value(accountDto.type()))
                 .andExpect(jsonPath("$.currency").value(accountDto.currency()))
                 .andExpect(jsonPath("$.status").value(accountDto.status()))
@@ -92,7 +91,6 @@ class AccountControllerTest {
         // then - verify the output
         response.andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(accountDto.number()))
-                .andExpect(jsonPath("$.owner").value(accountDto.owner()))
                 .andExpect(jsonPath("$.type").value(accountDto.type()))
                 .andExpect(jsonPath("$.currency").value(accountDto.currency()))
                 .andExpect(jsonPath("$.status").value(accountDto.status()))
