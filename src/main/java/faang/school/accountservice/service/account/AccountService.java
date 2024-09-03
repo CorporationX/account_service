@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.exception.ExceptionMessage;
+import faang.school.accountservice.exception.ExceptionMessages;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.model.OwnerType;
@@ -55,8 +55,8 @@ public class AccountService {
         AccountStatus newStatus = enumConverter.checkEnumAndTransformation(status, AccountStatus.class);
 
         if (account.getAccountStatus() == AccountStatus.CLOSED) {
-            log.error(ExceptionMessage.CHANGE_STATUS_EXCEPTION + number);
-            throw new IllegalArgumentException(ExceptionMessage.CHANGE_STATUS_EXCEPTION + number);
+            log.error(ExceptionMessages.CHANGE_STATUS_EXCEPTION + number);
+            throw new IllegalArgumentException(ExceptionMessages.CHANGE_STATUS_EXCEPTION + number);
         }
 
         if (!account.getAccountStatus().equals(newStatus)) {
@@ -74,8 +74,8 @@ public class AccountService {
     private Account findAccountAndValid(String number) {
         return accountRepository.findByNumber(number)
                 .orElseThrow(() -> {
-                    log.error(ExceptionMessage.CHECK_ACCOUNT_BY_NUMBER_EXCEPTION + number);
-                    return new IllegalArgumentException(ExceptionMessage.CHECK_ACCOUNT_BY_NUMBER_EXCEPTION + number);
+                    log.error(ExceptionMessages.CHECK_ACCOUNT_BY_NUMBER_EXCEPTION + number);
+                    return new IllegalArgumentException(ExceptionMessages.CHECK_ACCOUNT_BY_NUMBER_EXCEPTION + number);
                 });
     }
 }

@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.exception.ExceptionMessage;
+import faang.school.accountservice.exception.ExceptionMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +13,8 @@ public class EnumConverter {
         try {
             newAccountEnum = Enum.valueOf(enumClass, accountEnum);
         } catch (IllegalArgumentException e) {
-            log.error(ExceptionMessage.INCORRECT_ENUM + accountEnum);
-            throw new IllegalArgumentException(ExceptionMessage.INCORRECT_ENUM + accountEnum);
+            log.error(ExceptionMessages.INCORRECT_ENUM + accountEnum);
+            throw new IllegalArgumentException(ExceptionMessages.INCORRECT_ENUM + accountEnum);
         }
         return newAccountEnum;
     }
