@@ -14,6 +14,18 @@ spring:
       hibernate:
         format_sql: true
 
+  account-cache:
+    individual:
+      sequence: account_individual_numbers
+      number-of-digits: 16
+      min-cache-size: 10
+      default-cache-size: 20
+    company:
+      sequence: account_company_numbers
+      number-of-digits: 16
+      min-cache-size: 10
+      default-cache-size: 20
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
