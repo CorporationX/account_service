@@ -33,8 +33,8 @@ public class Account {
     private Long id;
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
-    @Column(name = "owner", length = 20, nullable = false)
-    private String owner;
+//    @Column(name = "owner", length = 20, nullable = false)
+//    private String owner;
     @Enumerated(EnumType.STRING)
     private AccountType type;
     @Enumerated(EnumType.STRING)

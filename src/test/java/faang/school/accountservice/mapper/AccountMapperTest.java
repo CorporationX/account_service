@@ -14,7 +14,7 @@ class AccountMapperTest {
         // given - precondition
         var expectedResult = TestDataFactory.createAccount();
 
-        // when - action
+            // when - action
         var actualResult = mapper.toDto(expectedResult);
 
         // then - verify the output

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Version;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Stack;
 
 @Entity
 @Table(name = "savings_account")
@@ -35,7 +35,7 @@ public class SavingsAccount {
     private Account account;
 
     @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Tariff> tariffHistory;
+    private Stack<Tariff> tariffHistory;
 
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime lastInterestCalculationDate;

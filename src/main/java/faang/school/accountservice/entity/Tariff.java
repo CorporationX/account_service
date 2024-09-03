@@ -19,7 +19,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Stack;
 
 @Entity
 @Table(name = "tariff")
@@ -44,5 +44,5 @@ public class Tariff {
     private LocalDateTime appliedAt;
 
     @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RateHistory> rateHistoryList;
+    private Stack<RateHistory> rateHistoryList;
 }

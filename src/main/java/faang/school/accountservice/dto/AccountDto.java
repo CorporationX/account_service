@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public record AccountDto(
          Long id,
          String number,
-         String owner,
+//         String owner,
          String type,
          String currency,
          String status,
