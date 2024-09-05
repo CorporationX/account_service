@@ -1,28 +1,12 @@
-create table account_type
+create table if not exists account_numbers_sequence
 (
-    id   bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    name varchar(128) not null
+    counter      bigint                  not null default 0,
+    account_type varchar(32) primary key not null
 );
 
-insert into account_type (name)
-values ('credit account'),
-       ('settlement account'),
-       ('fixed-term savings account'),
-       ('salary account'),
-       ('corporate account');
-
-create table account_numbers_sequence
+create table if not exists free_accounts_numbers
 (
-    id           bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    number       bigint not null,
-    account_type_id bigint not null,
-    constraint account_type_fk foreign key (account_type_id) references account_type (id) ON DELETE CASCADE
-);
-
-create table free_accounts_numbers
-(
-    id           bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    free_number  bigint not null,
-    account_type_id bigint not null,
-    constraint account_type_fk foreign key (account_type_id) references account_type (id) ON DELETE CASCADE
+    free_number  bigint      not null,
+    account_type varchar(32) not null,
+    constraint account_type_pk primary key (account_type, free_number)
 );

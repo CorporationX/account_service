@@ -17,9 +17,14 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  data:
+    batch-size: 10
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+    org.hibernate.sql: DEBUG
+
