@@ -37,7 +37,7 @@ public class AccountNumberService {
         log.info("a free number for type {} was saved", type.name());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional()
     public FreeAccountNumber getFreeAccNumAndProcess(AccountType type, Consumer<FreeAccountNumber> consumer) {
         FreeAccountNumber number = freeAccNumRepository.retrieveFreeAccNum(type.name());
         if (number == null) {
