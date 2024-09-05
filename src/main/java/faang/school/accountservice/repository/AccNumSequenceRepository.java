@@ -26,7 +26,7 @@ public interface AccNumSequenceRepository extends JpaRepository<AccountNumbersSe
     AccountNumbersSequence increaseCounter(@Param(value = "type") String type, @Param(value = "batchSize") long batchSize);
 
     @Query(nativeQuery = true, value = """
-            select acc.counter from account_numbers_sequence as acc where acc.account_type = :type;
+            select acc.counter from account_numbers_sequence as acc where acc.account_type = :type
             """)
     Optional<Long> findCounterByType(@Param(value = "type") String type);
 

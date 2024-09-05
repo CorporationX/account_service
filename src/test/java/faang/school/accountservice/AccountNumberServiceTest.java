@@ -62,8 +62,7 @@ public class AccountNumberServiceTest {
         accountNumberService.generateAccountNumber(accountType, batchSize);
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber(new AccTypeFreeNumberId(accountType, accountType.getPattern()));
         assertThat(accNumSequenceRepository.findAll()).hasSize(1);
-        // строка ниже не работает, хотя не знаю почему. Пишет что не может смапить параметр метода с параметром запроса.....
-//        assertThat(accNumSequenceRepository.findCounterByType(accountType.name()).get()).isEqualTo(2);
+        assertThat(accNumSequenceRepository.findCounterByType(accountType.name()).get()).isEqualTo(2);
         assertThat(freeAccNumRepository.findAll()).hasSize(1);
         assertThat(freeAccNumRepository.retrieveFreeAccNum(accountType.name()).getId().getFreeNumber()).isEqualTo(freeAccountNumber.getId().getFreeNumber() + 1);
     }
