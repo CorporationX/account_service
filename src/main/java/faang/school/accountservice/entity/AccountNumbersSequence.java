@@ -1,4 +1,4 @@
-package faang.school.accountservice.Entity;
+package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.Column;
