@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,9 @@ public class AccountService {
 
         String accountNumber = accountNumberService.getAccountNumber();
         account.setAccountNumber(accountNumber);
+
+        account.setBalance(BigDecimal.valueOf(0));
+        account.setTransactionLimit(BigDecimal.valueOf(0));
 
         account = accountRepository.save(account);
 

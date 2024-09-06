@@ -11,6 +11,7 @@ import faang.school.accountservice.mapper.account.SavingsAccountMapper;
 import faang.school.accountservice.repository.account.SavingsAccountRepository;
 import faang.school.accountservice.util.TariffRateUtils;
 import faang.school.accountservice.validator.SavingsAccountValidator;
+import faang.school.accountservice.validator.TariffValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class SavingsAccountService {
     private final SavingsAccountValidator savingsAccountValidator;
     private final AccountMapper accountMapper;
     private final TariffService tariffService;
+    private final TariffValidator tariffValidator;
 
     @Transactional
     public SavingsAccountDto create(SavingsAccountDto savingsAccountDto, String tariff) {
@@ -38,6 +40,7 @@ public class SavingsAccountService {
         savingsAccount.setAccount(account);
         savingsAccount.setId(account.getId());
 
+        tariffValidator.validateTariffById(UUID.fromString(tariff));
         String tariffHistory = formatTariffHistory(savingsAccount.getTariffHistory(), tariff);
         savingsAccount.setTariffHistory(tariffHistory);
 

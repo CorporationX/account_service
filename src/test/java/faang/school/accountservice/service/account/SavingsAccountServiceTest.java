@@ -8,6 +8,7 @@ import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.mapper.account.SavingsAccountMapper;
 import faang.school.accountservice.repository.account.SavingsAccountRepository;
 import faang.school.accountservice.validator.SavingsAccountValidator;
+import faang.school.accountservice.validator.TariffValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -40,7 +41,7 @@ public class SavingsAccountServiceTest {
     private AccountMapper accountMapper;
 
     @Mock
-    private TariffService tariffService;
+    private TariffValidator tariffValidator;
 
     private SavingsAccount savingsAccount;
 

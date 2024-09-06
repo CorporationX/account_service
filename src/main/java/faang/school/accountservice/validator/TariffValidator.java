@@ -34,7 +34,7 @@ public class TariffValidator {
 
     public void validateTariffById(UUID tariffId) {
         tariffRepository.findById(tariffId)
-                .orElseThrow(() -> new RuntimeException("Saving account with id: " + tariffId +
+                .orElseThrow(() -> new RuntimeException("Tariff with id: " + tariffId +
                         " doesn't exist!"));
     }
 }
