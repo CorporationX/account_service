@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TariffRateMapperTest {
-    private final TariffRateMapper mapper = Mappers.getMapper(TariffRateMapper.class);
+    private final TariffAndRateMapper mapper = Mappers.getMapper(TariffAndRateMapper.class);
 
     @Test
     void mapToDto() {

@@ -10,13 +10,13 @@ CREATE TABLE IF NOT EXISTS savings_account (
 CREATE TABLE IF NOT EXISTS tariff (
     id BIGSERIAL PRIMARY KEY,
     type VARCHAR(50) NOT NULL,
-    savings_account_id BIGINT REFERENCES savings_account(id) NOT NULL,
+    savings_account_id BIGINT REFERENCES savings_account(id),
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS rate_history (
      id BIGSERIAL PRIMARY KEY,
-     tariff_id BIGINT REFERENCES tariff(id) NOT NULL,
+     tariff_id BIGINT REFERENCES tariff(id),
      rate DOUBLE PRECISION NOT NULL,
      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

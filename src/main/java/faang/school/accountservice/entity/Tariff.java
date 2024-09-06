@@ -17,9 +17,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.Stack;
+import java.util.List;
 
 @Entity
 @Table(name = "tariff")
@@ -27,6 +28,7 @@ import java.util.Stack;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "rateHistoryList")
 public class Tariff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +39,12 @@ public class Tariff {
     private TariffType type;
 
     @ManyToOne
-    @JoinColumn(name = "savings_account_id", nullable = false)
+    @JoinColumn(name = "savings_account_id")
     private SavingsAccount savingsAccount;
 
     @Column(name = "applied_at", nullable = false)
     private LocalDateTime appliedAt;
 
     @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Stack<RateHistory> rateHistoryList;
+    private List<RateHistory> rateHistoryList;
 }

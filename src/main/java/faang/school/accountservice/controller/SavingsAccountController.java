@@ -1,6 +1,8 @@
 package faang.school.accountservice.controller;
 
+import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.TariffAndRateDto;
+import faang.school.accountservice.entity.SavingsAccount;
 import faang.school.accountservice.service.SavingsAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,12 +25,12 @@ public class SavingsAccountController {
     }
 
     @GetMapping
-    public TariffAndRateDto getAccountByClientId(@RequestParam("id") String ownerId){
-        return savingsAccountService.getAccountByClientId(ownerId);
+    public TariffAndRateDto getAccountByClientId(@RequestParam("id") String number){
+        return savingsAccountService.getAccountByClientId(number);
     }
 
     @PostMapping
-    public TariffAndRateDto openAccount(@RequestBody SavingsAccountDto accountDto){
+    public AccountDto openAccount(@RequestBody AccountDto accountDto){
         return savingsAccountService.openAccount(accountDto);
     }
 }

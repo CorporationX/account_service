@@ -14,10 +14,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.Version;
 
 import java.time.LocalDateTime;
-import java.util.Stack;
+import java.util.List;
 
 @Entity
 @Table(name = "savings_account")
@@ -25,6 +26,7 @@ import java.util.Stack;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "tariffHistory")
 public class SavingsAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,17 +37,18 @@ public class SavingsAccount {
     private Account account;
 
     @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Stack<Tariff> tariffHistory;
+    private List<Tariff> tariffHistory;
 
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(name = "last_interest_calculation_date", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime lastInterestCalculationDate;
 
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime updatedAt;
 
     @Version
+    @Column(name = "version", nullable = false)
     private Integer version;
 }

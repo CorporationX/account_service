@@ -27,12 +27,12 @@ public class RateHistory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "tariff_id", nullable = false)
+    @JoinColumn(name = "tariff_id")
     private Tariff tariff;
 
     @Column(name = "rate", nullable = false)
     private Double rate;
 
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
 }

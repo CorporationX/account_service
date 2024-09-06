@@ -8,31 +8,32 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.Stack;
+import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface TariffRateMapper {
+public interface TariffAndRateMapper {
     @Mapping(source = "tariffHistory", target = "tariffType", qualifiedByName = "toTariffType")
     @Mapping(source = "tariffHistory", target = "rate", qualifiedByName = "toTariffRate")
     TariffAndRateDto mapToDto(SavingsAccount savingsAccount);
 
     @Named("toTariffType")
-    default String toTariffType(Stack<Tariff> tariffHistory){
-        if (tariffHistory == null || tariffHistory.empty()){
+    default String toTariffType(List<Tariff> tariffHistory){
+        if (tariffHistory == null || tariffHistory.isEmpty()){
             return null;
         }
-        return tariffHistory.peek()
+        return tariffHistory.get(tariffHistory.size() - 1)
                 .getType()
                 .name();
     }
 
     @Named("toTariffRate")
-    default Double toTariffRate(Stack<Tariff> tariffHistory){
-        if (tariffHistory == null || tariffHistory.empty()){
+    default Double toCurrentTariffRate(List<Tariff> tariffHistory){
+        if (tariffHistory == null || tariffHistory.isEmpty()){
             return null;
         }
-        return tariffHistory.peek()
-                .getRateHistoryList()
-                .isEmpty() ? null : tariffHistory.peek().getRateHistoryList().peek().getRate();
+        var rateHistoryListOfCurrentTariff = tariffHistory.get(tariffHistory.size() - 1).getRateHistoryList();
+        return rateHistoryListOfCurrentTariff.isEmpty()
+                ? null
+                : rateHistoryListOfCurrentTariff.get(rateHistoryListOfCurrentTariff.size() - 1).getRate();
     }
 }

@@ -31,20 +31,32 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
     private AccountType type;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "currency", nullable = false)
     private Currency currency;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private AccountStatus status;
-    @Column(columnDefinition = "TIMESTAMP")
+
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
-    @Column(columnDefinition = "TIMESTAMP")
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime updatedAt;
-    @Column(columnDefinition = "TIMESTAMP")
+
+    @Column(name = "closed_at", columnDefinition =  "TIMESTAMP")
     private LocalDateTime closedAt;
+
     @Version
+    @Column(name = "version", nullable = false)
     private Integer version;
 }
