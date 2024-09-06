@@ -1,7 +1,6 @@
 package faang.school.accountservice.validator;
 
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.account.SavingsAccount;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.repository.account.SavingsAccountRepository;

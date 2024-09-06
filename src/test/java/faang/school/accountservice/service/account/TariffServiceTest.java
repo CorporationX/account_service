@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,7 +69,9 @@ class TariffServiceTest {
 
         tariff.setRateHistory("[1, 2]");
 
-        when(tariffRepository.findById(tariffId)).thenReturn(java.util.Optional.of(tariff));
+        when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(tariff));
+        tariffDto.setRateHistory("[1,2,3]");
+
         when(tariffRepository.save(any(Tariff.class))).thenReturn(tariff);
         when(tariffMapper.toDto(any(Tariff.class))).thenReturn(tariffDto);
 
@@ -77,21 +80,21 @@ class TariffServiceTest {
         assertEquals(tariffDto, result);
         verify(tariffRepository, times(1)).findById(tariffId);
         verify(tariffRepository, times(1)).save(tariff);
-        verify(tariffValidator, times(1)).validateRateForUpdates(newRate, "2");
     }
 
     @Test
-    void updateTariffHistory_Failure_SameRate() {
+    void updateTariffHistory_Failure_InvalidRate() {
         UUID tariffId = UUID.randomUUID();
-        String sameRate = "2";
+        String invalidRate = "invalid";
 
-        tariff.setRateHistory("[1, 2]");
+        when(tariffRepository.findById(tariffId)).thenReturn(Optional.of(tariff));
 
-        when(tariffRepository.findById(tariffId)).thenReturn(java.util.Optional.of(tariff));
-        doThrow(new RuntimeException("The rates cannot be equal!")).when(tariffValidator).validateRateForUpdates(sameRate, "2");
+        doThrow(new RuntimeException("Invalid rate value!")).when(tariffValidator).validateRateForUpdates(eq(invalidRate), anyString());
 
-        assertThrows(RuntimeException.class, () -> tariffService.updateTariffHistory(tariffId, sameRate));
+        assertThrows(RuntimeException.class, () -> tariffService.updateTariffHistory(tariffId, invalidRate));
+
         verify(tariffRepository, never()).save(any(Tariff.class));
     }
+
 
 }

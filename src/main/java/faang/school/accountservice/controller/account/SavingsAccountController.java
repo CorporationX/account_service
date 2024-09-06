@@ -2,7 +2,6 @@ package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.account.SavingsAccountDto;
 import faang.school.accountservice.dto.account.TariffAndRateDto;
-import faang.school.accountservice.dto.account.TariffDto;
 import faang.school.accountservice.service.account.SavingsAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
