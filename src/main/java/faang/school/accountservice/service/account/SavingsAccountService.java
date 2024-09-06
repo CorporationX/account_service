@@ -9,6 +9,7 @@ import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.mapper.account.SavingsAccountMapper;
 import faang.school.accountservice.repository.account.SavingsAccountRepository;
+import faang.school.accountservice.util.TariffRateUtils;
 import faang.school.accountservice.validator.SavingsAccountValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,52 +61,35 @@ public class SavingsAccountService {
     @Transactional(readOnly = true)
     public TariffAndRateDto getSavingAccountById(UUID id) {
         SavingsAccount savingsAccount = getSavingAccount(id);
-
-        String tariff = getActualTariff(savingsAccount.getTariffHistory());
-
-        UUID tariffId = UUID.fromString(tariff);
-        String rate = tariffService.getRateByById(tariffId);
-
-        return new TariffAndRateDto(tariff,rate);
+        return getTariffAndRate(savingsAccount);
     }
 
     @Transactional(readOnly = true)
     public TariffAndRateDto getSavingAccountByUserId(long userId) {
         SavingsAccount savingsAccount = savingsAccountRepository
                 .findByAccount_OwnerIdAndAccount_OwnerType(userId, OwnerType.USER);
-
-        String tariff = getActualTariff(savingsAccount.getTariffHistory());
-
-        UUID tariffId = UUID.fromString(tariff);
-        String rate = tariffService.getRateByById(tariffId);
-
-        return new TariffAndRateDto(tariff,rate);
-
+        return getTariffAndRate(savingsAccount);
     }
 
     private String formatTariffHistory(String tariffHistory, String tariff) {
-        if(tariffHistory == null || tariffHistory.isBlank()) {
-            tariffHistory = "[" + tariff + "]";
-            return tariffHistory;
-        }
-
-        tariffHistory = tariffHistory.replaceAll("]", "," + tariff + "]");
-        return tariffHistory;
+        return TariffRateUtils.formatHistory(tariffHistory, tariff);
     }
 
     private String getActualTariff(String tariffHistory) {
-        if(tariffHistory.contains(",")) {
-            String[] tariffs = tariffHistory.split(",");
-            int lastTariffIndex = tariffs.length - 1;
-            return tariffs[lastTariffIndex].substring(0, tariffs[lastTariffIndex].length() - 1);
-        }
-        else {
-            return tariffHistory.substring(1, tariffHistory.length() - 1);
-        }
+        return TariffRateUtils.getLastValueFromHistory(tariffHistory);
     }
 
     private SavingsAccount getSavingAccount(UUID id) {
         savingsAccountValidator.validateAccountById(id);
         return savingsAccountRepository.findById(id).get();
     }
+
+    private TariffAndRateDto getTariffAndRate(SavingsAccount savingsAccount) {
+        String tariff = getActualTariff(savingsAccount.getTariffHistory());
+        UUID tariffId = UUID.fromString(tariff);
+        String rate = tariffService.getRateByById(tariffId);
+
+        return new TariffAndRateDto(tariff, rate);
+    }
+
 }

@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.account.TariffDto;
 import faang.school.accountservice.entity.account.Tariff;
 import faang.school.accountservice.mapper.account.TariffMapper;
 import faang.school.accountservice.repository.account.TariffRepository;
+import faang.school.accountservice.util.TariffRateUtils;
 import faang.school.accountservice.validator.TariffValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -61,24 +62,11 @@ public class TariffService {
     }
 
     private String formatRateHistory(String rateHistory, String rate) {
-        if(rateHistory == null || rateHistory.isBlank()) {
-            rateHistory = "[" + rate + "]";
-            return rateHistory;
-        }
-
-        rateHistory = rateHistory.replaceAll("]", "," + rate + "]");
-        return rateHistory;
+        return TariffRateUtils.formatHistory(rateHistory, rate);
     }
 
     private String getRate(String rateHistory) {
-        if(rateHistory.contains(",")) {
-            String[] rates = rateHistory.split(",");
-            int lastTariffIndex = rates.length - 1;
-            return rates[lastTariffIndex].substring(0, rates[lastTariffIndex].length() - 1);
-        }
-        else {
-            return rateHistory.substring(1, rateHistory.length() - 1);
-        }
+        return TariffRateUtils.getLastValueFromHistory(rateHistory);
     }
 
     private Tariff getTariff(UUID id) {
