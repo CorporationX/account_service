@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity.account;
 
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -55,8 +56,9 @@ public class Account {
     @Column(name = "status", nullable = false)
     private AccountStatus status;
 
-    @Column(name = "balance")
-    private BigDecimal balance;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "balance",referencedColumnName = "id")
+    private Balance balance;
 
     @Column(name = "transaction_limit")
     private BigDecimal transactionLimit;
