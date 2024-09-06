@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

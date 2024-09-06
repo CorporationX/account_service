@@ -1,6 +1,6 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.controller.account;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

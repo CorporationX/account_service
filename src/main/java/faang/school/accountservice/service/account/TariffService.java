@@ -66,13 +66,19 @@ public class TariffService {
             return rateHistory;
         }
 
-        rateHistory = rateHistory.replaceAll("]", ", " + rate + "]");
+        rateHistory = rateHistory.replaceAll("]", "," + rate + "]");
         return rateHistory;
     }
 
     private String getRate(String rateHistory) {
-        int tariffIndex = rateHistory.length() - 2;
-        return rateHistory.substring(tariffIndex, tariffIndex + 1);
+        if(rateHistory.contains(",")) {
+            String[] rates = rateHistory.split(",");
+            int lastTariffIndex = rates.length - 1;
+            return rates[lastTariffIndex].substring(0, rates[lastTariffIndex].length() - 1);
+        }
+        else {
+            return rateHistory.substring(1, rateHistory.length() - 1);
+        }
     }
 
     private Tariff getTariff(UUID id) {
