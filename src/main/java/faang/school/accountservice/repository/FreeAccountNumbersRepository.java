@@ -31,15 +31,5 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     void deleteById(FreeAccountNumberId freeAccountNumberId);
 
-    @Transactional
-    default Optional<FreeAccountNumber> getFirstAndDelete(AccountType accountType) {
-        FreeAccountNumber freeAccountNumber = findFirstByAccountType(accountType).orElse(null);
 
-        if (freeAccountNumber == null) {
-            return Optional.empty();
-        } else {
-            deleteById(freeAccountNumber.getId());
-            return Optional.of(freeAccountNumber);
-        }
-    }
 }

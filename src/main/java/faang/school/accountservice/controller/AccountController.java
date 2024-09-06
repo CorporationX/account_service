@@ -34,7 +34,6 @@ public class AccountController {
     }
 
     @GetMapping("/{accountId}")
-    @ResponseStatus(HttpStatus.FOUND)
     public AccountDto getAccount(@PathVariable long accountId) {
         return accountService.getAccount(accountId);
     }

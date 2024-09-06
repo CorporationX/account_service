@@ -6,7 +6,6 @@ import faang.school.accountservice.model.FreeAccountNumber;
 import faang.school.accountservice.model.FreeAccountNumberId;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Service
@@ -52,7 +51,7 @@ public class FreeAccountNumbersService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 5000L))
     public void getUniqueAccountNumberByType(Consumer<FreeAccountNumber> consumer, AccountType accountType) {
 
-        FreeAccountNumber accountNumber = freeAccountNumbersRepository.getFirstAndDelete(accountType)
+        FreeAccountNumber accountNumber = getFirstAndDelete(accountType)
                 .orElseGet(() -> {
                     FreeAccountNumber freeAccountNumber = generateNewAccountNumberByType(accountType);
                     freeAccountNumbersRepository.deleteById(freeAccountNumber.getId());
@@ -86,5 +85,17 @@ public class FreeAccountNumbersService {
                 )
                 .build();
         return freeAccountNumber;
+    }
+
+    @Transactional
+    public Optional<FreeAccountNumber> getFirstAndDelete(AccountType accountType) {
+        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findFirstByAccountType(accountType).orElse(null);
+
+        if (freeAccountNumber == null) {
+            return Optional.empty();
+        } else {
+            freeAccountNumbersRepository.deleteById(freeAccountNumber.getId());
+            return Optional.of(freeAccountNumber);
+        }
     }
 }
