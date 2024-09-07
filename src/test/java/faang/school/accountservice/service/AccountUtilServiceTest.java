@@ -1,16 +1,13 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.NotFoundException;
-import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
@@ -31,9 +28,6 @@ public class AccountUtilServiceTest {
     @Mock
     AccountRepository accountRepository;
 
-    @Spy
-    AccountMapperImpl accountMapper;
-
     @InjectMocks
     AccountUtilService accountUtilService;
 
@@ -43,7 +37,6 @@ public class AccountUtilServiceTest {
 
     Long testOwnerId = 1L;
     String testOwnerType = "PROJECT";
-    OpenAccountDto testOpenAccountDto = new OpenAccountDto();
 
     @Test
     public void testGetByIdIfAccountNotFound() {
@@ -95,9 +88,9 @@ public class AccountUtilServiceTest {
 
     @Test
     public void testOpenAccountSuccessful() {
-        testOpenAccountDto.setNumber("112233445566");
+        testAccount.setNumber("112233445566");
 
-        accountUtilService.openAccount(testOpenAccountDto);
+        accountUtilService.openAccount(testAccount);
 
         verify(accountRepository, times(1)).save(any());
     }

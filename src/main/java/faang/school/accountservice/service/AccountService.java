@@ -33,7 +33,8 @@ public class AccountService {
     }
 
     public AccountDto openAccount(OpenAccountDto openAccountDto) {
-        Account openAccount = accountUtilService.openAccount(openAccountDto);
+        Account account = accountMapper.toEntity(openAccountDto);
+        Account openAccount = accountUtilService.openAccount(account);
         return accountMapper.toDto(openAccount);
     }
 

@@ -2,7 +2,6 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.OpenAccountDto;
-import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -57,13 +56,11 @@ public class AccountController {
 
     @PutMapping("/unblock/{id}")
     public AccountDto unblockAccount(@Positive @PathVariable Long id) {
-        String status = Status.ACTIVE.name();
         return accountService.unblockAccount(id);
     }
 
     @PutMapping("/close/{id}")
     public AccountDto closeAccount(@Positive @PathVariable Long id) {
-        String status = Status.CLOSED.name();
         return accountService.closeAccount(id);
     }
 }

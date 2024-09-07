@@ -1,10 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.NotFoundException;
-import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +16,6 @@ import java.time.LocalDateTime;
 public class AccountUtilService {
 
     private final AccountRepository accountRepository;
-    private final AccountMapper accountMapper;
 
     public Account getById(Long id) {
         Account account = accountRepository.findById(id).orElseThrow(() ->
@@ -42,11 +39,10 @@ public class AccountUtilService {
         return account;
     }
 
-    public Account openAccount(OpenAccountDto openAccountDto) {
-        Account account = accountMapper.toEntity(openAccountDto);
+    public Account openAccount(Account account) {
         account.setStatus(Status.ACTIVE);
         Account openAccount = accountRepository.save(account);
-        log.info("Account with number = {} opened", openAccountDto.getNumber());
+        log.info("Account with number = {} opened", account.getNumber());
         return openAccount;
     }
 
