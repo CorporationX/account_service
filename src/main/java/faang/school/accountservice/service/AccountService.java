@@ -4,9 +4,7 @@ import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.Status;
-import faang.school.accountservice.exeption.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
-import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AccountService {
 
-    private final AccountRepository accountRepository;
     private final AccountUtilService accountUtilService;
     private final AccountMapper accountMapper;
 
@@ -26,25 +23,35 @@ public class AccountService {
     }
 
     public AccountDto getAccountByNumber(String number) {
-        Account account = accountRepository.findByNumber(number).orElseThrow(() ->
-                new NotFoundException("Account with number = " + number + " not found"));
-        log.info("Account with number = {} found", number);
+        Account account = accountUtilService.getByNumber(number);
         return accountMapper.toDto(account);
     }
 
     public AccountDto getAccountByOwner(Long ownerId, String ownerType) {
-        Account account = accountRepository.findByOwner(ownerId, ownerType).orElseThrow(() ->
-                new NotFoundException("Account by owner with ID = " + ownerId +
-                        " and type: " + ownerType + " not found"));
-        log.info("Account by owner with ID = {} and type: {} found", ownerId, ownerType);
+        Account account = accountUtilService.getByOwner(ownerId, ownerType);
         return accountMapper.toDto(account);
     }
 
     public AccountDto openAccount(OpenAccountDto openAccountDto) {
-        Account account = accountMapper.toEntity(openAccountDto);
-        account.setStatus(Status.ACTIVE);
-        Account openAccount = accountRepository.save(account);
-        log.info("Account with number = {} opened", openAccountDto.getNumber());
+        Account openAccount = accountUtilService.openAccount(openAccountDto);
         return accountMapper.toDto(openAccount);
+    }
+
+    public AccountDto blockAccount(Long id) {
+        String status = Status.FROZEN.name();
+        Account blockAccount = accountUtilService.changeAccountStatus(id, status);
+        return accountMapper.toDto(blockAccount);
+    }
+
+    public AccountDto unblockAccount(Long id) {
+        String status = Status.ACTIVE.name();
+        Account unblockAccount = accountUtilService.changeAccountStatus(id, status);
+        return accountMapper.toDto(unblockAccount);
+    }
+
+    public AccountDto closeAccount(Long id) {
+        String status = Status.CLOSED.name();
+        Account closeAccount = accountUtilService.changeAccountStatus(id, status);
+        return accountMapper.toDto(closeAccount);
     }
 }

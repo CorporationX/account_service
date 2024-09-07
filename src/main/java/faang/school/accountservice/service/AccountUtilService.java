@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.account.AccountDto;
+import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exeption.NotFoundException;
@@ -27,7 +27,30 @@ public class AccountUtilService {
         return account;
     }
 
-    public AccountDto changeAccountStatus(Long id, String status) {
+    public Account getByNumber(String number) {
+        Account account = accountRepository.findByNumber(number).orElseThrow(() ->
+                new NotFoundException("Account with number = " + number + " not found"));
+        log.info("Account with number = {} found", number);
+        return account;
+    }
+
+    public Account getByOwner(Long ownerId, String ownerType) {
+        Account account = accountRepository.findByOwner(ownerId, ownerType).orElseThrow(() ->
+                new NotFoundException("Account by owner with ID = " + ownerId +
+                        " and type: " + ownerType + " not found"));
+        log.info("Account by owner with ID = {} and type: {} found", ownerId, ownerType);
+        return account;
+    }
+
+    public Account openAccount(OpenAccountDto openAccountDto) {
+        Account account = accountMapper.toEntity(openAccountDto);
+        account.setStatus(Status.ACTIVE);
+        Account openAccount = accountRepository.save(account);
+        log.info("Account with number = {} opened", openAccountDto.getNumber());
+        return openAccount;
+    }
+
+    public Account changeAccountStatus(Long id, String status) {
         Account account = getById(id);
         if (account.getStatus().equals(Status.CLOSED) && status.equalsIgnoreCase(Status.ACTIVE.name())) {
             log.warn("Account with ID = {} is CLOSE. It cannot have ACTIVE status again", id);
@@ -41,6 +64,6 @@ public class AccountUtilService {
             accountRepository.save(account);
             log.info("Account with ID = {} has status: {}", id, account.getStatus().name());
         }
-        return accountMapper.toDto(account);
+        return account;
     }
 }
