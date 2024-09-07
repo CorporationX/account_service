@@ -19,14 +19,18 @@ import static java.lang.String.format;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     public AccountDto getAccountByNumber(String number) {
         return accountMapper.toDto(findAccount(number));
     }
 
+    @Transactional
     public AccountDto openAccount(AccountDto accountDto) {
+        String accountNumber = freeAccountNumbersService.getFreeAccountNumber();
         var account = accountMapper.toEntity(accountDto);
         account.setCreatedAt(LocalDateTime.now());
+        account.setNumber(accountNumber);
         var savedAccount = accountRepository.save(account);
         return accountMapper.toDto(savedAccount);
     }
