@@ -1,0 +1,3 @@
+ALTER TABLE account
+ALTER COLUMN balance TYPE BIGINT
+USING balance::BIGINT;

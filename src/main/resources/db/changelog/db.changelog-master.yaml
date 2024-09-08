@@ -1,3 +1,9 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account-service_account.sql
+  - include:
+      file: db/changelog/changeset/V002__account-service_balance.sql
+  - include:
+      file: db/changelog/changeset/V003__alter_balance_column_type.sql
+  - include:
+      file: db/changelog/changeset/V004__account-service_add_foreign_key_account_balance.sql

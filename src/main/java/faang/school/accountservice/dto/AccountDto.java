@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.entity.balance.Balance;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -30,8 +31,8 @@ public class AccountDto {
     private String currency;
     @NotBlank(message = "Status must be provided!")
     private String status;
-    @PositiveOrZero(message = "Balance must be a non-negative number!")
-    private BigDecimal balance;
+    @NotNull
+    private Balance balance;
     @PositiveOrZero(message = "Transaction limit must be a non-negative number!")
     private BigDecimal transactionLimit;
     private long version;
