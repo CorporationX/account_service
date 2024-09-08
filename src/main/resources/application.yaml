@@ -13,6 +13,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  task:
+    execution:
+      pool:
+        core-size: 10
+        max-size: 20
+        queue-capacity: 10000
+        keep-alive: 60
+
+  limits:
+    user-limit: 2000
+    bank-limit: 5000
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
