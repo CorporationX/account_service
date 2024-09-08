@@ -5,8 +5,6 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 @Component
 public class IndividualFreeAccountNumbersCache extends AbstractFreeAccountNumbersCache<AccountType> {
 
@@ -19,17 +17,12 @@ public class IndividualFreeAccountNumbersCache extends AbstractFreeAccountNumber
     }
 
     @Override
-    protected void init() {
-        super.cache = new ConcurrentHashMap<>();
-        super.sequence = individualAccountCacheConfig.getSequence();
-        super.type = individualAccountCacheConfig.getType();
-        super.numberOfDigits = individualAccountCacheConfig.getNumberOfDigits();
-        super.minCacheSize = individualAccountCacheConfig.getMinCacheSize();
-        super.defaultCacheSize = individualAccountCacheConfig.getDefaultCacheSize();
+    public AccountType getAccountType() {
+        return individualAccountCacheConfig.getType();
     }
 
     @Override
-    public AccountType getAccountType() {
-        return individualAccountCacheConfig.getType();
+    protected void init() {
+        super.setConfigProperties(individualAccountCacheConfig);
     }
 }

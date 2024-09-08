@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Getter
 @Configuration
-public class IndividualAccountCacheConfig {
+public class IndividualAccountCacheConfig extends AbstractAccountCacheConfig {
 
     @Value("${spring.account-cache.individual.sequence}")
     private String sequence;

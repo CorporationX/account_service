@@ -22,8 +22,8 @@ public class FreeAccountNumbersService {
                 .filter(c -> c.getAccountType().equals(accountType))
                 .findFirst();
         return cache.orElseThrow(() -> {
-            log.info("Cache is not exist for this account type: {}", accountType);
-            return new RuntimeException("Cache is not exist for this account type " + accountType);
+            log.info("Cache does not exist for this account type: {}", accountType);
+            return new RuntimeException("Cache does not exist for this account type " + accountType);
         }).getNumberAndRemoveFromCache();
     }
 }

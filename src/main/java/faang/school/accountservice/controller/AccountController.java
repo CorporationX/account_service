@@ -19,21 +19,21 @@ public class AccountController {
 
     @GetMapping("")
     public AccountDto get(@Validated @RequestBody AccountDto accountDto) {
-        return accountService.get(accountDto);
+        return accountService.getAccount(accountDto);
     }
 
     @PostMapping("")
     public AccountDto open(@Validated @RequestBody AccountDto accountDto) {
-        return accountService.open(accountDto);
+        return accountService.openAccount(accountDto);
     }
 
     @PostMapping("block")
     public AccountDto block(@Validated @RequestBody AccountDto accountDto) {
-        return accountService.block(accountDto);
+        return accountService.suspendAccount(accountDto);
     }
 
     @PostMapping("close")
     public AccountDto close(@Validated @RequestBody AccountDto accountDto) {
-        return accountService.close(accountDto);
+        return accountService.closeAccount(accountDto);
     }
 }

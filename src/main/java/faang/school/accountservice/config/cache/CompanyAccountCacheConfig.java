@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Getter
 @Configuration
-public class CompanyAccountCacheConfig {
+public class CompanyAccountCacheConfig extends AbstractAccountCacheConfig {
 
     @Value("${spring.account-cache.company.sequence}")
     private String sequence;

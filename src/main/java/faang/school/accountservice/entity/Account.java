@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -34,6 +35,19 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 public class Account {
+
+    public Account(BigInteger accountNumber,
+                   Balance balance,
+                   AccountOwner accountOwner,
+                   AccountStatus accountStatus,
+                   AccountDto accountDto) {
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.accountOwner = accountOwner;
+        this.accountStatus = accountStatus;
+        this.accountType = accountDto.getAccountType();
+        this.currency = accountDto.getCurrency();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

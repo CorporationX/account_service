@@ -29,41 +29,45 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     @Transactional(readOnly = true)
-    public AccountDto get(AccountDto accountDto) {
+    public AccountDto getAccount(AccountDto accountDto) {
         Account account = getAccountForUpdate(accountDto.getId());
         return accountMapper.toDto(account);
     }
 
     @Transactional
-    public AccountDto open(AccountDto accountDto) {
+    public AccountDto openAccount(AccountDto accountDto) {
         AccountOwner accountOwner = accountOwnerService.getAndCreateIfNecessary(accountDto);
         BigInteger accountNumber = freeAccountNumbersService.getFreeNumberAndDeleteFromCache(accountDto.getAccountType());
         Balance balance = balanceService.createBalance();
-        Account account = Account.builder()
-                .accountNumber(accountNumber)
-                .balance(balance)
-                .accountOwner(accountOwner)
-                .accountType(accountDto.getAccountType())
-                .currency(accountDto.getCurrency())
-                .accountStatus(AccountStatus.ACTIVE)
-                .build();
+        Account account = new Account(accountNumber, balance, accountOwner, AccountStatus.ACTIVE, accountDto);
         return accountMapper.toDto(accountRepository.save(account));
     }
 
     @Transactional
     @Retryable(backoff = @Backoff(delay = 300))
-    public AccountDto block(AccountDto accountDto) {
+    public AccountDto suspendAccount(AccountDto accountDto) {
         Account account = getAccountForUpdate(accountDto.getId());
-        account.setAccountStatus(AccountStatus.FROZEN);
-        return accountMapper.toDto(accountRepository.save(account));
+        if (!account.getAccountStatus().equals(AccountStatus.SUSPENDED) &&
+                !account.getAccountStatus().equals(AccountStatus.CLOSED)) {
+            account.setAccountStatus(AccountStatus.SUSPENDED);
+            return accountMapper.toDto(accountRepository.save(account));
+        } else {
+            log.info("Account {} status is already SUSPENDED or CLOSED", account.getAccountNumber());
+            throw new RuntimeException("Account status is already SUSPENDED or CLOSED");
+        }
     }
 
     @Transactional
     @Retryable(backoff = @Backoff(delay = 300))
-    public AccountDto close(AccountDto accountDto) {
+    public AccountDto closeAccount(AccountDto accountDto) {
         Account account = getAccountForUpdate(accountDto.getId());
-        account.setAccountStatus(AccountStatus.CLOSED);
-        return accountMapper.toDto(accountRepository.save(account));
+        if (!account.getAccountStatus().equals(AccountStatus.CLOSED)) {
+            account.setAccountStatus(AccountStatus.CLOSED);
+            return accountMapper.toDto(accountRepository.save(account));
+        } else {
+            log.info("Account {} status is already CLOSED", account.getAccountNumber());
+            throw new RuntimeException("Account status is already CLOSED");
+        }
     }
 
     private Account getAccountForUpdate(long accountId) {
