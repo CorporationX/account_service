@@ -2,6 +2,7 @@ package faang.school.accountservice.mapper;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -36,7 +37,7 @@ public class AccountMapperTest {
                 .accountType(AccountType.SAVINGS)
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
-                .balance(new BigDecimal("1000.00"))
+                .balance(new Balance())
                 .transactionLimit(new BigDecimal("500.00"))
                 .version(1L)
                 .createdAt(now)
@@ -53,7 +54,7 @@ public class AccountMapperTest {
                 .accountType("SAVINGS")
                 .currency("USD")
                 .status("ACTIVE")
-                .balance(new BigDecimal("1000.00"))
+                .balance(new Balance())
                 .transactionLimit(new BigDecimal("500.00"))
                 .version(1L)
                 .createdAt(now)

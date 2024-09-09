@@ -10,7 +10,6 @@ import faang.school.accountservice.validator.balance.BalanceValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 
 @Service
@@ -23,8 +22,7 @@ public class BalanceService {
 
     public BalanceDto create(BalanceDto balanceDto) {
         Balance balance = balanceMapper.toEntity(balanceDto);
-        Account account = accountRepository.findById(balanceDto.getAccountId()).get();
-        balance.setAccount(account);
+        balance.setAccount(accountRepository.findById(balanceDto.getAccountId()).get());
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
 
