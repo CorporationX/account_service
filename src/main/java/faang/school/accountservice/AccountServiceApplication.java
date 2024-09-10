@@ -7,6 +7,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients("faang.school.accountservice.client")
 @EnableRetry
 @EnableConfigurationProperties(AccountGenerateConfig.class)
+@EnableAsync
 public class AccountServiceApplication {
     public static void main(String[] args) {
         new SpringApplicationBuilder(AccountServiceApplication.class)

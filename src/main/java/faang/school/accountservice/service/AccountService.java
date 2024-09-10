@@ -14,11 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AccountService {
+    private final List<AccountCreationService> accountCreationServices;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
@@ -64,6 +66,10 @@ public class AccountService {
         accountToSave.setAccountStatus(AccountStatus.OPEN);
         accountToSave.setVersion(1L);
         Account savedAccount = accountRepository.save(accountToSave);
+        accountCreationServices.stream()
+                .filter((service) -> service.getAccountType().equals(savedAccount.getAccountType()))
+                .forEach((service) -> service.create(savedAccount, accountDto.getTariffType()));
+
         return accountMapper.toDto(savedAccount);
     }
 

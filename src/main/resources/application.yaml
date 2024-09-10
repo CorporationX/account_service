@@ -17,6 +17,13 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  task:
+    execution:
+      pool:
+        max-size: 10
+        core-size: 6
+        queue-capacity: 20
+
 server:
   port: 8090
 
@@ -35,3 +42,7 @@ task:
         RETIREMENT: 2
     schedule:
       frequency : "@daily"
+  interest-payment:
+    savings-account:
+      batch-size: 10
+      cron: "0 0 * * * ?" # every hour

@@ -9,6 +9,7 @@ import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.AccountCreationService;
 import faang.school.accountservice.service.AccountService;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.validator.AccountValidator;
@@ -25,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +47,8 @@ public class AccountServiceTest {
     private AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
     @Mock
     private AccountValidator accountValidator;
+    @Mock
+    private List<AccountCreationService> accountCreationServices;
 
     @Mock
     private  FreeAccountNumbersService freeAccountNumbersService;

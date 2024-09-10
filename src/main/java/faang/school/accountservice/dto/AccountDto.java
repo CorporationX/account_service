@@ -1,9 +1,6 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.enums.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -22,6 +19,7 @@ public class AccountDto {
     private Long ownerUserId;
     @NonNull
     private AccountType accountType;
+    private TariffType tariffType;
     @NonNull
     private Currency currency;
     private AccountStatus accountStatus;
