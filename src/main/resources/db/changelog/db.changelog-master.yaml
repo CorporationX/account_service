@@ -4,4 +4,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V002__account-service_account_index.sql
   - include:
-      file: db/changelog/changeset/V003__create_savings_account.sql
+      file: db/changelog/changeset/V003__account-service_account_free_account.sql
+  - include:
+      file: db/changelog/changeset/V004__create_savings_account.sql

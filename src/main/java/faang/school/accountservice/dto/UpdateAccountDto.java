@@ -15,7 +15,5 @@ public class UpdateAccountDto {
     private Long ownerProjectId;
     private Long ownerUserId;
     @NonNull
-    private AccountType accountType;
-    @NonNull
     private Currency currency;
 }

@@ -24,6 +24,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Transactional(readOnly = true)
     public AccountDto getAccount(long accountId) {
@@ -56,7 +57,12 @@ public class AccountService {
         accountValidator.validateAccountOwner(accountDto.getOwnerType(), accountDto.getOwnerProjectId(),
                 accountDto.getOwnerUserId());
 
+        freeAccountNumbersService.getUniqueAccountNumberByType(
+                uniqNumber -> accountDto.setNumber(uniqNumber.getId().getNumber()),
+                accountDto.getAccountType());
+
         Account accountToSave = accountMapper.toEntity(accountDto);
+
         accountToSave.setAccountStatus(AccountStatus.OPEN);
         accountToSave.setVersion(1L);
         Account savedAccount = accountRepository.save(accountToSave);
