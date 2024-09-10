@@ -13,18 +13,20 @@ import faang.school.accountservice.enums.TariffType;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDateTime;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.time.LocalDateTime.now;
+import static java.util.List.of;
 
 @UtilityClass
 public final class TestDataFactory {
-    public static final String ACCOUNT_NUMBER = "ACC001";
+    public static final String ACCOUNT_NUMBER = "8800 0000 0000 0008";
     public static Account createAccount(){
         return Account.builder()
                 .id(1L)
-                .number("ACC008")
-                .type(AccountType.CORPORATEACCOUNT)
+                .number("8800 0000 0000 0008")
+                .type(AccountType.SAVINGSACCOUNT)
                 .currency(Currency.EUR)
                 .status(AccountStatus.ACTIVE)
                 .createdAt(now())
@@ -36,8 +38,8 @@ public final class TestDataFactory {
     public static AccountDto createAccountDto(){
         return AccountDto.builder()
                 .id(null)
-                .number("ACC008")
-                .type("CorporateAccount")
+                .number("8800 0000 0000 0008")
+                .type("SAVINGSACCOUNT")
                 .currency("eur")
                 .status("active")
                 .createdAt(now())
@@ -49,15 +51,12 @@ public final class TestDataFactory {
 
     public static SavingsAccount createSavingsAccount(){
         var account = createAccount();
-
         var tariff = createTariff();
-        Stack<Tariff> tariffStack = new Stack<>();
-        tariffStack.push(tariff);
 
         return  SavingsAccount.builder()
                 .id(1L)
                 .account(account)
-                .tariffHistory(tariffStack)
+                .tariffHistory(of(tariff))
                 .lastInterestCalculationDate(LocalDateTime.now().minusMonths(1))
                 .createdAt(LocalDateTime.now().minusYears(1))
                 .updatedAt(LocalDateTime.now())
@@ -66,15 +65,12 @@ public final class TestDataFactory {
     }
     public static Tariff createTariff(){
         var rateHistory = createRateHistory();
-        Stack<RateHistory> rateHistoryStack = new Stack<>();
-        rateHistoryStack.push(rateHistory);
 
         return Tariff.builder()
                 .id(1L)
                 .type(TariffType.PREMIUM)
-                .savingsAccount(null)
                 .appliedAt(LocalDateTime.now().minusMonths(6))
-                .rateHistoryList(rateHistoryStack)
+                .rateHistoryList(new ArrayList<>(of(rateHistory)))
                 .build();
     }
 
@@ -82,7 +78,7 @@ public final class TestDataFactory {
         return RateHistory.builder()
                 .id(1L)
                 .rate(0.08)
-                .createdAt(LocalDateTime.now().minusMonths(6))
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
@@ -90,6 +86,29 @@ public final class TestDataFactory {
         return TariffAndRateDto.builder()
                 .tariffType("PREMIUM")
                 .rate(0.08)
+                .build();
+    }
+
+    public static List<RateHistory> createRateHistoryList(){
+        var rateHistoryFirst = createRateHistory();
+        var rateHistorySecond = createRateHistory();
+        rateHistorySecond.setId(2L);
+        rateHistorySecond.setRate(0.02);
+        var rateHistoryThird = createRateHistory();
+        rateHistoryThird.setId(3L);
+        rateHistoryThird.setRate(0.03);
+        return List.of(rateHistoryFirst, rateHistorySecond, rateHistoryThird);
+    }
+    public static AccountDto createAccountDtoForSaving(){
+        return AccountDto.builder()
+                .number(null)
+                .type("SAVINGSACCOUNT")
+                .currency("eur")
+                .status("active")
+                .createdAt(now())
+                .updatedAt(now())
+                .closedAt(null)
+                .version(3)
                 .build();
     }
 }
