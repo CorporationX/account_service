@@ -10,6 +10,7 @@ import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.validator.AccountValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,9 @@ public class AccountServiceTest {
     private AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
     @Mock
     private AccountValidator accountValidator;
+
+    @Mock
+    private  FreeAccountNumbersService freeAccountNumbersService;
 
     @InjectMocks
     private AccountService accountService;
@@ -86,7 +90,7 @@ public class AccountServiceTest {
         doThrow(new DataValidationException(errorMessage)).when(accountValidator).validateAccountOwner(any(), any(), any());
 
         Exception exception = assertThrows(DataValidationException.class, () -> accountService.openAccount(accountDto));
-        verifyNoMoreInteractions(accountRepository, accountValidator);
+        verifyNoMoreInteractions(accountRepository, accountValidator, freeAccountNumbersService);
         assertEquals(errorMessage, exception.getMessage());
     }
 
@@ -95,6 +99,7 @@ public class AccountServiceTest {
     public void testAccountOpenOk() {
 
         doNothing().when(accountValidator).validateAccountOwner(any(), any(), any());
+        doNothing().when(freeAccountNumbersService).getUniqueAccountNumberByType(any(),any());
 
         when(accountRepository.save(any())).thenReturn(account);
 
