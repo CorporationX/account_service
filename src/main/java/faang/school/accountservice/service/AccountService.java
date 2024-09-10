@@ -81,21 +81,21 @@ public class AccountService {
     }
 
     @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> receivingBalance(Long accountId, BigDecimal sum) {
+    public CompletableFuture<PaymentStatus> receiveFunds(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.receivingBalance(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService.receiveFunds(account.getBalance(), sum));
     }
 
     @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> spendingAuthorizationBalance(Long accountId, BigDecimal sum) {
+    public CompletableFuture<PaymentStatus> spendFromAuthorizedBalance(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.spendingAuthorizationBalance(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService.spendFromAuthorizedBalance(account.getBalance(), sum));
     }
 
     @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> spendingBalance(Long accountId, BigDecimal sum) {
+    public CompletableFuture<PaymentStatus> processPayment(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.spendingBalance(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService.processPayment(account.getBalance(), sum));
     }
 
     private Account getAccountForUpdate(long accountId) {

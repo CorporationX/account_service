@@ -61,7 +61,7 @@ public class BalanceService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
-    public PaymentStatus receivingBalance(Balance balance, BigDecimal sum) {
+    public PaymentStatus receiveFunds(Balance balance, BigDecimal sum) {
         balance.setBalance(balance.getBalance().add(sum));
         balanceRepository.save(balance);
         return PaymentStatus.SUCCESS;
@@ -73,7 +73,7 @@ public class BalanceService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
-    public PaymentStatus spendingAuthorizationBalance(Balance balance, BigDecimal sum) {
+    public PaymentStatus spendFromAuthorizedBalance(Balance balance, BigDecimal sum) {
         PaymentStatus status = isBalanceSufficient(sum, balance.getAuthorizationBalance());
         if (status == PaymentStatus.SUCCESS) {
             balance.setBalance(balance.getBalance().subtract(sum));
@@ -88,7 +88,7 @@ public class BalanceService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
-    public PaymentStatus spendingBalance(Balance balance, BigDecimal sum) {
+    public PaymentStatus processPayment(Balance balance, BigDecimal sum) {
         PaymentStatus status = isBalanceSufficient(sum, balance.getBalance());
         if (status == PaymentStatus.SUCCESS) {
             balance.setBalance(balance.getBalance().subtract(sum));

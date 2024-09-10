@@ -40,14 +40,14 @@ public class AccountController {
     }
 
     @PostMapping("spend/{accountId}")
-    public DeferredResult<ResponseEntity<PaymentStatus>> spendBalance(@PathVariable Long accountId, BigDecimal sum) {
+    public DeferredResult<ResponseEntity<PaymentStatus>> processPayment(@PathVariable Long accountId, BigDecimal sum) {
         DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
 
-        accountService.spendingBalance(accountId, sum)
+        accountService.processPayment(accountId, sum)
                 .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
                 .exceptionally(ex -> {
                     deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(null));  // Вместо строки, возвращаем null для enum
+                            .body(null));
                     return null;
                 });
 
@@ -55,10 +55,10 @@ public class AccountController {
     }
 
     @PostMapping("/spend/a/{accountId}")
-    public DeferredResult<ResponseEntity<PaymentStatus>> spendingAuthorizationBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+    public DeferredResult<ResponseEntity<PaymentStatus>> spendFromAuthorizedBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
         DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
 
-        accountService.spendingAuthorizationBalance(accountId, sum)
+        accountService.spendFromAuthorizedBalance(accountId, sum)
                 .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
                 .exceptionally(ex -> {
                     deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -85,10 +85,10 @@ public class AccountController {
     }
 
     @PostMapping("/receive/{accountId}")
-    public DeferredResult<ResponseEntity<PaymentStatus>> receivingBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+    public DeferredResult<ResponseEntity<PaymentStatus>> receiveFunds(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
         DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
 
-        accountService.receivingBalance(accountId, sum)
+        accountService.receiveFunds(accountId, sum)
                 .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
                 .exceptionally(ex -> {
                     deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
