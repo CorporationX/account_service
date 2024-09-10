@@ -11,7 +11,6 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -36,9 +36,6 @@ public class AccountService {
     public AccountDto getAccount(AccountDto accountDto) {
         Account account = getAccountForUpdate(accountDto.getId());
         return accountMapper.toDto(account);
-    @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> suspendBalance(Balance balance, BigDecimal sum) {
-        return CompletableFuture.completedFuture(balanceService.suspendBalance(balance, sum));
     }
 
     @Transactional
@@ -62,9 +59,6 @@ public class AccountService {
             log.info("Account {} status is already SUSPENDED or CLOSED", account.getAccountNumber());
             throw new RuntimeException("Account status is already SUSPENDED or CLOSED");
         }
-    @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> receivingBalance(Balance balance, BigDecimal sum) {
-        return CompletableFuture.completedFuture(balanceService.receivingBalance(balance, sum));
     }
 
     @Transactional
@@ -78,9 +72,30 @@ public class AccountService {
             log.info("Account {} status is already CLOSED", account.getAccountNumber());
             throw new RuntimeException("Account status is already CLOSED");
         }
+    }
+
     @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> spendingAuthorizationBalance(Balance balance, BigDecimal sum) {
-        return CompletableFuture.completedFuture(balanceService.spendingAuthorizationBalance(balance, sum));
+    public CompletableFuture<PaymentStatus> suspendBalance(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService.suspendBalance(account.getBalance(), sum));
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> receivingBalance(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService.receivingBalance(account.getBalance(), sum));
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> spendingAuthorizationBalance(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService.spendingAuthorizationBalance(account.getBalance(), sum));
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> spendingBalance(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService.spendingBalance(account.getBalance(), sum));
     }
 
     private Account getAccountForUpdate(long accountId) {
@@ -88,8 +103,5 @@ public class AccountService {
             log.info("Account with id {} not found", accountId);
             return new EntityNotFoundException("Account with id " + accountId + " not found");
         });
-    @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> spendingBalance(Balance balance, BigDecimal sum) {
-        return CompletableFuture.completedFuture(balanceService.spendingBalance(balance, sum));
     }
 }

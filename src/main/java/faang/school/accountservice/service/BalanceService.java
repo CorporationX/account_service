@@ -1,8 +1,15 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.enums.PaymentStatus;
+import faang.school.accountservice.exception.NotEnoughMoneyAuthorizationException;
 import faang.school.accountservice.repository.BalanceRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,8 +51,8 @@ public class BalanceService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
-    public void createBalance() {
-        //TODO: прописать логику после мержа задачи с аккаунтами
+    public Balance createBalance() {
+        return balanceRepository.save(new Balance());
     }
 
     @Transactional
@@ -101,7 +108,6 @@ public class BalanceService {
             return PaymentStatus.BANK_LIMIT_EXCEEDED;
         }
         return PaymentStatus.SUCCESS;
-    public Balance createBalance() {
-        return balanceRepository.save(new Balance());
     }
+
 }

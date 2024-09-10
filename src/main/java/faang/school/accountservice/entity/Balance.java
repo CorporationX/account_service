@@ -1,8 +1,15 @@
 package faang.school.accountservice.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -11,22 +18,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 public class Balance {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
-    @JoinColumn(name = "account_id")
+    @OneToOne(mappedBy = "balance")
     private Account account;
-//    @Column(name = "account")
-//    @OneToOne(mappedBy = "balance")
-//    private Account account;
-// TODO: прописать миграцию после merge, проверить связь и раскомментировать
 
-    @Column(name = "authorization_balance_amount", nullable = false)
+    @Column(name = "authorization_balance")
     private BigDecimal authorizationBalance;
 
-    @Column(name = "balance_amount", nullable = false)
+    @Column(name = "balance")
     private BigDecimal balance;
 
     @CreationTimestamp

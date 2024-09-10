@@ -1,14 +1,16 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.enums.PaymentStatus;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +37,65 @@ public class AccountController {
     @PostMapping("close")
     public AccountDto close(@Validated @RequestBody AccountDto accountDto) {
         return accountService.closeAccount(accountDto);
+    }
+
+    @PostMapping("spend/{accountId}")
+    public DeferredResult<ResponseEntity<PaymentStatus>> spendBalance(@PathVariable Long accountId, BigDecimal sum) {
+        DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
+
+        accountService.spendingBalance(accountId, sum)
+                .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
+                .exceptionally(ex -> {
+                    deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(null));  // Вместо строки, возвращаем null для enum
+                    return null;
+                });
+
+        return deferredResult;
+    }
+
+    @PostMapping("/spend/a/{accountId}")
+    public DeferredResult<ResponseEntity<PaymentStatus>> spendingAuthorizationBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
+
+        accountService.spendingAuthorizationBalance(accountId, sum)
+                .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
+                .exceptionally(ex -> {
+                    deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(null));
+                    return null;
+                });
+
+        return deferredResult;
+    }
+
+    @PostMapping("/suspend/{accountId}")
+    public DeferredResult<ResponseEntity<PaymentStatus>> suspendBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
+
+        accountService.suspendBalance(accountId, sum)
+                .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
+                .exceptionally(ex -> {
+                    deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(null));
+                    return null;
+                });
+
+        return deferredResult;
+    }
+
+    @PostMapping("/receive/{accountId}")
+    public DeferredResult<ResponseEntity<PaymentStatus>> receivingBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        DeferredResult<ResponseEntity<PaymentStatus>> deferredResult = new DeferredResult<>();
+
+        accountService.receivingBalance(accountId, sum)
+                .thenAccept(status -> deferredResult.setResult(ResponseEntity.ok(status)))
+                .exceptionally(ex -> {
+                    deferredResult.setResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(null));
+                    return null;
+                });
+
+        return deferredResult;
     }
 }
