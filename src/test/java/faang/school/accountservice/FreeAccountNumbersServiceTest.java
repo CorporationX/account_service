@@ -74,8 +74,9 @@ public class FreeAccountNumbersServiceTest {
                 AccountType.RETIREMENT, new FreeAccountNumber(new FreeAccountNumberId(AccountType.RETIREMENT, BigInteger.valueOf(12345))),
                 AccountType.INVESTMENT, new FreeAccountNumber(new FreeAccountNumberId(AccountType.INVESTMENT, BigInteger.valueOf(54321))),
                 AccountType.INDIVIDUAL, new FreeAccountNumber(new FreeAccountNumberId(AccountType.INDIVIDUAL, BigInteger.valueOf(9999))),
-                AccountType.CORPORATE, new FreeAccountNumber(new FreeAccountNumberId(AccountType.CORPORATE, BigInteger.valueOf(11111)))
-        );
+                AccountType.CORPORATE, new FreeAccountNumber(new FreeAccountNumberId(AccountType.CORPORATE, BigInteger.valueOf(11111))),
+                AccountType.SAVINGS, new FreeAccountNumber(new FreeAccountNumberId(AccountType.SAVINGS, BigInteger.valueOf(22222)))
+                );
         freeAccountNumbersRepository.saveAll(freeAccountNumberMap.values());
     }
 
