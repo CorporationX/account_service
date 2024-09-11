@@ -1,4 +1,4 @@
-CREATE TABLE savingsAccount (
+CREATE TABLE savings_account (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     tariff_history VARCHAR(20) NOT NULL,
     account_id BIGINT,
@@ -16,5 +16,5 @@ CREATE TABLE tariff (
     stakes VARCHAR,
     savings_account_id BIGINT,
 
-    CONSTRAINT fk_savings_account FOREIGN KEY (savings_account_id) REFERENCES savingsAccount(id)
+    CONSTRAINT fk_savings_account FOREIGN KEY (savings_account_id) REFERENCES savings_account(id)
 )
