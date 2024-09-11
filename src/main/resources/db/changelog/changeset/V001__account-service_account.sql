@@ -1,1 +1,3 @@
--- Write your sql migration here!
+CREATE TABLE IF NOT EXISTS account (
+    id bigint PRIMARY KEY
+);

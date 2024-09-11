@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS balance (
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL ,
+    auth_balance BIGINT,
+    curr_balance BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    version INT DEFAULT 1 NOT NULL,
+    CONSTRAINT fk_account FOREIGN KEY(account_id) REFERENCES account(id)
+);
