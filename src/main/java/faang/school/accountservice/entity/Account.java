@@ -4,7 +4,6 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -80,11 +79,4 @@ public class Account {
 
     @Version
     private long version;
-
-    @PostConstruct
-    public void setUpRelation() {
-        if (balance != null) {
-            balance.setAccount(this);
-        }
-    }
 }
