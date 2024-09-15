@@ -33,3 +33,5 @@ account:
 scheduler:
   account-generator:
     cron: "0 */10 * * * *"
+  calculation-of-interest:
+    cron: "0 0 0 * * *"

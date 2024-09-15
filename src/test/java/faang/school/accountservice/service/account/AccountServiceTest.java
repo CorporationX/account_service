@@ -1,9 +1,9 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

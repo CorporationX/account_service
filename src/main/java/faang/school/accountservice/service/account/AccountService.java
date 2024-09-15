@@ -1,14 +1,15 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,9 @@ public class AccountService {
 
         String accountNumber = accountNumberService.getAccountNumber();
         account.setAccountNumber(accountNumber);
+
+        account.setBalance(BigDecimal.valueOf(0));
+        account.setTransactionLimit(BigDecimal.valueOf(0));
 
         account = accountRepository.save(account);
 
