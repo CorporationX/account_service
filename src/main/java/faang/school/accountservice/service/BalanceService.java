@@ -48,10 +48,10 @@ public class BalanceService {
 
     @Transactional
     public BalanceDto getByAccountId(Long accountId) {
-        Balance foundedBalance = balanceRepository.getByAccountId(accountId)
+        Balance foundBalance = balanceRepository.getByAccountId(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Balances by account id [%s] doesn't exist", accountId)));
 
-        return balanceMapper.toDto(foundedBalance);
+        return balanceMapper.toDto(foundBalance);
     }
 
     @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 5, backoff = @Backoff(delay = 100))
