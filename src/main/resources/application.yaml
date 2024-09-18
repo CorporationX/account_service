@@ -23,3 +23,15 @@ server:
 logging:
   level:
     root: info
+
+
+task:
+  accounts-generation:
+    types:
+      accountsQuantity:
+        CORPORATE: 2
+        INDIVIDUAL: 2
+        INVESTMENT: 2
+        RETIREMENT: 2
+    schedule:
+      frequency : "@daily"
