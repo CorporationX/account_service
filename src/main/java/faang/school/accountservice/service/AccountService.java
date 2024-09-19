@@ -75,9 +75,9 @@ public class AccountService {
     }
 
     @Async("balanceOperationExecutor")
-    public CompletableFuture<PaymentStatus> suspendBalance(Long accountId, BigDecimal sum) {
+    public CompletableFuture<PaymentStatus> transferToAuthorizedBalance(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.suspendBalance(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService.transferToAuthorizedBalance(account.getBalance(), sum));
     }
 
     @Async("balanceOperationExecutor")

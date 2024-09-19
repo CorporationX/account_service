@@ -32,7 +32,7 @@ public class BalanceService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
-    public PaymentStatus suspendBalance(Balance balance, BigDecimal sum) {
+    public PaymentStatus transferToAuthorizedBalance(Balance balance, BigDecimal sum) {
         PaymentStatus status = isBalanceSufficient(sum, balance.getBalance());
         if (status == PaymentStatus.SUCCESS) {
             balance.setAuthorizationBalance(balance.getAuthorizationBalance().add(sum));
