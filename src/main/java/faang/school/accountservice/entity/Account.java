@@ -4,6 +4,8 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -56,7 +58,7 @@ public class Account {
     @Column(name = "account_number", unique = true, nullable = false)
     private BigInteger accountNumber;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "balance_id")
     private Balance balance;
 

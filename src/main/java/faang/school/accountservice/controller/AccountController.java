@@ -1,14 +1,22 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.enums.PaymentStatus;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +43,35 @@ public class AccountController {
     @PostMapping("close")
     public AccountDto close(@Validated @RequestBody AccountDto accountDto) {
         return accountService.closeAccount(accountDto);
+    }
+
+    @PostMapping("/spend/{accountId}")
+    public DeferredResult<PaymentStatus> processPayment(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        return processRequest(accountService.processPayment(accountId, sum));
+    }
+
+    @PostMapping("/spend/authorized/{accountId}")
+    public DeferredResult<PaymentStatus> spendFromAuthorizedBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        return processRequest(accountService.spendFromAuthorizedBalance(accountId, sum));
+    }
+
+    @PostMapping("/receive/{accountId}")
+    public DeferredResult<PaymentStatus> receiveFunds(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        return processRequest(accountService.receiveFunds(accountId, sum));
+    }
+
+    @PostMapping("/suspend/{accountId}")
+    public DeferredResult<PaymentStatus> transferToAuthorizedBalance(@PathVariable Long accountId, @RequestParam BigDecimal sum) {
+        return processRequest(accountService.transferToAuthorizedBalance(accountId, sum));
+    }
+
+    private DeferredResult<PaymentStatus> processRequest(CompletableFuture<PaymentStatus> future) {
+        DeferredResult<PaymentStatus> deferredResult = new DeferredResult<>();
+        future.thenAccept(deferredResult::setResult)
+                .exceptionally(ex -> {
+                    deferredResult.setErrorResult(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return null;
+                });
+        return deferredResult;
     }
 }

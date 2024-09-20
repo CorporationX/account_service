@@ -4,22 +4,26 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.AccountOwner;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.enums.PaymentStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AccountService {
 
     private final AccountOwnerService accountOwnerService;
@@ -68,6 +72,41 @@ public class AccountService {
             log.info("Account {} status is already CLOSED", account.getAccountNumber());
             throw new RuntimeException("Account status is already CLOSED");
         }
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> transferToAuthorizedBalance(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService
+                .transferToAuthorizedBalance(account.getId(),
+                        account.getBalance(),
+                        sum));
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> receiveFunds(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService
+                .receiveFunds(account.getId(),
+                        account.getBalance(),
+                        sum));
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> spendFromAuthorizedBalance(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService
+                .spendFromAuthorizedBalance(account.getId(),
+                        account.getBalance(),
+                        sum));
+    }
+
+    @Async("balanceOperationExecutor")
+    public CompletableFuture<PaymentStatus> processPayment(Long accountId, BigDecimal sum) {
+        Account account = getAccountForUpdate(accountId);
+        return CompletableFuture.completedFuture(balanceService.processPayment(account.getId(),
+                account.getBalance(),
+                sum));
     }
 
     private Account getAccountForUpdate(long accountId) {
