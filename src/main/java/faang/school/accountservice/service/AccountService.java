@@ -77,25 +77,36 @@ public class AccountService {
     @Async("balanceOperationExecutor")
     public CompletableFuture<PaymentStatus> transferToAuthorizedBalance(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.transferToAuthorizedBalance(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService
+                .transferToAuthorizedBalance(account.getId(),
+                        account.getBalance(),
+                        sum));
     }
 
     @Async("balanceOperationExecutor")
     public CompletableFuture<PaymentStatus> receiveFunds(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.receiveFunds(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService
+                .receiveFunds(account.getId(),
+                        account.getBalance(),
+                        sum));
     }
 
     @Async("balanceOperationExecutor")
     public CompletableFuture<PaymentStatus> spendFromAuthorizedBalance(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.spendFromAuthorizedBalance(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService
+                .spendFromAuthorizedBalance(account.getId(),
+                        account.getBalance(),
+                        sum));
     }
 
     @Async("balanceOperationExecutor")
     public CompletableFuture<PaymentStatus> processPayment(Long accountId, BigDecimal sum) {
         Account account = getAccountForUpdate(accountId);
-        return CompletableFuture.completedFuture(balanceService.processPayment(account.getBalance(), sum));
+        return CompletableFuture.completedFuture(balanceService.processPayment(account.getId(),
+                account.getBalance(),
+                sum));
     }
 
     private Account getAccountForUpdate(long accountId) {
