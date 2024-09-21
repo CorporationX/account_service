@@ -3,16 +3,7 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +30,10 @@ public class Account {
 
     @OneToOne(mappedBy = "account")
     private Balance balance;
+
+    @ManyToOne
+    @JoinColumn(name = "cashback_tariff_id", nullable = false)
+    private CashbackTariff cashbackTariff;
 
     @Column(name = "number", nullable = false)
     @Size(min = 12, max = 20)

@@ -15,7 +15,7 @@ CREATE TABLE account
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_project FOREIGN KEY (project_id) REFERENCES project (id),
     CONSTRAINT chk_user_or_project CHECK (
-            (user_id IS NOT NULL AND project_id IS NULL) OR
-            (user_id IS NULL AND project_id IS NOT NULL)
-
+        (user_id IS NOT NULL AND project_id IS NULL) OR
+        (user_id IS NULL AND project_id IS NOT NULL)
+        )
 );

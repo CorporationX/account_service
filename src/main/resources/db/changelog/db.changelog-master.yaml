@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V004__account-service_free_bill_numbers.sql
   - include:
       file: db/changelog/changeset/V004__account-service_account.sql
+  - include:
+      file: db/changelog/changeset/V005__account-service_add_cashback_tariff_and_mappings_to_account.sql

@@ -49,26 +49,26 @@ public class AccountController {
         return accountService.closeAccount(accountId);
     }
 
-    @PostMapping("/{accountId}")
+    @PostMapping("/balance/{accountId}")
     @ResponseStatus(HttpStatus.CREATED)
     public BalanceDto createNewAccountBalance(@PathVariable Long accountId) {
         return accountService.createBalance(accountId);
     }
 
-    @GetMapping("/{accountId}")
+    @GetMapping("/balance/{accountId}")
     @ResponseStatus(HttpStatus.OK)
     public BalanceDto getAccountBalance(@PathVariable long accountId) {
         return accountService.getBalance(accountId);
     }
 
-    @PutMapping("/increase/{accountId}")
+    @PutMapping("/balance/increase/{accountId}")
     @ResponseStatus(HttpStatus.OK)
     public BalanceDto increaseAccountBalance(@PathVariable Long accountId,
                                              @RequestParam BigDecimal amount) {
         return accountService.increaseBalance(accountId, amount);
     }
 
-    @PutMapping("/reduce/{accountId}")
+    @PutMapping("/balance/reduce/{accountId}")
     @ResponseStatus(HttpStatus.OK)
     public BalanceDto reduceAccountBalance(@PathVariable Long accountId,
                                            @RequestParam BigDecimal amount) {

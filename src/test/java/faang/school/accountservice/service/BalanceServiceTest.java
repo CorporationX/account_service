@@ -9,7 +9,6 @@ import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.exception.DataNotFoundException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapperImpl;
-import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
