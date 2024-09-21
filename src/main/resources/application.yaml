@@ -37,3 +37,13 @@ account:
     cron: "0 0 0 * * *"
     batch:
       size: 10
+
+cashback-tariff:
+  cron: 0 0 0 1 * ?
+
+executor:
+  cashback-tariff:
+    core-pool-size: 25
+    max-pool-size: 50
+    queue-capacity: 200
+    prefix: CashbackTariff-
