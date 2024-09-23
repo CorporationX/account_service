@@ -1,10 +1,8 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,13 +40,14 @@ public class Account {
                    Balance balance,
                    AccountOwner accountOwner,
                    AccountStatus accountStatus,
-                   AccountDto accountDto) {
+                   AccountType accountType,
+                   Currency currency) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.accountOwner = accountOwner;
         this.accountStatus = accountStatus;
-        this.accountType = accountDto.getAccountType();
-        this.currency = accountDto.getCurrency();
+        this.accountType = accountType;
+        this.currency = currency;
     }
 
     @Id
