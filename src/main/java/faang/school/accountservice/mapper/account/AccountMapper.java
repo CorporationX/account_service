@@ -1,4 +1,4 @@
-package faang.school.accountservice.mapper;
+package faang.school.accountservice.mapper.account;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;

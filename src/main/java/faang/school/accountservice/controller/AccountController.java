@@ -1,9 +1,13 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.RequestDto;
 import faang.school.accountservice.enums.PaymentStatus;
+import faang.school.accountservice.exception.ActiveRequestException;
+import faang.school.accountservice.exception.MoreThanOneActiveRequestAtATimeException;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,18 +25,26 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/account/")
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
+
 
     @GetMapping("")
     public AccountDto get(@Validated @RequestBody AccountDto accountDto) {
         return accountService.getAccount(accountDto);
     }
 
+
+//    public AccountDto open(@Validated @RequestBody AccountDto accountDto) {
+//        return accountService.openAccount(accountDto);
+//    }
+
     @PostMapping("")
-    public AccountDto open(@Validated @RequestBody AccountDto accountDto) {
-        return accountService.openAccount(accountDto);
+    public AccountDto open(@RequestBody RequestDto requestDto) {
+        openRequest(requestDto);
+        return accountService.openAccount(requestDto);
     }
 
     @PostMapping("block")
@@ -73,5 +85,21 @@ public class AccountController {
                     return null;
                 });
         return deferredResult;
+    }
+
+    private void openRequest(RequestDto requestDto) {
+        Long userId = requestDto.getUserId();
+        if (accountService.existsByUserLock(userId, userId)) {
+            log.info("User with ID {} has an active request.", userId);
+            throw new MoreThanOneActiveRequestAtATimeException("You can't have more than one active request." +
+                    "Please wait for it to complete.");
+        }
+        if (accountService.existsById(requestDto.getId())) {
+            log.info("Request with ID {} is already open.", requestDto.getId());
+            throw new ActiveRequestException("This request is being processed please wait.");
+        } else {
+            log.info("Creating a new request for user ID {} with request ID {}", userId, requestDto.getId());
+            accountService.createRequest(requestDto);
+        }
     }
 }
