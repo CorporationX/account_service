@@ -23,3 +23,19 @@ server:
 logging:
   level:
     root: info
+
+app:
+  async:
+    corePoolSize: 5
+    maxPoolSize: 10
+    queueCapacity: 500
+    threadNamePrefix: "AsyncExecutor-"
+  scheduling:
+    free_account_number:
+      cron: "0 0 12 * * ?"
+    balance_update:
+      cron: "0 0 10 * * ?"
+  account:
+    prefixes:
+      savings_account: "8800"
+    max_quantity: 100

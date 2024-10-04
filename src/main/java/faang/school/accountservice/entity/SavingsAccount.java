@@ -1,60 +1,52 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Version;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "account")
+@Table(name = "savings_account")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Builder
-public class Account {
+@ToString(exclude = "tariffHistory")
+public class SavingsAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", length = 20, nullable = false, unique = true)
-    private String number;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "account_id")
+    private Account account;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private AccountType type;
+    @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tariff> tariffHistory;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency", nullable = false)
-    private Currency currency;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private AccountStatus status;
+    @Column(name = "last_interest_calculation_date", columnDefinition = "TIMESTAMP", nullable = false)
+    private LocalDateTime lastInterestCalculationDate;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime updatedAt;
-
-    @Column(name = "closed_at", columnDefinition =  "TIMESTAMP")
-    private LocalDateTime closedAt;
 
     @Version
     @Column(name = "version", nullable = false)

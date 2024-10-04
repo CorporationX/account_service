@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS free_account_numbers
+(
+    id BIGSERIAL PRIMARY KEY,
+    type VARCHAR(30) NOT NULL,
+    number VARCHAR(20) UNIQUE NOT NULL,
+    version INT DEFAULT 1 NOT NULL
+);
