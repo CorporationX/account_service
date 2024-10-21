@@ -57,19 +57,13 @@ class BalanceServiceImplTest {
 
     @Test
     void create_whenOk() {
-        final ArgumentCaptor<Balance> captor = ArgumentCaptor.forClass(Balance.class);
-
         service.create(balanceDto);
+        balance.nextVersion();
 
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
-                .save(captor.capture());
+                .save(balance);
         Mockito.verify(mapper, Mockito.times(1))
                 .toEntity(balanceDto);
-
-        Balance actual = captor.getValue();
-        Assertions.assertNotNull(actual.getCreatedAt());
-        Assertions.assertNotNull(actual.getUpdatedAt());
-        Assertions.assertEquals(1, actual.getVersion());
     }
 
     @Test

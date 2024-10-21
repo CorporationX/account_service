@@ -21,13 +21,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     public void create(BalanceDto balanceDto) {
         validateBalanceDto(balanceDto);
-
         Balance balance = mapper.toEntity(balanceDto);
-        LocalDateTime now = LocalDateTime.now();
-
-        balance.setCreatedAt(now);
-        balance.setUpdatedAt(now);
-
         balance.setVersion(1);
         balanceRepository.save(balance);
     }
@@ -39,10 +33,9 @@ public class BalanceServiceImpl implements BalanceService {
         }
 
         Balance balance = mapper.toEntity(balanceDto);
-
         balance.setUpdatedAt(LocalDateTime.now());
-
         balance.nextVersion();
+
         balanceRepository.save(balance);
     }
 
