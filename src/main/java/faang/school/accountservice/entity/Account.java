@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -69,6 +70,9 @@ public class Account {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne
+    private Balance balance;
 
     public void nextVersion() {
         this.version++;
