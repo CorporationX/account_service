@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,8 +21,8 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @JoinColumn(name = "account_id")
-    @OneToOne
+    @JoinColumn(name = "account_id", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
     private Account account;
 
     @Column(name = "cur_auth_balance")

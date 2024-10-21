@@ -41,7 +41,9 @@ public class BalanceServiceImpl implements BalanceService {
 
     public BalanceDto getBalance(long accountId) {
         checkIsAccountExist(accountId);
-        return mapper.toDto(balanceRepository.findBalanceByAccount_Id(accountId));
+        Balance balance = balanceRepository.findBalanceByAccount_Id(accountId);
+        BalanceDto dto = mapper.toDto(balance);
+        return dto;
     }
 
     private void checkIsAccountExist(long accountId) {

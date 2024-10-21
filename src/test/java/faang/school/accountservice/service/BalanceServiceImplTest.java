@@ -76,9 +76,10 @@ class BalanceServiceImplTest {
                 .save(captor.capture());
 
         Balance actual = captor.getValue();
+        balanceDto.nextVersion();
         Assertions.assertNotNull(actual.getUpdatedAt());
         Assertions.assertNull(actual.getCreatedAt());
-        Assertions.assertEquals(balanceDto.getVersion() + 1, actual.getVersion());
+        Assertions.assertEquals(balanceDto.getVersion(), actual.getVersion());
     }
 
     @Test
