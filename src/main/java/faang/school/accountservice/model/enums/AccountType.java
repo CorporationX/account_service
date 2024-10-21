@@ -1,6 +1,6 @@
 package faang.school.accountservice.model.enums;
 
-public enum PaymentAccountType {
+public enum AccountType {
     BUSINESS,
     PERSONAL,
     CURRENCY;
