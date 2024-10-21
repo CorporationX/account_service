@@ -2,12 +2,30 @@ package faang.school.accountservice.model.entity;
 
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
-import jakarta.persistence.*;
+import faang.school.accountservice.model.enums.Currency;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.data.relational.core.mapping.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "account")
 public class Account {
@@ -18,39 +36,39 @@ public class Account {
 
     @Pattern(regexp = "\\d{12,20}", message = "Account number must be between 12 and 20 digits")
     @Column(name = "number", unique = true, nullable = false, length = 20)
-    private Long number;
+    private String number;
 
-    //TODO владелец пользователь или проект
+    @Column(name = "project_id")
+    private Long project_id;
 
-    @OneToOne()
-    @JoinColumn(name="project_id")
-    private Project project;
-
-    @OneToOne()
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private Long user_id;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType type;
 
+    @Column(name = "currency", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
+
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
-    @Column(name = "createdAt", nullable = false)
+    @Column(name = "createdAt", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt", nullable = false)
+    @Column(name = "updatedAt", insertable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-    @Column(name = "closedAt", nullable = false)
+    @Column(name = "closedAt")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime closedAt;
 
     @Version
-    @Column(name = "version", nullable = false)
+    @Column(name = "version", insertable = false)
     private Long version;
 }
