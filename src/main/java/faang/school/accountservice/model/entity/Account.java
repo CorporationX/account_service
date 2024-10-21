@@ -56,15 +56,15 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
-    @Column(name = "createdAt", insertable = false, updatable = false)
+    @Column(name = "created_At", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt", insertable = false)
+    @Column(name = "updated_At", insertable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-    @Column(name = "closedAt")
+    @Column(name = "closed_At")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime closedAt;
 
