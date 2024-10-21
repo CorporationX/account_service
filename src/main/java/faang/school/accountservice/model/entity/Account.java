@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Pattern(regexp = "\\d{12,20}", message = "Account number must be between 12 and 20 digits")
