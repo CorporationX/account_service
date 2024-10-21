@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS balance(
     id bigint PRIMARY KEY,
     account_id BIGSERIAL,
-    cur_auth_balance int,
-    cur_fact_balance int,
+    cur_auth_balance real,
+    cur_fact_balance real,
     created_at date,
     updated_at date,
     constraint bank_account
