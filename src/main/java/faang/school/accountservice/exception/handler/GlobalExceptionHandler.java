@@ -1,6 +1,7 @@
 package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.dto.Error;
+import faang.school.accountservice.exception.DataValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,6 +50,16 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
         String message = exception.getMostSpecificCause().getMessage();
+        log.error(message, exception);
+        return Error.builder()
+                .code(HttpStatus.BAD_REQUEST.toString())
+                .message(message)
+                .build();
+    }
+
+    @ExceptionHandler(DataValidationException.class)
+    public Error handleDataValidationException(DataValidationException exception) {
+        String message = exception.getMessage();
         log.error(message, exception);
         return Error.builder()
                 .code(HttpStatus.BAD_REQUEST.toString())

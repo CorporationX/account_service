@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class BalanceController {
     private final BalanceService service;
+
     @GetMapping("/{accountId}")
     BalanceDto getBalance(@PathVariable("accountId") @Positive long accountId) {
         return service.getBalance(accountId);
