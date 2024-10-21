@@ -5,32 +5,39 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
-/* TODO
- *  необходимо добавить поле счета банка, когда его создадут, и добавить связь + маппинг */
 @Entity
 @Table(name = "balance")
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    private long id;
+
+    @JoinColumn(name = "account_id")
+    @OneToOne
+    private Account account;
 
     @Column(name = "cur_auth_balance")
-    int curAuthBalance;
+    private double curAuthBalance;
 
     @Column(name = "cur_fact_balance")
-    int curFactBalance;
+    private double curFactBalance;
 
     @Column(name = "created_at")
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "version", nullable = false)
-    int version;
+    private int version;
 
+    public void nextVersion() {
+        this.version++;
+    }
 }
