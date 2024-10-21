@@ -3,5 +3,3 @@ databaseChangeLog:
       file: db/changelog/changeset/V001__account-service_account.sql
   - include:
       file: db/changelog/changeset/V002__create-balance.sql
-  - include:
-      file: db/changelog/changeset/V003__insert-bank-account.sql
