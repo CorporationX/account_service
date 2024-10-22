@@ -20,4 +20,8 @@ public interface AccountService {
     AccountDto unblockAccountNumber(String number);
 
     List<AccountDto> unblockAllUserAccounts(Long id);
+
+    AccountDto closeAccount(Long id);
+
+    AccountDto closeAccountNumber(String number);
 }

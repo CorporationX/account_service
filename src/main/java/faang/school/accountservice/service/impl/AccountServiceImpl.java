@@ -90,4 +90,22 @@ public class AccountServiceImpl implements AccountService {
 
         return accountMapper.accountListToAccountDtoList(userAccounts);
     }
+
+    @Transactional
+    @Override
+    public AccountDto closeAccount(Long id) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        account.setStatus(AccountStatus.CLOSED);
+
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    @Transactional
+    @Override
+    public AccountDto closeAccountNumber(String number) {
+        Account account = accountRepository.findAccountByNumber(number).orElseThrow();
+        account.setStatus(AccountStatus.CLOSED);
+
+        return accountMapper.accountToAccountDto(account);
+    }
 }

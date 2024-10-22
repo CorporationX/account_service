@@ -74,4 +74,18 @@ public class AccountController {
     public List<AccountDto> unblockAccountNumber(@PathVariable Long id) {
         return accountService.unblockAllUserAccounts(id);
     }
+
+    @Operation(summary = "Close account", description = "Close account by Id")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/close/{id}")
+    public AccountDto closeAccount(@PathVariable Long id) {
+        return accountService.closeAccount(id);
+    }
+
+    @Operation(summary = "Close account", description = "Close account by number")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/close/number/{number}")
+    public AccountDto closeAccountNumber(@PathVariable String number) {
+        return accountService.closeAccountNumber(number);
+    }
 }
