@@ -26,7 +26,7 @@ public class AccountController {
 
     @Operation(summary = "Get account by number", description = "Get account by number")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/number/{id}")
+    @GetMapping("/number/{number}")
     public AccountDto getAccountNumber(@PathVariable String number) {
         return accountService.getAccountNumber(number);
     }
@@ -58,17 +58,10 @@ public class AccountController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/block")
     public List<AccountDto> blockAccountsByUserOrProject(@RequestParam(required = false) Long userId,
-                                               @RequestParam(required = false) Long projectId) {
+                                                         @RequestParam(required = false) Long projectId) {
         validator.checkParams(userId, projectId);
         return accountService.blockAllAccountsByUserOrProject(userId, projectId);
     }
-
-//    @Operation(summary = "Block all users or project accounts ", description = "Block all user or project accounts")
-//    @ResponseStatus(HttpStatus.OK)
-//    @PutMapping("/block/user/{id}")
-//    public List<AccountDto> blockAccountNumber(@PathVariable Long id) {
-//        return accountService.blockAllUserAccounts(id);
-//    }
 
     @Operation(summary = "Unblock account", description = "Unblock account by Id")
     @ResponseStatus(HttpStatus.OK)
@@ -84,11 +77,13 @@ public class AccountController {
         return accountService.unblockAccountNumber(number);
     }
 
-    @Operation(summary = "Unblock all user accounts ", description = "Unblock all user accounts by userId")
+    @Operation(summary = "Unblock all user or project accounts ", description = "Unblock all user or project accounts")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/unblock/user/{id}")
-    public List<AccountDto> unblockAccountNumber(@PathVariable Long id) {
-        return accountService.unblockAllUserAccounts(id);
+    @PutMapping("/unblock")
+    public List<AccountDto> unblockAccountsByUserOrProject(@RequestParam(required = false) Long userId,
+                                                           @RequestParam(required = false) Long projectId) {
+        validator.checkParams(userId, projectId);
+        return accountService.unblockAllAccountsByUserOrProject(userId, projectId);
     }
 
     @Operation(summary = "Close account", description = "Close account by Id")

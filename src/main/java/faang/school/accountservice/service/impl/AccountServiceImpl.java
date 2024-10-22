@@ -95,13 +95,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional
     @Override
-    public List<AccountDto> unblockAllUserAccounts(Long id) {
-        List<Account> userAccounts = accountRepository.findAllByUserId(id);
-        if (!userAccounts.isEmpty()) {
-            userAccounts.forEach(account -> account.setStatus(AccountStatus.ACTIVE));
+    public List<AccountDto> unblockAllAccountsByUserOrProject(Long userId, Long projectId) {
+        List<Account> accounts;
+        if (userId != null) {
+            accounts = accountRepository.findAllByUserId(userId);
+        } else {
+            accounts = accountRepository.findAllByProjectId(projectId);
+        }
+        if (!accounts.isEmpty()) {
+            accounts.forEach(account -> account.setStatus(AccountStatus.ACTIVE));
         }
 
-        return accountMapper.accountListToAccountDtoList(userAccounts);
+        return accountMapper.accountListToAccountDtoList(accounts);
     }
 
     @Transactional

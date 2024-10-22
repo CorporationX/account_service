@@ -21,7 +21,7 @@ public interface AccountService {
 
     AccountDto unblockAccountNumber(String number);
 
-    List<AccountDto> unblockAllUserAccounts(Long id);
+    List<AccountDto> unblockAllAccountsByUserOrProject(Long userId, Long projectId);
 
     AccountDto closeAccount(Long id);
 
