@@ -31,5 +31,18 @@ public class AccountController {
         return accountService.openAccount(accountDto);
     }
 
+    @Operation(summary = "Block account", description = "Block account by Id")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{id}")
+    public AccountDto blockAccount(@PathVariable Long id) {
+        return accountService.blockAccount(id);
+    }
+
+    @Operation(summary = "Block account by account number", description = "Block account by account number")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/number/{number}")
+    public AccountDto blockAccountNumber(@PathVariable String number) {
+        return accountService.blockAcccountNumber(number);
+    }
 
 }

@@ -23,7 +23,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", unique = true, length = 20)
+    @Column(name = "number", unique = true, length = 20, insertable = false)
     private String number;
 
     @Column(name = "project_id")

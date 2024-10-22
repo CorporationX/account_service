@@ -3,6 +3,7 @@ package faang.school.accountservice.service.impl;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.entity.Account;
+import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(readOnly = true)
     @Override
     public AccountDto getAccount(Long id) {
-        Account account = accountRepository.findById(id).orElse(null);
+        Account account = accountRepository.findById(id).orElseThrow();
 
         return accountMapper.accountToAccountDto(account);
     }
@@ -26,7 +27,22 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto openAccount(AccountDto accountDto) {
         Account account = accountMapper.accountDtoToAccount(accountDto);
-        account.setNumber(null);
         return accountMapper.accountToAccountDto(accountRepository.save(account));
+    }
+
+    @Transactional
+    @Override
+    public AccountDto blockAccount(Long id) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        account.setStatus(AccountStatus.BLOCKED);
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    @Transactional
+    @Override
+    public AccountDto blockAcccountNumber(String number) {
+        Account account = accountRepository.findAccountByNumber(number).orElseThrow();
+        account.setStatus(AccountStatus.BLOCKED);
+        return accountMapper.accountToAccountDto(account);
     }
 }
