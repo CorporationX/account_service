@@ -23,7 +23,6 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Pattern(regexp = "\\d{12,20}", message = "Account number must be between 12 and 20 digits")
     @Column(name = "number", unique = true, length = 20)
     private String number;
 
