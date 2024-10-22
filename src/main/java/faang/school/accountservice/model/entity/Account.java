@@ -3,18 +3,7 @@ package faang.school.accountservice.model.entity;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.model.enums.Currency;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.persistence.Version;
-import jakarta.validation.constraints.Pattern;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,8 +23,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Pattern(regexp = "\\d{12,20}", message = "Account number must be between 12 and 20 digits")
-    @Column(name = "number", unique = true, nullable = false, length = 20)
+    @Column(name = "number", unique = true, length = 20)
     private String number;
 
     @Column(name = "project_id")
