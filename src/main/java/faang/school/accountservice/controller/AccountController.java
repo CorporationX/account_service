@@ -32,7 +32,7 @@ public class AccountController {
     }
 
     @Operation(summary = "Create account", description = "Create account in DB")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
     public AccountDto openAccount(@RequestBody AccountDto accountDto) {
         validator.checkDto(accountDto);
