@@ -1,4 +1,14 @@
 package faang.school.accountservice.dto;
 
-public record Error(String code, String message) {
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.Map;
+
+@Data
+@Builder
+public class Error {
+    private String code;
+    private String message;
+    private Map<String, String> errors;
 }
