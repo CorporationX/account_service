@@ -42,13 +42,11 @@ class AccountServiceImplTest {
         account = Account.builder()
                 .id(id)
                 .number("123456789012")
-                .version(0)
                 .status(AccountStatus.ACTIVE)
                 .build();
         accountDto = AccountDto.builder()
                 .id(id)
                 .number("123456789012")
-                .version(0)
                 .status(AccountStatus.ACTIVE)
                 .build();
         id = 1L;
@@ -90,7 +88,6 @@ class AccountServiceImplTest {
 
     @Test
     void frozeAccount_ShouldChangeAccountStatusToFrozen() {
-        accountDto.setVersion(accountDto.getVersion() + 1);
         accountDto.setStatus(AccountStatus.FROZEN);
         when(accountRepository.findById(id)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenReturn(account);
@@ -105,7 +102,6 @@ class AccountServiceImplTest {
 
     @Test
     void blockAccount_ShouldChangeAccountStatusToBlock() {
-        accountDto.setVersion(accountDto.getVersion() + 1);
         accountDto.setStatus(AccountStatus.BLOCK);
         when(accountRepository.findById(id)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenReturn(account);
@@ -120,7 +116,6 @@ class AccountServiceImplTest {
 
     @Test
     void closeAccount_ShouldChangeAccountStatusToClosed() {
-        accountDto.setVersion(accountDto.getVersion() + 1);
         accountDto.setStatus(AccountStatus.CLOSED);
         when(accountRepository.findById(id)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenReturn(account);

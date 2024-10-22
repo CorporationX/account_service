@@ -36,7 +36,5 @@ public class AccountDto {
 
     @NotNull
     private AccountStatus status;
-
-    private Integer version = 1;
 }
 
