@@ -25,6 +25,14 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.accountToAccountDto(account);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public AccountDto getAccountNumber(String number) {
+        Account account = accountRepository.findAccountByNumber(number).orElseThrow();
+
+        return accountMapper.accountToAccountDto(account);
+    }
+
     @Transactional
     @Override
     public AccountDto openAccount(AccountDto accountDto) {
@@ -51,16 +59,20 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.accountToAccountDto(account);
     }
 
-
     @Transactional
     @Override
-    public List<AccountDto> blockAllUserAccounts(Long id) {
-        List<Account> userAccounts = accountRepository.findAllByUserId(id);
-        if (!userAccounts.isEmpty()) {
-            userAccounts.forEach(account -> account.setStatus(AccountStatus.BLOCKED));
+    public List<AccountDto> blockAllAccountsByUserOrProject(Long userId, Long projectId) {
+        List<Account> accounts;
+        if (userId != null) {
+            accounts = accountRepository.findAllByUserId(userId);
+        } else {
+            accounts = accountRepository.findAllByProjectId(projectId);
+        }
+        if (!accounts.isEmpty()) {
+            accounts.forEach(account -> account.setStatus(AccountStatus.BLOCKED));
         }
 
-        return accountMapper.accountListToAccountDtoList(userAccounts);
+        return accountMapper.accountListToAccountDtoList(accounts);
     }
 
     @Transactional

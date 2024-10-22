@@ -27,7 +27,7 @@ public class Account {
     private String number;
 
     @Column(name = "project_id")
-    private Long project_id;
+    private Long projectId;
 
     @Column(name = "user_id")
     private Long userId;

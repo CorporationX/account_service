@@ -17,11 +17,18 @@ public class AccountController {
     private final AccountControllerValidator validator;
     private final AccountServiceImpl accountService;
 
-    @Operation(summary = "Get account", description = "Get account from DB by id")
+    @Operation(summary = "Get account", description = "Get account by id")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public AccountDto getAccount(@PathVariable Long id) {
         return accountService.getAccount(id);
+    }
+
+    @Operation(summary = "Get account by number", description = "Get account by number")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/number/{id}")
+    public AccountDto getAccountNumber(@PathVariable String number) {
+        return accountService.getAccountNumber(number);
     }
 
     @Operation(summary = "Create account", description = "Create account in DB")
@@ -47,12 +54,21 @@ public class AccountController {
         return accountService.blockAccountNumber(number);
     }
 
-    @Operation(summary = "Block all user accounts ", description = "Block all user accounts by userId")
+    @Operation(summary = "Block all user or project accounts ", description = "Block all user or project accounts")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/block/user/{id}")
-    public List<AccountDto> blockAccountNumber(@PathVariable Long id) {
-        return accountService.blockAllUserAccounts(id);
+    @PutMapping("/block")
+    public List<AccountDto> blockAccountsByUserOrProject(@RequestParam(required = false) Long userId,
+                                               @RequestParam(required = false) Long projectId) {
+        validator.checkParams(userId, projectId);
+        return accountService.blockAllAccountsByUserOrProject(userId, projectId);
     }
+
+//    @Operation(summary = "Block all users or project accounts ", description = "Block all user or project accounts")
+//    @ResponseStatus(HttpStatus.OK)
+//    @PutMapping("/block/user/{id}")
+//    public List<AccountDto> blockAccountNumber(@PathVariable Long id) {
+//        return accountService.blockAllUserAccounts(id);
+//    }
 
     @Operation(summary = "Unblock account", description = "Unblock account by Id")
     @ResponseStatus(HttpStatus.OK)
