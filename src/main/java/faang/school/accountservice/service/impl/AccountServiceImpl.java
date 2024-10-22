@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -27,6 +29,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto openAccount(AccountDto accountDto) {
         Account account = accountMapper.accountDtoToAccount(accountDto);
+
         return accountMapper.accountToAccountDto(accountRepository.save(account));
     }
 
@@ -35,14 +38,56 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto blockAccount(Long id) {
         Account account = accountRepository.findById(id).orElseThrow();
         account.setStatus(AccountStatus.BLOCKED);
+
         return accountMapper.accountToAccountDto(account);
     }
 
     @Transactional
     @Override
-    public AccountDto blockAcccountNumber(String number) {
+    public AccountDto blockAccountNumber(String number) {
         Account account = accountRepository.findAccountByNumber(number).orElseThrow();
         account.setStatus(AccountStatus.BLOCKED);
+
         return accountMapper.accountToAccountDto(account);
+    }
+
+    @Transactional
+    @Override
+    public List<AccountDto> blockAllUserAccounts(Long id) {
+        List<Account> userAccounts = accountRepository.findAllByUserId(id);
+        if (!userAccounts.isEmpty()) {
+            userAccounts.forEach(account -> account.setStatus(AccountStatus.BLOCKED));
+        }
+
+        return accountMapper.accountListToAccountDtoList(userAccounts);
+    }
+
+    @Transactional
+    @Override
+    public AccountDto unblockAccount(Long id) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        account.setStatus(AccountStatus.ACTIVE);
+
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    @Transactional
+    @Override
+    public AccountDto unblockAccountNumber(String number) {
+        Account account = accountRepository.findAccountByNumber(number).orElseThrow();
+        account.setStatus(AccountStatus.ACTIVE);
+
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    @Transactional
+    @Override
+    public List<AccountDto> unblockAllUserAccounts(Long id) {
+        List<Account> userAccounts = accountRepository.findAllByUserId(id);
+        if (!userAccounts.isEmpty()) {
+            userAccounts.forEach(account -> account.setStatus(AccountStatus.ACTIVE));
+        }
+
+        return accountMapper.accountListToAccountDtoList(userAccounts);
     }
 }

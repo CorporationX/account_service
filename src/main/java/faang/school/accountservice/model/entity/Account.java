@@ -30,7 +30,7 @@ public class Account {
     private Long project_id;
 
     @Column(name = "user_id")
-    private Long user_id;
+    private Long userId;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)

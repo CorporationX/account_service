@@ -12,7 +12,7 @@ public class AccountDto {
     private Long id;
     private String number;
     private Long project_id;
-    private Long user_id;
+    private Long userId;
     private AccountType type;
     private Currency currency;
     private AccountStatus status;

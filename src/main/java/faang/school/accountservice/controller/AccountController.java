@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/account")
@@ -33,16 +35,43 @@ public class AccountController {
 
     @Operation(summary = "Block account", description = "Block account by Id")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/{id}")
+    @PutMapping("/block/{id}")
     public AccountDto blockAccount(@PathVariable Long id) {
         return accountService.blockAccount(id);
     }
 
     @Operation(summary = "Block account by account number", description = "Block account by account number")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/number/{number}")
+    @PutMapping("/block/number/{number}")
     public AccountDto blockAccountNumber(@PathVariable String number) {
-        return accountService.blockAcccountNumber(number);
+        return accountService.blockAccountNumber(number);
     }
 
+    @Operation(summary = "Block all user accounts ", description = "Block all user accounts by userId")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/block/user/{id}")
+    public List<AccountDto> blockAccountNumber(@PathVariable Long id) {
+        return accountService.blockAllUserAccounts(id);
+    }
+
+    @Operation(summary = "Unblock account", description = "Unblock account by Id")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/unblock/{id}")
+    public AccountDto unblockAccount(@PathVariable Long id) {
+        return accountService.unblockAccount(id);
+    }
+
+    @Operation(summary = "Unblock account by account number", description = "Unblock account by account number")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/unblock/number/{number}")
+    public AccountDto unblockAccountNumber(@PathVariable String number) {
+        return accountService.unblockAccountNumber(number);
+    }
+
+    @Operation(summary = "Unblock all user accounts ", description = "Unblock all user accounts by userId")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/unblock/user/{id}")
+    public List<AccountDto> unblockAccountNumber(@PathVariable Long id) {
+        return accountService.unblockAllUserAccounts(id);
+    }
 }
