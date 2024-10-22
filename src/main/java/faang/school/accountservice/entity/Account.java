@@ -69,8 +69,4 @@ public class Account {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
-
-    public void nextVersion() {
-        this.version++;
-    }
 }

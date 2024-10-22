@@ -48,7 +48,6 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id " + id));
         account.setStatus(newStatus);
-        account.nextVersion();
         return accountMapper.toDto(accountRepository.save(account));
     }
 }

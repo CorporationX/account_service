@@ -8,9 +8,9 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,17 +34,17 @@ public class AccountController {
         return accountService.openAccount(account);
     }
 
-    @PutMapping("/{id}/froze")
+    @PatchMapping("/{id}/froze")
     public AccountDto frozeAccount(@PathVariable @Positive Long id) {
         return accountService.frozeAccount(id);
     }
 
-    @PutMapping("/{id}/block")
+    @PatchMapping("/{id}/block")
     public AccountDto blockAccount(@PathVariable @Positive Long id) {
         return accountService.blockAccount(id);
     }
 
-    @PutMapping("/{id}/close")
+    @PatchMapping("/{id}/close")
     public AccountDto closeAccount(@PathVariable @Positive Long id) {
         return accountService.closeAccount(id);
     }
