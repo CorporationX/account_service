@@ -51,6 +51,7 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.accountToAccountDto(account);
     }
 
+
     @Transactional
     @Override
     public List<AccountDto> blockAllUserAccounts(Long id) {
