@@ -15,6 +15,8 @@ CREATE TABLE account (
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+CREATE INDEX idx_account_user_id ON account(user_id);
+
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
