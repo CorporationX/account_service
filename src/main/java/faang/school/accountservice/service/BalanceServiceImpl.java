@@ -3,8 +3,10 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +18,16 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BalanceServiceImpl implements BalanceService {
     private final BalanceJpaRepository balanceRepository;
+    private final BalanceAuditRepository balanceAuditRepository;
     private final AccountRepository accountRepository;
     private final BalanceMapper mapper;
+    private final BalanceAuditMapper auditMapper;
 
     public void create(BalanceDto balanceDto) {
         validateBalanceDto(balanceDto);
         Balance balance = mapper.toEntity(balanceDto);
         balance.setVersion(1);
+        balanceAuditRepository.save(auditMapper.toEntity(balance));
         balanceRepository.save(balance);
     }
 
@@ -36,6 +41,7 @@ public class BalanceServiceImpl implements BalanceService {
         balance.setUpdatedAt(LocalDateTime.now());
         balance.nextVersion();
 
+        balanceAuditRepository.save(auditMapper.toEntity(balance));
         balanceRepository.save(balance);
     }
 
