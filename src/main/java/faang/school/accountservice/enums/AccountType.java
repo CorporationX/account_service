@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AccountType {
-    CHECKING_INDIVIDUAL("Checking Account (Individual)"),
-    CHECKING_CORPORATE("Checking Account (Corporate)"),
-    CURRENCY_ACCOUNT("Currency Account"),
-    SAVINGS_ACCOUNT("Savings Account"),
-    INVESTMENT_ACCOUNT("Investment Account");
+    CHECKING_INDIVIDUAL(4200),
+    CHECKING_CORPORATE(4210),
+    CURRENCY_ACCOUNT(4300),
+    SAVINGS_ACCOUNT(5236),
+    INVESTMENT_ACCOUNT(5400);
 
-    private final String description;
+    private final int number;
 }
