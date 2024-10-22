@@ -16,12 +16,14 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.Digits;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 
@@ -37,8 +39,10 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", length = 20, nullable = false, unique = true)
-    private Long accountNumber;
+    @Column(name = "account_number", nullable = false, unique = true)
+    @Length(min = 12, max = 20)
+    @Digits(integer = 20, fraction = 0)
+    private String accountNumber;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
@@ -48,7 +52,7 @@ public class Account {
     @Enumerated(EnumType.ORDINAL)
     private AccountType accountType;
 
-    @Column(name = "currency", nullable = false)
+    @Column(name = "currency", nullable = false, length = 3)
     @Enumerated(EnumType.ORDINAL)
     private Currency currency;
 
