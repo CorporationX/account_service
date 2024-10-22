@@ -17,9 +17,25 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+account:
+  type:
+    personal:
+      number-size: 12
+    business:
+      prefix: 22007005
+      number-size: 20
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
+
+project-service:
+  host: localhost
+  port: 8082
