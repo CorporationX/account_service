@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.PaymentAccountDto;
 import faang.school.accountservice.entity.PaymentAccount;
 import faang.school.accountservice.mapper.PaymentAccountMapper;
 import faang.school.accountservice.repository.PaymentAccountRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +16,11 @@ public class AccountServiceImpl implements AccountService {
     private final PaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public PaymentAccountDto getPaymentAccount(Long id) {
-        PaymentAccount paymentAccount = paymentAccountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("no payment account with id " + id));
+        PaymentAccount paymentAccount = paymentAccountRepository.findById(id).
+                orElseThrow(() -> new EntityNotFoundException("no payment account with id " + id));
         return paymentAccountMapper.toDto(paymentAccount);
     }
 
