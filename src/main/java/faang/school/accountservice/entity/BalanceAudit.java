@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table
+@Table(indexes = @Index(name = "idx_balance_id", columnList = "balance_id"))
 public class BalanceAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class BalanceAudit {
     private String number;
 
     @Column(name = "version", nullable = false)
-    private Integer version;
+    private Long version;
 
     @Column(name = "cur_auth_balance")
     private double curAuthBalance;
@@ -38,7 +38,8 @@ public class BalanceAudit {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public void nextVersion() {
-        this.version++;
-    }
+    @ManyToOne
+    @JoinColumn(name = "balance_id", nullable = false)
+    private Balance balance;
+
 }

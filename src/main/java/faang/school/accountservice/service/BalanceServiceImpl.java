@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
@@ -27,6 +28,7 @@ public class BalanceServiceImpl implements BalanceService {
         validateBalanceDto(balanceDto);
         Balance balance = mapper.toEntity(balanceDto);
         balance.setVersion(1);
+
         balanceAuditRepository.save(auditMapper.toEntity(balance));
         balanceRepository.save(balance);
     }
@@ -48,8 +50,7 @@ public class BalanceServiceImpl implements BalanceService {
     public BalanceDto getBalance(long accountId) {
         checkIsAccountExist(accountId);
         Balance balance = balanceRepository.findBalanceByAccount_Id(accountId);
-        BalanceDto dto = mapper.toDto(balance);
-        return dto;
+        return mapper.toDto(balance);
     }
 
     private void checkIsAccountExist(long accountId) {
