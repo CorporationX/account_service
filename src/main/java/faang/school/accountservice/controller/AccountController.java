@@ -40,7 +40,7 @@ public class AccountController {
     }
 
     @GetMapping("/owner")
-    public List<AccountDto> getAccountByNumber(@RequestParam Long externalId, OwnerType type) {
+    public List<AccountDto> getAccountByNumber(@RequestParam Long externalId, @RequestParam OwnerType type) {
         List<Account> accounts = accountService.getAccountByOwner(externalId, type);
         return accountMapper.toAccountDtoList(accounts);
     }
