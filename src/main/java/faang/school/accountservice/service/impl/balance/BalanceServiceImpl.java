@@ -5,18 +5,18 @@ import faang.school.accountservice.model.dto.BalanceDto;
 import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.BalanceService;
-import faang.school.accountservice.validator.BalanceValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
-    private final BalanceValidator balanceValidator;
 
     @Transactional(readOnly = true)
     public BalanceDto getBalance(long balanceId) {
@@ -25,17 +25,19 @@ public class BalanceServiceImpl implements BalanceService {
         return balanceMapper.toDto(balance);
     }
 
+    @Transactional
     public BalanceDto createBalance(BalanceDto balanceDto) {
-        return saveBalance(balanceDto);
-    }
-
-    public BalanceDto updateBalance(BalanceDto balanceDto) {
-        balanceValidator.balanceExists(balanceDto);
-        return saveBalance(balanceDto);
-    }
-
-    private BalanceDto saveBalance(BalanceDto balanceDto) {
         Balance balance = balanceMapper.toEntity(balanceDto);
+        return balanceMapper.toDto(balanceRepository.save(balance));
+    }
+
+    @Transactional
+    public BalanceDto updateBalance(BalanceDto balanceDto) {
+        Balance balance = balanceRepository.findById(balanceDto.id()).orElseThrow(() ->
+                new EntityNotFoundException("The balance with ID %d doesn't exist!".formatted(balanceDto.id())));
+        balance.setUpdatedAt(LocalDateTime.now());
+        balance.setCurrentActualBalance(balanceDto.currentActualBalance());
+        balance.setCurrentAuthorizationBalance(balanceDto.currentAuthorizationBalance());
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
 }
