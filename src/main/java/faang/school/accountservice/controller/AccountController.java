@@ -7,12 +7,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
+@Validated
 @RequestMapping("/api/v1/account")
 public class AccountController {
     private final AccountControllerValidator validator;
@@ -44,7 +54,7 @@ public class AccountController {
     @Operation(summary = "Block account", description = "Block account by Id")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/block/{id}")
-    public AccountDto blockAccount(@PathVariable Long id) {
+    public AccountDto blockAccount(@Positive @PathVariable Long id) {
         return accountService.blockAccount(id);
     }
 
@@ -58,8 +68,8 @@ public class AccountController {
     @Operation(summary = "Block all user or project accounts ", description = "Block all user or project accounts")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/block")
-    public List<AccountDto> blockAccountsByUserOrProject(@RequestParam(required = false) Long userId,
-                                                         @RequestParam(required = false) Long projectId) {
+    public List<AccountDto> blockAccountsByUserOrProject(@Positive @RequestParam(required = false) Long userId,
+                                                         @Positive @RequestParam(required = false) Long projectId) {
         validator.checkParams(userId, projectId);
         return accountService.blockAllAccountsByUserOrProject(userId, projectId);
     }
@@ -67,7 +77,7 @@ public class AccountController {
     @Operation(summary = "Unblock account", description = "Unblock account by Id")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/unblock/{id}")
-    public AccountDto unblockAccount(@PathVariable Long id) {
+    public AccountDto unblockAccount(@Positive @PathVariable Long id) {
         return accountService.unblockAccount(id);
     }
 
@@ -81,8 +91,8 @@ public class AccountController {
     @Operation(summary = "Unblock all user or project accounts ", description = "Unblock all user or project accounts")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/unblock")
-    public List<AccountDto> unblockAccountsByUserOrProject(@RequestParam(required = false) Long userId,
-                                                           @RequestParam(required = false) Long projectId) {
+    public List<AccountDto> unblockAccountsByUserOrProject(@Positive @RequestParam(required = false) Long userId,
+                                                           @Positive @RequestParam(required = false) Long projectId) {
         validator.checkParams(userId, projectId);
         return accountService.unblockAllAccountsByUserOrProject(userId, projectId);
     }
@@ -90,7 +100,7 @@ public class AccountController {
     @Operation(summary = "Close account", description = "Close account by Id")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/close/{id}")
-    public AccountDto closeAccount(@PathVariable Long id) {
+    public AccountDto closeAccount(@Positive @PathVariable Long id) {
         return accountService.closeAccount(id);
     }
 
