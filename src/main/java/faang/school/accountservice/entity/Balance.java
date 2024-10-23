@@ -1,17 +1,10 @@
     package faang.school.accountservice.entity;
 
-    import jakarta.persistence.CascadeType;
-    import jakarta.persistence.Column;
-    import jakarta.persistence.Entity;
-    import jakarta.persistence.GeneratedValue;
-    import jakarta.persistence.GenerationType;
-    import jakarta.persistence.Id;
-    import jakarta.persistence.JoinColumn;
-    import jakarta.persistence.OneToOne;
-    import jakarta.persistence.Table;
+    import jakarta.persistence.*;
     import lombok.Data;
 
     import java.time.LocalDateTime;
+    import java.util.List;
 
     @Entity
     @Data
@@ -39,6 +32,9 @@
 
         @Column(name = "version", nullable = false)
         private int version;
+
+        @OneToMany(mappedBy = "balance", cascade = CascadeType.ALL)
+        private List<BalanceAudit> audits;
 
         public void nextVersion() {
             this.version++;
