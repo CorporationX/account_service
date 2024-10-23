@@ -18,7 +18,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public PaymentAccountDto getPaymentAccount(Long id) {
-        PaymentAccount paymentAccount = paymentAccountRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        PaymentAccount paymentAccount = paymentAccountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("no payment account with id " + id));
         return paymentAccountMapper.toDto(paymentAccount);
     }
 
