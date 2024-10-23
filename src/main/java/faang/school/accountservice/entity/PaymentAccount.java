@@ -1,7 +1,6 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.enums.PaymentAccountStatus;
 import faang.school.accountservice.enums.PaymentAccountType;
 import jakarta.persistence.*;
@@ -27,19 +26,15 @@ public class PaymentAccount {
     @Column(name = "number", length = 20, nullable = false)
     private String number;
 
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
 
-    @Column(name = "owner_type", nullable = false)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "account_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private OwnerType ownerType;
-
-    @Column(name = "type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PaymentAccountType type;
-
-    @Column(name = "balance", nullable = false)
-    private Long balance;
+    private PaymentAccountType accountType;
 
     @Column(name = "currency", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -49,14 +44,14 @@ public class PaymentAccount {
     @Enumerated(EnumType.STRING)
     private PaymentAccountStatus status;
 
-    @Column(name = "create_date", nullable = false)
-    private LocalDateTime createDate;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "change_date", nullable = false)
-    private LocalDateTime changeDate;
+    @Column(name = "changed_at", nullable = false)
+    private LocalDateTime changedAt;
 
-    @Column(name = "close_date")
-    private LocalDateTime closeDate;
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
 
     @Column(name = "version", nullable = false)
     @Version

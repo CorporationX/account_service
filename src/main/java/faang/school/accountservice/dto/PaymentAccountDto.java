@@ -1,7 +1,6 @@
 package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.enums.PaymentAccountStatus;
 import faang.school.accountservice.enums.PaymentAccountType;
 import lombok.AllArgsConstructor;
@@ -15,13 +14,12 @@ import java.time.LocalDateTime;
 @Data
 public class PaymentAccountDto {
     private String number;
-    private Long ownerId;
-    private OwnerType ownerType;
-    private PaymentAccountType type;
-    private Long balance;
+    private Long projectId;
+    private Long userId;
+    private PaymentAccountType accountType;
     private Currency currency;
     private PaymentAccountStatus status;
-    private LocalDateTime createDate;
-    private LocalDateTime changeDate;
-    private LocalDateTime closeDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime changedAt;
+    private LocalDateTime closedAt;
 }
