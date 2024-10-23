@@ -16,6 +16,7 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: account
 
 server:
   port: 8090
@@ -23,3 +24,8 @@ server:
 logging:
   level:
     root: info
+
+account:
+  nameLength:
+    min: 12
+    max: 20
