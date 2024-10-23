@@ -36,7 +36,7 @@ public class AccountOwner {
     private Long ownerId;
 
     @Column(name = "owner_type")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private OwnerType ownerType;
 
     @OneToMany(mappedBy = "owner")
