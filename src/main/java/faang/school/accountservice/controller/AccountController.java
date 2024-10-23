@@ -4,6 +4,7 @@ import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.service.impl.AccountServiceImpl;
 import faang.school.accountservice.validator.AccountControllerValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class AccountController {
     @Operation(summary = "Get account", description = "Get account by id")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public AccountDto getAccount(@PathVariable Long id) {
+    public AccountDto getAccount(@Positive @PathVariable Long id) {
         return accountService.getAccount(id);
     }
 
