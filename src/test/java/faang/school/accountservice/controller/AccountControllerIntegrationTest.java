@@ -18,6 +18,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -30,9 +31,6 @@ public class AccountControllerIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;
-
-//    @MockBean
-//    UserContext userContext;
 
     @Container
     private static final PostgreSQLContainer<?> postgresContainer =
@@ -101,7 +99,7 @@ public class AccountControllerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.id").value(13))
+                .andExpect(jsonPath("$.id").value(15))
                 .andExpect(jsonPath("$.userId").value(5L))
                 .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
                 .andExpect(jsonPath("$.currency").value(accountDto.getCurrency().toString()))
@@ -138,55 +136,114 @@ public class AccountControllerIntegrationTest {
                 .andReturn();
     }
 
-//    @Test
-//    void testGetAnalytics_withValidParams() throws Exception {
-//        String startDate = "2024-10-09T16:37:34.252454600";
-//        String endDate = "2024-10-11T16:37:34.252454600";
-//        Long id = 3L;
-//        String eventType = "PROFILE_APPEARED_IN_SEARCH";
-//        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/analytics")
-//                        .header("x-user-id", 8L)
-//                        .param("id", id.toString())
-//                        .param("eventType", eventType)
-//                        .param("startDate", startDate)
-//                        .param("endDate", endDate))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType("application/json"))
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$.length()").value(2))
-//                .andExpect(jsonPath("$[0].eventType").value(eventType))
-//                .andExpect(jsonPath("$[0].receiverId").value(id))
-//                .andExpect(jsonPath("$[1].eventType").value(eventType))
-//                .andExpect(jsonPath("$[1].receiverId").value(id))
-//                .andReturn();
-//
-//        String jsonResponse = mvcResult.getResponse().getContentAsString();
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        JsonNode rootArray = mapper.readTree(jsonResponse);
-//        Iterator<JsonNode> elements = rootArray.elements();
-//        List<LocalDateTime> localDateTimes = new ArrayList<>();
-//        while (elements.hasNext()) {
-//            JsonNode element = elements.next();
-//            JsonNode receivedAtNode = element.get("receivedAt");
-//            LocalDateTime receivedAt = LocalDateTime.of(
-//                    receivedAtNode.get(0).asInt(),
-//                    receivedAtNode.get(1).asInt(),
-//                    receivedAtNode.get(2).asInt(),
-//                    receivedAtNode.get(3).asInt(),
-//                    receivedAtNode.get(4).asInt(),
-//                    receivedAtNode.get(5).asInt(),
-//                    receivedAtNode.get(6).asInt()
-//            );
-//            localDateTimes.add(receivedAt);
-//        }
-//
-//        assertAll(
-//                () -> assertTrue(localDateTimes.get(0).isAfter(LocalDateTime.parse(startDate))),
-//                () -> assertTrue(localDateTimes.get(0).isBefore(LocalDateTime.parse(endDate))),
-//                () -> assertTrue(localDateTimes.get(1).isAfter(LocalDateTime.parse(startDate))),
-//                () -> assertTrue(localDateTimes.get(1).isBefore(LocalDateTime.parse(endDate)))
-//        );
-//    }
+    @Test
+    void testBlockAccountsByUserId() throws Exception {
+
+        mockMvc.perform(put("/api/v1/account/block")
+                        .param("userId", "2"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(3))
+                .andExpect(jsonPath("$[0].status").value(AccountStatus.BLOCKED.toString()))
+                .andExpect(jsonPath("$[1].id").value(4))
+                .andExpect(jsonPath("$[1].status").value(AccountStatus.BLOCKED.toString()))
+                .andReturn();
+    }
+
+    @Test
+    void testBlockAccountsByProjectId() throws Exception {
+
+        mockMvc.perform(put("/api/v1/account/block")
+                        .param("projectId", "3"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(11))
+                .andExpect(jsonPath("$[0].status").value(AccountStatus.BLOCKED.toString()))
+                .andExpect(jsonPath("$[1].id").value(12))
+                .andExpect(jsonPath("$[1].status").value(AccountStatus.BLOCKED.toString()))
+                .andReturn();
+    }
+
+    @Test
+    void testUnblockAccountById() throws Exception {
+        Long id = 13L;
+
+        mockMvc.perform(put("/api/v1/account/unblock/{id}", id))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(4L))
+                .andExpect(jsonPath("$.status").value(AccountStatus.ACTIVE.toString()))
+                .andExpect(jsonPath("$.number").value("934579038845852"))
+                .andReturn();
+    }
+
+    @Test
+    void testUnblockAccountByNumber() throws Exception {
+        String number = "93457903336434";
+
+        mockMvc.perform(put("/api/v1/account/unblock/number/{number}", number))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.projectId").value(4L))
+                .andExpect(jsonPath("$.status").value(AccountStatus.ACTIVE.toString()))
+                .andExpect(jsonPath("$.number").value(number))
+                .andReturn();
+    }
+
+    @Test
+    void testUnblockAccountsByProjectId() throws Exception {
+        Long projectId = 4L;
+
+        mockMvc.perform(put("/api/v1/account/unblock")
+                        .param("projectId", projectId.toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(13))
+                .andExpect(jsonPath("$[0].projectId").value(projectId))
+                .andExpect(jsonPath("$[0].status").value(AccountStatus.ACTIVE.toString()))
+                .andExpect(jsonPath("$[1].id").value(14))
+                .andExpect(jsonPath("$[1].projectId").value(projectId))
+                .andExpect(jsonPath("$[1].status").value(AccountStatus.ACTIVE.toString()))
+                .andReturn();
+    }
+
+    @Test
+    void testCloseAccountById() throws Exception {
+        Long id = 4L;
+
+        mockMvc.perform(put("/api/v1/account/close/{id}", id))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.userId").value(2L))
+                .andExpect(jsonPath("$.status").value(AccountStatus.CLOSED.toString()))
+                .andExpect(jsonPath("$.number").value("328943571239"))
+                .andReturn();
+    }
+
+    @Test
+    void testCloseAccountByNumber() throws Exception {
+        String number = "597283728973";
+
+        mockMvc.perform(put("/api/v1/account/close/number/{number}", number))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(8))
+                .andExpect(jsonPath("$.projectId").value(1))
+                .andExpect(jsonPath("$.status").value(AccountStatus.CLOSED.toString()))
+                .andExpect(jsonPath("$.number").value("597283728973"))
+                .andReturn();
+    }
+
 }
