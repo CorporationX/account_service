@@ -1,8 +1,8 @@
 CREATE TABLE account (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     number VARCHAR(20) NOT NULL CHECK (LENGTH(number) BETWEEN 12 AND 20) UNIQUE,
-    project_id BIGINT NOT NULL UNIQUE,
-    user_id BIGINT NOT NULL UNIQUE,
+    project_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     account_type VARCHAR(32) NOT NULL,
     currency VARCHAR(32) NOT NULL,
     status VARCHAR(32) NOT NULL,
