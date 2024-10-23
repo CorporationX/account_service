@@ -3,6 +3,7 @@ package faang.school.accountservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.model.dto.AccountDto;
+import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.service.impl.AccountServiceImpl;
 import faang.school.accountservice.validator.AccountControllerValidator;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,17 +17,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AccountController.class)
 class AccountControllerTest {
 
-
-    // TODO
     @Autowired
     private MockMvc mockMvc;
 
@@ -47,6 +49,8 @@ class AccountControllerTest {
 
     private Long id;
     private AccountDto accountDto;
+    private AccountDto accountDto2;
+
     private String number;
 
     @BeforeEach
@@ -59,10 +63,14 @@ class AccountControllerTest {
         accountDto.setProjectId(projectId);
         accountDto.setNumber(number);
         accountDto.setCreatedAt(LocalDateTime.now());
+
+        accountDto2 = new AccountDto();
+        accountDto2.setId(2L);
+        accountDto2.setUserId(id);
     }
 
     @Test
-    void testOpenAccountSuccess() throws Exception {
+    void shouldOpenAccount() throws Exception {
         String json = objectMapper.writeValueAsString(accountDto);
         when(accountServiceImpl.openAccount(accountDto)).thenReturn(accountDto);
 
@@ -111,4 +119,173 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
     }
 
+    @Test
+    void shouldReturnAccountDtoBlockById() throws Exception {
+        accountDto.setStatus(AccountStatus.BLOCKED);
+        String json = objectMapper.writeValueAsString(accountDto);
+
+        when(accountServiceImpl.blockAccount(id)).thenReturn(accountDto);
+
+        mockMvc.perform(put("/api/v1/account/block/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
+                .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
+    }
+
+    @Test
+    void shouldReturnAccountDtoBlockByNumber() throws Exception {
+        accountDto.setStatus(AccountStatus.BLOCKED);
+        String json = objectMapper.writeValueAsString(accountDto);
+
+        when(accountServiceImpl.blockAccountNumber(number)).thenReturn(accountDto);
+
+        mockMvc.perform(put("/api/v1/account/block/number/{number}", number)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
+                .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
+    }
+
+    @Test
+    public void blockAccountsByUserOrProject_UserIdProvided_ShouldReturnOkAndBlockedAccounts() throws Exception {
+        List<AccountDto> blockedAccounts = Arrays.asList(accountDto, accountDto2);
+        when(accountServiceImpl.blockAllAccountsByUserOrProject(1L, null)).thenReturn(blockedAccounts);
+
+        mockMvc.perform(put("/api/v1/account/block")
+                        .param("userId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(accountDto.getId()))
+                .andExpect(jsonPath("$[0].userId").value(accountDto.getUserId()))
+                .andExpect(jsonPath("$[1].id").value(accountDto2.getId()))
+                .andExpect(jsonPath("$[1].userId").value(accountDto2.getUserId()));
+    }
+
+    @Test
+    public void blockAccountsByUserOrProject_ProjectIdProvided_ShouldReturnOkAndBlockedAccounts() throws Exception {
+        List<AccountDto> blockedAccounts = Arrays.asList(accountDto, accountDto2);
+        when(accountServiceImpl.blockAllAccountsByUserOrProject(null, 1L)).thenReturn(blockedAccounts);
+
+        mockMvc.perform(put("/api/v1/account/block")
+                        .param("projectId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(accountDto.getId()))
+                .andExpect(jsonPath("$[0].projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$[1].id").value(accountDto2.getId()))
+                .andExpect(jsonPath("$[1].projectId").value(accountDto2.getProjectId()));
+    }
+
+    @Test
+    void shouldReturnAccountDtoUnblockById() throws Exception {
+        accountDto.setStatus(AccountStatus.ACTIVE);
+        String json = objectMapper.writeValueAsString(accountDto);
+
+        when(accountServiceImpl.unblockAccount(id)).thenReturn(accountDto);
+
+        mockMvc.perform(put("/api/v1/account/unblock/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
+                .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
+    }
+
+    @Test
+    void shouldReturnAccountDtoUnBlockByNumber() throws Exception {
+        accountDto.setStatus(AccountStatus.ACTIVE);
+        String json = objectMapper.writeValueAsString(accountDto);
+
+        when(accountServiceImpl.unblockAccountNumber(number)).thenReturn(accountDto);
+
+        mockMvc.perform(put("/api/v1/account/unblock/number/{number}", number)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
+                .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
+    }
+
+    @Test
+    public void unblockAccountsByUserOrProject_UserIdProvided_ShouldReturnOkAndBlockedAccounts() throws Exception {
+        List<AccountDto> blockedAccounts = Arrays.asList(accountDto, accountDto2);
+        when(accountServiceImpl.unblockAllAccountsByUserOrProject(1L, null)).thenReturn(blockedAccounts);
+
+        mockMvc.perform(put("/api/v1/account/unblock")
+                        .param("userId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(accountDto.getId()))
+                .andExpect(jsonPath("$[0].userId").value(accountDto.getUserId()))
+                .andExpect(jsonPath("$[1].id").value(accountDto2.getId()))
+                .andExpect(jsonPath("$[1].userId").value(accountDto2.getUserId()));
+    }
+
+    @Test
+    public void unblockAccountsByUserOrProject_ProjectIdProvided_ShouldReturnOkAndBlockedAccounts() throws Exception {
+        List<AccountDto> blockedAccounts = Arrays.asList(accountDto, accountDto2);
+        when(accountServiceImpl.unblockAllAccountsByUserOrProject(null, 1L)).thenReturn(blockedAccounts);
+
+        mockMvc.perform(put("/api/v1/account/unblock")
+                        .param("projectId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(accountDto.getId()))
+                .andExpect(jsonPath("$[0].projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$[1].id").value(accountDto2.getId()))
+                .andExpect(jsonPath("$[1].projectId").value(accountDto2.getProjectId()));
+    }
+
+    @Test
+    void shouldReturnAccountDtoClosedById() throws Exception {
+        accountDto.setStatus(AccountStatus.CLOSED);
+        String json = objectMapper.writeValueAsString(accountDto);
+
+        when(accountServiceImpl.closeAccount(id)).thenReturn(accountDto);
+
+        mockMvc.perform(put("/api/v1/account/close/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
+                .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
+    }
+
+    @Test
+    void shouldReturnAccountDtoCloseByNumber() throws Exception {
+        accountDto.setStatus(AccountStatus.CLOSED);
+        String json = objectMapper.writeValueAsString(accountDto);
+
+        when(accountServiceImpl.closeAccountNumber(number)).thenReturn(accountDto);
+
+        mockMvc.perform(put("/api/v1/account/close/number/{number}", number)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.projectId").value(accountDto.getProjectId()))
+                .andExpect(jsonPath("$.status").value(accountDto.getStatus().toString()))
+                .andExpect(jsonPath("$.number").value(accountDto.getNumber()));
+    }
 }
