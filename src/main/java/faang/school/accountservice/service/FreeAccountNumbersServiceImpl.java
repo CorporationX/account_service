@@ -50,4 +50,24 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                 .build();
         freeAccountNumbersRepository.save(freeAccountNumber);
     }
+
+    @Override
+    @Transactional
+    public void generateNumbers(AccountType type, int count) {
+        for (int i = 0; i < count; i++) {
+            Long number = accountNumbersSequenceRepository.incrementAndGet(type.name());
+            String accountNumber = accountNumberGenerator.generateAccountNumber(type, number);
+            saveNumber(type, accountNumber);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void ensureMinimumNumbers(AccountType type, int requiredCount) {
+        long currentCount = freeAccountNumbersRepository.countByIdType(type);
+        int numbersToGenerate = requiredCount - (int) currentCount;
+        if (numbersToGenerate > 0) {
+            generateNumbers(type, numbersToGenerate);
+        }
+    }
 }
