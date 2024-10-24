@@ -40,12 +40,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = exception.getBindingResult()
-                .getFieldErrors()
+                .getAllErrors()
                 .stream()
                 .collect(Collectors.toMap(
-                        FieldError::getField,
-                        error -> Optional.ofNullable(error.getDefaultMessage())
-                                .orElse("Something went wrong")
+                        error -> error instanceof FieldError ? ((FieldError) error).getField() : "Error",
+                        error -> Optional.ofNullable(error.getDefaultMessage()).orElse(SOMETHING_ERROR)
                 ));
         log.error("Validation errors: {}", errors);
 
@@ -76,6 +75,7 @@ public class GlobalExceptionHandler {
                 .message(message)
                 .build();
     }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleHttpMessageNotReadableException(HttpMessageNotReadableException exception, WebRequest request) {
