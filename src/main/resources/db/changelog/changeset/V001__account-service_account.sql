@@ -6,7 +6,7 @@ create table if not exists account
     owner_type     smallint    not null,
     account_type   smallint    not null,
     currency       smallint    not null,
-    account_status smallint    not null,
+    account_status smallint    not null default 0,
     created_at     timestamp            default current_timestamp,
     updated_at     timestamp            default current_timestamp,
     closed_at      timestamp,
@@ -15,4 +15,9 @@ create table if not exists account
 );
 
 create index idx_account_number on account (account_number);
-create index idx_account_number on account (owner_id, owner_type);
+create index idx_owner_id on account (owner_id, owner_type);
+
+-- drop table if exists account;
+--
+-- drop index if exists idx_account_number;
+-- drop index if exists idx_owner_id;
