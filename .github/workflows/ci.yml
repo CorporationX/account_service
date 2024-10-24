@@ -8,9 +8,20 @@ on:
     branches:
       - kraken-master-stream6
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      master_postgres:
+        image: postgres:13.3
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
 
     steps:
       - name: Repository Checkout
