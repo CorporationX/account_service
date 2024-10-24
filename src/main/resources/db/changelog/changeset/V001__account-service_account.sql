@@ -20,4 +20,4 @@ create index idx_owner_id_type on account (owner_id, owner_type);
 -- drop table if exists account;
 --
 -- drop index if exists idx_account_number;
--- drop index if exists idx_owner_id;
+-- drop index if exists idx_owner_id_type;
