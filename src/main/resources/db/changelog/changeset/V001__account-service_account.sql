@@ -15,7 +15,7 @@ create table if not exists account
 );
 
 create index idx_account_number on account (account_number);
-create index idx_owner_id on account (owner_id, owner_type);
+create index idx_owner_id_type on account (owner_id, owner_type);
 
 -- drop table if exists account;
 --
