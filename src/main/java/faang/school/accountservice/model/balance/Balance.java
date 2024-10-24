@@ -40,17 +40,21 @@ public class Balance {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
+    @Builder.Default
     @Column(name = "auth_balance")
-    private BigDecimal authBalance;
+    private BigDecimal authBalance = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "current_balance")
-    private BigDecimal currentBalance;
+    private BigDecimal currentBalance = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Builder.Default
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Version
     @Column(name = "version")
@@ -59,14 +63,17 @@ public class Balance {
     @OneToMany(mappedBy = "balance")
     private List<AuthPayment> authorizationPayments;
 
-    @PrePersist
-    protected void onCreate() {
-        authBalance = BigDecimal.ZERO;
-        currentBalance = BigDecimal.ZERO;
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        version = 0L;
-    }
+//    @PrePersist
+//    protected void onCreate() {
+//        if (authBalance == null) {
+//            authBalance = BigDecimal.ZERO;
+//        }
+//        if (currentBalance == null) {
+//            currentBalance = BigDecimal.ZERO;
+//        }
+//        createdAt = LocalDateTime.now();
+//        updatedAt = LocalDateTime.now();
+//    }
 
     @PreUpdate
     protected void onUpdate() {
