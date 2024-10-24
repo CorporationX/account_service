@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -25,6 +23,9 @@ import static org.mockito.Mockito.*;
 @RequiredArgsConstructor
 @ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
+
+    @Captor
+    ArgumentCaptor<Account> accountCaptor;
 
     @Mock
     private AccountRepository accountRepository;
@@ -67,11 +68,11 @@ class AccountServiceImplTest {
     @Test
     void openAccount() {
         AccountDto accountDto = new AccountDto();
-        when(accountRepository.save(account)).thenReturn(account);
-
+//        when(accountRepository.save(account)).thenReturn(account);
+        //TODO изменить, когда будет готова задача по получению уникального номера счета
         service.openAccount(accountDto);
 
-        verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).save(accountCaptor.capture());
     }
 
     @Test
