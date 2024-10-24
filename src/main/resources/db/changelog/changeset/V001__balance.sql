@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS balance
     account_id                    BIGINT REFERENCES account (id) UNIQUE,
     current_authorization_balance DECIMAL(18, 2),
     current_actual_balance        DECIMAL(18, 2),
-    created_at                    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at                    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    version                       INT         NOT NULL
+    created_at                    TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at                    TIMESTAMP NOT NULL DEFAULT NOW(),
+    version                       INT       NOT NULL
 );
