@@ -45,19 +45,19 @@ public class AccountController {
         return accountMapper.toAccountDtoList(accounts);
     }
 
-    @PutMapping("/freezing")
+    @PutMapping("/freeze")
     public AccountDto freezeAccount(@RequestParam String number) {
         Account account = accountService.freezeAccount(number);
         return accountMapper.toAccountDto(account);
     }
 
-    @PutMapping("/unfreezing")
+    @PutMapping("/unfreeze")
     public AccountDto unfreezeAccount(@RequestParam String number) {
         Account account = accountService.unfreezeAccount(number);
         return accountMapper.toAccountDto(account);
     }
 
-    @PutMapping("/closing")
+    @PutMapping("/close")
     public AccountDto closeAccount(@RequestParam String number) {
         Account account = accountService.closeAccount(number);
         return accountMapper.toAccountDto(account);

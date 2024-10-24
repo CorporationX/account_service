@@ -1,12 +1,12 @@
 CREATE TABLE payment_owners (
-    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     external_id BIGINT NOT NULL,
     type VARCHAR(32) NOT NULL,
     created_at timestamptz DEFAULT current_timestamp NOT NULL
 );
 
 CREATE TABLE payment_accounts (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     account_number VARCHAR(20) NOT NULL UNIQUE,
     owner_id bigint NOT NULL,
     type VARCHAR(32) NOT NULL,
