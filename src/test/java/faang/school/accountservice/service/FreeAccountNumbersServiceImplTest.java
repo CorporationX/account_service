@@ -17,13 +17,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FreeAccountNumbersServiceImplTest {
@@ -104,5 +98,29 @@ public class FreeAccountNumbersServiceImplTest {
         freeAccountNumbersService.saveNumber(type, accountNumber);
 
         verify(freeAccountNumbersRepository).save(freeAccountNumber);
+    }
+
+    @Test
+    public void testEnsureMinimumNumbers_ShouldGenerateNumbers_WhenLessThanMinimum() {
+        AccountType type = AccountType.CHECKING_INDIVIDUAL;
+        int minRequiredNumbers = 1000;
+
+        when(freeAccountNumbersRepository.countByIdType(type)).thenReturn(500L);
+        freeAccountNumbersService.ensureMinimumNumbers(type, minRequiredNumbers);
+
+        verify(accountNumbersSequenceRepository, times(minRequiredNumbers - 500)).incrementAndGet(type.name());
+        verify(accountNumberGenerator, times(minRequiredNumbers - 500)).generateAccountNumber(eq(type), anyLong());
+    }
+
+    @Test
+    public void testEnsureMinimumNumbers_NoGeneration_WhenSufficientNumbersExist() {
+        AccountType type = AccountType.CHECKING_INDIVIDUAL;
+        int minRequiredNumbers = 1000;
+
+        when(freeAccountNumbersRepository.countByIdType(type)).thenReturn(1000L);
+        freeAccountNumbersService.ensureMinimumNumbers(type, minRequiredNumbers);
+
+        verify(accountNumbersSequenceRepository, never()).incrementAndGet(anyString());
+        verify(accountNumberGenerator, never()).generateAccountNumber(any(), anyLong());
     }
 }
