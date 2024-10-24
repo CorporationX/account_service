@@ -4,7 +4,7 @@ create table if not exists account
     account_number varchar(20) not null check ( length(account_number) between 12 and 20),
     owner_id       bigint      not null,
     owner_type     smallint    not null,
-    account_type   smallint    not null default 0,
+    account_type   smallint    not null,
     currency       smallint    not null,
     account_status smallint    not null default 0,
     created_at     timestamp            default current_timestamp,
