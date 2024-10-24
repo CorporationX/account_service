@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class PaymentAccountDto {
+    private Long id;
     private String number;
     private Long projectId;
     private Long userId;

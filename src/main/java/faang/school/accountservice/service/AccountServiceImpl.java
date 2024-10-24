@@ -6,6 +6,7 @@ import faang.school.accountservice.mapper.PaymentAccountMapper;
 import faang.school.accountservice.repository.PaymentAccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +34,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Transactional
+    @Modifying
     @Override
     public PaymentAccountDto updatePaymentAccount(PaymentAccountDto paymentAccountDto) {
         PaymentAccount paymentAccount = paymentAccountMapper.toEntity(paymentAccountDto);
+        paymentAccountRepository.deleteById(paymentAccount.getId());
         paymentAccountRepository.save(paymentAccount);
         return paymentAccountDto;
     }
 
     @Transactional
+    @Modifying
     @Override
     public void deletePaymentAccount(Long id) {
         paymentAccountRepository.deleteById(id);

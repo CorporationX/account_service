@@ -17,13 +17,13 @@ public class PaymentAccountController {
         return accountService.getPaymentAccount(id);
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public PaymentAccountDto createPaymentAccount(@RequestBody PaymentAccountDto paymentAccountDto) {
         return accountService.createPaymentAccount(paymentAccountDto);
     }
 
-    @PutMapping("/{id}")
-    public PaymentAccountDto updatePaymentAccount(@RequestBody PaymentAccountDto paymentAccountDto, @PathVariable Long id) {
+    @PutMapping
+    public PaymentAccountDto updatePaymentAccount(@RequestBody PaymentAccountDto paymentAccountDto) {
         return accountService.updatePaymentAccount(paymentAccountDto);
     }
 
