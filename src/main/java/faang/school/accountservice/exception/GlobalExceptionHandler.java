@@ -18,4 +18,18 @@ public class GlobalExceptionHandler {
         log.error("Entity not found exception occurred", e);
         return new Error(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Error handleEntityNotFoundException(IllegalArgumentException e) {
+        log.error("Entity not found exception occurred", e);
+        return new Error(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Error handleInsufficientBalanceException(InsufficientBalanceException e) {
+        log.error("Insufficient balance exception occurred", e);
+        return new Error(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
+    }
 }

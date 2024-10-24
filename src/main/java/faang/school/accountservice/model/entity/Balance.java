@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "current_authorization_balance", precision = 18, scale = 2)
@@ -47,7 +47,7 @@ public class Balance {
 
     @Version
     @Column(name = "version", nullable = false)
-    private Integer version;
+    private Long version;
 
     @OneToOne
     @JoinColumn(name = "account_id")

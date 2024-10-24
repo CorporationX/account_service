@@ -1,6 +1,7 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.model.dto.BalanceDto;
+import faang.school.accountservice.model.dto.balance.BalanceDto;
+import faang.school.accountservice.model.dto.balance.TransferResultDto;
 import faang.school.accountservice.model.entity.Balance;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,4 +14,8 @@ public interface BalanceMapper {
 
     @Mapping(source = "account.id", target = "accountId")
     BalanceDto toDto(Balance entity);
+
+    @Mapping(source = "from.currentActualBalance", target = "fromBalance")
+    @Mapping(source = "to.currentActualBalance", target = "toBalance")
+    TransferResultDto toTransferResultDto(Balance from, Balance to);
 }

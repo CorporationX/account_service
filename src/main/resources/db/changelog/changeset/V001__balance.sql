@@ -1,7 +1,8 @@
 --Заглушка - потом удалить!
 CREATE TABLE IF NOT EXISTS account
 (
-    id BIGSERIAL PRIMARY KEY
+    id BIGSERIAL PRIMARY KEY,
+    account_number VARCHAR CHECK ( LENGTH(account_number) BETWEEN 12 AND 22)
 );
 --------------------------------------
 CREATE TABLE IF NOT EXISTS balance
@@ -12,5 +13,5 @@ CREATE TABLE IF NOT EXISTS balance
     current_actual_balance        DECIMAL(18, 2),
     created_at                    TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at                    TIMESTAMP NOT NULL DEFAULT NOW(),
-    version                       INT       NOT NULL
+    version                       BIGINT       NOT NULL
 );
