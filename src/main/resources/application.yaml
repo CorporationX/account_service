@@ -5,6 +5,13 @@ spring:
     username: user
     password: password
 
+account:
+  numbers:
+    generation:
+      cron: "0 0 2 * * ?"
+    minimum-numbers:
+      checking-individual: 1000
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
