@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
@@ -17,15 +19,13 @@ public class AccountServiceImpl implements AccountService {
     private final PaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
 
-    @Transactional(readOnly = true)
     @Override
     public PaymentAccountDto getPaymentAccount(Long id) {
-        PaymentAccount paymentAccount = paymentAccountRepository.findById(id).
+        return paymentAccountRepository.findById(id).
+                map(paymentAccountMapper::toDto).
                 orElseThrow(() -> new EntityNotFoundException("no payment account with id " + id));
-        return paymentAccountMapper.toDto(paymentAccount);
     }
 
-    @Transactional
     @Override
     public PaymentAccountDto createPaymentAccount(PaymentAccountDto paymentAccountDto) {
         PaymentAccount paymentAccount = paymentAccountMapper.toEntity(paymentAccountDto);
@@ -37,14 +37,22 @@ public class AccountServiceImpl implements AccountService {
     @Modifying
     @Override
     public PaymentAccountDto updatePaymentAccount(PaymentAccountDto paymentAccountDto) {
-        PaymentAccount paymentAccount = paymentAccountMapper.toEntity(paymentAccountDto);
-        paymentAccountRepository.deleteById(paymentAccount.getId());
+        PaymentAccount paymentAccount = paymentAccountRepository.findById(paymentAccountDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("no account with id " + paymentAccountDto.getId()));
+
+        paymentAccount.setNumber(paymentAccountDto.getNumber());
+        paymentAccount.setAccountType(paymentAccountDto.getAccountType());
+        paymentAccount.setCurrency(paymentAccountDto.getCurrency());
+        paymentAccount.setUserId(paymentAccountDto.getUserId());
+        paymentAccount.setProjectId(paymentAccountDto.getProjectId());
+        paymentAccount.setStatus(paymentAccountDto.getStatus());
+        paymentAccount.setChangedAt(LocalDateTime.now());
+        paymentAccount.setClosedAt(paymentAccountDto.getClosedAt());
+
         paymentAccountRepository.save(paymentAccount);
         return paymentAccountDto;
     }
 
-    @Transactional
-    @Modifying
     @Override
     public void deletePaymentAccount(Long id) {
         paymentAccountRepository.deleteById(id);

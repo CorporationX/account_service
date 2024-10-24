@@ -3,6 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.PaymentAccountDto;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,12 +19,12 @@ public class PaymentAccountController {
     }
 
     @PostMapping
-    public PaymentAccountDto createPaymentAccount(@RequestBody PaymentAccountDto paymentAccountDto) {
+    public PaymentAccountDto createPaymentAccount(@Validated @RequestBody PaymentAccountDto paymentAccountDto) {
         return accountService.createPaymentAccount(paymentAccountDto);
     }
 
     @PutMapping
-    public PaymentAccountDto updatePaymentAccount(@RequestBody PaymentAccountDto paymentAccountDto) {
+    public PaymentAccountDto updatePaymentAccount(@Validated @RequestBody PaymentAccountDto paymentAccountDto) {
         return accountService.updatePaymentAccount(paymentAccountDto);
     }
 

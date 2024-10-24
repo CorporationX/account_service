@@ -22,14 +22,13 @@ public class PaymentAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 12, max = 20, message = "min payment account number length  must be min 12 max 20")
     @Column(name = "number", length = 20, nullable = false)
     private String number;
 
-    @Column(name = "project_id", nullable = false)
+    @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(name = "account_type", nullable = false)
