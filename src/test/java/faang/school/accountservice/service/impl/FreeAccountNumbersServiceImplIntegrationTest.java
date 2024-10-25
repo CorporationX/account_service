@@ -12,6 +12,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -33,8 +35,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FreeAccountNumbersServiceImplIntegrationTest {
 
     @Container
-    public static PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:latest");
+    private static final PostgreSQLContainer<?> postgresContainer =
+            new PostgreSQLContainer<>("postgres:latest")
+                    .withDatabaseName("testdb")
+                    .withUsername("admin")
+                    .withPassword("admin")
+                    .withInitScript("schema_for_FreeAccountNumbersService.sql");
+
+    @DynamicPropertySource
+    static void overrideSourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+        registry.add("spring.datasource.driver-class-name", postgresContainer::getDriverClassName);
+        registry.add("spring.liquibase.enabled", () -> false);
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -53,7 +68,6 @@ public class FreeAccountNumbersServiceImplIntegrationTest {
     @BeforeEach
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     void setUp() {
-        assertTrue(postgreSQLContainer.isRunning());
 
         accountNumbersSequenceRepository.deleteAll();
         freeAccountNumbersRepository.deleteAll();
@@ -76,9 +90,8 @@ public class FreeAccountNumbersServiceImplIntegrationTest {
     void testGetFreeAccountNumber_shouldReturnExistingOrAddNew(AccountType accountType) {
         FreeAccountNumber expectedNumber = freeAccountNumberMap.get(accountType);
 
-        freeAccountNumbersService.getFreeAccountNumber(accountType, accountNumber -> {
-            assertEquals(expectedNumber, accountNumber);
-        });
+        freeAccountNumbersService.getFreeAccountNumber(accountType, accountNumber ->
+                assertEquals(expectedNumber, accountNumber));
 
         entityManager.flush();
         entityManager.clear();
