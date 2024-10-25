@@ -26,6 +26,9 @@ public class SavingsAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "number", length = 20, nullable = false, unique = true)
+    private String number;
+
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;

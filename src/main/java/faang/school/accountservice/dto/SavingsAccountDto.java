@@ -14,4 +14,5 @@ public class SavingsAccountDto {
     private List<TariffHistoryDto> tariffHistoryDto;
     private Long holderUserId;
     private Long holderUserProjectId;
+    private String number;
 }
