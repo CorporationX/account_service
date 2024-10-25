@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -53,6 +54,7 @@ public class Balance {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -75,8 +77,8 @@ public class Balance {
 //        updatedAt = LocalDateTime.now();
 //    }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+//    @PreUpdate
+//    protected void onUpdate() {
+//        updatedAt = LocalDateTime.now();
+//    }
 }

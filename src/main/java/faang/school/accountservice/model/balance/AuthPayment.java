@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,6 +43,7 @@ public class AuthPayment {
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
+    @ColumnDefault("ACTIVE")
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private AuthPaymentStatus status;
@@ -56,13 +58,13 @@ public class AuthPayment {
     @Column(name = "version")
     private long version;
 
-    @PrePersist
-    protected void onCreate() {
-        status = AuthPaymentStatus.ACTIVE;
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        version = 0L;
-    }
+//    @PrePersist
+//    protected void onCreate() {
+//        status = AuthPaymentStatus.ACTIVE;
+//        createdAt = LocalDateTime.now();
+//        updatedAt = LocalDateTime.now();
+//        version = 0L;
+//    }
 
     @PreUpdate
     protected void onUpdate() {
