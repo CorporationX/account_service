@@ -34,7 +34,7 @@ public class FreeAccountNumbersServiceImplIntegrationTest {
 
     @Container
     public static PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:13.6");
+            new PostgreSQLContainer<>("postgres:latest");
 
     @PersistenceContext
     private EntityManager entityManager;
