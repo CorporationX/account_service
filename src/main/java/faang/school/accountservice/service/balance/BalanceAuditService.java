@@ -1,5 +1,7 @@
 package faang.school.accountservice.service.balance;
 
 public interface BalanceAuditService {
-    void saveAudit(Balance balance);
+    void saveAudit(BalanceTest balance);
+    void updateAudit(BalanceTest balance);
+    void deleteAudit(Long auditId);
 }

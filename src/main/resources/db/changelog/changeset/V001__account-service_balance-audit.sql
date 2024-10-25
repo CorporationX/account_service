@@ -5,5 +5,5 @@ CREATE TABLE balance_audit (
     authorized_balance numeric(10, 2)NOT NULL,
     actual_balance numeric(10, 2)NOT NULL,
     operation_id BIGINT NOT NULL,
-    created_at timestamptz DEFAULT current_timestamp,
+    created_at timestamptz DEFAULT current_timestamp
 );

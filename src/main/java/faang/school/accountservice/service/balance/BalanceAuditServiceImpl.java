@@ -16,26 +16,26 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
 
     @Transactional
     @Override
-    public void saveAudit(Balance balance) {
+    public void saveAudit(BalanceTest balance) {
         BalanceAudit balanceAudit = new BalanceAudit().builder()
-                    .authorizedBalance(balance.getAuthorizedBalance())
-                    .actualBalance(balance.getActualBalance())
-                    .createdAt(LocalDateTime.now())
-                    .number(balace.getAccount.getNumber)
-                    .build();
+                .authorizedBalance(balance.getAuthorizedBalance())
+                .actualBalance(balance.getActualBalance())
+                .createdAt(LocalDateTime.now())
+                .number(balance.getAccount().getNumber())
+                .build();
 
         balanceAuditRepository.save(balanceAudit);
     }
 
     @Transactional
-    public void updateAudit(Balance balance) {
+    public void updateAudit(BalanceTest balance) {
         BalanceAudit audit = balanceAuditRepository.findById(balance.getId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Audit with %s id not found", balance.getId())));
         audit.builder()
-                .authorizedBalance(balance.getAuthorizedBalance)
-                .actualBalance(balance.getActualBalance)
+                .authorizedBalance(balance.getAuthorizedBalance())
+                .actualBalance(balance.getActualBalance())
                 .createdAt(LocalDateTime.now())
-                .number(balace.getAccount.getNumber)
+                .number(balance.getAccount().getNumber())
                 .build();
         balanceAuditRepository.save(audit);
     }
