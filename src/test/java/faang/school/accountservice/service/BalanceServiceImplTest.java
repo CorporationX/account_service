@@ -58,7 +58,6 @@ class BalanceServiceImplTest {
     @Test
     void create_whenOk() {
         service.create(balanceDto);
-        balance.nextVersion();
 
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
                 .save(balance);
@@ -76,7 +75,6 @@ class BalanceServiceImplTest {
                 .save(captor.capture());
 
         Balance actual = captor.getValue();
-        balanceDto.nextVersion();
         Assertions.assertNotNull(actual.getUpdatedAt());
         Assertions.assertNull(actual.getCreatedAt());
         Assertions.assertEquals(balanceDto.getVersion(), actual.getVersion());
