@@ -31,9 +31,9 @@ CREATE TRIGGER update_account_updated_at
 INSERT INTO account (number, user_id, type, currency, status)
 VALUES (14534523124, 1, 'PERSONAL', 'RUB', 'ACTIVE'),
        (45927037032456, 1, 'PERSONAL', 'RUB', 'ACTIVE'),
-       (2397205732457, 2, 'PERSONAL', 'RUB', 'ACTIVE'),
-       (328943571239, 2, 'CURRENCY', 'USD', 'ACTIVE'),
-       (59728975298, 3, 'PERSONAL', 'RUB', 'ACTIVE'),
+       (2397205732457, 2, 'INDIVIDUAL', 'RUB', 'ACTIVE'),
+       (328943571239, 2, 'PREPAID', 'USD', 'ACTIVE'),
+       (59728975298, 3, 'INDIVIDUAL', 'RUB', 'ACTIVE'),
        (549072784387, 3, 'PERSONAL', 'RUB', 'ACTIVE');
 
 INSERT INTO account (number, project_id, type, currency, status)
@@ -45,3 +45,18 @@ VALUES (23892656235, 1, 'BUSINESS', 'RUB', 'ACTIVE'),
        (934579023752, 3, 'BUSINESS', 'RUB', 'ACTIVE'),
        (934579038845852, 4, 'BUSINESS', 'RUB', 'BLOCKED'),
        (93457903336434, 4, 'BUSINESS', 'RUB', 'BLOCKED');
+
+CREATE TABLE IF NOT EXISTS free_account_number
+(
+    account_type VARCHAR(32)      NOT NULL,
+    number       VARCHAR(20)      NOT NULL,
+    CONSTRAINT pk_free_account_number PRIMARY KEY (account_type, number)
+);
+
+CREATE TABLE IF NOT EXISTS account_numbers_sequence
+(
+    id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE NOT NULL,
+    count          BIGINT DEFAULT 0                                       NOT NULL,
+    account_type   VARCHAR(32)                                            NOT NULL,
+    version        BIGINT DEFAULT 1                                       NOT NULL
+);
