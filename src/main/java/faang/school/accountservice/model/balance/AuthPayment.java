@@ -14,9 +14,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ import java.util.UUID;
 
 import static faang.school.accountservice.model.balance.AuthPaymentStatus.ACTIVE;
 
+@EqualsAndHashCode
 @Builder
 @Getter
 @Setter
@@ -53,15 +56,11 @@ public class AuthPayment {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Version
     @Column(name = "version")
     private long version;
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }
