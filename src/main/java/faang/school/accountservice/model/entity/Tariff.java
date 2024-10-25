@@ -12,4 +12,5 @@ public class Tariff {
     @Id
     @GeneratedValue
     private Long id;
+
 }
