@@ -1,21 +1,21 @@
 CREATE TABLE payment_owners (
-    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     external_id BIGINT NOT NULL,
     type VARCHAR(32) NOT NULL,
     created_at timestamptz DEFAULT current_timestamp NOT NULL
 );
 
 CREATE TABLE payment_accounts (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_number VARCHAR(20) NOT NULL UNIQUE,
-    owner_id bigint NOT NULL,
+    owner_id UUID NOT NULL,
     type VARCHAR(32) NOT NULL,
     currency VARCHAR(8) NOT NULL,
     status VARCHAR(32) DEFAULT 'ACTIVE' NOT NULL,
     created_at timestamptz DEFAULT current_timestamp NOT NULL,
     updated_at timestamptz DEFAULT current_timestamp NOT NULL,
     closed_at timestamptz,
-    version bigint DEFAULT 0 NOT NULL,
+    version BIGINT DEFAULT 0 NOT NULL,
 
     CONSTRAINT fk_owner_id FOREIGN KEY (owner_id) REFERENCES payment_owners(id)
 );

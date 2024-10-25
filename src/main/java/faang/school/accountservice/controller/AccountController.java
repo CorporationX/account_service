@@ -50,15 +50,15 @@ public class AccountController {
         }
     }
 
-    @PutMapping("/freeze")
+    @PutMapping("/suspend")
     public AccountDto freezeAccount(@RequestParam String number) {
-        Account account = accountService.freezeAccount(number);
+        Account account = accountService.suspendAccount(number);
         return accountMapper.toAccountDto(account);
     }
 
-    @PutMapping("/unfreeze")
+    @PutMapping("/activate")
     public AccountDto unfreezeAccount(@RequestParam String number) {
-        Account account = accountService.unfreezeAccount(number);
+        Account account = accountService.activateAccount(number);
         return accountMapper.toAccountDto(account);
     }
 

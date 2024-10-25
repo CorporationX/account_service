@@ -55,25 +55,25 @@ public class AccountService {
     }
 
     @Transactional
-    public Account freezeAccount(String number) {
+    public Account suspendAccount(String number) {
         validateAccountNumber(number);
         Account account = accountRepository.findByAccountNumber(number).orElseThrow();
         if (account.getStatus().equals(AccountStatus.ACTIVE)) {
-            account.setStatus(AccountStatus.FROZEN);
+            account.setStatus(AccountStatus.SUSPENDED);
         } else {
-            throw new IllegalStateException("Cannot freeze a non-ACTIVE account");
+            throw new IllegalStateException("Cannot suspend a non-ACTIVE account");
         }
         return account;
     }
 
     @Transactional
-    public Account unfreezeAccount(String number) {
+    public Account activateAccount(String number) {
         validateAccountNumber(number);
         Account account = accountRepository.findByAccountNumber(number).orElseThrow();
-        if (account.getStatus().equals(AccountStatus.FROZEN)) {
+        if (account.getStatus().equals(AccountStatus.SUSPENDED)) {
             account.setStatus(AccountStatus.ACTIVE);
         } else {
-            throw new IllegalStateException("Cannot unfreeze a non-FROZEN account");
+            throw new IllegalStateException("Cannot activate a non-SUSPENDED account");
         }
         return account;
     }

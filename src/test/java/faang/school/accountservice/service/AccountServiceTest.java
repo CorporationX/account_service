@@ -76,29 +76,29 @@ class AccountServiceTest {
     }
 
     @Test
-    void freezeAccount_shouldFreezeAccount() {
+    void suspendAccount_shouldSuspendAccount() {
         account.setStatus(AccountStatus.ACTIVE);
         when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
 
-        accountService.freezeAccount(accountNumber);
+        accountService.suspendAccount(accountNumber);
 
         verify(accountRepository).findByAccountNumber(accountNumber);
     }
 
     @Test
-    void freezeAccount_shouldThrowExceptionForNonActiveAccount() {
-        account.setStatus(AccountStatus.FROZEN);
+    void suspendAccount_shouldThrowExceptionForNonActiveAccount() {
+        account.setStatus(AccountStatus.SUSPENDED);
         when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
 
-        assertThrows(IllegalStateException.class, () -> accountService.freezeAccount(accountNumber));
+        assertThrows(IllegalStateException.class, () -> accountService.suspendAccount(accountNumber));
     }
 
     @Test
-    void unfreezeAccount_shouldUnfreezeAccount() {
-        account.setStatus(AccountStatus.FROZEN);
+    void activateAccount_shouldActiveAccount() {
+        account.setStatus(AccountStatus.SUSPENDED);
         when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
 
-        accountService.unfreezeAccount(accountNumber);
+        accountService.activateAccount(accountNumber);
 
         verify(accountRepository).findByAccountNumber(accountNumber);
     }
