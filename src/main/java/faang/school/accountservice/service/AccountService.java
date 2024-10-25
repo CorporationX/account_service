@@ -50,7 +50,7 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public List<Account> getAccountByOwner(Long externalId, OwnerType type) {
+    public List<Account> getAccountsByOwner(Long externalId, OwnerType type) {
         return accountRepository.findByOwner(externalId, type);
     }
 
