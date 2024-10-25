@@ -1,10 +1,9 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.account.Status;
+import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
-import faang.school.accountservice.exception.account.AccountNotFoundException;
-import faang.school.accountservice.exception.account.GenerateAccountNumberException;
+import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountValidator validator;
-    private final List<GeneratorAccountNumber> generatorAccountNumbers;
 
     @Transactional
     public Account openAccount(Account account) {
@@ -28,48 +26,62 @@ public class AccountService {
 
         Account finalAccount = account;
 
-        String accountNumber = generatorAccountNumbers.stream()
-                .filter(item -> finalAccount.getType().equals(item.getAccountType()))
-                .findFirst()
-                .orElseThrow(() -> new GenerateAccountNumberException(finalAccount.getType()))
-                .generateNumber();
-
-        account.setStatus(Status.ACTIVE);
+        String accountNumber = "408124878517";
+        account.setStatus(AccountStatus.ACTIVE);
         account.setNumber(accountNumber);
         account.setCreatedAt(LocalDateTime.now());
 
-        account = accountRepository.save(account);
+        saveAccount(account);
 
         return account;
     }
 
     @Transactional(readOnly = true)
-    public Account getAccountById(Long id) {
+    public Account getAccountById(UUID id) {
         return findAccountById(id);
     }
 
     @Transactional
-    public Account closeAccount(Long id) {
+    public Account closeAccount(UUID id) {
         Account account = findAccountById(id);
-        validator.validateCloseAccount(account);
+        validator.validateNotActiveAccount(account);
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-        account.setStatus(Status.CLOSED);
+        account.setStatus(AccountStatus.CLOSED);
         account.setClosedAt(currentDateTime);
         account.setUpdatedAt(currentDateTime);
 
-        try {
-            account = accountRepository.save(account);
-            accountRepository.flush();
-        } catch (OptimisticLockingFailureException exception) {
-            throw new AccountHasBeenUpdateException(id);
-        }
+        saveAccount(account);
 
         return account;
     }
 
-    private Account findAccountById(Long id) {
+    @Transactional
+    public Account blockAccount(UUID id) {
+        Account account = findAccountById(id);
+        validator.validateNotActiveAccount(account);
+
+        account.setStatus(AccountStatus.BLOCKED);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        saveAccount(account);
+
+        return account;
+    }
+
+    private Account findAccountById(UUID id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new AccountNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(Account.class, id));
+    }
+
+    private Account saveAccount(Account account) {
+        try {
+            account = accountRepository.save(account);
+            accountRepository.flush();
+        } catch (OptimisticLockingFailureException exception) {
+            throw new AccountHasBeenUpdateException(account.getId());
+        }
+
+        return account;
     }
 }

@@ -3,17 +3,17 @@ package faang.school.accountservice.validator;
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.account.Status;
 import faang.school.accountservice.exception.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static faang.school.accountservice.enums.account.AccountStatus.ACTIVE;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class AccountValidator {
-
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
 
@@ -29,13 +29,13 @@ public class AccountValidator {
         }
     }
 
-    public void validateCloseAccount(Account account) {
-        if (account.getStatus() != Status.ACTIVE) {
-            throw new ValidationException("Only active accounts can be closed");
+    public void validateNotActiveAccount(Account account) {
+        if (account.getStatus() != ACTIVE) {
+            throw new ValidationException("Only active accounts can be closed/blocked");
         }
     }
 
-    public void checkInputAuthorOrProject(Account account) {
+    private void checkInputAuthorOrProject(Account account) {
         Long userId = account.getUserId();
         Long projectId = account.getProjectId();
 
@@ -57,7 +57,7 @@ public class AccountValidator {
             log.warn("Пользователь {} не был найден в userService", userId);
         }
 
-        throw new ValidationException("User id=%s not exist", userId);
+        throw new ValidationException("User id=%s does not exist", userId);
     }
 
     private void checkProjectExists(Long projectId) {
@@ -69,6 +69,6 @@ public class AccountValidator {
             log.warn("Проект {} не был найден в projectService", projectId);
         }
 
-        throw new ValidationException("Project id=%s not exist", projectId);
+        throw new ValidationException("Project id=%s does not exist", projectId);
     }
 }

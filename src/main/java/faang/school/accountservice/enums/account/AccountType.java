@@ -1,6 +1,6 @@
 package faang.school.accountservice.enums.account;
 
-public enum Type {
+public enum AccountType {
     PERSONAL,
     BUSINESS,
 }

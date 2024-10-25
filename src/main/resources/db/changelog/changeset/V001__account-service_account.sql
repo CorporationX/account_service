@@ -1,12 +1,12 @@
 CREATE TABLE account
 (
-    id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id             UUID NOT NULL PRIMARY KEY,
     number         VARCHAR(20) NOT NULL,
     user_id        BIGINT,
     project_id     BIGINT,
     type           VARCHAR(30) NOT NULL,
     currency       VARCHAR(10) NOT NULL,
-    status         VARCHAR(15) NOT NULL,
+    status         VARCHAR(16) NOT NULL,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP,
     closed_at      TIMESTAMP,
@@ -16,5 +16,5 @@ CREATE TABLE account
     CONSTRAINT fk_project FOREIGN KEY (project_id) REFERENCES project (id)
 );
 
-CREATE INDEX idx_user ON account (user_id);
-CREATE INDEX idx_number ON account (number);
+CREATE INDEX idx_account_user_id ON account (user_id);
+CREATE INDEX idx_account_number ON account (number);
