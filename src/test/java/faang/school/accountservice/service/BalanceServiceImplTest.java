@@ -51,7 +51,7 @@ class BalanceServiceImplTest {
                 .thenReturn(balanceDto);
         Mockito.lenient().when(mapper.toEntity(balanceDto))
                 .thenReturn(balance);
-        Mockito.lenient().when(balanceJpaRepository.findBalanceByAccount_Id(accountId))
+        Mockito.lenient().when(balanceJpaRepository.findBalanceByAccountId(accountId))
                 .thenReturn(balance);
     }
 
@@ -92,7 +92,7 @@ class BalanceServiceImplTest {
         Mockito.verify(mapper, Mockito.times(1))
                 .toDto(balance);
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
-                .findBalanceByAccount_Id(accountId);
+                .findBalanceByAccountId(accountId);
 
     }
 

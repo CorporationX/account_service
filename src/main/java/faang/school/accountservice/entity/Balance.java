@@ -9,9 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,21 +32,20 @@ public class Balance {
     private Account account;
 
     @Column(name = "cur_auth_balance")
-    private double curAuthBalance;
+    private BigDecimal curAuthBalance;
 
     @Column(name = "cur_fact_balance")
-    private double curFactBalance;
+    private BigDecimal curFactBalance;
 
     @Column(name = "created_at")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "version", nullable = false)
+    @Version
     private int version;
-
-    public void nextVersion() {
-        this.version++;
-    }
 }
