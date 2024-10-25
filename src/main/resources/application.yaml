@@ -13,6 +13,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        init_payment: init_payment_channel
+        progress_payment: progress_payment_channel
+        result_progress_payment: result_progress_payment_channel
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

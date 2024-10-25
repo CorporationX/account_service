@@ -11,7 +11,7 @@ import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 @RequiredArgsConstructor
-@Mapper(componentModel = "spring", typeConversionPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class BalanceMapper {
     protected AccountRepository repository;
 
