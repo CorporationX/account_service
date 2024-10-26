@@ -1,6 +1,5 @@
 package faang.school.accountservice.service.balance;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.exception.ValidationException;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
@@ -18,8 +17,8 @@ import static faang.school.accountservice.util.fabrics.MoneyFabric.buildMoney;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BalanceValidatorTest {
-    private static final UUID BALANCE_ID = UuidCreator.getTimeBased();
-    private static final UUID AUTH_PAYMENT_ID = UuidCreator.getTimeBased();
+    private static final UUID BALANCE_ID = UUID.randomUUID();
+    private static final UUID AUTH_PAYMENT_ID = UUID.randomUUID();
 
     private final BalanceValidator balanceValidator = new BalanceValidator();
 

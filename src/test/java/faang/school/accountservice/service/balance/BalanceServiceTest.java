@@ -1,6 +1,5 @@
 package faang.school.accountservice.service.balance;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
@@ -32,8 +31,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceTest {
-    private static final UUID BALANCE_ID = UuidCreator.getTimeBased();
-    private static final UUID AUTH_PAYMENT_ID = UuidCreator.getTimeBased();
+    private static final UUID BALANCE_ID = UUID.randomUUID();
+    private static final UUID AUTH_PAYMENT_ID = UUID.randomUUID();
 
     @Mock
     private BalanceRepository balanceRepository;
@@ -196,7 +195,7 @@ class BalanceServiceTest {
 
         assertThatThrownBy(() -> balanceService.findAuthPaymentBiId(AUTH_PAYMENT_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Authorization payment with id:", AUTH_PAYMENT_ID);
+                .hasMessageContaining("%s id=%s not found", AuthPayment.class.getName(), AUTH_PAYMENT_ID);
     }
 
     @Test
@@ -216,7 +215,7 @@ class BalanceServiceTest {
 
         assertThatThrownBy(() -> balanceService.findById(BALANCE_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Balance by id:", BALANCE_ID);
+                .hasMessageContaining("%s id=%s not found", Balance.class.getName(), BALANCE_ID);
     }
 
     @Test
