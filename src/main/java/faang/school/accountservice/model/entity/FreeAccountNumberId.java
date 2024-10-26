@@ -24,5 +24,5 @@ public class FreeAccountNumberId {
 
     @Column(name = "account_number", nullable = false, length = 20)
     @Size(min = 12, max = 20, message = "Length of the account number must be between 12 and 20 characters")
-    private Long accountNumber;
+    private String accountNumber;
 }
