@@ -7,7 +7,6 @@ import faang.school.accountservice.mapper.balance.BalanceMapper;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.repository.PaymentAccountRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
-import faang.school.accountservice.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
