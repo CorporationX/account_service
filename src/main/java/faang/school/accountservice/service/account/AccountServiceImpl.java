@@ -57,9 +57,8 @@ public class AccountServiceImpl implements AccountService {
         if (updateAccountDto.accountType() != null) {
             account.setAccountType(updateAccountDto.accountType());
         }
-        account.setUpdatedAt(LocalDateTime.now());
         accountRepository.save(account);
-        log.info("Account {} updated", account);
+        log.info("Account {} updated", account.getId());
     }
 
     @Override
