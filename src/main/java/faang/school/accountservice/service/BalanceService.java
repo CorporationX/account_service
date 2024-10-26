@@ -2,11 +2,13 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.balance.Balance;
-import faang.school.accountservice.reposiory.AccountRepository;
-import faang.school.accountservice.reposiory.BalanceRepository;
+import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,25 +18,18 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
 
     @Transactional
-    public Balance createBalance(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow();
-
-        Balance newBalance = Balance.builder()
+    public Balance createBalance() {
+        Balance balance = Balance.builder()
                 .authorization(0.0)
                 .actual(0.0)
-                .account(account)
                 .build();
 
-        account.setBalance(newBalance);
-         accountRepository.save(account);
-
-        return newBalance;
+        return balanceRepository.save(balance);
     }
 
     @Transactional
-    public Balance updateBalance(Balance balance) {
-        Account account = accountRepository.findById(balance.getAccount().getId())
+    public Balance updateBalance(UUID accountUuid, Balance balance) {
+        Account account = accountRepository.findById(accountUuid)
                 .orElseThrow();
 
         Balance storedBalance = account.getBalance();
@@ -45,8 +40,8 @@ public class BalanceService {
     }
 
     @Transactional(readOnly = true)
-    public Balance getBalance(Long accountId) {
-        Account account = accountRepository.findById(accountId)
+    public Balance getBalance(UUID accountUuid) {
+        Account account = accountRepository.findById(accountUuid)
                 .orElseThrow();
 
         return account.getBalance();

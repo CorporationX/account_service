@@ -1,13 +1,9 @@
 package faang.school.accountservice.model.balance;
 
-import faang.school.accountservice.model.account.Account;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -21,6 +17,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,8 +28,9 @@ import java.time.LocalDateTime;
 @Table(name = "balances")
 public class Balance {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name = "authorization_balance", nullable = false)
     private Double authorization;
@@ -53,8 +51,4 @@ public class Balance {
     @Column(name = "version", nullable = false)
     @Version
     private Long version;
-
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
 }

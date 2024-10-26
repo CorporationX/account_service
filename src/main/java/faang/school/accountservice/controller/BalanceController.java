@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/balances")
@@ -23,22 +25,15 @@ public class BalanceController {
     private final BalanceMapper balanceMapper;
 
     @GetMapping
-    public BalanceDto getBalance(@RequestParam @NotBlank Long accountId) {
-        Balance balance = balanceService.getBalance(accountId);
+    public BalanceDto getBalance(@RequestParam @NotBlank UUID accountUuid) {
+        Balance balance = balanceService.getBalance(accountUuid);
         return balanceMapper.toDto(balance);
     }
 
-    @PostMapping
-    public BalanceDto createBalance(@Valid @RequestParam Long accountId) {
-        Balance savedBalance = balanceService.createBalance(accountId);
-
-        return balanceMapper.toDto(savedBalance);
-    }
-
     @PutMapping
-    public BalanceDto updateBalance(@Valid @RequestBody BalanceDto balanceDto) {
+    public BalanceDto updateBalance(@RequestParam @NotBlank UUID accountUuid, @Valid @RequestBody BalanceDto balanceDto) {
         Balance balance = balanceMapper.toEntity(balanceDto);
-        Balance savedBalance = balanceService.updateBalance(balance);
+        Balance savedBalance = balanceService.updateBalance(accountUuid, balance);
 
         return balanceMapper.toDto(savedBalance);
     }
