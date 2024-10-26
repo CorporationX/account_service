@@ -58,13 +58,13 @@ public class AuthPayment {
     @Column(name = "version")
     private long version;
 
-//    @PrePersist
-//    protected void onCreate() {
-//        status = AuthPaymentStatus.ACTIVE;
-//        createdAt = LocalDateTime.now();
-//        updatedAt = LocalDateTime.now();
-//        version = 0L;
-//    }
+    @PrePersist
+    protected void onCreate() {
+        status = AuthPaymentStatus.ACTIVE;
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        version = 0L;
+    }
 
     @PreUpdate
     protected void onUpdate() {

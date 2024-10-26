@@ -65,20 +65,20 @@ public class Balance {
     @OneToMany(mappedBy = "balance")
     private List<AuthPayment> authorizationPayments;
 
-//    @PrePersist
-//    protected void onCreate() {
-//        if (authBalance == null) {
-//            authBalance = BigDecimal.ZERO;
-//        }
-//        if (currentBalance == null) {
-//            currentBalance = BigDecimal.ZERO;
-//        }
-//        createdAt = LocalDateTime.now();
-//        updatedAt = LocalDateTime.now();
-//    }
+    @PrePersist
+    protected void onCreate() {
+        if (authBalance == null) {
+            authBalance = BigDecimal.ZERO;
+        }
+        if (currentBalance == null) {
+            currentBalance = BigDecimal.ZERO;
+        }
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 
-//    @PreUpdate
-//    protected void onUpdate() {
-//        updatedAt = LocalDateTime.now();
-//    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
