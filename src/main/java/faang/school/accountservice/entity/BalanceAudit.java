@@ -28,7 +28,7 @@ public class BalanceAudit {
     private String number;
 
     @Column(name = "version", nullable = false)
-    private long version;
+    private long balanceVersion;
 
     @Column(name = "authorized_balance", nullable = false)
     private BigDecimal authorizedBalance;

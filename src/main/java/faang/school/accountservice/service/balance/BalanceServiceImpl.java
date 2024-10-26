@@ -67,11 +67,12 @@ public class BalanceServiceImpl implements BalanceService {
             balance.setAuthorizedBalance(balanceDto.getAuthorizedBalance());
             balance.setActualBalance(balanceDto.getActualBalance());
             log.info("Successfully updated balance for account with id: {}", balanceId);
+            var updatedBalance = balanceRepository.save(balance);
 
-            var audit = balanceAuditService.saveAudit(balance);
+            var audit = balanceAuditService.saveAudit(updatedBalance);
             log.info("Successfully updated audit for balance with id: {}", audit.getId());
 
-            return balanceMapper.toDto(balanceRepository.save(balance));
+            return balanceMapper.toDto(updatedBalance);
         } catch (OptimisticLockException ex) {
             log.error("Optimistic lock exception occurred for balance with id: {}", balanceId, ex);
             throw new ConcurrentModificationException("The balance was modified by another transaction", ex);
