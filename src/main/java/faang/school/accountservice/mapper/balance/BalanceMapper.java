@@ -1,7 +1,7 @@
 package faang.school.accountservice.mapper.balance;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.Balance;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

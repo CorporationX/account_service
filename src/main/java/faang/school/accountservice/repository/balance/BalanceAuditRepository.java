@@ -1,4 +1,4 @@
-package faang.school.accountservice.repository;
+package faang.school.accountservice.repository.balance;
 
 import faang.school.accountservice.entity.BalanceAudit;
 import org.springframework.data.jpa.repository.JpaRepository;

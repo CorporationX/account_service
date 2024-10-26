@@ -1,12 +1,14 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.entity.PaymentAccount;
 import faang.school.accountservice.exception.UnauthorizedAccessException;
 import faang.school.accountservice.mapper.balance.BalanceMapper;
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.repository.PaymentAccountRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
+import faang.school.accountservice.service.audit.BalanceAuditService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
@@ -27,6 +29,7 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final PaymentAccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditService balanceAuditService;
 
     @Override
     public BalanceDto getBalance(Long balanceId, Long userId) {
@@ -47,6 +50,8 @@ public class BalanceServiceImpl implements BalanceService {
         Balance balance = initializeBalance(accountId);
         BalanceDto balanceDto = balanceMapper.toDto(balanceRepository.save(balance));
         log.info("Successfully created balance for account with id: {}", accountId);
+        var audit = balanceAuditService.saveAudit(balance);
+        log.info("Successfully updated audit for balance with id: {}", audit.getId());
         return balanceDto;
     }
 
@@ -62,6 +67,9 @@ public class BalanceServiceImpl implements BalanceService {
             balance.setAuthorizedBalance(balanceDto.getAuthorizedBalance());
             balance.setActualBalance(balanceDto.getActualBalance());
             log.info("Successfully updated balance for account with id: {}", balanceId);
+
+            var audit = balanceAuditService.saveAudit(balance);
+            log.info("Successfully updated audit for balance with id: {}", audit.getId());
 
             return balanceMapper.toDto(balanceRepository.save(balance));
         } catch (OptimisticLockException ex) {

@@ -4,7 +4,6 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.PaymentAccountStatus;
 import faang.school.accountservice.enums.PaymentAccountType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -27,11 +27,10 @@ public class BalanceAudit {
     @Column(name = "number", nullable = false)
     private String number;
 
-    @Version
+    @Column(name = "version", nullable = false)
     private long version;
 
     @Column(name = "authorized_balance", nullable = false)
-    @JoinColumn(name = "authorized_balance")
     private BigDecimal authorizedBalance;
 
     @Column(name = "actual_balance", nullable = false)

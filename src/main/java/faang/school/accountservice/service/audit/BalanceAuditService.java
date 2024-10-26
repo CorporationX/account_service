@@ -1,9 +1,9 @@
 package faang.school.accountservice.service.audit;
 
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
 
 public interface BalanceAuditService {
-    void saveAudit(Balance balance);
-    void updateAudit(Balance balance);
+    BalanceAudit saveAudit(Balance balance);
     void deleteAudit(Long auditId);
 }
