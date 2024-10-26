@@ -4,6 +4,7 @@ import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.model.enums.Currency;
 import faang.school.accountservice.model.enums.OwnerType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,33 +12,31 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@ToString
-@Entity
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Entity
 @Table(name = "account")
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     @Column(name = "account_number", length = 20, nullable = false, unique = true)
@@ -73,6 +72,9 @@ public class Account {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Balance balance;
 
     @Version
     @Column(name = "version", nullable = false)
