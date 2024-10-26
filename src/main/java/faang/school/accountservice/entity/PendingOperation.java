@@ -1,6 +1,7 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.OperationState;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,10 +19,16 @@ public class PendingOperation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "account_id")
     private Long accountId;
+
+    @Column(name = "amount")
     private BigDecimal amount;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private OperationState state;
 }
