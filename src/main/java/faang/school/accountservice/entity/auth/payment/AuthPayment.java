@@ -1,5 +1,6 @@
-package faang.school.accountservice.model.balance;
+package faang.school.accountservice.entity.auth.payment;
 
+import faang.school.accountservice.entity.balance.Balance;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static faang.school.accountservice.model.balance.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
 
 @EqualsAndHashCode
 @Builder
@@ -52,7 +52,7 @@ public class AuthPayment {
     private AuthPaymentStatus status = ACTIVE;
 
     @Builder.Default
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default

@@ -1,6 +1,6 @@
 package faang.school.accountservice.repository.balance;
 
-import faang.school.accountservice.model.balance.AuthPayment;
+import faang.school.accountservice.entity.auth.payment.AuthPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

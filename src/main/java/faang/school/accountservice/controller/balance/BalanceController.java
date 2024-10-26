@@ -2,7 +2,7 @@ package faang.school.accountservice.controller.balance;
 
 import faang.school.accountservice.dto.balance.response.BalanceResponseDto;
 import faang.school.accountservice.mapper.balance.BalanceMapper;
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

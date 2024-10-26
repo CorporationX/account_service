@@ -1,6 +1,6 @@
 package faang.school.accountservice.util.fabrics;
 
-import faang.school.accountservice.model.Account;
+import faang.school.accountservice.entity.Account;
 import lombok.experimental.UtilityClass;
 
 import java.util.UUID;

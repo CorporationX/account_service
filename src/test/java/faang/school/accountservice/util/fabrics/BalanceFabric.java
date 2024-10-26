@@ -1,6 +1,6 @@
 package faang.school.accountservice.util.fabrics;
 
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.balance.Balance;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;

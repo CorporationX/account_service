@@ -1,6 +1,7 @@
-package faang.school.accountservice.model.balance;
+package faang.school.accountservice.entity.balance;
 
-import faang.school.accountservice.model.Account;
+import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.auth.payment.AuthPayment;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,7 +51,7 @@ public class Balance {
     private BigDecimal currentBalance = BigDecimal.ZERO;
 
     @Builder.Default
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default

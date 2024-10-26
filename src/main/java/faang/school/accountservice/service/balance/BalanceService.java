@@ -1,21 +1,26 @@
 package faang.school.accountservice.service.balance;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import faang.school.accountservice.dto.Money;
+import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.auth.payment.AuthPayment;
+import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.exception.ResourceNotFoundException;
-import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.balance.AuthPayment;
-import faang.school.accountservice.model.balance.AuthPaymentStatus;
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.exception.auth.payment.AuthPaymentHasBeenUpdatedException;
+import faang.school.accountservice.exception.balance.BalanceHasBeenUpdatedException;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import static faang.school.accountservice.entity.auth.payment.AuthPaymentBuilder.build;
+import static faang.school.accountservice.entity.balance.BalanceBuilder.build;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,25 +32,20 @@ public class BalanceService {
 
     @Transactional
     public Balance createBalance(Account account) {
-        Balance newBalance = Balance.builder()
-                .id(UuidCreator.getTimeBased())
-                .account(account)
-                .build();
-        return balanceRepository.save(newBalance);
+        Balance newBalance = build(account);
+
+        return saveBalance(newBalance);
     }
 
     @Transactional
     public AuthPayment authorizePayment(UUID balanceId, Money money) {
         Balance balance = findById(balanceId);
         balanceValidator.checkFreeAmount(balance, money);
-        AuthPayment payment = AuthPayment.builder()
-                .id(UUID.randomUUID())
-                .balance(balance)
-                .amount(money.amount())
-                .build();
+        AuthPayment payment = build(balance, money);
         balance.setAuthBalance(balance.getAuthBalance().add(money.amount()));
-        balanceRepository.save(balance);
-        return authPaymentRepository.save(payment);
+
+        saveBalance(balance);
+        return saveAuthPayment(payment);
     }
 
     @Transactional
@@ -62,8 +62,8 @@ public class BalanceService {
         payment.setAmount(money.amount());
         payment.setStatus(AuthPaymentStatus.CLOSED);
 
-        balanceRepository.save(balance);
-        return authPaymentRepository.save(payment);
+        saveBalance(balance);
+        return saveAuthPayment(payment);
     }
 
     @Transactional
@@ -77,8 +77,8 @@ public class BalanceService {
 
         payment.setStatus(AuthPaymentStatus.REJECTED);
 
-        balanceRepository.save(balance);
-        return authPaymentRepository.save(payment);
+        saveBalance(balance);
+        return saveAuthPayment(payment);
     }
 
     @Transactional
@@ -86,7 +86,7 @@ public class BalanceService {
         Balance balance = findById(balanceId);
         BigDecimal currentBalance = balance.getCurrentBalance();
         balance.setCurrentBalance(currentBalance.add(money.amount()));
-        return balanceRepository.save(balance);
+        return saveBalance(balance);
     }
 
     @Transactional
@@ -98,18 +98,38 @@ public class BalanceService {
         BigDecimal newCurrentBalance = currentBalance.add(currentBalance.multiply(multiplier));
         balance.setCurrentBalance(newCurrentBalance);
 
-        return balanceRepository.save(balance);
+        return saveBalance(balance);
     }
 
     @Transactional(readOnly = true)
     public AuthPayment findAuthPaymentBiId(UUID id) {
         return authPaymentRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Authorization payment with id:", id));
+                new ResourceNotFoundException(AuthPayment.class, id));
     }
 
     @Transactional(readOnly = true)
     public Balance findById(UUID id) {
         return balanceRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Balance by id:", id));
+                new ResourceNotFoundException(Balance.class, id));
+    }
+
+    private Balance saveBalance(Balance balance) {
+        try {
+            balance = balanceRepository.save(balance);
+            balanceRepository.flush();
+        } catch (OptimisticLockingFailureException exception) {
+            throw new BalanceHasBeenUpdatedException(balance.getId());
+        }
+        return balance;
+    }
+
+    private AuthPayment saveAuthPayment(AuthPayment payment) {
+        try {
+            payment = authPaymentRepository.save(payment);
+            authPaymentRepository.flush();
+        } catch (OptimisticLockingFailureException exception) {
+            throw new AuthPaymentHasBeenUpdatedException(payment.getId());
+        }
+        return payment;
     }
 }

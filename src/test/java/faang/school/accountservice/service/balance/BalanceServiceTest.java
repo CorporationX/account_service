@@ -2,11 +2,11 @@ package faang.school.accountservice.service.balance;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import faang.school.accountservice.dto.Money;
+import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.auth.payment.AuthPayment;
+import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.exception.ResourceNotFoundException;
-import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.balance.AuthPayment;
-import faang.school.accountservice.model.balance.AuthPaymentStatus;
-import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
 import org.junit.jupiter.api.DisplayName;

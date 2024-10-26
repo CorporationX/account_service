@@ -3,15 +3,15 @@ package faang.school.accountservice.service.balance;
 import com.github.f4b6a3.uuid.UuidCreator;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.exception.ValidationException;
-import faang.school.accountservice.model.balance.AuthPayment;
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.auth.payment.AuthPayment;
+import faang.school.accountservice.entity.balance.Balance;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static faang.school.accountservice.model.balance.AuthPaymentStatus.ACTIVE;
-import static faang.school.accountservice.model.balance.AuthPaymentStatus.CLOSED;
+import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.CLOSED;
 import static faang.school.accountservice.util.fabrics.AuthPaymentFabric.buildAuthPayment;
 import static faang.school.accountservice.util.fabrics.BalanceFabric.buildBalance;
 import static faang.school.accountservice.util.fabrics.MoneyFabric.buildMoney;

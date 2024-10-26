@@ -2,14 +2,14 @@ package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.exception.ValidationException;
-import faang.school.accountservice.model.balance.AuthPayment;
-import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.entity.auth.payment.AuthPayment;
+import faang.school.accountservice.entity.balance.Balance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
-import static faang.school.accountservice.model.balance.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
 
 @Slf4j
 @RequiredArgsConstructor
