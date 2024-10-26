@@ -22,12 +22,8 @@ import java.util.List;
 public class SavingsAccount {
 
     @Id
-    @Positive
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "number", length = 20, nullable = false, unique = true)
-    private String number;
 
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false)
@@ -36,10 +32,7 @@ public class SavingsAccount {
     @OneToOne(mappedBy = "savingsAccount")
     private Tariff tariff;
 
-    @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL)
-    private List<TariffHistory> tariffHistory;
-
-    @Column(name = "last_date_before_interest")
+    @Column(name = "last_date_before_interest", nullable = false)
     private LocalDateTime lastDateBeforeInterest;
 
     @Version
@@ -47,7 +40,7 @@ public class SavingsAccount {
     private Long version;
 
     @CreationTimestamp
-    @Column(name = "date_of_creation")
+    @Column(name = "date_of_creation", nullable = false)
     private LocalDateTime dateOfCreation;
 
     @UpdateTimestamp

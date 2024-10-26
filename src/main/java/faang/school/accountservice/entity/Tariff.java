@@ -1,15 +1,14 @@
 package faang.school.accountservice.entity;
 
 
-import faang.school.accountservice.enums.AccountRate;
 import faang.school.accountservice.enums.TariffType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -21,7 +20,6 @@ import java.util.List;
 public class Tariff {
 
     @Id
-    @Positive
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -30,14 +28,13 @@ public class Tariff {
     private TariffType type;
 
     @ElementCollection
-    @CollectionTable(name = "tariff_betting_history", joinColumns = @JoinColumn(name = "tariff_id"))
     @Column(name = "betting_value")
-    private List<Double> bettingHistory;
+    private List<BigDecimal> bettingHistory;
 
     @OneToOne
-    @JoinColumn(name = "savings_account_id")
+    @JoinColumn(name = "savings_account_id", nullable = false)
     private SavingsAccount savingsAccount;
 
     @Column(name = "current_rate", nullable = false)
-    private Double currentRate;
+    private BigDecimal currentRate;
 }

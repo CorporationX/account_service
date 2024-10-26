@@ -23,3 +23,16 @@ server:
 logging:
   level:
     root: info
+
+interest:
+  accrual:
+    days: 365
+    hours: 24
+
+scheduled:
+  task:
+    cronForAccrual: "0 0 0 * * *"
+    cronForGenerateNumbers: "0 0 * * * *"
+
+poolThreads:
+  poolForAccrual: 10

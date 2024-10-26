@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class TariffServiceImpl implements TariffService {
     }
 
     @Override
-    public TariffDto changeRateTariffAndSaveHistory(Long id, Double newRate) {
+    public TariffDto changeRateTariff(Long id, BigDecimal newRate) {
         Tariff tariff = tariffRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Tariff not found with id " + id));
 

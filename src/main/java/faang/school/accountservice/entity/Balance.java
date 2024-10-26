@@ -1,16 +1,9 @@
 package faang.school.accountservice.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,10 +19,10 @@ public class Balance {
     private Account account;
 
     @Column(name = "cur_auth_balance")
-    private double curAuthBalance;
+    private BigDecimal curAuthBalance;
 
     @Column(name = "cur_fact_balance")
-    private double curFactBalance;
+    private BigDecimal curFactBalance;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -37,10 +30,7 @@ public class Balance {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Version
     @Column(name = "version", nullable = false)
     private int version;
-
-    public void nextVersion() {
-        this.version++;
-    }
 }

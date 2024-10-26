@@ -1,7 +1,5 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.dto.TariffHistoryDto;
-import faang.school.accountservice.entity.TariffHistory;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

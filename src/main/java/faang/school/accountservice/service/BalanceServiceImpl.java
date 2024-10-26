@@ -22,7 +22,6 @@ public class BalanceServiceImpl implements BalanceService {
     public void create(BalanceDto balanceDto) {
         validateBalanceDto(balanceDto);
         Balance balance = mapper.toEntity(balanceDto);
-        balance.setVersion(1);
         balanceRepository.save(balance);
     }
 
@@ -34,7 +33,6 @@ public class BalanceServiceImpl implements BalanceService {
 
         Balance balance = mapper.toEntity(balanceDto);
         balance.setUpdatedAt(LocalDateTime.now());
-        balance.nextVersion();
 
         balanceRepository.save(balance);
     }
@@ -42,8 +40,7 @@ public class BalanceServiceImpl implements BalanceService {
     public BalanceDto getBalance(long accountId) {
         checkIsAccountExist(accountId);
         Balance balance = balanceRepository.findBalanceByAccount_Id(accountId);
-        BalanceDto dto = mapper.toDto(balance);
-        return dto;
+        return mapper.toDto(balance);
     }
 
     private void checkIsAccountExist(long accountId) {
