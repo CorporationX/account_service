@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.balance;
 
+import faang.school.accountservice.entity.PaymentAccount;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class Balance {
 
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    private PaymentAccount account;
 
     @Column(name = "authorized_balance")
     private BigDecimal authorizedBalance;

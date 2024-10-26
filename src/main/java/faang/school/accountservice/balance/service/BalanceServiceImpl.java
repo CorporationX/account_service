@@ -1,10 +1,13 @@
 package faang.school.accountservice.balance.service;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.entity.PaymentAccount;
 import faang.school.accountservice.exception.UnauthorizedAccessException;
 import faang.school.accountservice.mapper.balance.BalanceMapper;
 import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.repository.PaymentAccountRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
+import faang.school.accountservice.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
@@ -22,8 +25,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     private static final BigDecimal INITIAL_BALANCE = BigDecimal.ZERO;
 
-    BalanceRepository balanceRepository;
-    BalanceMapper balanceMapper;
+    private final BalanceRepository balanceRepository;
+    private final AccountService accountService;
+    private final PaymentAccountRepository accountRepository;
+    private final BalanceMapper balanceMapper;
 
     @Override
     public BalanceDto getBalance(Long balanceId, Long userId) {
@@ -58,7 +63,7 @@ public class BalanceServiceImpl implements BalanceService {
                     });
             balance.setAuthorizedBalance(balanceDto.getAuthorizedBalance());
             balance.setActualBalance(balanceDto.getActualBalance());
-            log.info("Successfully updated balance for account with id: {}", accountId);
+            log.info("Successfully updated balance for account with id: {}", balanceId);
 
             return balanceMapper.toDto(balanceRepository.save(balance));
         } catch (OptimisticLockException ex) {
@@ -69,14 +74,20 @@ public class BalanceServiceImpl implements BalanceService {
 
     private Balance initializeBalance(Long accountId) {
         Balance balance = new Balance();
-        balance.setAccount(accountService.findById(accountId));
+        PaymentAccount account = accountRepository.findById(accountId).orElseThrow(
+                () -> {
+                    log.error("Account with id: {} not found", accountId);
+                    return new EntityNotFoundException(String.format("Account with id: %d not found", accountId));
+                }
+        );
+        balance.setAccount(account);
         balance.setAuthorizedBalance(INITIAL_BALANCE);
         balance.setActualBalance(INITIAL_BALANCE);
         return balance;
     }
 
     private void checkPermissions(Balance balance, Long userId) {
-        Long accountOwnerId = balance.getAccount().getUserId;
+        Long accountOwnerId = balance.getAccount().getUserId();
         if (!accountOwnerId.equals(userId)) {
             throw new UnauthorizedAccessException("User is not authorized to access this resource");
         }
