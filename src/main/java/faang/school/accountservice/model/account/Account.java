@@ -2,6 +2,7 @@ package faang.school.accountservice.model.account;
 
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.balance.Balance;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +15,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,6 +27,8 @@ import java.time.LocalDateTime;
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -33,9 +38,6 @@ public class Account {
     private Long id;
 
     // Add owners
-
-    @Column(name = "amount", nullable = false)
-    private BigDecimal amount;
 
     @Column(name = "currency", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -55,6 +57,6 @@ public class Account {
     @Version
     private Long version;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST)
     private Balance balance;
 }

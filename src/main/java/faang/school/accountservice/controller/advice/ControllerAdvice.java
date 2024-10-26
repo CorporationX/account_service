@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
-public class UniversalControllerAdvice {
+public class ControllerAdvice {
 
     private final Map<Class<? extends Exception>, HttpStatus> exceptionStatusMap = Map.of(
             EntityNotFoundException.class, HttpStatus.NOT_FOUND,
