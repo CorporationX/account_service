@@ -26,7 +26,6 @@ public class BalanceServiceImpl implements BalanceService {
     private static final BigDecimal INITIAL_BALANCE = BigDecimal.ZERO;
 
     private final BalanceRepository balanceRepository;
-    private final AccountService accountService;
     private final PaymentAccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
 
