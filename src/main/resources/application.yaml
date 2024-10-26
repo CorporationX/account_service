@@ -23,3 +23,8 @@ server:
 logging:
   level:
     root: info
+account:
+  type:
+    length: 4
+  number:
+    length: 16
