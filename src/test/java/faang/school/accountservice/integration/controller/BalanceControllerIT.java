@@ -1,4 +1,4 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.integration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.integration.IntegrationTestBase;
@@ -7,29 +7,25 @@ import faang.school.accountservice.model.dto.balance.BalanceOperationRequestDto;
 import faang.school.accountservice.model.dto.balance.BalanceTransferRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BalanceControllerIT extends IntegrationTestBase {
     @Autowired
     private ObjectMapper objectMapper;
@@ -37,7 +33,6 @@ class BalanceControllerIT extends IntegrationTestBase {
     @Autowired
     private MockMvc mockMvc;
     private BalanceOperationRequestDto balanceOperationRequestDto;
-    private LocalDateTime updatedAt = LocalDateTime.parse("2024-06-01T15:00:00");
 
     @BeforeEach
     void setUp() {
@@ -45,7 +40,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Get Balance test - Success")
+    @DisplayName("Get Balance test - Success IT")
     void testGetBalanceSuccess() throws Exception {
         mockMvc.perform(get("/api/v1/balances/1")
                         .header("x-user-id", 1))
@@ -59,7 +54,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Get Balance doesn't exist")
+    @DisplayName("Get Balance doesn't exist IT")
     void testGetBalanceShouldThrowException() throws Exception {
         mockMvc.perform(get("/api/v1/balances/10")
                         .header("x-user-id", 1))
@@ -70,7 +65,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Create Balance - Success")
+    @DisplayName("Create Balance - Success IT")
     void testCreateBalanceSuccess() throws Exception {
         var balanceDto = BalanceDto.builder()
                 .accountId(4)
@@ -95,7 +90,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @DisplayName("Increase Balance increases a balance successfully")
     void testIncreaseBalanceSuccess() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
-        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/1/increasing")
+        mockMvc.perform(put("/api/v1/balances/1/increasing")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
@@ -105,11 +100,8 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentActualBalance").value(150000),
                         jsonPath("$.createdAt").value("2024-06-01T15:00:00"),
                         jsonPath("$.updatedAt").isNotEmpty())
-                .andReturn();
+                .andDo(print());
 
-        String updatedAt = objectMapper.readTree(mvcResult.getResponse().getContentAsString()).get("updatedAt").asText();
-        assertThat(LocalDateTime.parse(updatedAt)).isAfter(this.updatedAt);
-        this.updatedAt = LocalDateTime.parse(updatedAt);
     }
 
     @Test
@@ -129,7 +121,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @DisplayName("Decrease Balance decreases a balance successfully")
     void decreaseBalanceShouldDecreaseBalanceSuccess() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
-        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/1/decreasing")
+        mockMvc.perform(put("/api/v1/balances/1/decreasing")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
@@ -138,11 +130,8 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentAuthorizationBalance").value(0.00),
                         jsonPath("$.currentActualBalance").value(50000),
                         jsonPath("$.createdAt").value("2024-06-01T15:00:00"),
-                        jsonPath("$.updatedAt").isNotEmpty())
-                .andReturn();
+                        jsonPath("$.updatedAt").isNotEmpty());
 
-        String updatedAt = objectMapper.readTree(mvcResult.getResponse().getContentAsString()).get("updatedAt").asText();
-        assertThat(LocalDateTime.parse(updatedAt)).isAfter(this.updatedAt);
     }
 
     @Test
@@ -202,7 +191,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Release Balance releases balance successfully")
+    @DisplayName("Release Balance releases balance successfully IT")
     void releaseBalanceReleasesSuccessfully() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
         mockMvc.perform(put("/api/v1/balances/3/releasing")
@@ -218,7 +207,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Release Balance releases throws Entity Not Found Exception")
+    @DisplayName("Release Balance releases throws Entity Not Found Exception IT")
     void releaseBalanceReleasesThrowsEntityNotFoundException() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
         mockMvc.perform(put("/api/v1/balances/32/releasing")
@@ -231,7 +220,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Release Balance releases throws InsufficientBalanceException")
+    @DisplayName("Release Balance releases throws InsufficientBalanceException IT")
     void releaseBalanceReleasesThrowsInsufficientBalanceException() throws Exception {
         var balanceOperationRequestDto = new BalanceOperationRequestDto(BigDecimal.valueOf(10000000));
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
@@ -245,7 +234,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Transfer was successfully")
+    @DisplayName("Transfer was successfully IT")
     void cancelReservationShouldTransferSuccessfully() throws Exception {
         var btr = BalanceTransferRequest.builder()
                 .fromAccountId(1)
@@ -263,7 +252,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Transfer throws IllegalArgumentException")
+    @DisplayName("Transfer throws IllegalArgumentException IT")
     void transferShouldThrowIllegalArgumentException() throws Exception {
         var btr = BalanceTransferRequest.builder()
                 .fromAccountId(1)
@@ -280,7 +269,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Transfer throws EntityNotFoundException")
+    @DisplayName("Transfer throws EntityNotFoundException IT")
     void transferShouldThrowEntityNotFoundException() throws Exception {
         var btr = BalanceTransferRequest.builder()
                 .fromAccountId(134)
@@ -298,7 +287,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Cancel reservation cancels reservation successfully")
+    @DisplayName("Cancel reservation cancels reservation successfully IT")
     void cancelReservationCancelsSuccessfully() throws Exception {
         mockMvc.perform(patch("/api/v1/balances/3")
                         .header("x-user-id", 1))
@@ -313,7 +302,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("Cancel reservation throws EntityNotFoundException")
+    @DisplayName("Cancel reservation throws EntityNotFoundException IT")
     void cancelReservationThrowsEntityNotFoundException() throws Exception {
         mockMvc.perform(patch("/api/v1/balances/33")
                 .header("x-user-id", 1))

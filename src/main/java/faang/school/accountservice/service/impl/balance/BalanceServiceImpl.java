@@ -52,7 +52,6 @@ public class BalanceServiceImpl implements BalanceService {
         if (balance.getCurrentActualBalance().compareTo(amount) < 0)
             throw new InsufficientBalanceException("Insufficient funds on balance");
         balance.setCurrentActualBalance(balance.getCurrentActualBalance().subtract(amount));
-        balance.setUpdatedAt(LocalDateTime.now());
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
 
