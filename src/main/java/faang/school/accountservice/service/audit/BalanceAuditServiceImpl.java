@@ -27,6 +27,7 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
     }
 
     @Transactional
+    @Override
     public void deleteAudit(Long auditId) {
         balanceAuditRepository.deleteById(auditId);
     }
