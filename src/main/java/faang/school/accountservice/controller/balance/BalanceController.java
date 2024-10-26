@@ -1,6 +1,6 @@
 package faang.school.accountservice.controller.balance;
 
-import faang.school.accountservice.balance.service.BalanceService;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import lombok.RequiredArgsConstructor;

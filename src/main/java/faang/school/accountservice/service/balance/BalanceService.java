@@ -1,4 +1,4 @@
-package faang.school.accountservice.balance.service;
+package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
 

@@ -4,4 +4,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account-service_balance-audit.sql
   - include:
-      file: db/changelog/changeset/V002__account_service_balance.sql
+      file: db/changelog/changeset/V002__account-service_balance.sql

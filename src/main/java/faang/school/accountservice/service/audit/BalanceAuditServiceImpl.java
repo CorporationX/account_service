@@ -1,6 +1,7 @@
-package faang.school.accountservice.service.balance;
+package faang.school.accountservice.service.audit;
 
 import faang.school.accountservice.entity.BalanceAudit;
+import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
 
     @Transactional
     @Override
-    public void saveAudit(BalanceTest balance) {
+    public void saveAudit(Balance balance) {
         BalanceAudit balanceAudit = new BalanceAudit().builder()
                 .authorizedBalance(balance.getAuthorizedBalance())
                 .actualBalance(balance.getActualBalance())
@@ -27,7 +28,7 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
     }
 
     @Transactional
-    public void updateAudit(BalanceTest balance) {
+    public void updateAudit(Balance balance) {
         BalanceAudit audit = balanceAuditRepository.findById(balance.getId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Audit with %s id not found", balance.getId())));
         audit.builder()
