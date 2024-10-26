@@ -1,9 +1,13 @@
 package faang.school.accountservice.exception;
 
-public class ResourceNotFoundException extends RuntimeException {
-    private static final String RESOURCE_NOT_FOUND = "%s %s not found";
+import org.springframework.http.HttpStatus;
 
-    public ResourceNotFoundException(String resourceName, Object resourceId) {
-        super(String.format(RESOURCE_NOT_FOUND, resourceName, resourceId));
+import java.util.UUID;
+
+public class ResourceNotFoundException extends ApiException {
+    private static final String MESSAGE = "%s id=%s not found";
+
+    public ResourceNotFoundException(Class<?> resource, UUID id) {
+        super(MESSAGE, HttpStatus.NOT_FOUND, resource.getName(), id);
     }
 }
