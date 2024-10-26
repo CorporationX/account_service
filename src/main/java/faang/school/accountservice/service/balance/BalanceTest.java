@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.balance;
 
+import faang.school.accountservice.entity.PaymentAccount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +16,5 @@ public class BalanceTest {
     private Long id;
     private BigDecimal authorizedBalance;
     private BigDecimal actualBalance;
-    private AccountTest account;
+    private PaymentAccount account;
 }
