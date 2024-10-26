@@ -23,7 +23,6 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
                 .createdAt(LocalDateTime.now())
                 .number(balance.getAccount().getNumber())
                 .build();
-
         balanceAuditRepository.save(balanceAudit);
     }
 
