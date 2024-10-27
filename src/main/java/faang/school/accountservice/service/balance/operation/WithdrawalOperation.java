@@ -1,13 +1,13 @@
-package faang.school.accountservice.service.balance;
+package faang.school.accountservice.service.balance.operation;
 
-import faang.school.accountservice.enums.BalanceChangeType;
+import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.exception.InsufficientFundsException;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
-public class WithdrawalChangeType implements BalanceChange {
+public class WithdrawalOperation implements Operation {
 
     @Override
     public BigDecimal calculateBalance(BigDecimal balance, BigDecimal amount) {
@@ -19,7 +19,7 @@ public class WithdrawalChangeType implements BalanceChange {
     }
 
     @Override
-    public BalanceChangeType getChangeType() {
-        return BalanceChangeType.WITHDRAWAL;
+    public OperationType getChangeType() {
+        return OperationType.WITHDRAWAL;
     }
 }

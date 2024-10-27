@@ -1,7 +1,8 @@
 package faang.school.accountservice.dto.balance;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import faang.school.accountservice.enums.BalanceChangeType;
+import faang.school.accountservice.enums.ChangeBalanceType;
+import faang.school.accountservice.enums.OperationType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
@@ -14,6 +15,9 @@ public record AmountChangeRequest(
         BigDecimal amount,
 
         @JsonProperty(required = true)
-        BalanceChangeType changeType
+        OperationType operationType,
+
+        @JsonProperty(required = true)
+        ChangeBalanceType changeBalanceType
 ) {
 }

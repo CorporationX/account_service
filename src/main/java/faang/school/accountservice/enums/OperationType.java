@@ -1,6 +1,6 @@
 package faang.school.accountservice.enums;
 
-public enum BalanceChangeType {
+public enum OperationType {
     REPLENISHMENT,
     WITHDRAWAL,
 }

@@ -1,14 +1,12 @@
 package faang.school.accountservice.service.balance;
 
-import faang.school.accountservice.dto.balance.AmountChangeRequest;
-import faang.school.accountservice.dto.balance.BalanceDto;
-import faang.school.accountservice.enums.BalanceChangeType;
-import faang.school.accountservice.exception.InsufficientFundsException;
+import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.service.balance.operation.Operation;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +22,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -43,23 +40,16 @@ public class BalanceServiceImplTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private Map<BalanceChangeType, BalanceChange> balanceChanges;
+    private Map<OperationType, Operation> balanceChanges;
 
     @InjectMocks
     private BalanceServiceImpl balanceService;
 
-    private BalanceChange replenishment;
-    private BalanceChange withdrawal;
     private Balance balance;
     private Account account;
-    private BalanceDto balanceDto;
 
     @BeforeEach
     public void setUp() {
-        replenishment = new ReplenishmentChangeType();
-        withdrawal = new WithdrawalChangeType();
-        balanceChanges.put(replenishment.getChangeType(), replenishment);
-        balanceChanges.put(withdrawal.getChangeType(), withdrawal);
 
         account = Account.builder()
                 .id(1L)
@@ -71,17 +61,6 @@ public class BalanceServiceImplTest {
                 .actualBalance(BigDecimal.ZERO)
                 .authBalance(BigDecimal.ZERO)
                 .build();
-
-        balanceDto = balanceMapper.toBalanceDto(balance);
-    }
-
-    @Test
-    public void testRegisterBalanceChange() {
-        balanceService.registerBalanceChange(replenishment.getChangeType(), replenishment);
-        balanceService.registerBalanceChange(withdrawal.getChangeType(), withdrawal);
-
-        verify(balanceChanges).put(replenishment.getChangeType(), replenishment);
-        verify(balanceChanges).put(withdrawal.getChangeType(), withdrawal);
     }
 
     @Test
@@ -144,98 +123,5 @@ public class BalanceServiceImplTest {
         balanceService.createBalance(1L);
 
         verify(balanceRepository).save(any(Balance.class));
-    }
-
-    @Test
-    public void testChangeBalanceFailWithNotBalanceChangeType() {
-        AmountChangeRequest amountChangeRequest = AmountChangeRequest.builder()
-                .amount(BigDecimal.valueOf(10.0))
-                .changeType(BalanceChangeType.WITHDRAWAL)
-                .build();
-        balanceService.registerBalanceChange(replenishment.getChangeType(), replenishment);
-        when(balanceRepository.findById(1L)).thenReturn(Optional.of(balance));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> balanceService.changeBalance(1L, amountChangeRequest));
-    }
-
-    @Test
-    public void testChangeBalanceSuccess() {
-        AmountChangeRequest amountChangeRequest = AmountChangeRequest.builder()
-                .amount(BigDecimal.valueOf(10.0))
-                .changeType(BalanceChangeType.REPLENISHMENT)
-                .build();
-
-        balanceService.registerBalanceChange(replenishment.getChangeType(), replenishment);
-        when(balanceRepository.findById(1L)).thenReturn(Optional.of(balance));
-        balanceDto = balanceService.changeBalance(1L, amountChangeRequest);
-
-        verify(balanceRepository).save(any(Balance.class));
-        assertEquals(BigDecimal.valueOf(10.0), balanceDto.actualBalance());
-    }
-
-    @Test
-    public void testChangeBalanceFailWithNotEnoughBalance() {
-        AmountChangeRequest amountChangeRequest = AmountChangeRequest.builder()
-                .amount(BigDecimal.valueOf(10.0))
-                .changeType(BalanceChangeType.WITHDRAWAL)
-                .build();
-        balanceService.registerBalanceChange(withdrawal.getChangeType(), withdrawal);
-        when(balanceRepository.findById(1L)).thenReturn(Optional.of(balance));
-
-        assertThrows(InsufficientFundsException.class,
-                () -> balanceService.changeBalance(1L, amountChangeRequest));
-    }
-
-    @Test
-    public void testChangeBalanceFailAuthBalanceMoreThanActualBalance() {
-        balance = Balance.builder()
-                .id(1L)
-                .actualBalance(BigDecimal.valueOf(20))
-                .authBalance(BigDecimal.valueOf(20))
-                .build();
-        AmountChangeRequest amountChangeRequest = AmountChangeRequest.builder()
-                .amount(BigDecimal.valueOf(10.0))
-                .changeType(BalanceChangeType.WITHDRAWAL)
-                .build();
-
-        balanceService.registerBalanceChange(withdrawal.getChangeType(), withdrawal);
-        when(balanceRepository.findById(1L)).thenReturn(Optional.of(balance));
-
-        assertThrows(InsufficientFundsException.class,
-                () -> balanceService.changeBalance(1L, amountChangeRequest));
-    }
-
-    @Test
-    public void testReserveBalanceFailWithNotEnoughBalance() {
-        AmountChangeRequest amountChangeRequest = AmountChangeRequest.builder()
-                .amount(BigDecimal.valueOf(10.0))
-                .changeType(BalanceChangeType.REPLENISHMENT)
-                .build();
-        balanceService.registerBalanceChange(replenishment.getChangeType(), replenishment);
-        when(balanceRepository.findById(1L)).thenReturn(Optional.of(balance));
-
-        assertThrows(InsufficientFundsException.class,
-                () -> balanceService.reserveBalance(1L, amountChangeRequest));
-    }
-
-    @Test
-    public void testReserveBalanceSuccess() {
-        balance = Balance.builder()
-                .id(1L)
-                .actualBalance(BigDecimal.valueOf(20))
-                .authBalance(BigDecimal.ZERO)
-                .build();
-
-        AmountChangeRequest amountChangeRequest = AmountChangeRequest.builder()
-                .amount(BigDecimal.valueOf(10.0))
-                .changeType(BalanceChangeType.REPLENISHMENT)
-                .build();
-        balanceService.registerBalanceChange(replenishment.getChangeType(), replenishment);
-        when(balanceRepository.findById(1L)).thenReturn(Optional.of(balance));
-        balanceDto = balanceService.reserveBalance(1L, amountChangeRequest);
-
-        verify(balanceRepository).save(any(Balance.class));
-        assertEquals(BigDecimal.valueOf(10.0), balanceDto.authBalance());
     }
 }
