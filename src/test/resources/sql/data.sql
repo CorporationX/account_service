@@ -1,9 +1,11 @@
-ALTER SEQUENCE account_id_seq RESTART WITH 1;
-INSERT INTO account(account_number)
-VALUES ('234312346242'),
-       ('153264375432'),
-       ('436543678934'),
-       ('436543678934');
+insert into free_account_numbers(account_type, account_number) values ('INDIVIDUAL', '42000000000000000000');
+insert into account_numbers_sequence (account_type) values ('INDIVIDUAL');
+
+alter sequence account_id_seq restart with 1;
+insert into account(account_number, owner_id, owner_type, account_type, currency, account_status, version)
+values ('42000000000000000004', 1, 'USER', 'INDIVIDUAL', 'USD', 'ACTIVE', 1),
+       ('42000000000000000005', 2, 'PROJECT', 'CREDIT_OVERDUE', 'EUR', 'ACTIVE', 1),
+       ('42000000000000000006', 5, 'USER', 'INDIVIDUAL', 'RUB', 'ACTIVE', 1);
 
 ALTER SEQUENCE balance_id_seq RESTART WITH 1;
 INSERT INTO balance(account_id, current_authorization_balance, current_actual_balance, created_at, updated_at, version)
