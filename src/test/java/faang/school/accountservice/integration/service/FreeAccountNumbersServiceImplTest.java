@@ -6,6 +6,7 @@ import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.service.FreeAccountNumbersService;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,6 +23,8 @@ public class FreeAccountNumbersServiceImplTest extends IntegrationBaseTest {
     private FreeAccountNumbersRepository freeAccNumberRepo;
     @Autowired
     private AccountNumbersSequenceRepository sequenceRepository;
+    @Autowired
+    EntityManager manager;
 
     @Test
     void getUniqueAccountNumber_takeExisting() {
@@ -36,7 +39,6 @@ public class FreeAccountNumbersServiceImplTest extends IntegrationBaseTest {
 
     @Test
     void getUniqueAccountNumber_generateNew() {
-        assertTrue(sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).isEmpty());
         FreeAccountNumberId freeAccountNumberId = new FreeAccountNumberId(AccountType.CREDIT_OVERDUE,
                 FIRST_CREDIT_OVERDUE_CREDIT);
 
@@ -44,6 +46,8 @@ public class FreeAccountNumbersServiceImplTest extends IntegrationBaseTest {
             assertEquals(freeAccountNumberId, accNumber.getId());
         }, AccountType.CREDIT_OVERDUE);
 
+        manager.clear();//clear first-level, need to use it here
         assertTrue(sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).isPresent());
+        assertEquals(1, sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).get().getCounter());
     }
 }

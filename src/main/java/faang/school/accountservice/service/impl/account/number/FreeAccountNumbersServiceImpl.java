@@ -47,14 +47,10 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                 });
 
         long counter = sequence.getCounter();
-
-        boolean isIncremented = sequenceRepository.isIncremented(accountType, counter);
-        if (!isIncremented) {
-            throw new OptimisticLockingFailureException("Account with sequence %s is already in use"
-                    .formatted(counter));
-        }
-
         String finalNumber = assembleAccountNumber(accountType, counter);
+
+        sequence.setCounter(++counter);
+        sequenceRepository.save(sequence);
 
         return new FreeAccountNumber(new FreeAccountNumberId(accountType, finalNumber));
     }

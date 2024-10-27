@@ -14,16 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountNumberSequence, Long> {
-
-    @Query(nativeQuery = true, value = """
-            UPDATE account_numbers_sequence
-            SET COUNTER = COUNTER + 1
-            WHERE ACCOUNT_TYPE = :#{#accountType.toString()}
-            AND counter = :counter
-            """)
-    @Modifying
-    int incrementSequenceIfEquals(@Param("accountType") AccountType accountType, @Param("counter") long counter);
-
     @Query(nativeQuery = true, value = """
              INSERT INTO account_numbers_sequence (account_type)
              VALUES (:#{#accountType.toString()})
@@ -32,11 +22,6 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     void createNewSequence(AccountType accountType);
 
     Optional<AccountNumberSequence> findByAccountType(AccountType accountType);
-
-    @Transactional
-    default boolean isIncremented(AccountType accountType, long counter) {
-        return incrementSequenceIfEquals(accountType, counter) > 0;
-    }
 
     @Transactional
     default AccountNumberSequence createAndGetSequence(AccountType accountType) {
