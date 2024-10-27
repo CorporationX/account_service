@@ -34,8 +34,8 @@ public class PendingOperation {
     @Column(name = "amount")
     private BigDecimal amount;
 
-    @CreationTimestamp
     @Column(name = "created_at")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "state")

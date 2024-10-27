@@ -13,6 +13,7 @@ DELETE FROM databasechangelog
 WHERE filename = 'db/changelog/changeset/V001__account-service_balance-audit.sql';
 DELETE FROM databasechangelog
 WHERE filename = 'db/changelog/changeset/V003__account-service_pending_operations.sql';
+
 DELETE FROM databasechangelog
 WHERE filename = 'db/changelog/changeset/V005__account-service_pending_operations-rename.sql';
 DELETE FROM databasechangelog
