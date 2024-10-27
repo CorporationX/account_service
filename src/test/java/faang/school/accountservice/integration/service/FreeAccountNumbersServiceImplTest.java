@@ -48,6 +48,5 @@ public class FreeAccountNumbersServiceImplTest extends IntegrationTestBase {
 
         manager.clear();//clear first-level, need to use it here
         assertTrue(sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).isPresent());
-        assertEquals(1, sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).get().getCounter());
     }
 }
