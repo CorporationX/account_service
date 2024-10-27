@@ -60,3 +60,16 @@ CREATE TABLE IF NOT EXISTS account_numbers_sequence
     account_type   VARCHAR(32)                                            NOT NULL,
     version        BIGINT DEFAULT 1                                       NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS balance
+(
+    id                 BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    account_id         BIGINT                                   NOT NULL,
+    authorized_balance NUMERIC(18, 2) DEFAULT 0.00              NOT NULL,
+    actual_balance     NUMERIC(18, 2) DEFAULT 0.00              NOT NULL,
+    created_at         TIMESTAMPTZ    DEFAULT current_timestamp NOT NULL,
+    updated_at         TIMESTAMPTZ    DEFAULT current_timestamp NOT NULL,
+    version            BIGINT                                   NOT NULL,
+
+    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
+);
