@@ -22,7 +22,7 @@ class AccountControllerIT extends IntegrationTestBase {
 
     @Test
     void getAllAccounts_shouldReturnAllAccountsForOwner() throws Exception {
-        mockMvc.perform(get("/api/v1/accounts/owners")
+        mockMvc.perform(get("/api/v1/accounts")
                         .header("x-user-id", "1"))
                 .andExpectAll(status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),

@@ -25,7 +25,7 @@ public class AccountController {
     private final AccountService accountService;
     private final UserContext userContext;
 
-    @GetMapping("/owners")
+    @GetMapping
     public List<AccountDto> getAllAccounts() {
         long id = userContext.getUserId();
         return accountService.getAllAccountsByOwnerId(id);
