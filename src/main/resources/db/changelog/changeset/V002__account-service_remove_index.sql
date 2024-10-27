@@ -1,0 +1,1 @@
+DROP INDEX idx_payment_owners_external_type;
