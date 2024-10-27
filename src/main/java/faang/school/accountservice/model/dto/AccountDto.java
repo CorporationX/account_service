@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public record AccountDto(
         Long id,
+        String accountNumber,
         Long ownerId,
         @NotNull(message = "OwnerType must be set")
         OwnerType ownerType,

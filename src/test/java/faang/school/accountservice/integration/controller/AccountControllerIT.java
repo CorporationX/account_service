@@ -30,9 +30,10 @@ class AccountControllerIT extends IntegrationTestBase {
                         jsonPath("$[0].id").value(1),
                         jsonPath("$[0].ownerId").value(1),
                         jsonPath("$[0].ownerType").value("USER"),
-                        jsonPath("$[0].accountType").value("BUDGET_ACCOUNT"),
+                        jsonPath("$[0].accountType").value("INDIVIDUAL"),
                         jsonPath("$[0].currency").value("USD"),
-                        jsonPath("$[0].accountStatus").value("ACTIVE")
+                        jsonPath("$[0].accountStatus").value("ACTIVE"),
+                        jsonPath("$[0].accountNumber").value("42000000000000000004")
                 );
     }
 
@@ -45,7 +46,7 @@ class AccountControllerIT extends IntegrationTestBase {
                         jsonPath("$.id").value(1),
                         jsonPath("$.ownerId").value(1),
                         jsonPath("$.ownerType").value("USER"),
-                        jsonPath("$.accountType").value("BUDGET_ACCOUNT"),
+                        jsonPath("$.accountType").value("INDIVIDUAL"),
                         jsonPath("$.currency").value("USD"),
                         jsonPath("$.accountStatus").value("ACTIVE")
                 );
@@ -56,7 +57,7 @@ class AccountControllerIT extends IntegrationTestBase {
         String requestBody = """
                 {
                     "ownerType": "USER",
-                    "accountType": "BUDGET_ACCOUNT",
+                    "accountType": "INDIVIDUAL",
                     "currency": "USD"
                 }
                 """;
@@ -70,7 +71,7 @@ class AccountControllerIT extends IntegrationTestBase {
                         jsonPath("$.id").value(4),
                         jsonPath("$.ownerId").value(1),
                         jsonPath("$.ownerType").value("USER"),
-                        jsonPath("$.accountType").value("BUDGET_ACCOUNT"),
+                        jsonPath("$.accountType").value("INDIVIDUAL"),
                         jsonPath("$.currency").value("USD"),
                         jsonPath("$.accountStatus").value("ACTIVE")
                 ).andDo(result -> System.out.println(result.getResponse().getContentAsString()));
@@ -84,14 +85,4 @@ class AccountControllerIT extends IntegrationTestBase {
                 .andExpectAll(status().isNoContent()
                 );
     }
-
-    @Test
-    void closeAccount_shouldBlockAccount() throws Exception {
-        mockMvc.perform(put("/api/v1/accounts/closing/{id}", 1)
-                        .header("x-user-id", "1")
-                )
-                .andExpectAll(status().isNoContent()
-                );
-    }
-
 }

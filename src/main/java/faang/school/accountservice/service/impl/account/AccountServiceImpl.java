@@ -1,12 +1,13 @@
-package faang.school.accountservice.service.impl;
+package faang.school.accountservice.service.impl.account;
 
-import faang.school.accountservice.config.generator.AccountNumberGenerator;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.enums.AccountStatus;
+import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.validator.AccountValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
-    private final AccountNumberGenerator accountNumberGenerator;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,9 +43,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDto openAccount(long ownerId, AccountDto dto) {
-        String accountNumber = accountNumberGenerator.generateAccountNumber(); // Использую пока нет таски с генерацией
         Account account = accountMapper.toEntity(dto);
-        account.setAccountNumber(accountNumber);
+        freeAccountNumbersService.getUniqueAccountNumber(
+                (number) -> account.setAccountNumber(number.getId().getAccountNumber()),
+                AccountType.INDIVIDUAL);
         account.setOwnerId(ownerId);
         account.setOwnerType(dto.ownerType());
         Account savedAccount = accountRepository.save(account);
@@ -66,7 +68,6 @@ public class AccountServiceImpl implements AccountService {
     public void closeAccount(long ownerId, Long id) {
         Account account = findAccountById(id);
         accountValidator.validateAccountToClose(account, ownerId);
-        // проверка на то, что баланс положительный
         account.setUpdatedAt(LocalDateTime.now());
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());

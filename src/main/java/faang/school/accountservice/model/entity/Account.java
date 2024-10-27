@@ -11,28 +11,25 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@ToString
-@Entity
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Entity
 @Table(name = "account")
 public class Account {
 
@@ -47,19 +44,19 @@ public class Account {
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
     private OwnerType ownerType;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
     private Currency currency;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false)
     private AccountStatus accountStatus;
 
@@ -73,6 +70,9 @@ public class Account {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Version
     @Column(name = "version", nullable = false)
