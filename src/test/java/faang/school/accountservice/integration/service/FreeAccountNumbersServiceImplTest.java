@@ -36,7 +36,7 @@ public class FreeAccountNumbersServiceImplTest extends IntegrationBaseTest {
 
     @Test
     void getUniqueAccountNumber_generateNew() {
-//        assertTrue(sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).isEmpty());
+        assertTrue(sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).isEmpty());
         FreeAccountNumberId freeAccountNumberId = new FreeAccountNumberId(AccountType.CREDIT_OVERDUE,
                 FIRST_CREDIT_OVERDUE_CREDIT);
 
@@ -45,6 +45,5 @@ public class FreeAccountNumbersServiceImplTest extends IntegrationBaseTest {
         }, AccountType.CREDIT_OVERDUE);
 
         assertTrue(sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).isPresent());
-//        assertEquals(1, sequenceRepository.findByAccountType(AccountType.CREDIT_OVERDUE).get().getCounter());
     }
 }
