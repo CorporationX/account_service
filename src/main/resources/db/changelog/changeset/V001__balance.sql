@@ -1,10 +1,3 @@
---Заглушка - потом удалить!
-CREATE TABLE IF NOT EXISTS account
-(
-    id BIGSERIAL PRIMARY KEY,
-    account_number VARCHAR CHECK ( LENGTH(account_number) BETWEEN 12 AND 22)
-);
---------------------------------------
 CREATE TABLE IF NOT EXISTS balance
 (
     id                            BIGSERIAL PRIMARY KEY,
