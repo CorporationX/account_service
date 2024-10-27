@@ -1,6 +1,6 @@
 package faang.school.accountservice.config.redis;
 
-import faang.school.accountservice.listener.abstracts.EventMessageListener;
+import faang.school.accountservice.listener.redis.abstracts.EventMessageListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

@@ -14,7 +14,6 @@ import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@EnableAsync
 public class BalanceValidator {
     public void checkFreeAmount(Balance balance, Money money) {
         double freeAmount = balance.getCurrentBalance().subtract(balance.getAuthBalance()).doubleValue();

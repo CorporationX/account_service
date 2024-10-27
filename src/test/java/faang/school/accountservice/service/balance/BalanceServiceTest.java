@@ -31,7 +31,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceTest {
+    private static final UUID ACCOUNT_ID = UUID.randomUUID();
     private static final UUID BALANCE_ID = UUID.randomUUID();
+    private static final UUID PENDING_ID = UUID.randomUUID();
     private static final UUID AUTH_PAYMENT_ID = UUID.randomUUID();
 
     @Mock
@@ -52,7 +54,7 @@ class BalanceServiceTest {
         Account account = buildAccount();
         balanceService.createBalance(account);
 
-        verify(balanceRepository).save(any(Balance.class));
+        verify(balanceRepository).saveAndFlush(any(Balance.class));
     }
 
     @Test
@@ -65,13 +67,13 @@ class BalanceServiceTest {
         Money money = buildMoney(moneyAmount);
         when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.of(balance));
 
-        balanceService.authorizePayment(BALANCE_ID, money);
+        balanceService.authorizePayment(BALANCE_ID, PENDING_ID, money);
 
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
 
-        verify(balanceRepository).save(balanceCaptor.capture());
-        verify(authPaymentRepository).save(paymentCaptor.capture());
+        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        verify(authPaymentRepository).saveAndFlush(paymentCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getAuthBalance().doubleValue())
@@ -102,8 +104,8 @@ class BalanceServiceTest {
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
 
-        verify(balanceRepository).save(balanceCaptor.capture());
-        verify(authPaymentRepository).save(paymentCaptor.capture());
+        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        verify(authPaymentRepository).saveAndFlush(paymentCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getCurrentBalance().doubleValue())
@@ -134,8 +136,8 @@ class BalanceServiceTest {
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        verify(balanceRepository).save(balanceCaptor.capture());
-        verify(authPaymentRepository).save(paymentCaptor.capture());
+        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        verify(authPaymentRepository).saveAndFlush(paymentCaptor.capture());
 
         AuthPayment resultPayment = paymentCaptor.getValue();
         assertThat(resultPayment.getStatus())
@@ -161,7 +163,7 @@ class BalanceServiceTest {
 
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        verify(balanceRepository).save(balanceCaptor.capture());
+        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getCurrentBalance().doubleValue())
@@ -181,7 +183,7 @@ class BalanceServiceTest {
 
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        verify(balanceRepository).save(balanceCaptor.capture());
+        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getCurrentBalance().doubleValue())
@@ -225,6 +227,26 @@ class BalanceServiceTest {
         when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.of(balance));
 
         assertThat(balanceService.findById(BALANCE_ID))
+                .isEqualTo(balance);
+    }
+
+    @Test
+    @DisplayName("No balance by account id and throw exception")
+    void testFindByAccountIdThrowException() {
+        when(balanceRepository.findBalanceByAccountId(ACCOUNT_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> balanceService.findByAccountId(ACCOUNT_ID))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("%s id=%s not found", Account.class.getName(), ACCOUNT_ID);
+    }
+
+    @Test
+    @DisplayName("Find balance by account id successful")
+    void testFindBiAccountIdSuccessful() {
+        Balance balance = buildBalance(BALANCE_ID);
+        when(balanceRepository.findBalanceByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(balance));
+
+        assertThat(balanceService.findByAccountId(ACCOUNT_ID))
                 .isEqualTo(balance);
     }
 }

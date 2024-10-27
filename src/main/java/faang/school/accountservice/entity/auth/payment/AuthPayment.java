@@ -36,7 +36,6 @@ import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.
 @Entity
 public class AuthPayment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @ManyToOne

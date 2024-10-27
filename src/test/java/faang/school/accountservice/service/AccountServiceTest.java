@@ -4,10 +4,11 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
-import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.exception.ResourceNotFoundException;
+import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.account.AccountService;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,12 +22,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,8 +33,13 @@ import static org.mockito.Mockito.when;
 public class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
+
     @Mock
     private AccountValidator validator;
+
+    @Mock
+    private BalanceService balanceService;
+
     @InjectMocks
     private AccountService accountService;
 

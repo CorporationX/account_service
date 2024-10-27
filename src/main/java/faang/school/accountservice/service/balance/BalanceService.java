@@ -38,10 +38,10 @@ public class BalanceService {
     }
 
     @Transactional
-    public AuthPayment authorizePayment(UUID balanceId, Money money) {
+    public AuthPayment authorizePayment(UUID balanceId, UUID operationId, Money money) {
         Balance balance = findById(balanceId);
         balanceValidator.checkFreeAmount(balance, money);
-        AuthPayment payment = build(balance, money);
+        AuthPayment payment = build(operationId, balance, money.amount());
         balance.setAuthBalance(balance.getAuthBalance().add(money.amount()));
 
         saveBalance(balance);
@@ -113,10 +113,15 @@ public class BalanceService {
                 new ResourceNotFoundException(Balance.class, id));
     }
 
+    @Transactional(readOnly = true)
+    public Balance findByAccountId(UUID accountId) {
+        return balanceRepository.findBalanceByAccountId(accountId).orElseThrow(() ->
+                new ResourceNotFoundException(Account.class, accountId));
+    }
+
     private Balance saveBalance(Balance balance) {
         try {
-            balance = balanceRepository.save(balance);
-            balanceRepository.flush();
+            balance = balanceRepository.saveAndFlush(balance);
         } catch (OptimisticLockingFailureException exception) {
             throw new BalanceHasBeenUpdatedException(balance.getId());
         }
@@ -125,8 +130,7 @@ public class BalanceService {
 
     private AuthPayment saveAuthPayment(AuthPayment payment) {
         try {
-            payment = authPaymentRepository.save(payment);
-            authPaymentRepository.flush();
+            payment = authPaymentRepository.saveAndFlush(payment);
         } catch (OptimisticLockingFailureException exception) {
             throw new AuthPaymentHasBeenUpdatedException(payment.getId());
         }

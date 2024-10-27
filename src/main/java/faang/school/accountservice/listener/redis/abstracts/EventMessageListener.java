@@ -1,4 +1,4 @@
-package faang.school.accountservice.listener.abstracts;
+package faang.school.accountservice.listener.redis.abstracts;
 
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.Topic;

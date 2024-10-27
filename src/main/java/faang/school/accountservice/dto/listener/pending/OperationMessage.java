@@ -14,7 +14,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OperationMessageDto {
+public class OperationMessage {
     private UUID operationId;
     private UUID accountId;
     private String idempotencyKey;

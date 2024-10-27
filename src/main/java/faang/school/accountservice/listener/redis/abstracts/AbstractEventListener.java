@@ -1,4 +1,4 @@
-package faang.school.accountservice.listener.abstracts;
+package faang.school.accountservice.listener.redis.abstracts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
