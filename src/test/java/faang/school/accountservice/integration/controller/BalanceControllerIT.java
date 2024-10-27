@@ -5,6 +5,8 @@ import faang.school.accountservice.integration.IntegrationTestBase;
 import faang.school.accountservice.model.dto.balance.BalanceDto;
 import faang.school.accountservice.model.dto.balance.BalanceOperationRequestDto;
 import faang.school.accountservice.model.dto.balance.BalanceTransferRequest;
+import faang.school.accountservice.model.dto.balance.TransferResultDto;
+import faang.school.accountservice.service.BalanceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,15 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BalanceControllerIT extends IntegrationTestBase {
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private BalanceService balanceService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,7 +48,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @Test
     @DisplayName("Get Balance test - Success IT")
     void testGetBalanceSuccess() throws Exception {
-        mockMvc.perform(get("/api/v1/balances/1")
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/balances/1")
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -50,7 +56,12 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentAuthorizationBalance").value(0.00),
                         jsonPath("$.currentActualBalance").value(100000.00),
                         jsonPath("$.createdAt").value("2024-06-01T15:00:00"),
-                        jsonPath("$.updatedAt").value("2024-06-01T15:00:00"));
+                        jsonPath("$.updatedAt").value("2024-06-01T15:00:00"))
+                .andReturn();
+
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(1);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -76,21 +87,26 @@ class BalanceControllerIT extends IntegrationTestBase {
                 .build();
 
         var body = objectMapper.writeValueAsString(balanceDto);
-        mockMvc.perform(post("/api/v1/balances")
+        MvcResult mvcResult = mockMvc.perform(post("/api/v1/balances")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isCreated(),
                         jsonPath("$.id").value(4),
                         jsonPath("$.accountId").value(4),
                         jsonPath("$.currentActualBalance").value(90000.00),
-                        jsonPath("$.currentAuthorizationBalance").value(0.00));
+                        jsonPath("$.currentAuthorizationBalance").value(0.00))
+                .andReturn();
+
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(expected.id());
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
     @DisplayName("Increase Balance increases a balance successfully")
     void testIncreaseBalanceSuccess() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
-        mockMvc.perform(put("/api/v1/balances/1/increasing")
+        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/1/increasing")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
@@ -100,8 +116,11 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentActualBalance").value(150000),
                         jsonPath("$.createdAt").value("2024-06-01T15:00:00"),
                         jsonPath("$.updatedAt").isNotEmpty())
-                .andDo(print());
+                .andReturn();
 
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(1);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -121,7 +140,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @DisplayName("Decrease Balance decreases a balance successfully")
     void decreaseBalanceShouldDecreaseBalanceSuccess() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
-        mockMvc.perform(put("/api/v1/balances/1/decreasing")
+        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/1/decreasing")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
@@ -130,8 +149,12 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentAuthorizationBalance").value(0.00),
                         jsonPath("$.currentActualBalance").value(50000),
                         jsonPath("$.createdAt").value("2024-06-01T15:00:00"),
-                        jsonPath("$.updatedAt").isNotEmpty());
+                        jsonPath("$.updatedAt").isNotEmpty())
+                .andReturn();
 
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(1);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -151,7 +174,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @DisplayName("Reserve Balance - Success")
     void testReserveBalanceSuccess() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
-        mockMvc.perform(put("/api/v1/balances/1/reservation")
+        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/1/reservation")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
@@ -160,7 +183,12 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentAuthorizationBalance").value(50000.00),
                         jsonPath("$.currentActualBalance").value(50000),
                         jsonPath("$.createdAt").value("2024-06-01T15:00:00"),
-                        jsonPath("$.updatedAt").isNotEmpty());
+                        jsonPath("$.updatedAt").isNotEmpty())
+                .andReturn();
+
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(1);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -194,7 +222,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @DisplayName("Release Balance releases balance successfully IT")
     void releaseBalanceReleasesSuccessfully() throws Exception {
         var body = objectMapper.writeValueAsString(balanceOperationRequestDto);
-        mockMvc.perform(put("/api/v1/balances/3/releasing")
+        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/3/releasing")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
@@ -203,7 +231,12 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentAuthorizationBalance").value(0.00),
                         jsonPath("$.currentActualBalance").value(150000.00),
                         jsonPath("$.createdAt").value("2024-07-01T15:00:00"),
-                        jsonPath("$.updatedAt").isNotEmpty());
+                        jsonPath("$.updatedAt").isNotEmpty())
+                .andReturn();
+
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(3);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -243,12 +276,19 @@ class BalanceControllerIT extends IntegrationTestBase {
                 .build();
 
         var body = objectMapper.writeValueAsString(btr);
-        mockMvc.perform(put("/api/v1/balances/transferring")
+        MvcResult mvcResult = mockMvc.perform(put("/api/v1/balances/transferring")
                         .content(body).contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", 1))
                 .andExpectAll(status().isOk(),
                         jsonPath("$.fromBalance").value(90000),
-                        jsonPath("$.toBalance").value(60000));
+                        jsonPath("$.toBalance").value(60000))
+                .andReturn();
+
+        var transferResult = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), TransferResultDto.class);
+        var balanceFrom = balanceService.getBalance(1).currentActualBalance();
+        var balanceTo = balanceService.getBalance(2).currentActualBalance();
+        assertThat(transferResult.fromBalance()).isEqualTo(balanceFrom);
+        assertThat(transferResult.toBalance()).isEqualTo(balanceTo);
     }
 
     @Test
@@ -289,7 +329,7 @@ class BalanceControllerIT extends IntegrationTestBase {
     @Test
     @DisplayName("Cancel reservation cancels reservation successfully IT")
     void cancelReservationCancelsSuccessfully() throws Exception {
-        mockMvc.perform(patch("/api/v1/balances/3")
+        MvcResult mvcResult = mockMvc.perform(patch("/api/v1/balances/3")
                         .header("x-user-id", 1))
                 .andExpectAll(content().contentType(MediaType.APPLICATION_JSON),
                         status().isOk(),
@@ -298,7 +338,12 @@ class BalanceControllerIT extends IntegrationTestBase {
                         jsonPath("$.currentAuthorizationBalance").value(0.00),
                         jsonPath("$.currentActualBalance").value(200000.00),
                         jsonPath("$.createdAt").value("2024-07-01T15:00:00"),
-                        jsonPath("$.updatedAt").isNotEmpty());
+                        jsonPath("$.updatedAt").isNotEmpty())
+                .andReturn();
+
+        var expected = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), BalanceDto.class);
+        var result = balanceService.getBalance(3);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +39,7 @@ public class BalanceServiceImpl implements BalanceService {
     public BalanceDto increaseBalance(long balanceId, BigDecimal amount) {
         Balance balance = getBalanceOrThrow(balanceId);
         balance.setCurrentActualBalance(balance.getCurrentActualBalance().add(amount));
-        balance.setUpdatedAt(LocalDateTime.now());
-        Balance saved = balanceRepository.save(balance);
-        return balanceMapper.toDto(saved);
+        return balanceMapper.toDto(balance);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class BalanceServiceImpl implements BalanceService {
         if (balance.getCurrentActualBalance().compareTo(amount) < 0)
             throw new InsufficientBalanceException("Insufficient funds on balance");
         balance.setCurrentActualBalance(balance.getCurrentActualBalance().subtract(amount));
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        return balanceMapper.toDto(balance);
     }
 
     @Override
@@ -63,7 +60,7 @@ public class BalanceServiceImpl implements BalanceService {
             throw new InsufficientBalanceException("Insufficient funds on balance for reservation");
         balance.setCurrentActualBalance(balance.getCurrentActualBalance().subtract(amount));
         balance.setCurrentAuthorizationBalance(balance.getCurrentAuthorizationBalance().add(amount));
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        return balanceMapper.toDto(balance);
     }
 
     @Override
@@ -74,7 +71,7 @@ public class BalanceServiceImpl implements BalanceService {
             throw new InsufficientBalanceException("Cannot release more than the reserved amount");
         balance.setCurrentAuthorizationBalance(balance.getCurrentAuthorizationBalance().subtract(amount));
         //Нужна логика для отправки на другой счёт
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        return balanceMapper.toDto(balance);
     }
 
     @Override
@@ -83,7 +80,7 @@ public class BalanceServiceImpl implements BalanceService {
         Balance balance = getBalanceOrThrow(balanceId);
         balance.setCurrentActualBalance(balance.getCurrentActualBalance().add(balance.getCurrentAuthorizationBalance()));
         balance.setCurrentAuthorizationBalance(balance.getCurrentAuthorizationBalance().subtract(balance.getCurrentAuthorizationBalance()));
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        return balanceMapper.toDto(balance);
     }
 
     @Override
@@ -97,9 +94,7 @@ public class BalanceServiceImpl implements BalanceService {
             throw new InsufficientBalanceException("Insufficient funds on balance for transfer");
         fromBalance.setCurrentActualBalance(fromBalance.getCurrentActualBalance().subtract(amount));
         toBalance.setCurrentActualBalance(toBalance.getCurrentActualBalance().add(amount));
-        Balance from = balanceRepository.save(fromBalance);
-        Balance to = balanceRepository.save(toBalance);
-        return balanceMapper.toTransferResultDto(from, to);
+        return balanceMapper.toTransferResultDto(fromBalance, toBalance);
     }
 
     private Balance getBalanceOrThrow(long balanceId) {

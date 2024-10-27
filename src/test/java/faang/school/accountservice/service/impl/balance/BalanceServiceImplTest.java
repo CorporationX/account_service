@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -129,11 +130,9 @@ class BalanceServiceImplTest {
     @DisplayName("Increase Balance increases a balance successfully")
     void testIncreaseBalanceSuccess() {
         doReturn(Optional.of(balance1)).when(balanceRepository).findById(anyLong());
-        doReturn(balance1).when(balanceRepository).save(any(Balance.class));
         BalanceDto result = balanceService.increaseBalance(1L, BigDecimal.valueOf(100000.0));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper).toDto(any(Balance.class));
-        verify(balanceRepository).save(any(Balance.class));
         assertThat(result.currentActualBalance()).isEqualTo(BigDecimal.valueOf(200000.0));
     }
 
@@ -145,18 +144,15 @@ class BalanceServiceImplTest {
                 balanceService.increaseBalance(1L, BigDecimal.valueOf(100000.0)));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper, never()).toDto(any(Balance.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
     @DisplayName("Decrease Balance decreases a balance successfully")
     void decreaseBalanceShouldDecreaseBalanceSuccess() {
         doReturn(Optional.of(balance1)).when(balanceRepository).findById(anyLong());
-        doReturn(balance1).when(balanceRepository).save(any(Balance.class));
         BalanceDto result = balanceService.decreaseBalance(1L, BigDecimal.valueOf(30000.0));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper).toDto(any(Balance.class));
-        verify(balanceRepository).save(any(Balance.class));
         assertThat(result.currentActualBalance()).isEqualTo(BigDecimal.valueOf(70000.0));
     }
 
@@ -168,18 +164,15 @@ class BalanceServiceImplTest {
                 balanceService.decreaseBalance(1L, BigDecimal.valueOf(30000.0)));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper, never()).toDto(any(Balance.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
     @DisplayName("Reserve Balance - Success")
     void testReserveBalanceSuccess() {
         doReturn(Optional.of(balance1)).when(balanceRepository).findById(anyLong());
-        doReturn(balance1).when(balanceRepository).save(any(Balance.class));
         BalanceDto result = balanceService.reserveBalance(1L, BigDecimal.valueOf(30000.0));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper).toDto(any(Balance.class));
-        verify(balanceRepository).save(any(Balance.class));
         assertThat(result.currentActualBalance()).isEqualTo(BigDecimal.valueOf(70000.0));
         assertThat(result.currentAuthorizationBalance()).isEqualTo(BigDecimal.valueOf(30000.0));
     }
@@ -192,7 +185,6 @@ class BalanceServiceImplTest {
                 balanceService.reserveBalance(1L, BigDecimal.valueOf(30000.0)));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper, never()).toDto(any(Balance.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
@@ -204,7 +196,6 @@ class BalanceServiceImplTest {
                 .withMessage("Insufficient funds on balance for reservation");
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper, never()).toDto(any(Balance.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
@@ -212,11 +203,9 @@ class BalanceServiceImplTest {
     void releaseBalanceReleasesSuccessfully() {
         balance1.setCurrentAuthorizationBalance(BigDecimal.valueOf(50000.0));
         doReturn(Optional.of(balance1)).when(balanceRepository).findById(anyLong());
-        doReturn(balance1).when(balanceRepository).save(any(Balance.class));
         BalanceDto result = balanceService.releaseReservedBalance(1L, BigDecimal.valueOf(50000.0));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper).toDto(any(Balance.class));
-        verify(balanceRepository).save(any(Balance.class));
         assertThat(result.currentActualBalance()).isEqualTo(BigDecimal.valueOf(100000.0));
         assertThat(result.currentAuthorizationBalance()).isEqualTo(BigDecimal.valueOf(0.0));
 
@@ -230,7 +219,6 @@ class BalanceServiceImplTest {
                 balanceService.releaseReservedBalance(1L, BigDecimal.valueOf(50000.0)));
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper, never()).toDto(any(Balance.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
@@ -243,7 +231,6 @@ class BalanceServiceImplTest {
                 .withMessage("Cannot release more than the reserved amount");
         verify(balanceRepository).findById(anyLong());
         verify(balanceMapper, never()).toDto(any(Balance.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
@@ -251,14 +238,9 @@ class BalanceServiceImplTest {
     void cancelReservationShouldTransferSuccessfully() {
         doReturn(Optional.of(balance1)).when(balanceRepository).findById(1L);
         doReturn(Optional.of(balance2)).when(balanceRepository).findById(2L);
-        doReturn(balance1).when(balanceRepository).save(balance1);
-        doReturn(balance2).when(balanceRepository).save(balance2);
 
         balanceService.transferBalance(1, 2, BigDecimal.valueOf(30000.0));
-        verify(balanceRepository).findById(1L);
-        verify(balanceRepository).findById(2L);
-        verify(balanceRepository).save(balance1);
-        verify(balanceRepository).save(balance2);
+        verify(balanceRepository, times(2)).findById(anyLong());
         verify(balanceMapper).toTransferResultDto(balance1, balance2);
         assertThat(balance1.getCurrentActualBalance()).isEqualTo(BigDecimal.valueOf(70000.0));
         assertThat(balance2.getCurrentActualBalance()).isEqualTo(BigDecimal.valueOf(80000.0));
@@ -271,8 +253,6 @@ class BalanceServiceImplTest {
                 balanceService.transferBalance(1, 1, BigDecimal.valueOf(30000.0)))
                 .withMessage("Cannot transfer to same account");
         verify(balanceRepository, never()).findById(1L);
-        verify(balanceRepository, never()).save(balance1);
-        verify(balanceRepository, never()).save(balance2);
         verify(balanceMapper, never()).toTransferResultDto(balance1, balance2);
     }
 
@@ -283,7 +263,6 @@ class BalanceServiceImplTest {
         assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                 balanceService.transferBalance(1, 2, BigDecimal.valueOf(30000.0)));
         verify(balanceRepository).findById(anyLong());
-        verify(balanceRepository, never()).save(balance1);
         verify(balanceMapper, never()).toTransferResultDto(balance1, balance2);
     }
 
@@ -296,10 +275,7 @@ class BalanceServiceImplTest {
         assertThatExceptionOfType(InsufficientBalanceException.class).isThrownBy(() ->
                 balanceService.transferBalance(1, 2, BigDecimal.valueOf(130000.0)))
                 .withMessage("Insufficient funds on balance for transfer");
-        verify(balanceRepository).findById(1L);
-        verify(balanceRepository).findById(2L);
-        verify(balanceRepository, never()).save(balance1);
-        verify(balanceRepository, never()).save(balance2);
+        verify(balanceRepository, times(2)).findById(anyLong());
         verify(balanceMapper, never()).toTransferResultDto(balance1, balance2);
     }
 
@@ -308,11 +284,9 @@ class BalanceServiceImplTest {
     void cancelReservationCancelsSuccessfully() {
         balance1.setCurrentAuthorizationBalance(BigDecimal.valueOf(50000.0));
         doReturn(Optional.of(balance1)).when(balanceRepository).findById(anyLong());
-        doReturn(balance1).when(balanceRepository).save(balance1);
 
         BalanceDto result = balanceService.cancelReservation(1);
         verify(balanceRepository).findById(1L);
-        verify(balanceRepository).save(balance1);
         verify(balanceMapper).toDto(balance1);
         assertThat(result.currentAuthorizationBalance()).isEqualTo(BigDecimal.valueOf(0.0));
         assertThat(result.currentActualBalance()).isEqualTo(BigDecimal.valueOf(150000.0));
@@ -325,7 +299,6 @@ class BalanceServiceImplTest {
         assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                 balanceService.cancelReservation(1));
         verify(balanceRepository).findById(1L);
-        verify(balanceRepository, never()).save(balance1);
         verify(balanceMapper, never()).toDto(balance1);
     }
 }
