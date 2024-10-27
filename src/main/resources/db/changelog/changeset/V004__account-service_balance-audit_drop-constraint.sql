@@ -1,0 +1,2 @@
+ALTER TABLE balance_audit
+DROP CONSTRAINT balance_audit_number_key;

@@ -13,5 +13,4 @@ import java.time.LocalDateTime;
 public class BalanceDto {
     private BigDecimal authorizedBalance;
     private BigDecimal actualBalance;
-    private LocalDateTime updatedAt;
 }

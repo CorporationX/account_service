@@ -17,4 +17,6 @@ public interface PaymentAccountRepository extends JpaRepository<PaymentAccount, 
     @Transactional
     @Modifying
     void deleteById(Long id);
+
+    Optional<PaymentAccount> findByUserId(Long userId);
 }

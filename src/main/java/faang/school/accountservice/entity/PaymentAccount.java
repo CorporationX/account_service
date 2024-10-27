@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -42,14 +45,19 @@ public class PaymentAccount {
     @Enumerated(EnumType.STRING)
     private PaymentAccountStatus status;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "changed_at", nullable = false)
     private LocalDateTime changedAt;
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Column(name = "version", nullable = false)
     @Version

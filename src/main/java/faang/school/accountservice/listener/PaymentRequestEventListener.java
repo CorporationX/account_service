@@ -24,7 +24,7 @@ public class PaymentRequestEventListener extends AbstractEventListener implement
         PaymentRequestEvent event;
         try {
             event = objectMapper.readValue(message.getBody(), PaymentRequestEvent.class);
-            operationService.save(event);
+            operationService.handlePaymentRequest(event);
         } catch (IOException e) {
             log.error("Error while parsing message");
             throw new RuntimeException(e);

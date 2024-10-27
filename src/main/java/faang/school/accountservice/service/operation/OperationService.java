@@ -4,5 +4,5 @@ import faang.school.accountservice.listener.event.PaymentRequestEvent;
 
 public interface OperationService {
 
-    void save(PaymentRequestEvent paymentRequestEvent);
+    void handlePaymentRequest(PaymentRequestEvent paymentRequestEvent);
 }

@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.PaymentAccountDto;
 import faang.school.accountservice.entity.PaymentAccount;
 import faang.school.accountservice.mapper.PaymentAccountMapper;
 import faang.school.accountservice.repository.PaymentAccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,6 +19,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final PaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
+    private final BalanceService balanceService;
 
     @Override
     public PaymentAccountDto getPaymentAccount(Long id) {
@@ -28,9 +30,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PaymentAccountDto createPaymentAccount(PaymentAccountDto paymentAccountDto) {
-        PaymentAccount paymentAccount = paymentAccountMapper.toEntity(paymentAccountDto);
-        paymentAccountRepository.save(paymentAccount);
-        return paymentAccountDto;
+        PaymentAccount paymentAccount = paymentAccountRepository.save(paymentAccountMapper.toEntity(paymentAccountDto));
+        balanceService.createBalance(paymentAccount.getId());
+        return paymentAccountMapper.toDto(paymentAccount);
     }
 
     @Transactional
