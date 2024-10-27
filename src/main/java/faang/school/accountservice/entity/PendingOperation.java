@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "pending_operations")
+@Table(name = "pending_operations_account_service")
 public class PendingOperation {
 
     @Id
@@ -33,10 +34,14 @@ public class PendingOperation {
     @Column(name = "amount")
     private BigDecimal amount;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private OperationState state;
+
+    @Column(name = "operation_key")
+    private String operationKey;
 }

@@ -1,7 +1,7 @@
 package faang.school.accountservice.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.listener.event.PaymentRequestEvent;
+import faang.school.accountservice.dto.event.PaymentRequestEvent;
 import faang.school.accountservice.service.operation.OperationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

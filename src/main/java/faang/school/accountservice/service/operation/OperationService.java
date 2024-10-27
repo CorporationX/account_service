@@ -1,6 +1,6 @@
 package faang.school.accountservice.service.operation;
 
-import faang.school.accountservice.listener.event.PaymentRequestEvent;
+import faang.school.accountservice.dto.event.PaymentRequestEvent;
 
 public interface OperationService {
 

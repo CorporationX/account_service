@@ -1,4 +1,4 @@
-package faang.school.accountservice.listener.event;
+package faang.school.accountservice.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PaymentRequestEvent {
+public class PaymentCancelEvent {
     private long userId;
     private BigDecimal amount;
+    private String operationKey;
 }

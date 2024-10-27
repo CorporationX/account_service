@@ -1,13 +1,16 @@
 package faang.school.accountservice.service.operation;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.event.PaymentApproveEvent;
+import faang.school.accountservice.dto.event.PaymentCancelEvent;
+import faang.school.accountservice.dto.event.PaymentRequestEvent;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.PaymentAccount;
 import faang.school.accountservice.entity.PendingOperation;
 import faang.school.accountservice.enums.OperationState;
-import faang.school.accountservice.listener.event.PaymentRequestEvent;
+import faang.school.accountservice.listener.RedisTopics;
+import faang.school.accountservice.publisher.PaymentResponseEventPublisher;
 import faang.school.accountservice.repository.PaymentAccountRepository;
-import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.repository.operation.OperationRepository;
 import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,8 +27,8 @@ public class OperationServiceImpl implements OperationService {
 
     private final OperationRepository operationRepository;
     private final PaymentAccountRepository paymentAccountRepository;
-    private final BalanceRepository balanceRepository;
     private final BalanceService balanceService;
+    private final PaymentResponseEventPublisher publisher;
 
     public void handlePaymentRequest(PaymentRequestEvent paymentRequest) {
 
@@ -41,10 +44,28 @@ public class OperationServiceImpl implements OperationService {
             operation.setState(OperationState.PENDING);
             operation = operationRepository.save(operation);
             reserveFunds(paymentAccount.getBalance(), paymentRequest.getAmount(), operation);
+
+            publisher.publish(
+                    RedisTopics.PAYMENT_RESPONSE.getTopic(),
+                    new PaymentApproveEvent(
+                            paymentRequest.getUserId(),
+                            paymentRequest.getAmount(),
+                            paymentRequest.getOperationKey()
+                    ));
+
             log.info("Operation confirmed for account ID: {}", balance.getId());
         } else {
             operation.setState(OperationState.CANCELED);
             operationRepository.save(operation);
+
+            publisher.publish(
+                    RedisTopics.PAYMENT_RESPONSE.getTopic(),
+                    new PaymentCancelEvent(
+                            paymentRequest.getUserId(),
+                            paymentRequest.getAmount(),
+                            paymentRequest.getOperationKey()
+                    ));
+
             log.info("Operation canceled due to insufficient funds for account ID: {}", balance.getId());
         }
 
@@ -54,6 +75,7 @@ public class OperationServiceImpl implements OperationService {
         PendingOperation operation = new PendingOperation();
         operation.setAccountId(paymentAccount.getId());
         operation.setAmount(paymentRequest.getAmount());
+        operation.setOperationKey(paymentRequest.getOperationKey());
         return operation;
     }
 
