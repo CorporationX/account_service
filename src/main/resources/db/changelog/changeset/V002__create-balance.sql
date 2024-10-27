@@ -7,7 +7,9 @@ CREATE TABLE IF NOT EXISTS balance(
                                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                                       CONSTRAINT bank_account
                                       FOREIGN KEY(account_id) REFERENCES account(id),
-    version INT NOT NULL DEFAULT 1
+                                      version INT NOT NULL DEFAULT 1
 );
+
+CREATE INDEX account_id_index ON balance(account_id);
 
 ALTER TABLE account ADD COLUMN balance_id bigint;

@@ -13,6 +13,4 @@ public class BalanceDto {
     private long accountId;
     private BigDecimal curAuthBalance;
     private BigDecimal curFactBalance;
-    @Positive
-    private int version;
 }
