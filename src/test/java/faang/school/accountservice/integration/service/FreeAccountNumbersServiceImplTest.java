@@ -1,6 +1,6 @@
 package faang.school.accountservice.integration.service;
 
-import faang.school.accountservice.IntegrationBaseTest;
+import faang.school.accountservice.integration.IntegrationTestBase;
 import faang.school.accountservice.model.entity.FreeAccountNumberId;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FreeAccountNumbersServiceImplTest extends IntegrationBaseTest {
+public class FreeAccountNumbersServiceImplTest extends IntegrationTestBase {
     private static final String EXISTING_ACCOUNT_NUMBER = "42000000000000000000";
     private static final String FIRST_CREDIT_OVERDUE_CREDIT = "40000000000000000000";
     @Autowired
