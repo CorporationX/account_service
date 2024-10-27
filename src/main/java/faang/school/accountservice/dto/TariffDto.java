@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -17,7 +18,11 @@ public class TariffDto {
 
     @NotNull
     @Positive
-    private Double currentRate;
+    private Long accountId;
+
+    @NotNull
+    @Positive
+    private BigDecimal currentRate;
 
     @NotNull
     private TariffType type;

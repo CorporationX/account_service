@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Table(name = "savings_account")
+@Table(name = "tariff")
 @Data
 @Builder
 @NoArgsConstructor

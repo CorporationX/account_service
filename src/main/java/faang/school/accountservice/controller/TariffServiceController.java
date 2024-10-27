@@ -1,7 +1,9 @@
 package faang.school.accountservice.controller;
 
 
+import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.dto.TariffDto;
+import faang.school.accountservice.dto.TariffRequestDto;
 import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.service.TariffService;
 import jakarta.validation.Valid;
@@ -21,10 +23,10 @@ public class TariffServiceController {
 
     private final TariffService tariffService;
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TariffDto addTariff(@RequestBody @Valid @NotNull TariffDto tariffDto) {
-        return tariffService.addTariff(tariffDto);
+    public TariffDto addTariff(@RequestBody @Valid @NotNull TariffRequestDto requestDto) {
+        return tariffService.addTariff(requestDto.getTariffDto(), requestDto.getSavingsAccountDto());
     }
 
     @PatchMapping("/{id}")

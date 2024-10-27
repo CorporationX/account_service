@@ -7,16 +7,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {TariffHistoryMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = AccountMapper.class)
 public interface SavingsAccountMapper {
 
-    @Mapping(source = "account", target = "account.id")
-    @Mapping(source = "holderUserId", target = "account.holderUserId")
-    @Mapping(source = "tariffHistory", target = "tariffHistoryDto")
-    SavingsAccountDto toDto(SavingsAccount savingsAccount);
-
-    @Mapping(source = "account.id", target = "account")
-    @Mapping(source = "tariffHistoryDto", target = "tariffHistory")
-    @Mapping(source = "account.holderUserId", target = "holderUserId")
+    @Mapping(target = "account", source = "savingsAccountDto")
     SavingsAccount toEntity(SavingsAccountDto savingsAccountDto);
 }

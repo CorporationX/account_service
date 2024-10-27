@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 
+import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.enums.TariffType;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface TariffService {
 
-    TariffDto addTariff(TariffDto tariffDto);
+    TariffDto addTariff(TariffDto tariffDto, SavingsAccountDto accountDto);
 
     TariffDto changeRateTariff(Long id, BigDecimal newRate);
 
