@@ -23,3 +23,7 @@ server:
 logging:
   level:
     root: info
+
+retryable:
+  max-attempts: 5
+  delay: 5000
