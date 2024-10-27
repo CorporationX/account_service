@@ -45,12 +45,14 @@ public class BalanceServiceImpl implements BalanceService {
     public BalanceDto getBalanceByAccountId(Long accountId) {
         Balance balance = balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Not found balance by account id: " + accountId));
+        log.debug("balance by accountId: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
 
     @Override
     public BalanceDto getBalanceById(Long balanceId) {
         Balance balance = getBalance(balanceId);
+        log.debug("balance by id: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
 
@@ -61,7 +63,7 @@ public class BalanceServiceImpl implements BalanceService {
                 .orElseThrow(() -> new EntityNotFoundException("Not found account id: " + accountId));
         Balance currentBalance = account.getCurrentBalance();
         if (currentBalance != null) {
-            throw new EntityExistsException("Balance already exists: " + currentBalance);
+            throw new EntityExistsException("Balance already exists: " + currentBalance.getId());
         }
         Balance balance = Balance.builder()
                 .account(account)
@@ -69,6 +71,7 @@ public class BalanceServiceImpl implements BalanceService {
                 .authBalance(BigDecimal.ZERO)
                 .build();
         balanceRepository.save(balance);
+        log.info("Created new balance: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
 
@@ -85,6 +88,7 @@ public class BalanceServiceImpl implements BalanceService {
                     + balance.getAuthBalance() + ", balance: " + balance.getActualBalance());
         }
         balanceRepository.save(balance);
+        log.debug("balance changed: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
 
@@ -101,6 +105,7 @@ public class BalanceServiceImpl implements BalanceService {
         }
         balance.setAuthBalance(authBalance);
         balanceRepository.save(balance);
+        log.debug("balance authorized: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
 

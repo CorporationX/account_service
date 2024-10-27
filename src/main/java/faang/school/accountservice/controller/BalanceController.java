@@ -29,7 +29,7 @@ public class BalanceController {
         return balanceService.getBalanceById(balanceId);
     }
 
-    @GetMapping("/account/{accountId}")
+    @GetMapping("/{accountId}/account")
     public BalanceDto getBalanceByAccountId(@PathVariable @Positive Long accountId) {
         return balanceService.getBalanceByAccountId(accountId);
     }
