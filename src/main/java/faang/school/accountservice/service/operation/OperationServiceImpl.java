@@ -46,7 +46,7 @@ public class OperationServiceImpl implements OperationService {
             reserveFunds(paymentAccount.getBalance(), paymentRequest.getAmount(), operation);
 
             publisher.publish(
-                    RedisTopics.PAYMENT_RESPONSE.getTopic(),
+                    RedisTopics.PAYMENT_APPROVE.getTopic(),
                     new PaymentApproveEvent(
                             paymentRequest.getUserId(),
                             paymentRequest.getAmount(),
@@ -59,7 +59,7 @@ public class OperationServiceImpl implements OperationService {
             operationRepository.save(operation);
 
             publisher.publish(
-                    RedisTopics.PAYMENT_RESPONSE.getTopic(),
+                    RedisTopics.PAYMENT_CANCEL.getTopic(),
                     new PaymentCancelEvent(
                             paymentRequest.getUserId(),
                             paymentRequest.getAmount(),

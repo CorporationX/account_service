@@ -7,8 +7,9 @@ import lombok.Getter;
 @Getter
 public enum RedisTopics {
     PAYMENT_REQUEST("paymentRequest-event"),
-    PAYMENT_RESPONSE("paymentResponse-event"),
-    PAYMENT_CLEAR("paymentClear-event");
+    PAYMENT_APPROVE("paymentApprove-event"),
+    PAYMENT_CLEAR("paymentClear-event"),
+    PAYMENT_CANCEL("paymentCancel-event");
 
     private final String topic;
 }
