@@ -1,3 +1,6 @@
+insert into free_account_numbers(account_type, account_number) values ('INDIVIDUAL', '42000000000000000000');
+insert into account_numbers_sequence (account_type) values ('INDIVIDUAL');
+
 alter sequence account_id_seq restart with 1;
 insert into account(account_number, owner_id, owner_type, account_type, currency, account_status, version)
 values ('12312443224567', 1, 0, 0, 0, 0, 1),

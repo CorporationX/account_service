@@ -41,7 +41,10 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         log.info("Generating unique account number with account type {}", accountType);
 
         AccountNumberSequence sequence = sequenceRepository.findByAccountType(accountType)
-                .orElseGet(() -> sequenceRepository.createAndGetSequence(accountType));
+                .orElseGet(() -> {
+                    log.info("Creating new sequence with account type {}", accountType);
+                    return sequenceRepository.createAndGetSequence(accountType);
+                });
 
         long counter = sequence.getCounter();
 

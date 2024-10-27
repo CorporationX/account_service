@@ -18,11 +18,11 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     @Query(nativeQuery = true, value = """
             UPDATE account_numbers_sequence
             SET COUNTER = COUNTER + 1
-            WHERE ACCOUNT_TYPE = (:#{#accountType.toString()})
+            WHERE ACCOUNT_TYPE = :#{#accountType.toString()}
             AND counter = :counter
-            RETURNING counter
             """)
-    Long incrementSequenceIfEquals(@Param("accountType") AccountType accountType, @Param("counter") long counter);
+    @Modifying
+    int incrementSequenceIfEquals(@Param("accountType") AccountType accountType, @Param("counter") long counter);
 
     @Query(nativeQuery = true, value = """
              INSERT INTO account_numbers_sequence (account_type)
