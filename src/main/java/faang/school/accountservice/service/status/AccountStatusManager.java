@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Component
-public class AccountStatusActions {
+public class AccountStatusManager {
 
     private final Map<AccountStatus, List<AccountStatus>> availableStatusActions = new EnumMap<>(AccountStatus.class);
 
-    public AccountStatusActions() {
+    public AccountStatusManager() {
         availableStatusActions.put(AccountStatus.ACTIVE, List.of(AccountStatus.FROZEN, AccountStatus.CLOSED));
         availableStatusActions.put(AccountStatus.FROZEN, List.of(AccountStatus.ACTIVE, AccountStatus.CLOSED));
         availableStatusActions.put(AccountStatus.CLOSED, List.of(AccountStatus.ACTIVE));
@@ -22,8 +22,13 @@ public class AccountStatusActions {
     public List<AccountStatus> getAvailableActions(AccountStatus currentStatus) {
         List<AccountStatus> actions = availableStatusActions.get(currentStatus);
         if (actions == null) {
-            throw new NoSuchElementException("Status " + this + " is unknown");
+            throw new NoSuchElementException("Status " + currentStatus + " is unknown");
         }
         return actions;
+    }
+
+    public boolean isStatusAvailableForChange(AccountStatus currentStatus, AccountStatus statusForUpdate){
+        List<AccountStatus> actions = availableStatusActions.get(currentStatus);
+        return actions != null && actions.contains(statusForUpdate);
     }
 }

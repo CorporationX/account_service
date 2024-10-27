@@ -11,7 +11,7 @@ import faang.school.accountservice.exception.IllegalStatusException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.owner.OwnerService;
-import faang.school.accountservice.service.status.AccountStatusActions;
+import faang.school.accountservice.service.status.AccountStatusManager;
 import faang.school.accountservice.service.type.TypeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import java.util.List;
 public class AccountService {
 
     private final AccountNumberGenerator accountNumberGenerator;
-    private final AccountStatusActions accountStatusActions;
+    private final AccountStatusManager accountStatusManager;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final OwnerService ownerService;
@@ -46,13 +46,13 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public AccountDto getAccountByNumber(long accountId) {
-        log.info("getAccount() - start, accountNumber - {}", accountId);
+    public AccountDto getAccountByAccountId(long accountId) {
+        log.info("getAccountByAccountId() - start, accountId - {}", accountId);
 
         Account account = getAccount(accountId);
         AccountDto accountDto = accountMapper.toAccountDto(account);
 
-        log.info("getAccount() - finish, accountDto - {}", accountDto);
+        log.info("getAccountByAccountId() - finish, accountDto - {}", accountDto);
         return accountDto;
     }
 
@@ -69,7 +69,7 @@ public class AccountService {
 
     @Transactional
     public AccountDto blockAccount(long accountId) {
-        log.info("blockAccount() - start, accountNumber - {}", accountId);
+        log.info("blockAccount() - start, accountId - {}", accountId);
         Account account = getAccount(accountId);
 
         updateAccountStatusIfAvailable(account, AccountStatus.FROZEN);
@@ -82,7 +82,7 @@ public class AccountService {
 
     @Transactional
     public void closeAccount(long accountId) {
-        log.info("closeAccount() - start, accountNumber - {}", accountId);
+        log.info("closeAccount() - start, accountId - {}", accountId);
         Account account = getAccount(accountId);
 
         updateAccountStatusIfAvailable(account, AccountStatus.CLOSED);
@@ -98,7 +98,7 @@ public class AccountService {
     }
 
     private void updateAccountStatusIfAvailable(Account account, AccountStatus statusForUpdate) {
-        if (accountStatusActions.getAvailableActions(account.getStatus()).contains(statusForUpdate)) {
+        if (accountStatusManager.isStatusAvailableForChange(account.getStatus(), statusForUpdate)) {
             account.setStatus(statusForUpdate);
         } else {
             throw new IllegalStatusException(statusForUpdate + " in not available for account");

@@ -1,24 +1,27 @@
 package faang.school.accountservice.config.generator;
 
 import faang.school.accountservice.config.account.AccountProperties;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class AccountNumberGenerator {
 
     private final AccountProperties accountProperties;
+    private final int minAccountNumberLength;
+    private final int maxAccountNumberLength;
 
-    public String generateRandomAccountNumberInRange() {
-        int minLength = accountProperties.getNameLength().getMin();
-        int maxLength = accountProperties.getNameLength().getMax();
+    public AccountNumberGenerator(AccountProperties accountProperties) {
+        this.accountProperties = accountProperties;
+        this.minAccountNumberLength = accountProperties.getNameLength().getMin();
+        this.maxAccountNumberLength = accountProperties.getNameLength().getMax();
 
-        if (minLength >= maxLength) {
+        if (minAccountNumberLength > maxAccountNumberLength) {
             throw new IllegalArgumentException("Min should be less or equals max");
         }
+    }
 
-        return RandomStringUtils.randomNumeric(minLength, maxLength);
+    public String generateRandomAccountNumberInRange() {
+        return RandomStringUtils.randomNumeric(minAccountNumberLength, maxAccountNumberLength);
     }
 }

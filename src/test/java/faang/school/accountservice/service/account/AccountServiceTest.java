@@ -15,7 +15,7 @@ import faang.school.accountservice.exception.IllegalStatusException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.owner.OwnerService;
-import faang.school.accountservice.service.status.AccountStatusActions;
+import faang.school.accountservice.service.status.AccountStatusManager;
 import faang.school.accountservice.service.type.TypeService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +64,7 @@ class AccountServiceTest {
     private AccountNumberGenerator accountNumberGenerator;
 
     @Mock
-    private AccountStatusActions accountStatusActions;
+    private AccountStatusManager accountStatusManager;
 
     @Mock
     private AccountProperties.NameLength nameLength;
@@ -110,7 +110,7 @@ class AccountServiceTest {
         when(accountMapper.toAccountDto(account))
                 .thenReturn(accountDto);
 
-        accountService.getAccountByNumber(anyLong());
+        accountService.getAccountByAccountId(anyLong());
 
         verify(accountRepository).findById(anyLong());
         verify(accountMapper).toAccountDto(account);
@@ -123,7 +123,7 @@ class AccountServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> accountService.getAccountByNumber(anyLong()));
+                () -> accountService.getAccountByAccountId(anyLong()));
     }
 
     @Test
@@ -175,7 +175,6 @@ class AccountServiceTest {
     @DisplayName("When block account and account exists and status correct then not thrown exception")
     void whenAccountExistsAndStatusCorrectThenNotThrownException() {
         account.setStatus(AccountStatus.ACTIVE);
-        availableAccountStatuses = List.of(AccountStatus.FROZEN);
 
         when(accountRepository.findById(anyLong()))
                 .thenReturn(Optional.of(account));
@@ -183,8 +182,8 @@ class AccountServiceTest {
                 .thenReturn(account);
         when(accountMapper.toAccountDto(account))
                 .thenReturn(accountDto);
-        when(accountStatusActions.getAvailableActions(account.getStatus()))
-                .thenReturn(availableAccountStatuses);
+        when(accountStatusManager.isStatusAvailableForChange(account.getStatus(), AccountStatus.FROZEN))
+                .thenReturn(true);
 
         accountService.blockAccount(anyLong());
 
@@ -194,8 +193,8 @@ class AccountServiceTest {
                 .save(any(Account.class));
         verify(accountMapper)
                 .toAccountDto(any(Account.class));
-        verify(accountStatusActions)
-                .getAvailableActions(any());
+        verify(accountStatusManager)
+                .isStatusAvailableForChange(AccountStatus.ACTIVE, AccountStatus.FROZEN);
     }
 
     @Test
@@ -224,14 +223,13 @@ class AccountServiceTest {
     @DisplayName("When block account and account exists and status correct then not thrown exception")
     void whenAccountExistsAndStatusCorrectWhileClosingThenNotThrownException() {
         account.setStatus(AccountStatus.ACTIVE);
-        availableAccountStatuses = List.of(AccountStatus.CLOSED);
 
         when(accountRepository.findById(anyLong()))
                 .thenReturn(Optional.of(account));
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(account);
-        when(accountStatusActions.getAvailableActions(account.getStatus()))
-                .thenReturn(availableAccountStatuses);
+        when(accountStatusManager.isStatusAvailableForChange(account.getStatus(), AccountStatus.CLOSED))
+                .thenReturn(true);
 
         accountService.closeAccount(anyLong());
 
@@ -239,8 +237,8 @@ class AccountServiceTest {
                 .findById(anyLong());
         verify(accountRepository)
                 .save(any(Account.class));
-        verify(accountStatusActions)
-                .getAvailableActions(any());
+        verify(accountStatusManager)
+                .isStatusAvailableForChange(AccountStatus.ACTIVE, AccountStatus.CLOSED);
     }
 
     @Test

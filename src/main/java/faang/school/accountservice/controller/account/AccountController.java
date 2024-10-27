@@ -34,7 +34,7 @@ public class AccountController {
 
     @GetMapping("/{id}")
     public AccountDto getAccount(@PathVariable("id") long accountId) {
-        return accountService.getAccountByNumber(accountId);
+        return accountService.getAccountByAccountId(accountId);
     }
 
     @PostMapping("/open")
