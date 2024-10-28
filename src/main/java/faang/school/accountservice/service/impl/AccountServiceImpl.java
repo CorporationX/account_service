@@ -3,9 +3,12 @@ package faang.school.accountservice.service.impl;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.entity.Account;
+import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.FreeAccountNumber;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
+import faang.school.accountservice.util.ExceptionThrowingValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +21,8 @@ import java.util.function.Consumer;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final FreeAccountNumbersServiceImpl freeAccountNumbersServiceImpl;
+    private final FreeAccountNumbersService freeAccountNumbersService;
+    private final ExceptionThrowingValidator validator;
 
     @Transactional(readOnly = true)
     @Override
@@ -45,8 +49,16 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.save(account);
         };
 
-        freeAccountNumbersServiceImpl.getFreeAccountNumber(account.getType(), consumer);
-        return accountMapper.accountToAccountDto(accountRepository.save(account));
+        Balance balance = new Balance();
+        balance.setAccount(account);
+        account.setBalance(balance);
+
+        freeAccountNumbersService.getFreeAccountNumber(account.getType(), consumer);
+        AccountDto createdAccountDto = accountMapper.accountToAccountDto(accountRepository.save(account));
+
+        validator.validate(createdAccountDto, AccountDto.Created.class);
+
+        return createdAccountDto;
     }
 
     @Transactional
