@@ -1,9 +1,10 @@
 package faang.school.accountservice.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import faang.school.accountservice.model.enums.TariffType;
+import jakarta.persistence.*;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.util.List;
 
 @Entity
 @Table(name = "tariff")
@@ -13,4 +14,9 @@ public class Tariff {
     @GeneratedValue
     private Long id;
 
+    @Column(name = "tariff_type")
+    private TariffType type;
+
+    @OneToMany(mappedBy = "tariff")
+    private List<TariffRate> tariffRates;
 }

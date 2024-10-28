@@ -1,5 +1,6 @@
 package faang.school.accountservice.exception.handler;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,13 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleRuntimeException(RuntimeException ex) {
         log.error("Runtime exception", ex);
         return new ErrorResponse("Runtime exception", ex.getMessage());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex) {
+        log.error("Entity Not Found Exception", ex);
+        return new ErrorResponse("Entity Not Found Exception", ex.getMessage());
     }
 
 }
