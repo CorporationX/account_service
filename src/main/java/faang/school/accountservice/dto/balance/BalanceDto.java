@@ -15,6 +15,4 @@ public class BalanceDto {
     private Double authorizationBalance;
     @NotNull(message = "Actual balance cannot be null")
     private Double actualBalance;
-    @NotNull(message = "Version cannot be null")
-    private Long version;
 }
