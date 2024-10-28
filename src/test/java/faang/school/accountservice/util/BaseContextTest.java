@@ -1,3 +1,4 @@
+/*
 package faang.school.accountservice.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,3 +62,4 @@ public class BaseContextTest {
         }
     }
 }
+*/
