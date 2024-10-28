@@ -32,7 +32,7 @@ public class AccountType {
     @Column(name = "name", length = 24, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "type")
+    @OneToMany(mappedBy = "accountType")
     private List<Account> accounts;
 
     @Override
