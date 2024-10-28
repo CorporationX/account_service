@@ -8,6 +8,7 @@ import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.ArgumentMatchers.any;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceImplTest {
@@ -29,6 +30,7 @@ class BalanceServiceImplTest {
     private BalanceAuditRepository balanceAuditRepository;
     @Mock
     private BalanceJpaRepository balanceJpaRepository;
+
     @Mock
     private AccountRepository accountRepository;
     @Mock
@@ -49,21 +51,19 @@ class BalanceServiceImplTest {
 
         balanceDto = new BalanceDto();
         balanceDto.setId(1L);
-        balanceDto.setVersion(1);
         balanceDto.setAccountId(1L);
 
         Mockito.lenient().when(mapper.toDto(balance))
                 .thenReturn(balanceDto);
         Mockito.lenient().when(mapper.toEntity(balanceDto))
                 .thenReturn(balance);
-        Mockito.lenient().when(balanceJpaRepository.findBalanceByAccount_Id(accountId))
-                .thenReturn(balance);
+        Mockito.lenient().when(balanceJpaRepository.findById(accountId))
+                .thenReturn(Optional.of(balance));
     }
 
     @Test
     void create_whenOk() {
         service.create(balanceDto);
-        balance.nextVersion();
 
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
                 .save(balance);
@@ -85,61 +85,30 @@ class BalanceServiceImplTest {
                 .save(auditMapper.toEntity(balance));
 
         Balance actual = captor.getValue();
-        balanceDto.nextVersion();
         Assertions.assertNotNull(actual.getUpdatedAt());
         Assertions.assertNull(actual.getCreatedAt());
-        Assertions.assertEquals(balanceDto.getVersion(), actual.getVersion());
     }
 
     @Test
     void getBalance_whenOk() {
-        Mockito.when(accountRepository.existsById(accountId))
-                .thenReturn(true);
-
         service.getBalance(accountId);
 
         Mockito.verify(mapper, Mockito.times(1))
                 .toDto(balance);
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
-                .findBalanceByAccount_Id(accountId);
+                .findById(accountId);
 
     }
 
     @Test
-    void create_whenBadDto() {
-        balanceDto.setId(-1);
+    void getBalance_whenAccountNotExist() {
+        Mockito.lenient().when(balanceJpaRepository.findById(accountId))
+                .thenReturn(Optional.ofNullable(null));
 
-        Assertions.assertThrows(DataValidationException.class, () -> service.create(balanceDto));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> service.getBalance(accountId));
 
-        balanceDto.setId(2);
-        balanceDto.setAccountId(-2);
-        Assertions.assertThrows(DataValidationException.class, () -> service.create(balanceDto));
-
-
-        Mockito.verify(balanceJpaRepository, Mockito.never())
-                .save(any());
         Mockito.verify(mapper, Mockito.never())
-                .toEntity(any());
-    }
+                .toDto(balance);
 
-    @Test
-    void update_whenBadDto() {
-        balanceDto.setId(-1);
-
-        Assertions.assertThrows(DataValidationException.class, () -> service.update(balanceDto));
-
-        balanceDto.setId(2);
-        balanceDto.setAccountId(-2);
-        Assertions.assertThrows(DataValidationException.class, () -> service.update(balanceDto));
-
-        balanceDto.setAccountId(2);
-        balanceDto.setVersion(-1);
-        Assertions.assertThrows(DataValidationException.class, () -> service.update(balanceDto));
-
-
-        Mockito.verify(balanceJpaRepository, Mockito.never())
-                .save(any());
-        Mockito.verify(mapper, Mockito.never())
-                .toEntity(any());
     }
 }
