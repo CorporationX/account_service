@@ -22,7 +22,7 @@ public class AccountSeq {
 
     @Id
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false, length = 50)
+    @Column(name = "type", nullable = false, length = 32)
     private AccountType accountType;
 
     @Column(name = "current_counter", nullable = false)
