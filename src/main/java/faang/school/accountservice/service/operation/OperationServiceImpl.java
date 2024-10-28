@@ -3,6 +3,7 @@ package faang.school.accountservice.service.operation;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.event.PaymentApproveEvent;
 import faang.school.accountservice.dto.event.PaymentCancelEvent;
+import faang.school.accountservice.dto.event.PaymentClearEvent;
 import faang.school.accountservice.dto.event.PaymentRequestEvent;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.PaymentAccount;
@@ -71,6 +72,25 @@ public class OperationServiceImpl implements OperationService {
 
     }
 
+    public void clearPayment(PaymentClearEvent event) {
+        PaymentAccount paymentAccount = paymentAccountRepository.findByUserId(event.getUserId()).orElseThrow(
+                () -> {
+                    log.error("Account not found for user with id {}", event.getUserId());
+                    return new EntityNotFoundException(
+                            String.format("Account not found for user with id %s", event.getUserId()));
+                });
+        PendingOperation operation = operationRepository.findByOperationKey(event.getOperationKey())
+                .orElseThrow( () -> {
+                    log.error("Operation not found for user with key {}", event.getOperationKey());
+                    return new EntityNotFoundException(
+                            String.format("Operation not found for user with key %s", event.getOperationKey()));
+                });
+        Balance balance = paymentAccount.getBalance();
+        clearBalance(balance, event.getAmount(), operation);
+        operation.setState(OperationState.CLEARED);
+        operationRepository.save(operation);
+    }
+
     private PendingOperation createOperation(PaymentAccount paymentAccount, PaymentRequestEvent paymentRequest) {
         PendingOperation operation = new PendingOperation();
         operation.setAccountId(paymentAccount.getId());
@@ -90,6 +110,15 @@ public class OperationServiceImpl implements OperationService {
         );
         balanceService.updateBalance(balance.getId(), balanceDto, operation);
         log.info("Funds successfully reserved for account ID: {}", balance.getId());
+    }
+
+    private void clearBalance(Balance balance, BigDecimal amount, PendingOperation operation) {
+        BalanceDto balanceDto = new BalanceDto(
+                balance.getAuthorizedBalance(),
+                balance.getActualBalance().subtract(amount)
+        );
+        balanceService.updateBalance(balance.getId(), balanceDto, operation);
+        log.info("Payment successfully cleared for account ID: {}", balance.getId());
     }
 
 }
