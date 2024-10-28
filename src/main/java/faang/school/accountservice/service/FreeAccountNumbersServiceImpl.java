@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountType;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Service
@@ -51,23 +54,24 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         freeAccountNumbersRepository.save(freeAccountNumber);
     }
 
-    @Override
     @Transactional
-    public void generateNumbers(AccountType type, int count) {
-        for (int i = 0; i < count; i++) {
-            Long number = accountNumbersSequenceRepository.incrementAndGet(type.name());
-            String accountNumber = accountNumberGenerator.generateAccountNumber(type, number);
-            saveNumber(type, accountNumber);
+    public void generateFreeAccountNumbers(AccountType type, int batchSize) {
+        AccountNumbersSequence numberPeriod = accountNumbersSequenceRepository
+                .incrementByBatchSize(type.name(), batchSize);
+
+        List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
+
+        for (long i = numberPeriod.getInitialValue(); i < numberPeriod.getSequenceValue(); i++) {
+            String generatedAccountNumber = accountNumberGenerator.generateAccountNumber(type, i);
+
+            freeAccountNumbers.add(
+                    FreeAccountNumber.builder()
+                            .id(new FreeAccountNumberId(type, generatedAccountNumber))
+                            .build()
+            );
         }
+
+        freeAccountNumbersRepository.saveAll(freeAccountNumbers);
     }
 
-    @Override
-    @Transactional
-    public void ensureMinimumNumbers(AccountType type, int requiredCount) {
-        long currentCount = freeAccountNumbersRepository.countByIdType(type);
-        int numbersToGenerate = requiredCount - (int) currentCount;
-        if (numbersToGenerate > 0) {
-            generateNumbers(type, numbersToGenerate);
-        }
-    }
 }

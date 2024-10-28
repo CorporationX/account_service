@@ -12,8 +12,4 @@ public interface FreeAccountNumbersService {
     void generateNumberAndExecute(AccountType type, Consumer<FreeAccountNumber> operation);
 
     void saveNumber(AccountType type, String accountNumber);
-
-    void generateNumbers(AccountType type, int count);
-
-    void ensureMinimumNumbers(AccountType type, int requiredCount);
 }
