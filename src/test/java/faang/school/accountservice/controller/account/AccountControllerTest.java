@@ -118,7 +118,6 @@ class AccountControllerTest {
                     .andExpect(jsonPath("$.type.name").value(TEST));
         }
 
-        //internalServerError а не badRequest?
         @Test
         @DisplayName("When /open request with incorrect body should return bad request")
         void whenBodyIsIncorrectWhileRequestThenExpectBadRequestError() throws Exception {
@@ -128,7 +127,7 @@ class AccountControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
                             .content(objectMapper.writeValueAsString(accountCreateDto))
-            ).andExpect(status().isInternalServerError());
+            ).andExpect(status().isBadRequest());
         }
 
         @Test
