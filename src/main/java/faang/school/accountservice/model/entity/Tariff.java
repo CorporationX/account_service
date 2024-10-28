@@ -27,9 +27,9 @@ public class Tariff {
     private TariffType type;
 
     @OneToMany(mappedBy = "tariff")
-    private List<TariffRate> tariffRates;
+    private List<SavingsAccountRate> savingsAccountRates;
 
     @OneToOne()
-    @JoinColumn(name = "tariff_rate_id")
-    private TariffRate tariffRate;
+    @JoinColumn(name = "savings_account_rate_id")
+    private SavingsAccountRate savingsAccountRate;
 }

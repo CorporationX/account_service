@@ -1,10 +1,18 @@
 package faang.school.accountservice.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
-@Table(name = "tariff_rate")
-public class TariffRate {
+@Table(name = "savings_account_rate")
+public class SavingsAccountRate {
 
     @Id
     private Long id;

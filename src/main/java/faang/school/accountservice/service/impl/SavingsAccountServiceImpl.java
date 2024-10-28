@@ -4,8 +4,10 @@ import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.SavingsAccount;
+import faang.school.accountservice.model.entity.SavingsAccountRate;
 import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.SavingsAccountRateRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffRepository;
 import faang.school.accountservice.service.SavingsAccountService;
@@ -23,6 +25,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final AccountRepository accountRepository;
     private final SavingsAccountRepository savingsAccountRepository;
     private final TariffRepository tariffRepository;
+    private final SavingsAccountRateRepository savingsAccountRateRepository;
 
     @Transactional
     @Override
@@ -31,6 +34,12 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             log.info("Tariff with id {} not found", savingsAccountDto.getTariffId());
             throw new EntityNotFoundException("Tariff with id " + savingsAccountDto.getTariffId() + " not found");
         });
+
+        SavingsAccountRate savingsAccountRate = tariff.getSavingsAccountRate();
+        if (savingsAccountRate == null) {
+            log.info("SavingsAccountRate with id {} not found", tariff.getSavingsAccountRate());
+            throw new EntityNotFoundException("SavingsAccountRate " + tariff.getSavingsAccountRate() + " not found");
+        }
 
         Account account = accountRepository.findById(savingsAccountDto.getAccountId()).orElseGet(() -> {
             log.info("Account with id {} not found", savingsAccountDto.getAccountId());
@@ -41,9 +50,16 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                 .account(account)
                 .accountNumber(account.getNumber())
                 .tariff(tariff)
+                .savingsAccountRate(savingsAccountRate)
                 .build();
-        SavingsAccount savingsAccount1 = savingsAccountRepository.save(savingsAccount);
-        return savingsAccountMapper.savingsAccountToSavingsAccountDto(savingsAccount1);
+
+        savingsAccount = savingsAccountRepository.save(savingsAccount);
+
+        SavingsAccountDto savingsAccountResult = savingsAccountMapper
+                .savingsAccountToSavingsAccountDto(savingsAccount);
+//        savingsAccountResult.setSavingsAccountRate(savingsAccount.getSavingsAccountRate().getRate());
+
+        return savingsAccountResult;
     }
 
     @Override

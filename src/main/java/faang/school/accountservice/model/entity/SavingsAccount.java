@@ -35,6 +35,10 @@ public class SavingsAccount {
     @JoinColumn(name = "tariff_id")
     private Tariff tariff;
 
+    @OneToOne
+    @JoinColumn(name = "savings_account_rate_id")
+    private SavingsAccountRate savingsAccountRate;
+
     @OneToMany(mappedBy = "savingsAccount")
     private List<TariffHistory> tariffHistory;
 
