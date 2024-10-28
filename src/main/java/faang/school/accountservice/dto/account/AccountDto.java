@@ -27,16 +27,16 @@ public class AccountDto {
 
     private String accountNumber;
 
-    @NotNull(message = "\"externalOwnerId\" cannot be NULL")
+    @NotNull(message = "'externalOwnerId' cannot be NULL")
     private Long externalId;
 
-    @NotNull(message = "\"ownerType\" cannot be NULL")
+    @NotNull(message = "'ownerType' cannot be NULL")
     private OwnerType ownerType;
 
-    @NotNull(message = "\"accountType\" cannot be NULL")
+    @NotNull(message = "'accountType' cannot be NULL")
     private AccountType accountType;
 
-    @NotNull(message = "\"currency\" cannot be NULL")
+    @NotNull(message = "'currency' cannot be NULL")
     private Currency currency;
 
     private AccountStatus accountStatus;

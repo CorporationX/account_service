@@ -32,13 +32,13 @@ public class AccountService {
         Long externalId = owner.getExternalId();
         OwnerType ownerType = owner.getType();
 
-        Owner exsistOwner = ownerRepository.findOwner(externalId, ownerType)
+        Owner currentOwner = ownerRepository.findOwner(externalId, ownerType)
                 .orElse(createOwner(externalId, ownerType));
 
         String newAccountNumber = generateAccountNumber();
         account.setAccountNumber(newAccountNumber);
         account.setStatus(AccountStatus.ACTIVE);
-        account.setOwner(exsistOwner);
+        account.setOwner(currentOwner);
 
         return accountRepository.save(account);
     }
