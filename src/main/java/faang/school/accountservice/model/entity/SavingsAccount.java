@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,11 +20,20 @@ import java.util.List;
 public class SavingsAccount {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "account_number", unique = true, nullable = false)
+    private String accountNumber;
+
     @OneToOne
-    @JoinColumn(name = "number", insertable = false)
+    @JoinColumn(name = "account_number", referencedColumnName = "number", insertable = false, updatable = false)
+    @JsonIgnore
     private Account account;
+
+    @OneToOne
+    @JoinColumn(name = "tariff_id")
+    private Tariff tariff;
 
     @OneToMany(mappedBy = "savingsAccount")
     private List<TariffHistory> tariffHistory;

@@ -6,6 +6,7 @@ import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.FreeAccountNumber;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

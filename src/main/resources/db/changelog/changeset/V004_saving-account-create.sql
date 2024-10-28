@@ -12,20 +12,18 @@ CREATE TABLE IF NOT EXISTS tariff_rate (
     CONSTRAINT fk_tariff_id FOREIGN KEY (tariff_id) REFERENCES tariff(id)
 );
 
-
-
--- ALTER TABLE tariff ADD CONSTRAINT fk_tariff_rate_id FOREIGN KEY (tariff_rate_id) REFERENCES tariff_rate (id);
-
 CREATE TABLE IF NOT EXISTS savings_account
 (
-    id         bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    number     varchar(64) UNIQUE NOT NULL,
-    last_date_percent    timestamptz,
-    version    bigint                      DEFAULT 1,
-    created_at timestamptz                 DEFAULT current_timestamp,
-    updated_at timestamptz                 DEFAULT current_timestamp,
+    id                  bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    account_number      varchar(64) UNIQUE NOT NULL,
+    tariff_id           bigint NOT NULL,
+    last_date_percent   timestamptz,
+    version             bigint DEFAULT 1,
+    created_at          timestamptz DEFAULT current_timestamp,
+    updated_at          timestamptz DEFAULT current_timestamp,
 
-    CONSTRAINT fk_account_id FOREIGN KEY (number) REFERENCES account (number)
+    CONSTRAINT fk_account_number FOREIGN KEY (account_number) REFERENCES account (number),
+    CONSTRAINT fk_tariff_id FOREIGN KEY (tariff_id) REFERENCES tariff (id)
 );
 
 CREATE TABLE IF NOT EXISTS tariff_history (
