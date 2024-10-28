@@ -1,6 +1,7 @@
 package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.dto.Error;
+import faang.school.accountservice.exception.DataValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,11 +40,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = exception.getBindingResult()
-                .getAllErrors()
+                .getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(
-                        error -> error instanceof FieldError ? ((FieldError) error).getField() : "Error",
-                        error -> Optional.ofNullable(error.getDefaultMessage()).orElse(SOMETHING_ERROR)
+                        FieldError::getField,
+                        error -> Optional.ofNullable(error.getDefaultMessage())
+                                .orElse("Something went wrong")
                 ));
         log.error("Validation errors: {}", errors);
 
@@ -65,19 +67,13 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Error handleHttpMessageNotReadableException(HttpMessageNotReadableException exception, WebRequest request) {
-        Map<String, String> errorDetails = Map.of(
-                "error", exception.getLocalizedMessage(),
-                "path", request.getDescription(false)
-        );
-        log.error("Validation error: {}", errorDetails);
-
+    @ExceptionHandler(DataValidationException.class)
+    public Error handleDataValidationException(DataValidationException exception) {
+        String message = exception.getMessage();
+        log.error(message, exception);
         return Error.builder()
                 .code(HttpStatus.BAD_REQUEST.toString())
-                .message("Malformed JSON request")
-                .errors(errorDetails)
+                .message(message)
                 .build();
     }
 }
