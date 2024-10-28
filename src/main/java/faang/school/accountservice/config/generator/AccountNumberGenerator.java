@@ -7,12 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountNumberGenerator {
 
-    private final AccountProperties accountProperties;
     private final int minAccountNumberLength;
     private final int maxAccountNumberLength;
 
     public AccountNumberGenerator(AccountProperties accountProperties) {
-        this.accountProperties = accountProperties;
         this.minAccountNumberLength = accountProperties.getNameLength().getMin();
         this.maxAccountNumberLength = accountProperties.getNameLength().getMax();
 
