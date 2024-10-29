@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,8 +34,14 @@ public class AccountService {
         Long externalId = owner.getExternalId();
         OwnerType ownerType = owner.getType();
 
-        Owner currentOwner = ownerRepository.findOwner(externalId, ownerType)
-                .orElse(createOwner(externalId, ownerType));
+        List<Owner> existingOwners = ownerRepository.findOwner(externalId, ownerType);
+
+        Owner currentOwner;
+        if (!existingOwners.isEmpty()) {
+            currentOwner = existingOwners.get(0);
+        } else {
+            currentOwner = createOwner(externalId, ownerType);
+        }
 
         String newAccountNumber = generateAccountNumber();
         account.setAccountNumber(newAccountNumber);
@@ -111,7 +118,7 @@ public class AccountService {
 
     private String generateAccountNumber() {
         //TODO: реализовать логику генерации УНИКАЛЬНОГО номера счета
-        return "00000000000000000000";
+        return "00000000000000000001";
     }
 
     private void validateAccountNumber(String accountNumber) {

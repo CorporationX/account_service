@@ -48,6 +48,7 @@ public class Owner {
     private OwnerType type;
 
     @OneToMany(mappedBy = "owner")
+    @ToString.Exclude
     private List<Account> accounts;
 
     @Column(name = "created_at", nullable = false)
