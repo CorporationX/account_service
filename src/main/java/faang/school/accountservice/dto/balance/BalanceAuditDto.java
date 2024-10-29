@@ -19,7 +19,7 @@ public class BalanceAuditDto {
     private UUID id;
 
     @NotNull(message = "AccountNumber it should not be null")
-    private String  accountNumber;
+    private String accountNumber;
 
     private Long version;
     private BigDecimal authorizationBalance;

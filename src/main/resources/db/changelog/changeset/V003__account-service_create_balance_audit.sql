@@ -1,4 +1,5 @@
-CREATE TABLE balance_audit (
+CREATE TABLE balance_audit
+(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_number VARCHAR(20) NOT NULL,
     version BIGINT DEFAULT 0,
