@@ -31,15 +31,6 @@ public class SavingsAccount {
     @JsonIgnore
     private Account account;
 
-    //TODO
-//    @OneToOne
-//    @JoinColumn(name = "tariff_id")
-//    private Tariff tariff;
-//
-//    @OneToOne
-//    @JoinColumn(name = "savings_account_rate_id")
-//    private SavingsAccountRate savingsAccountRate;
-
     @OneToMany(mappedBy = "savingsAccount")
     private List<TariffHistory> tariffHistory;
 
@@ -47,7 +38,7 @@ public class SavingsAccount {
     private LocalDateTime lastDatePercent;
 
     @Version
-    @Column(name = "version")
+    @Column(name = "version", insertable = false)
     private Long version;
 
     @Column(name = "created_at", insertable = false)

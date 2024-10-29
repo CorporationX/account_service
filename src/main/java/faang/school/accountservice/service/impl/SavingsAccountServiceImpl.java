@@ -2,13 +2,10 @@ package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.entity.Account;
-import faang.school.accountservice.model.entity.SavingsAccount;
-import faang.school.accountservice.model.entity.SavingsAccountRate;
-import faang.school.accountservice.model.entity.Tariff;
+import faang.school.accountservice.model.entity.*;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.SavingsAccountRateRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
+import faang.school.accountservice.repository.TariffHistoryRepository;
 import faang.school.accountservice.repository.TariffRepository;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,7 +22,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final AccountRepository accountRepository;
     private final SavingsAccountRepository savingsAccountRepository;
     private final TariffRepository tariffRepository;
-    private final SavingsAccountRateRepository savingsAccountRateRepository;
+    private final TariffHistoryRepository tariffHistoryRepository;
 
     @Transactional
     @Override
@@ -35,37 +32,47 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             throw new EntityNotFoundException("Tariff with id " + savingsAccountDto.getTariffId() + " not found");
         });
 
-        SavingsAccountRate savingsAccountRate = tariff.getSavingsAccountRate();
-        if (savingsAccountRate == null) {
-            log.info("SavingsAccountRate with id {} not found", tariff.getSavingsAccountRate());
-            throw new EntityNotFoundException("SavingsAccountRate " + tariff.getSavingsAccountRate() + " not found");
-        }
-
         Account account = accountRepository.findById(savingsAccountDto.getAccountId()).orElseGet(() -> {
             log.info("Account with id {} not found", savingsAccountDto.getAccountId());
             throw new EntityNotFoundException("Account with id " + savingsAccountDto.getAccountId() + " not found");
         });
-//TODO
 
         SavingsAccount savingsAccount = SavingsAccount.builder()
                 .account(account)
                 .accountNumber(account.getNumber())
-//                .tariff(tariff)
-//                .savingsAccountRate(savingsAccountRate)
                 .build();
-
         savingsAccount = savingsAccountRepository.save(savingsAccount);
 
-        SavingsAccountDto savingsAccountResult = savingsAccountMapper
-                .savingsAccountToSavingsAccountDto(savingsAccount);
-//        savingsAccountResult.setSavingsAccountRate(savingsAccount.getSavingsAccountRate().getRate());
+        TariffHistory tariffHistory = TariffHistory.builder()
+                .savingsAccount(savingsAccount)
+                .tariffId(tariff)
+                .build();
+        tariffHistoryRepository.save(tariffHistory);
 
-        return savingsAccountResult;
+        return savingsAccountMapper
+                .savingsAccountToSavingsAccountDto(savingsAccount);
     }
 
     @Override
     public SavingsAccountDto getSavingsAccount(Long id) {
-        SavingsAccount savingsAccount = savingsAccountRepository.findById(id).orElseThrow();
-        return savingsAccountMapper.savingsAccountToSavingsAccountDto(savingsAccount);
+        SavingsAccount savingsAccount = savingsAccountRepository.findById(id).orElseGet(() -> {
+            log.info("SavingsAccount with id {} not found", id);
+            throw new EntityNotFoundException("SavingsAccount with id " + id + " not found");
+        });
+
+        Long tariffId = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(id).orElseGet(() -> {
+            log.info("Tariff with id {} not found", id);
+            throw new EntityNotFoundException("Tariff with id " + id + " not found");
+        });
+
+        SavingsAccountDto savingsAccountDto = savingsAccountMapper.savingsAccountToSavingsAccountDto(savingsAccount);
+        savingsAccountDto.setTariffId(tariffId);
+        return savingsAccountDto;
     }
+
+    @Override
+    public SavingsAccountDto getSavingsAccountByUserId(Long userId) {
+        return null;
+    }
+
 }

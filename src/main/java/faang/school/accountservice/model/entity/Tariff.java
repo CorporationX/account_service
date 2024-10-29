@@ -32,4 +32,7 @@ public class Tariff {
     @OneToOne()
     @JoinColumn(name = "savings_account_rate_id")
     private SavingsAccountRate savingsAccountRate;
+
+    @OneToMany(mappedBy = "tariffId")
+    List<TariffHistory> tariffHistories;
 }

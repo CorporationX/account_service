@@ -1,11 +1,7 @@
 package faang.school.accountservice.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +19,7 @@ import java.time.LocalDateTime;
 public class TariffHistory {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -30,6 +27,11 @@ public class TariffHistory {
     @JsonIgnore
     private SavingsAccount savingsAccount;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at",insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "savings_account_tariff")
+    @JsonIgnore
+    private Tariff tariffId;
 }
