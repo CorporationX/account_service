@@ -74,6 +74,9 @@ public class Account {
     @OneToOne
     private Balance balance;
 
+    @OneToOne
+    private Request request;
+
     public void nextVersion() {
         this.version++;
     }

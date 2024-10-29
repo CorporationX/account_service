@@ -4,7 +4,9 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.RequestJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final RequestJpaRepository requestRepository;
+    private final RequestMapper requestMapper;
 
     @Override
     public AccountDto getAccountById(long id) {
@@ -26,6 +30,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto openAccount(AccountDto accountDto) {
         accountRepository.save(accountMapper.toEntity(accountDto));
+        requestRepository.save(requestMapper.accountToRequest(accountMapper.toEntity(accountDto)));
         return accountDto;
     }
 
@@ -48,6 +53,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id " + id));
         account.setStatus(newStatus);
+        requestRepository.save(requestMapper.accountToRequest(account));
         return accountMapper.toDto(accountRepository.save(account));
     }
 }
