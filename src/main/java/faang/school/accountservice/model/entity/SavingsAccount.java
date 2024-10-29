@@ -31,13 +31,14 @@ public class SavingsAccount {
     @JsonIgnore
     private Account account;
 
-    @OneToOne
-    @JoinColumn(name = "tariff_id")
-    private Tariff tariff;
-
-    @OneToOne
-    @JoinColumn(name = "savings_account_rate_id")
-    private SavingsAccountRate savingsAccountRate;
+    //TODO
+//    @OneToOne
+//    @JoinColumn(name = "tariff_id")
+//    private Tariff tariff;
+//
+//    @OneToOne
+//    @JoinColumn(name = "savings_account_rate_id")
+//    private SavingsAccountRate savingsAccountRate;
 
     @OneToMany(mappedBy = "savingsAccount")
     private List<TariffHistory> tariffHistory;

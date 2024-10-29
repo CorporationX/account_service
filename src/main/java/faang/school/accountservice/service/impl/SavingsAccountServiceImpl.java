@@ -45,12 +45,13 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             log.info("Account with id {} not found", savingsAccountDto.getAccountId());
             throw new EntityNotFoundException("Account with id " + savingsAccountDto.getAccountId() + " not found");
         });
+//TODO
 
         SavingsAccount savingsAccount = SavingsAccount.builder()
                 .account(account)
                 .accountNumber(account.getNumber())
-                .tariff(tariff)
-                .savingsAccountRate(savingsAccountRate)
+//                .tariff(tariff)
+//                .savingsAccountRate(savingsAccountRate)
                 .build();
 
         savingsAccount = savingsAccountRepository.save(savingsAccount);

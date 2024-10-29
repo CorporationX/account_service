@@ -9,8 +9,9 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface SavingsAccountMapper {
 
-    @Mapping(source = "tariff.id", target = "tariffId")
-    @Mapping(source = "tariff.savingsAccountRate.rate", target = "savingsAccountRate")
+    // TODO
+//    @Mapping(source = "tariff.id", target = "tariffId")
+//    @Mapping(source = "tariff.savingsAccountRate.rate", target = "savingsAccountRate")
     SavingsAccountDto savingsAccountToSavingsAccountDto(SavingsAccount savingsAccount);
 
 //    SavingsAccount savingsAccountDtoToSavingsAccount(SavingsAccountDto savingsAccountDto);
