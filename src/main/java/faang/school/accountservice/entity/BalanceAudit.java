@@ -18,7 +18,7 @@ public class BalanceAudit {
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
 
-    @Column(name = "version", nullable = false)
+    @Column(name = "balance_version", nullable = false)
     private Long version;
 
     @Column(name = "cur_auth_balance")
