@@ -14,6 +14,7 @@ public class SavingsAccountDto {
 
     @Positive
     private Long tariffId;
+    private Double rate;
     private LocalDateTime lastDatePercent;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

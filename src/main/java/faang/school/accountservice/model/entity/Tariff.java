@@ -1,6 +1,5 @@
 package faang.school.accountservice.model.entity;
 
-import faang.school.accountservice.model.enums.TariffType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,16 +21,11 @@ public class Tariff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tariff_type")
-    @Enumerated(EnumType.STRING)
-    private TariffType type;
+    @Column(name = "tariff_name")
+    private String name;
 
-    @OneToMany(mappedBy = "tariff")
+    @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL)
     private List<SavingsAccountRate> savingsAccountRates;
-
-    @OneToOne()
-    @JoinColumn(name = "savings_account_rate_id")
-    private SavingsAccountRate savingsAccountRate;
 
     @OneToMany(mappedBy = "tariffId")
     List<TariffHistory> tariffHistories;

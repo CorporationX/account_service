@@ -6,10 +6,7 @@ import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.SavingsAccount;
 import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.model.entity.TariffHistory;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.SavingsAccountRepository;
-import faang.school.accountservice.repository.TariffHistoryRepository;
-import faang.school.accountservice.repository.TariffRepository;
+import faang.school.accountservice.repository.*;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +25,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final TariffRepository tariffRepository;
     private final TariffHistoryRepository tariffHistoryRepository;
+    private final SavingsAccountRateRepository savingsAccountRateRepository;
 
     @Transactional
     @Override
@@ -70,8 +68,14 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             throw new EntityNotFoundException("Tariff with id " + id + " not found");
         });
 
+        Double rate = savingsAccountRateRepository.findLatestRateIdByTariffId(tariffId).orElseGet(() -> {
+            log.info("Rate with tariff id {} not found", tariffId);
+            throw new EntityNotFoundException("Rate with tariff id " + tariffId + " not found");
+        });
+
         SavingsAccountDto savingsAccountDto = savingsAccountMapper.savingsAccountToSavingsAccountDto(savingsAccount);
         savingsAccountDto.setTariffId(tariffId);
+        savingsAccountDto.setRate(rate);
         return savingsAccountDto;
     }
 
@@ -86,11 +90,16 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         List<SavingsAccountDto> savingsAccountDtos = savingsAccountMapper.toDtos(savingsAccounts);
         savingsAccountDtos
                 .forEach(saDto -> {
-                    Long id = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(saDto.getId()).orElseGet(()->{
+                    Long id = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(saDto.getId()).orElseGet(() -> {
                         log.info("Tariff with id {} not found", saDto.getId());
                         throw new EntityNotFoundException("Tariff with id " + saDto.getId() + " not found");
                     });
+                    Double rate = savingsAccountRateRepository.findLatestRateIdByTariffId(id).orElseGet(() -> {
+                        log.info("Rate with tariff id {} not found", id);
+                        throw new EntityNotFoundException("Rate with tariff id " + id + " not found");
+                    });
                     saDto.setTariffId(id);
+                    saDto.setRate(rate);
                 });
 
         return savingsAccountDtos;

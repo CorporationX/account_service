@@ -31,7 +31,7 @@ public class TariffHistory {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "savings_account_tariff")
+    @JoinColumn(name = "savings_account_tariff_id")
     @JsonIgnore
     private Tariff tariffId;
 }

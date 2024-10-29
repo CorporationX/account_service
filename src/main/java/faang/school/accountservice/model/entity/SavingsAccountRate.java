@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class SavingsAccountRate {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne()
@@ -23,4 +26,8 @@ public class SavingsAccountRate {
 
     @Column(name = "rate")
     private double rate;
+
+    @Column(name = "created_at", insertable = false)
+    private LocalDateTime createdAt;
+
 }

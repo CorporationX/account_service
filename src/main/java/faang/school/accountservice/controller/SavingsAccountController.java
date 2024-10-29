@@ -29,14 +29,14 @@ public class SavingsAccountController {
     @Operation(summary = "Get SavingsAccount by id", description = "Get SavingsAccount from DB by id")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public SavingsAccountDto getSavingAccount(@NotNull @Positive(message = "id must be bigger than 0") @PathVariable() Long id) {
+    public SavingsAccountDto getSavingAccount(@NotNull @Positive(message = "id must be positive") @PathVariable() Long id) {
         return savingsAccountService.getSavingsAccount(id);
     }
 
     @Operation(summary = "Get SavingsAccount by user id", description = "Get SavingsAccount from DB by user id")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping()
-    public List<SavingsAccountDto> getSavingAccountByUserId(@NotNull @Positive(message = "id must be bigger than 0") @RequestParam Long userId) {
+    public List<SavingsAccountDto> getSavingAccountByUserId(@NotNull @Positive(message = "id must be positive") @RequestParam Long userId) {
         return savingsAccountService.getSavingsAccountByUserId(userId);
     }
 

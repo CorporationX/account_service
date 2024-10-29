@@ -11,8 +11,6 @@ import java.util.List;
 @Repository
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
 
-    SavingsAccount findByAccountNumber(String number);
-
     @Query(value = "SELECT * FROM savings_account sa WHERE sa.account_number IN :accountNumbers", nativeQuery = true)
     List<SavingsAccount> findSaIdsByAccountNumbers(@Param("accountNumbers") List<String> accountNumbers);
 }
