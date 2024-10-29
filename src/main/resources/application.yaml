@@ -5,6 +5,14 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      channels:
+        dms-channel:
+          name: dms_channel
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -23,3 +31,8 @@ server:
 logging:
   level:
     root: info
+
+reserve-service:
+  canceling-out-of-date-reserves:
+    cron: 0/5 * * * * *
+    waiting-time: 30 # время ожидания в секундах
