@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.aspect.AuditBalanceChange;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.repository.AccountRepository;
@@ -31,6 +32,7 @@ public class BalanceService {
     }
 
     @Transactional
+    @AuditBalanceChange
     public Balance updateBalance(UUID accountUuid, Balance balance) {
         Account account = accountRepository.findById(accountUuid)
                 .orElseThrow();

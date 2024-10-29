@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.aspect.AuditBalanceChange;
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.model.account.Account;
@@ -28,6 +29,7 @@ public class AccountService {
     private final BalanceService balanceService;
 
     @Transactional
+    @AuditBalanceChange
     public Account createAccount(Account account) {
         Owner owner = account.getOwner();
         Long externalId = owner.getExternalId();
