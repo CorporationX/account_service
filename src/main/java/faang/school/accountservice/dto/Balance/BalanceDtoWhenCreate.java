@@ -15,8 +15,8 @@ import lombok.Setter;
 public class BalanceDtoWhenCreate {
 
     @PositiveOrZero
-    private long authorizationBalance;
+    private double authorizationBalance;
 
     @PositiveOrZero
-    private long actualBalance;
+    private double actualBalance;
 }

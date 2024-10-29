@@ -10,12 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/account/{accountId}/balance")
+@RequestMapping("/accounts/{accountId}/balance")
 @Validated
 @RequiredArgsConstructor
 public class BalanceController {
@@ -28,7 +29,7 @@ public class BalanceController {
         return balanceService.create(accountId, balanceDtoWhenCreate);
     }
 
-    @PostMapping
+    @PutMapping
     public ReturnedBalanceDto update(@PathVariable @Positive long accountId,
                                      @RequestBody @Valid BalanceDtoWhenUpdate balanceDtoWhenUpdate) {
         return balanceService.update(accountId, balanceDtoWhenUpdate);

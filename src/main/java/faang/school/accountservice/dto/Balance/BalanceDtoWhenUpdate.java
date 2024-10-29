@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto.Balance;
 
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,15 +13,14 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class BalanceDtoWhenUpdate {
 
-    @PositiveOrZero
+    @Positive
     private long id;
 
     @PositiveOrZero
-    private long authorizationBalance;
+    private double authorizationBalance;
 
     @PositiveOrZero
-    private long actualBalance;
+    private double actualBalance;
 }

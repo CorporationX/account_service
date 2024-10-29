@@ -28,10 +28,10 @@ public class Balance {
     private long id;
 
     @Column(name = "authorization_balance")
-    private long authorizationBalance;
+    private double authorizationBalance;
 
     @Column(name = "actual_balance", nullable = false)
-    private long actualBalance;
+    private double actualBalance;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)

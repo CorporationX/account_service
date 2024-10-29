@@ -9,6 +9,7 @@ import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,10 @@ public class BalanceService {
     private final AccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
 
+    @Transactional
     public ReturnedBalanceDto create(long accountId, BalanceDtoWhenCreate balanceDtoWhenCreate) {
         log.info("Create method started for accountId: {}", accountId);
         Balance balance = balanceMapper.toBalance(balanceDtoWhenCreate);
-
 
         Account account = findAccountById(accountId);
 
@@ -39,6 +40,7 @@ public class BalanceService {
         return result;
     }
 
+    @Transactional
     public ReturnedBalanceDto update(long accountId, BalanceDtoWhenUpdate balanceDtoWhenUpdate) {
         log.info("Update method started for accountId: {}", accountId);
         Balance balance = balanceMapper.toBalance(balanceDtoWhenUpdate);
