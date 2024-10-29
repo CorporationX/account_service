@@ -2,6 +2,7 @@ package faang.school.accountservice.model.account;
 
 
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -48,6 +50,10 @@ public class Account {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
+
+    @OneToOne
+    @JoinColumn(name = "balance_id", nullable = false)
+    private Balance balance;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)

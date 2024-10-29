@@ -25,6 +25,7 @@ public class AccountService {
     private final OwnerRepository ownerRepository;
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
+    private final BalanceService balanceService;
 
     @Transactional
     public Account createAccount(Account account) {
@@ -39,6 +40,7 @@ public class AccountService {
         account.setAccountNumber(newAccountNumber);
         account.setStatus(AccountStatus.ACTIVE);
         account.setOwner(currentOwner);
+        account.setBalance(balanceService.createBalance());
 
         return accountRepository.save(account);
     }
