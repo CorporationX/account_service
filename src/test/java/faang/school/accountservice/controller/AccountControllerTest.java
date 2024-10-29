@@ -6,6 +6,7 @@ import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.model.enums.Currency;
+import faang.school.accountservice.service.impl.AccountServiceImpl;
 import faang.school.accountservice.validator.AccountControllerValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

@@ -6,6 +6,7 @@ import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.util.ExceptionThrowingValidator;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
