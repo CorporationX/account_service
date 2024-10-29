@@ -5,9 +5,9 @@ import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.owner.OwnerDto;
 import faang.school.accountservice.dto.type.TypeDto;
-import faang.school.accountservice.entity.owner.Owner;
-import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.mapper.owner.OwnerMapper;
+import faang.school.accountservice.mapper.type.TypeMapper;
 import faang.school.accountservice.repository.owner.OwnerRepository;
 import faang.school.accountservice.repository.type.TypeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -28,19 +27,17 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-//@WebMvcTest(AccountController.class)
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
 class AccountControllerTest {
 
-    private static final String TEST = "TEST";
+    private static final String OWNER_NAME = "OWNER_NAME";
+    private static final String TYPE_NAME = "TYPE_NAME";
     private static final String USER_HEADER = "x-user-id";
 
     private static final long ID = 1L;
@@ -54,20 +51,24 @@ class AccountControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private TypeRepository typeRepository;
 
-    @MockBean
+    @Autowired
+    private TypeMapper typeMapper;
+
+    @Autowired
     private OwnerRepository ownerRepository;
+
+    @Autowired
+    private OwnerMapper ownerMapper;
 
     @Nested
     class Open {
 
         private AccountCreateDto accountCreateDto;
         private OwnerDto ownerDto;
-        private AccountType type;
         private TypeDto typeDto;
-        private Owner owner;
 
         @BeforeEach
         void init() {
@@ -76,21 +77,11 @@ class AccountControllerTest {
                     .build();
 
             ownerDto = OwnerDto.builder()
-                    .name(TEST)
+                    .name(OWNER_NAME)
                     .build();
 
             typeDto = TypeDto.builder()
-                    .name(TEST)
-                    .build();
-
-            owner = Owner.builder()
-                    .id(ID)
-                    .name(TEST)
-                    .build();
-
-            type = AccountType.builder()
-                    .id(ID)
-                    .name(TEST)
+                    .name(TYPE_NAME)
                     .build();
         }
 
@@ -100,10 +91,8 @@ class AccountControllerTest {
             accountCreateDto.setType(typeDto);
             accountCreateDto.setOwner(ownerDto);
 
-            when(typeRepository.findByName(TEST))
-                    .thenReturn(Optional.ofNullable(type));
-            when(ownerRepository.findByName(TEST))
-                    .thenReturn(Optional.ofNullable(owner));
+            typeRepository.save(typeMapper.toEntity(typeDto));
+            ownerRepository.save(ownerMapper.toEntity(ownerDto));
 
             mockMvc.perform(
                             MockMvcRequestBuilders.post("/v1/accounts/open")
@@ -112,10 +101,10 @@ class AccountControllerTest {
                                     .characterEncoding(StandardCharsets.UTF_8)
                                     .content(objectMapper.writeValueAsString(accountCreateDto))
                     ).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.owner.name").value(TEST))
+                    .andExpect(jsonPath("$.owner.name").value(OWNER_NAME))
                     .andExpect(jsonPath("$.currency").value("RUB"))
                     .andExpect(jsonPath("$.status").value("ACTIVE"))
-                    .andExpect(jsonPath("$.type.name").value(TEST));
+                    .andExpect(jsonPath("$.type.name").value(TYPE_NAME));
         }
 
         @Test
