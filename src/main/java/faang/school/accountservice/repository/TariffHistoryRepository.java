@@ -10,7 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface TariffHistoryRepository extends JpaRepository<TariffHistory, Long> {
+
     @Query(value = "SELECT th.savings_account_tariff FROM tariff_history th " +
             "WHERE th.savings_account_id = :accountId ORDER BY th.created_at DESC LIMIT 1", nativeQuery = true)
     Optional<Long> findLatestTariffIdBySavingsAccountId(@Param("accountId") Long accountId);
+
 }

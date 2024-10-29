@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/savings-account")
 @RequiredArgsConstructor
@@ -34,10 +36,9 @@ public class SavingsAccountController {
     @Operation(summary = "Get SavingsAccount by user id", description = "Get SavingsAccount from DB by user id")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping()
-    public SavingsAccountDto getSavingAccountByUserId(@NotNull @Positive(message = "id must be bigger than 0") @RequestParam Long userId) {
-        return savingsAccountService.getSavingsAccount(userId);
+    public List<SavingsAccountDto> getSavingAccountByUserId(@NotNull @Positive(message = "id must be bigger than 0") @RequestParam Long userId) {
+        return savingsAccountService.getSavingsAccountByUserId(userId);
     }
-
 
 
 }

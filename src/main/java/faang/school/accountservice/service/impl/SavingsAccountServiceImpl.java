@@ -2,7 +2,10 @@ package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.entity.*;
+import faang.school.accountservice.model.entity.Account;
+import faang.school.accountservice.model.entity.SavingsAccount;
+import faang.school.accountservice.model.entity.Tariff;
+import faang.school.accountservice.model.entity.TariffHistory;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffHistoryRepository;
@@ -13,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -71,8 +76,24 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     }
 
     @Override
-    public SavingsAccountDto getSavingsAccountByUserId(Long userId) {
-        return null;
+    public List<SavingsAccountDto> getSavingsAccountByUserId(Long userId) {
+        List<String> numbers = accountRepository.findNumbersByUserId(userId);
+        if (numbers.isEmpty()) {
+            throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
+        }
+
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaIdsByAccountNumbers(numbers);
+        List<SavingsAccountDto> savingsAccountDtos = savingsAccountMapper.toDtos(savingsAccounts);
+        savingsAccountDtos
+                .forEach(saDto -> {
+                    Long id = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(saDto.getId()).orElseGet(()->{
+                        log.info("Tariff with id {} not found", saDto.getId());
+                        throw new EntityNotFoundException("Tariff with id " + saDto.getId() + " not found");
+                    });
+                    saDto.setTariffId(id);
+                });
+
+        return savingsAccountDtos;
     }
 
 }
