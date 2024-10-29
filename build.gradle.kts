@@ -75,7 +75,8 @@ tasks.bootJar {
  */
 val jacocoInclude = listOf(
     "**/service/**",
-    "**/validator/**"
+    "**/validator/**",
+    "**/listener/**"
 )
 val jacocoExclude = listOf(
     "**/client/**",

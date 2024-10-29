@@ -3,11 +3,14 @@ package faang.school.accountservice.listener.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.listener.pending.OperationMessage;
+import faang.school.accountservice.exception.ApiException;
+import faang.school.accountservice.exception.pending.UnknownOperationException;
 import faang.school.accountservice.service.pending.PendingOperationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -26,18 +29,18 @@ public class PendingOperationKafkaListener {
     private final PendingOperationService pendingOperationService;
 
     @KafkaListener(topics ="${spring.kafka.topic.pending_operation}", groupId = "${spring.kafka.consumer.group-id}")
-    public void pendingOperationListener(String message) {
+    public void onMessage(String message) {
         try {
-            OperationMessage event = objectMapper.readValue(message, OperationMessage.class);
-            switch (event.getOperationType()) {
-                case AUTHORIZATION -> pendingOperationService.authorization(event);
-                case CLEARING -> pendingOperationService.clearing(event);
-                case CANCELLATION, ERROR -> pendingOperationService.cancellation(event);
-                default -> throw new RuntimeException("error");
+            OperationMessage operation = objectMapper.readValue(message, OperationMessage.class);
+            switch (operation.getOperationType()) {
+                case AUTHORIZATION -> pendingOperationService.authorization(operation);
+                case CLEARING -> pendingOperationService.clearing(operation);
+                case CANCELLATION, ERROR -> pendingOperationService.cancellation(operation);
+                default -> throw new UnknownOperationException(operation.getOperationType());
             }
         } catch (JsonProcessingException exception) {
-            log.error("Unexpected error, listen topic: {} by group: {}", topic, group, exception);
-            throw new RuntimeException(exception);
+            log.error("Unexpected error, listen topic: {} of group: {}", topic, group, exception);
+            throw new ApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
