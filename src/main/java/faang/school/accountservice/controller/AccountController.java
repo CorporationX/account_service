@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.model.dto.AccountDto;
-import faang.school.accountservice.service.impl.AccountServiceImpl;
 import faang.school.accountservice.validator.AccountControllerValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Positive;
@@ -45,7 +44,7 @@ public class AccountController {
     @Operation(summary = "Create account", description = "Create account in DB")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public AccountDto openAccount(@RequestBody AccountDto accountDto) {
+    public AccountDto openAccount(@RequestBody @Validated(AccountDto.Create.class) AccountDto accountDto) {
         validator.checkDto(accountDto);
 
         return accountService.openAccount(accountDto);

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.enums.AccountStatus;
-import faang.school.accountservice.service.impl.AccountServiceImpl;
+import faang.school.accountservice.model.enums.AccountType;
+import faang.school.accountservice.model.enums.Currency;
 import faang.school.accountservice.validator.AccountControllerValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +34,7 @@ class AccountControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @MockBean
     private UserContext userContext;
@@ -71,10 +72,17 @@ class AccountControllerTest {
 
     @Test
     void shouldOpenAccount() throws Exception {
-        String json = objectMapper.writeValueAsString(accountDto);
-        when(accountServiceImpl.openAccount(accountDto)).thenReturn(accountDto);
 
-        accountServiceImpl.openAccount(accountDto);
+        AccountDto validAccountDto = new AccountDto();
+        validAccountDto.setProjectId(1L);
+        validAccountDto.setStatus(AccountStatus.ACTIVE);
+        validAccountDto.setType(AccountType.SAVINGS);
+        validAccountDto.setCurrency(Currency.USD);
+
+        String json = objectMapper.writeValueAsString(validAccountDto);
+        when(accountServiceImpl.openAccount(validAccountDto)).thenReturn(validAccountDto);
+
+        accountServiceImpl.openAccount(validAccountDto);
 
         mockMvc.perform(post("/api/v1/account", id)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -34,6 +34,9 @@ class AccountServiceImplTest {
     @Mock
     private FreeAccountNumbersServiceImpl freeAccountNumbersService;
 
+    @Mock
+    private ExceptionThrowingValidator validator;
+
     @Spy
     private AccountMapperImpl accountMapper;
 
