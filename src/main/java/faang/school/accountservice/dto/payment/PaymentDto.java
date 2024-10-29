@@ -1,6 +1,7 @@
 package faang.school.accountservice.dto.payment;
 
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.model.payment.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +22,4 @@ public class PaymentDto {
     private String accountNumberTo;
     private PaymentStatus status;
     private LocalDateTime clearScheduledAt;
-
-    public enum PaymentStatus {
-        PENDING,
-        FORCED,
-        CANCELED
-    }
 }
