@@ -1,7 +1,7 @@
 package faang.school.accountservice.publis.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.dto.payment.PaymentDto;
+import faang.school.accountservice.dto.payment.PaymentEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -21,7 +21,8 @@ public class PaymentEventListener implements MessageListener {
         String messageBody = new String(message.getBody());
         log.info("Get message: {}", messageBody);
         try {
-            objectMapper.readValue(messageBody, PaymentDto.class);
+            PaymentEventDto paymentEventDto = objectMapper.readValue(messageBody, PaymentEventDto.class);
+            System.out.println(paymentEventDto);
         } catch (IOException exception) {
             log.error(exception.getMessage(), exception);
             throw new IllegalArgumentException(exception);

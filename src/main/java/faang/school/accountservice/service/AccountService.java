@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -118,7 +117,7 @@ public class AccountService {
 
     private String generateAccountNumber() {
         //TODO: реализовать логику генерации УНИКАЛЬНОГО номера счета
-        return "00000000000000000001";
+        return "00000000000000000000";
     }
 
     private void validateAccountNumber(String accountNumber) {
