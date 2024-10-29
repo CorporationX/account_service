@@ -1,9 +1,8 @@
-/*
 package faang.school.accountservice.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
-import faang.school.accountservice.AccountServiceApplication;
+import faang.school.accountservice.config.context.UserContext;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +18,26 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest(
-        classes = {
-                AccountServiceApplication.class
-        }
-)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ActiveProfiles("test")
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-public class BaseContextTest {
+@ActiveProfiles("test")
+@ExtendWith(SpringExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public abstract class BaseContextTest {
     @Autowired
     protected MockMvc mockMvc;
 
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Autowired
+    private UserContext userContext;
+
     @Container
     public static PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
-            new PostgreSQLContainer<>("postgres:13.6");
+            new PostgreSQLContainer<>("postgres:14")
+                    .withInitScript("create_schema.sql");
     @Container
     private static final RedisContainer REDIS_CONTAINER =
             new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"));
@@ -62,4 +61,3 @@ public class BaseContextTest {
         }
     }
 }
-*/
