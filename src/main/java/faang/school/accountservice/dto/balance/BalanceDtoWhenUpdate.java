@@ -1,24 +1,26 @@
-package faang.school.accountservice.dto.Balance;
+package faang.school.accountservice.dto.balance;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnedBalanceDto {
+public class BalanceDtoWhenUpdate {
+
+    @Positive
     private long id;
+
+    @PositiveOrZero
     private double authorizationBalance;
+
+    @PositiveOrZero
     private double actualBalance;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private int version;
-    private long accountId;
 }

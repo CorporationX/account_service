@@ -1,13 +1,12 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.balance;
 
-import faang.school.accountservice.dto.Balance.BalanceDtoWhenCreate;
-import faang.school.accountservice.dto.Balance.BalanceDtoWhenUpdate;
-import faang.school.accountservice.dto.Balance.ReturnedBalanceDto;
+import faang.school.accountservice.dto.balance.BalanceDtoWhenUpdate;
+import faang.school.accountservice.dto.balance.ReturnedBalanceDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.repository.balance.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +23,16 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
 
     @Transactional
-    public ReturnedBalanceDto create(long accountId, BalanceDtoWhenCreate balanceDtoWhenCreate) {
-        log.info("Create method started for accountId: {}", accountId);
-        Balance balance = balanceMapper.toBalance(balanceDtoWhenCreate);
+    public void create(Account account) {
+        log.info("Create method started for accountId: {}", account.getId());
 
-        Account account = findAccountById(accountId);
+        Balance balance = Balance.builder()
+                .actualBalance(0)
+                .account(account)
+                .build();
 
-        balance.setAccount(account);
         balance = balanceRepository.save(balance);
         log.debug("Balance created: {}", balance);
-
-        ReturnedBalanceDto result = balanceMapper.toReturnedBalanceDto(balance);
-        result.setAccountId(accountId);
-        log.debug("Create method completed successfully, result: {}", result);
-        return result;
     }
 
     @Transactional

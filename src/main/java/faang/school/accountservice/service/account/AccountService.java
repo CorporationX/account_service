@@ -10,6 +10,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.IllegalStatusException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.owner.OwnerService;
 import faang.school.accountservice.service.status.AccountStatusManager;
 import faang.school.accountservice.service.type.TypeService;
@@ -33,6 +34,7 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final OwnerService ownerService;
     private final TypeService typeService;
+    private final BalanceService balanceService;
 
     @Transactional(readOnly = true)
     public List<AccountDto> getAccounts() {
@@ -62,6 +64,11 @@ public class AccountService {
         Account account = generateNewAccount(accountCreateDto);
 
         account = accountRepository.save(account);
+        log.debug("account has been saved, account: {}", account);
+
+        balanceService.create(account);
+        log.debug("balance has been created");
+
         AccountDto accountDto = accountMapper.toAccountDto(account);
         log.info("createAccount() - finish, accountDto - {}", accountDto);
         return accountDto;

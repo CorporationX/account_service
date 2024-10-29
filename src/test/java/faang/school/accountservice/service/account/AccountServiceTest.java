@@ -14,6 +14,7 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.exception.IllegalStatusException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.owner.OwnerService;
 import faang.school.accountservice.service.status.AccountStatusManager;
 import faang.school.accountservice.service.type.TypeService;
@@ -68,6 +69,9 @@ class AccountServiceTest {
 
     @Mock
     private AccountProperties.NameLength nameLength;
+
+    @Mock
+    private BalanceService balanceService;
 
     private Account account;
     private AccountDto accountDto;
@@ -167,6 +171,7 @@ class AccountServiceTest {
                 .getOwnerByName(accountCreateDto.getOwner().getName());
         verify(accountRepository)
                 .save(any(Account.class));
+        verify(balanceService).create(account);
         verify(accountMapper)
                 .toAccountDto(any(Account.class));
     }
