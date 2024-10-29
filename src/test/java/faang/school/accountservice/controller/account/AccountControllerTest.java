@@ -1,55 +1,37 @@
 package faang.school.accountservice.controller.account;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.owner.OwnerDto;
 import faang.school.accountservice.dto.type.TypeDto;
+import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.mapper.owner.OwnerMapper;
 import faang.school.accountservice.mapper.type.TypeMapper;
+import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.repository.owner.OwnerRepository;
 import faang.school.accountservice.repository.type.TypeRepository;
+import faang.school.accountservice.util.BaseContextTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Testcontainers
-@AutoConfigureMockMvc
-class AccountControllerTest {
+class AccountControllerTest extends BaseContextTest {
 
     private static final String OWNER_NAME = "OWNER_NAME";
     private static final String TYPE_NAME = "TYPE_NAME";
     private static final String USER_HEADER = "x-user-id";
 
     private static final long ID = 1L;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserContext userContext;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private TypeRepository typeRepository;
@@ -62,6 +44,70 @@ class AccountControllerTest {
 
     @Autowired
     private OwnerMapper ownerMapper;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    private Account account;
+
+    @Nested
+    class Get {
+
+        @Test
+        @DisplayName("When get /id request with correct path variable should return ok")
+        void whenVariableIsCorrectWhileRequestThenExpectOkResponse() throws Exception {
+            mockMvc.perform(
+                    MockMvcRequestBuilders.get("/v1/accounts/{id}", ID)
+                            .header(USER_HEADER, ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+            ).andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class Block {
+
+        @BeforeEach
+        void init() {
+            account = accountRepository.findById(ID).get();
+            account.setStatus(AccountStatus.ACTIVE);
+            accountRepository.save(account);
+        }
+
+        @Test
+        @DisplayName("When patch /id/block request with correct path variable should return accepted")
+        void whenVariableIsCorrectWhileRequestThenExpectOkResponse() throws Exception {
+            mockMvc.perform(
+                    MockMvcRequestBuilders.patch("/v1/accounts/{id}/block", ID)
+                            .header(USER_HEADER, ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+            ).andExpect(status().isAccepted());
+        }
+    }
+
+    @Nested
+    class Delete {
+
+        @BeforeEach
+        void init() {
+            account = accountRepository.findById(ID).get();
+            account.setStatus(AccountStatus.ACTIVE);
+            accountRepository.save(account);
+        }
+
+        @Test
+        @DisplayName("When delete /id request with correct path variable should return ok")
+        void whenVariableIsCorrectWhileRequestThenExpectOkResponse() throws Exception {
+            mockMvc.perform(
+                    MockMvcRequestBuilders.delete("/v1/accounts/{id}", ID)
+                            .header(USER_HEADER, ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+            ).andExpect(status().isNoContent());
+        }
+    }
 
     @Nested
     class Open {
@@ -111,12 +157,13 @@ class AccountControllerTest {
         @DisplayName("When /open request with incorrect body should return bad request")
         void whenBodyIsIncorrectWhileRequestThenExpectBadRequestError() throws Exception {
             mockMvc.perform(
-                    MockMvcRequestBuilders.post("/v1/accounts/open")
-                            .header(USER_HEADER, ID)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .content(objectMapper.writeValueAsString(accountCreateDto))
-            ).andExpect(status().isBadRequest());
+                            MockMvcRequestBuilders.post("/v1/accounts/open")
+                                    .header(USER_HEADER, ID)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding(StandardCharsets.UTF_8)
+                                    .content(objectMapper.writeValueAsString(accountCreateDto))
+                    ).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").exists());
         }
 
         @Test
@@ -129,24 +176,6 @@ class AccountControllerTest {
                             .characterEncoding(StandardCharsets.UTF_8)
                             .accept("{}")
             ).andExpect(status().isInternalServerError());
-        }
-    }
-
-    @Container
-    public static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
-            new PostgreSQLContainer<>("postgres:14")
-                    .withInitScript("create_schema.sql");
-
-    @DynamicPropertySource
-    static void postgresqlProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRESQL_CONTAINER::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
-        registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 }
