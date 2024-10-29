@@ -2,7 +2,11 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
@@ -23,8 +27,14 @@ class BalanceServiceImplTest {
     private BalanceServiceImpl service;
 
     @Mock
+    private BalanceAuditRepository balanceAuditRepository;
+    @Mock
     private BalanceJpaRepository balanceJpaRepository;
 
+    @Mock
+    private AccountRepository accountRepository;
+    @Mock
+    private BalanceAuditMapper auditMapper;
     @Mock
     private BalanceMapper mapper;
 
@@ -59,6 +69,8 @@ class BalanceServiceImplTest {
                 .save(balance);
         Mockito.verify(mapper, Mockito.times(1))
                 .toEntity(balanceDto);
+        Mockito.verify(balanceAuditRepository, Mockito.times(1))
+                .save(auditMapper.toEntity(balance));
     }
 
     @Test
@@ -69,6 +81,8 @@ class BalanceServiceImplTest {
 
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
                 .save(captor.capture());
+        Mockito.verify(balanceAuditRepository, Mockito.times(1))
+                .save(auditMapper.toEntity(balance));
 
         Balance actual = captor.getValue();
         Assertions.assertNotNull(actual.getUpdatedAt());
