@@ -33,7 +33,7 @@ public class BalanceController {
         return balanceService.getBalanceByAccountId(accountId);
     }
 
-    @PostMapping("/{accountId}")
+    @PostMapping("/{accountId}/account")
     public BalanceDto createBalance(@PathVariable @Positive Long accountId) {
         return balanceService.createBalance(accountId);
     }

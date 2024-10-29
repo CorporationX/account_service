@@ -9,9 +9,9 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.service.balance.changebalance.BalanceChange;
-import faang.school.accountservice.service.balance.changebalance.BalanceChangeStorage;
+import faang.school.accountservice.service.balance.changebalance.BalanceChangeRegistry;
 import faang.school.accountservice.service.balance.operation.Operation;
-import faang.school.accountservice.service.balance.operation.OperationStorage;
+import faang.school.accountservice.service.balance.operation.OperationRegistry;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -33,13 +33,14 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
     private final AccountRepository accountRepository;
-    private final OperationStorage operationStorage;
-    private final BalanceChangeStorage balanceChangeStorage;
+    private final OperationRegistry operationRegistry;
+    private final BalanceChangeRegistry balanceChangeRegistry;
 
     @Override
     public BalanceDto getBalanceByAccountId(Long accountId) {
         Balance balance = balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Not found balance by account id: " + accountId));
+                .orElseThrow(() -> new EntityNotFoundException("The balance for account with id %s was not found"
+                        .formatted(accountId)));
         log.debug("balance by accountId: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
@@ -58,7 +59,7 @@ public class BalanceServiceImpl implements BalanceService {
                 .orElseThrow(() -> new EntityNotFoundException("Not found account id: " + accountId));
         Balance currentBalance = account.getCurrentBalance();
         if (currentBalance != null) {
-            throw new EntityExistsException("Balance already exists: " + currentBalance.getId());
+            throw new EntityExistsException("Balance is already exist for account ID: " + currentBalance.getId());
         }
         Balance balance = Balance.builder()
                 .account(account)
@@ -77,8 +78,8 @@ public class BalanceServiceImpl implements BalanceService {
             backoff = @Backoff(delayExpression = "${retryable.delay}"))
     public BalanceDto changeBalance(Long balanceId, AmountChangeRequest amount) {
         Balance balance = getBalance(balanceId);
-        Operation operation = operationStorage.getOperation(amount.operationType());
-        BalanceChange balanceChange = balanceChangeStorage.getBalanceChange(amount.changeBalanceType());
+        Operation operation = operationRegistry.getOperation(amount.operationType());
+        BalanceChange balanceChange = balanceChangeRegistry.getBalanceChange(amount.changeBalanceType());
         balance = balanceChange.processBalance(balance, amount.amount(), operation);
         balanceRepository.save(balance);
         log.debug("balance changed: {}", balance);

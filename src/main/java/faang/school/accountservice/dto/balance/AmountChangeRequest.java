@@ -14,9 +14,11 @@ public record AmountChangeRequest(
         @JsonProperty(required = true)
         BigDecimal amount,
 
+        @NotNull
         @JsonProperty(required = true)
         OperationType operationType,
 
+        @NotNull
         @JsonProperty(required = true)
         ChangeBalanceType changeBalanceType
 ) {

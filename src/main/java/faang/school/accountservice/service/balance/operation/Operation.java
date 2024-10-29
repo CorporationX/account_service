@@ -12,7 +12,7 @@ public interface Operation {
     OperationType getChangeType();
 
     @Autowired
-    default void register(OperationStorage operationStorage) {
-        operationStorage.registerOperation(this);
+    default void register(OperationRegistry operationRegistry) {
+        operationRegistry.registerOperation(this);
     }
 }

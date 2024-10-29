@@ -14,7 +14,7 @@ public interface BalanceChange {
     ChangeBalanceType getChangeBalanceType();
 
     @Autowired
-    default void setChangeBalanceType(BalanceChangeStorage changeBalanceStorage) {
+    default void setChangeBalanceType(BalanceChangeRegistry changeBalanceStorage) {
         changeBalanceStorage.registerBalanceChange(this);
     }
 }

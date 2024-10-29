@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class OperationStorage {
+public class OperationRegistry {
 
     private final Map<OperationType, Operation> balanceChanges = new HashMap<>();
 
