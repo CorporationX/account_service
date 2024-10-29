@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
 public interface AccountSeqRepository extends JpaRepository<AccountSeq, String> {
 
@@ -30,9 +28,8 @@ public interface AccountSeqRepository extends JpaRepository<AccountSeq, String> 
     @Query(nativeQuery = true, value = """
             UPDATE account_numbers_sequence SET counter = counter + :batchSize
             WHERE account_type = :type
-            RETURNING type, counter, old.counter AS initialValue
             """)
     @Modifying
-    AccountSeq incrementCounter(String type, int batchSize);
+    void incrementCounter(String type, int batchSize);
 
 }

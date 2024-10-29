@@ -1,7 +1,5 @@
 package faang.school.accountservice.service;
 
-
-import faang.school.accountservice.entity.AccountSeq;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountSeqRepository;
@@ -25,9 +23,12 @@ public class FreeAccountNumbersService {
 
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
-        AccountSeq period = accountSeqRepository.incrementCounter(type.name(), batchSize);
+        long period = accountSeqRepository.findByAccountType(type.name()).getCounter();
+        accountSeqRepository.incrementCounter(type.name(), batchSize);
+        long updatedCount = accountSeqRepository.findByAccountType(type.name()).getCounter();
+
         List<FreeAccountNumber> numbers = new ArrayList<>();
-        for (long i = period.getInitialValue(); i < period.getCounter(); i++) {
+        for (long i = period; i < updatedCount; i++) {
             FreeAccountNumber accountNumber = new FreeAccountNumber();
             accountNumber.setAccountType(type);
             accountNumber.setAccountNumber(ACCOUNT_PATTERN + i);
