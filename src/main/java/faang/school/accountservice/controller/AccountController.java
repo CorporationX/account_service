@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/accounts")
@@ -36,18 +34,16 @@ public class AccountController {
     }
 
     @GetMapping
-    public List<AccountDto> getAccountByNumber(@RequestParam(required = false) String number,
-                                               @RequestParam(required = false) Long externalId,
-                                               @RequestParam(required = false) OwnerType type) {
-        if (Objects.nonNull(number)) {
-            Account accounts = accountService.getAccountByNumber(number);
-            return List.of(accountMapper.toAccountDto(accounts));
-        } else if (Objects.nonNull(externalId) && Objects.nonNull(type)) {
-            List<Account> accounts = accountService.getAccountsByOwner(externalId, type);
-            return accountMapper.toAccountDtoList(accounts);
-        } else {
-            return Collections.emptyList();
-        }
+    public List<AccountDto> getAccount(@RequestParam QueryType query,
+                                       @RequestParam(required = false) String number,
+                                       @RequestParam(required = false) Long externalId) {
+        List<Account> accounts = switch (query) {
+            case NUMBER -> List.of(accountService.getAccountByNumber(number));
+            case USER -> accountService.getAccountsByOwner(externalId, OwnerType.USER);
+            case PROJECT -> accountService.getAccountsByOwner(externalId, OwnerType.PROJECT);
+        };
+
+        return accountMapper.toAccountDtoList(accounts);
     }
 
     @PutMapping("/suspend")
