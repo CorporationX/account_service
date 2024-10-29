@@ -9,16 +9,23 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-
+    clear-checksums: true
 server:
   port: 8090
+
+account-service:
+  account-numbers:
+    max-number-of-free-accounts: 10
+    min-number-of-free-accounts: 1
+    max-length-of-account-number: 20
+
 
 project-service:
   host: localhost
