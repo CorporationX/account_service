@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +51,16 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                 .id(new FreeAccountNumberId(type, accountNumber))
                 .build();
         freeAccountNumbersRepository.save(freeAccountNumber);
+    }
+
+    @Override
+    public void saveNumbers(AccountType type, List<String> numbers) {
+        freeAccountNumbersRepository.saveAll(
+                numbers.stream()
+                        .map(number -> FreeAccountNumber.builder()
+                                .id(new FreeAccountNumberId(type, number))
+                                .build())
+                        .collect(Collectors.toList())
+        );
     }
 }

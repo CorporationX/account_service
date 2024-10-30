@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface FreeAccountNumbersService {
@@ -12,4 +13,6 @@ public interface FreeAccountNumbersService {
     void generateNumberAndExecute(AccountType type, Consumer<FreeAccountNumber> operation);
 
     void saveNumber(AccountType type, String accountNumber);
+
+    void saveNumbers(AccountType type, List<String> freeAccountNumbers);
 }

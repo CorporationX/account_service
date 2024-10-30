@@ -3,14 +3,15 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -69,4 +70,10 @@ public class Account {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne
+    private Balance balance;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private SavingsAccount savingsAccount;
 }

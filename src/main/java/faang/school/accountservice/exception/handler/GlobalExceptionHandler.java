@@ -1,17 +1,16 @@
 package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.dto.Error;
+import faang.school.accountservice.exception.DataValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.Map;
 import java.util.Optional;
@@ -39,10 +38,10 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = exception.getBindingResult()
-                .getAllErrors()
+                .getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(
-                        error -> error instanceof FieldError ? ((FieldError) error).getField() : "Error",
+                        FieldError::getField,
                         error -> Optional.ofNullable(error.getDefaultMessage()).orElse(SOMETHING_ERROR)
                 ));
         log.error("Validation errors: {}", errors);
@@ -65,19 +64,13 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Error handleHttpMessageNotReadableException(HttpMessageNotReadableException exception, WebRequest request) {
-        Map<String, String> errorDetails = Map.of(
-                "error", exception.getLocalizedMessage(),
-                "path", request.getDescription(false)
-        );
-        log.error("Validation error: {}", errorDetails);
-
+    @ExceptionHandler(DataValidationException.class)
+    public Error handleDataValidationException(DataValidationException exception) {
+        String message = exception.getMessage();
+        log.error(message, exception);
         return Error.builder()
                 .code(HttpStatus.BAD_REQUEST.toString())
-                .message("Malformed JSON request")
-                .errors(errorDetails)
+                .message(message)
                 .build();
     }
 }
