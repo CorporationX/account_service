@@ -9,4 +9,9 @@ public interface FreeAccountNumbersService {
     void getUniqueAccountNumber(Consumer<FreeAccountNumber> accountConsumer, AccountType accountType);
 
     FreeAccountNumber generateUniqueAccountNumber(AccountType accountType);
+
+    void generateMultipleUniqueAccountNumbers(int quantity, AccountType accountType);
+
+    void generateLimitedUniqueAccountNumbers(int limit, AccountType accountType);
+
 }

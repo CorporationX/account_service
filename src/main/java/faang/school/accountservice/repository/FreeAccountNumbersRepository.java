@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountNumberId> {
     Optional<FreeAccountNumber> findByIdAccountType(AccountType accountType);
-
+    int countByAccountType(AccountType accountType);
     @Transactional
     default Optional<FreeAccountNumber> findAndDeleteFirst(AccountType accountType) {
         FreeAccountNumber freeAccountNumber = findByIdAccountType(accountType).orElse(null);

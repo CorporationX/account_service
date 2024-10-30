@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.impl.account.number;
 
+import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.model.entity.AccountNumberSequence;
 import faang.school.accountservice.model.entity.FreeAccountNumber;
 import faang.school.accountservice.model.entity.FreeAccountNumberId;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -53,6 +55,36 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         sequenceRepository.save(sequence);
 
         return new FreeAccountNumber(new FreeAccountNumberId(accountType, finalNumber));
+    }
+
+    @Override
+    public void generateMultipleUniqueAccountNumbers(int quantity, AccountType accountType) {
+        log.info("Generating multiple unique account number with account type {}", accountType);
+        createMultipleAccountNumbers(quantity, accountType);
+    }
+
+    @Override
+    public void generateLimitedUniqueAccountNumbers(int limit, AccountType accountType) {
+        int currentAccountQuantity = numbersRepository.countByAccountType(accountType);
+        if (currentAccountQuantity > limit) {
+            throw new DataValidationException("Limit is less than needed");
+        }
+        int resultQuantity = limit - currentAccountQuantity;
+        createMultipleAccountNumbers(resultQuantity, accountType);
+        log.info("Generating limited unique account number with account type {}", accountType);
+    }
+
+    private void createMultipleAccountNumbers(int quantity, AccountType accountType) {
+        IntStream.range(0, quantity).forEach(i -> createAccountNumber(accountType));
+    }
+
+    private void createAccountNumber(AccountType accountType) {
+        AccountNumberSequence sequence = sequenceRepository.createAndGetSequence(accountType);
+        long counter = sequence.getCounter();
+        String finalNumber = assembleAccountNumber(accountType, counter);
+        sequence.setCounter(++counter);
+        sequenceRepository.save(sequence);
+        FreeAccountNumber freeAccountNumber = new FreeAccountNumber(new FreeAccountNumberId(accountType, finalNumber));
     }
 
     private String assembleAccountNumber(AccountType accountType, long counter) {

@@ -36,6 +36,8 @@ public class AccountController {
         return accountService.getAccountById(id);
     }
 
+    @GetMapping("")
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccountDto openAccount(@Valid @RequestBody AccountDto dto) {
