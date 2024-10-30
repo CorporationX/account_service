@@ -27,10 +27,10 @@ public class Account {
     private String number;
 
     @Column(name = "project_id")
-    private Long project_id;
+    private Long projectId;
 
     @Column(name = "user_id")
-    private Long user_id;
+    private Long userId;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -59,4 +59,18 @@ public class Account {
     @Version
     @Column(name = "version", insertable = false)
     private Long version;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Balance balance;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
