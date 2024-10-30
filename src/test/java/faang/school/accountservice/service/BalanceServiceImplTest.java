@@ -2,10 +2,8 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,9 +28,6 @@ class BalanceServiceImplTest {
     private BalanceAuditRepository balanceAuditRepository;
     @Mock
     private BalanceJpaRepository balanceJpaRepository;
-
-    @Mock
-    private AccountRepository accountRepository;
     @Mock
     private BalanceAuditMapper auditMapper;
     @Mock
