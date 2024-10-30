@@ -8,13 +8,14 @@ import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -66,8 +67,7 @@ public class FreeAccountNumbersServiceImplIntegrationTest {
     private Map<AccountType, FreeAccountNumber> freeAccountNumberMap;
 
     @BeforeEach
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    void setUp() {
+    public void setUp() {
 
         accountNumbersSequenceRepository.deleteAll();
         freeAccountNumbersRepository.deleteAll();
@@ -87,7 +87,8 @@ public class FreeAccountNumbersServiceImplIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(AccountType.class)
-    void testGetFreeAccountNumber_shouldReturnExistingOrAddNew(AccountType accountType) {
+    @DisplayName("Should return existing or add new free accounts")
+    public void testGetFreeAccountNumber_Success(AccountType accountType) {
         FreeAccountNumber expectedNumber = freeAccountNumberMap.get(accountType);
 
         freeAccountNumbersService.getFreeAccountNumber(accountType, accountNumber ->
@@ -113,12 +114,48 @@ public class FreeAccountNumbersServiceImplIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(AccountType.class)
-    void testAddFreeAccountNumber_shouldGenerateUniqueAccountNumber(AccountType accountType) {
+    @DisplayName("Should generate unique account numbers")
+    public void testAddFreeAccountNumber_Success(AccountType accountType) {
         FreeAccountNumber generatedAccountNumber = freeAccountNumbersService.addFreeAccountNumber(accountType, true);
 
         assertEquals(accountType, generatedAccountNumber.getId().getType());
         assertEquals(accountType.getLength(), generatedAccountNumber.getId().getNumber().length());
         assertTrue(generatedAccountNumber.getId().getNumber().startsWith(String.format("%04d", accountType.getType())));
         assertTrue(generatedAccountNumber.getId().getNumber().endsWith("1"));
+    }
+
+    @Test
+    @DisplayName("Should generate and save specified number of account numbers for STUDENT type")
+    public void testGenerateAndSaveAccountNumbers_Success() {
+        accountNumbersSequenceRepository.deleteAll();
+        freeAccountNumbersRepository.deleteAll();
+
+        freeAccountNumbersService.generateAndSaveAccountNumbers(AccountType.STUDENT, 3);
+
+        assertEquals(3, freeAccountNumbersRepository.countById_Type(AccountType.STUDENT));
+    }
+
+    @Test
+    @DisplayName("Should ensure minimum account numbers for STUDENT type by generating missing entries")
+    public void testEnsureMinimumAccountNumbers_Success() {
+        accountNumbersSequenceRepository.deleteAll();
+        freeAccountNumbersRepository.deleteAll();
+
+        freeAccountNumbersService.generateAndSaveAccountNumbers(AccountType.STUDENT, 1);
+        freeAccountNumbersService.ensureMinimumAccountNumbers(AccountType.STUDENT, 3);
+
+        assertEquals(3, freeAccountNumbersRepository.countById_Type(AccountType.STUDENT));
+    }
+
+    @Test
+    @DisplayName("Should not generate additional account numbers when minimum count already satisfied")
+    public void testEnsureMinimumAccountNumbers_NoneNeeded() {
+        accountNumbersSequenceRepository.deleteAll();
+        freeAccountNumbersRepository.deleteAll();
+
+        freeAccountNumbersService.generateAndSaveAccountNumbers(AccountType.STUDENT, 4);
+        freeAccountNumbersService.ensureMinimumAccountNumbers(AccountType.STUDENT, 3);
+
+        assertEquals(4, freeAccountNumbersRepository.countById_Type(AccountType.STUDENT));
     }
 }

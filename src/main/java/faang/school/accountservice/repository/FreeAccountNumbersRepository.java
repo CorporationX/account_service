@@ -51,4 +51,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
             throw new RuntimeException("Failed to delete free account number with id: " + id);
         }
     }
+
+    int countById_Type(AccountType type);
 }
