@@ -28,6 +28,8 @@ account:
     length: 4
   number:
     length: 16
+    batch_size: 100
+    cron_to_create_new_numbers: 0 0 0 * * *
 
 user-service:
   host: localhost

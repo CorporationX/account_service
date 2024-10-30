@@ -2,3 +2,7 @@ spring:
   liquibase:
     change-log: file:src/test/resources/db/changelog/db.changelog-test.yaml
     enabled: true
+account:
+  number:
+    batch_size: 5
+    cron_to_create_new_numbers: "0 0 * * * ?"
