@@ -1,3 +1,4 @@
 spring:
   liquibase:
+    change-log: file:src/test/resources/db/changelog/db.changelog-test.yaml
     enabled: true
