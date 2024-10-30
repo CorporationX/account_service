@@ -17,9 +17,15 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     Optional<Account> findByAccountNumber(String accountNumber);
 
     @Query("""
-        SELECT a FROM Account a
-        WHERE a.owner.externalId = :externalId
-        AND a.owner.type = :type
-        """)
+            SELECT a FROM Account a
+            WHERE a.owner.externalId = :externalId
+            AND a.owner.type = :type
+            """)
     List<Account> findByOwner(Long externalId, OwnerType type);
+
+    @Query("""
+            SELECT a FROM Account a
+            WHERE a.owner.id = :ownerId
+            """)
+    Optional<Account> findByOwnerId(UUID ownerId);
 }
