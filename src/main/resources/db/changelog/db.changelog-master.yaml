@@ -5,3 +5,8 @@ databaseChangeLog:
       file: db/changelog/changeset/V002__account_number.sql
   - include:
       file: db/changelog/changeset/V003__account_request.sql
+      file: db/changelog/changeset/V002__create-balance.sql
+  - include:
+      file: db/changelog/changeset/V003__add-balance-id.sql
+  - include:
+      file: db/changelog/changeset/V004_balance-audit-add.sql
