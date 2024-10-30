@@ -1,6 +1,5 @@
 package faang.school.accountservice.service;
 
-
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.client.UserDto;
 import faang.school.accountservice.model.account.Account;
@@ -17,16 +16,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AccountServiceTest {
+public class AccountServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
@@ -67,12 +69,27 @@ class AccountServiceTest {
 
     @Test
     void createAccount_shouldCreateNewOwner() {
-        when(ownerRepository.findOwner(anyLong(), any())).thenReturn(Optional.empty());
+        when(ownerRepository.findOwner(anyLong(), any())).thenReturn(Collections.emptyList());
         when(userServiceClient.getUser(anyLong())).thenReturn(UserDto.builder().id(1L).build());
 
         accountService.createAccount(account);
 
         verify(ownerRepository).save(any(Owner.class));
+        verify(accountRepository).save(any(Account.class));
+    }
+
+    @Test
+    void createAccount_shouldUseExistingOwner() {
+        Owner existingOwner = Owner.builder()
+                .externalId(1L)
+                .type(OwnerType.USER)
+                .build();
+
+        when(ownerRepository.findOwner(anyLong(), any())).thenReturn(List.of(existingOwner));
+
+        accountService.createAccount(account);
+
+        verify(ownerRepository, never()).save(any(Owner.class));
         verify(accountRepository).save(any(Account.class));
     }
 
@@ -104,7 +121,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void activateAccount_shouldActiveAccount() {
+    void activateAccount_shouldActivateAccount() {
         account.setStatus(AccountStatus.SUSPENDED);
         when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
 
