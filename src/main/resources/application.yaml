@@ -20,6 +20,15 @@ spring:
 server:
   port: 8090
 
+account:
+  interest:
+    scheduler:
+      cron: "0 0/1 * 1/1 * ?"
+      batch:
+        size: 25
+      thread-pool:
+        max-size: 10
+
 project-service:
   host: localhost
   port: 8082
