@@ -6,5 +6,5 @@ CREATE TABLE free_account_numbers (
 
 CREATE TABLE account_numbers_sequence (
     account_type VARCHAR(20) PRIMARY KEY,
-    current_counter VARCHAR(20) NOT NULL
+    current_counter BIGINT NOT NULL
 );
