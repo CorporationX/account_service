@@ -15,6 +15,17 @@ CREATE TABLE account
 
 CREATE INDEX idx_account_user_id ON account (user_id);
 
+CREATE TABLE IF NOT EXISTS savings_account (
+                                               id                          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+                                               account_number              varchar(64) UNIQUE NOT NULL,
+                                               last_date_percent           timestamptz,
+                                               version                     bigint DEFAULT 1,
+                                               created_at                  timestamptz DEFAULT current_timestamp,
+                                               updated_at                  timestamptz DEFAULT current_timestamp,
+
+                                               CONSTRAINT fk_account_number FOREIGN KEY (account_number) REFERENCES account (number)
+);
+
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS '
 BEGIN

@@ -6,11 +6,15 @@ import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.SavingsAccount;
 import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.model.entity.TariffHistory;
+import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.*;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +30,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final TariffRepository tariffRepository;
     private final TariffHistoryRepository tariffHistoryRepository;
     private final SavingsAccountRateRepository savingsAccountRateRepository;
+    private final FreeAccountNumbersServiceImpl freeAccountNumbersServiceImpl;
 
     @Transactional
     @Override
@@ -103,6 +108,18 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                 });
 
         return savingsAccountDtos;
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    protected void savingsAccountNumberGenerator () {
+        freeAccountNumbersServiceImpl.ensureMinimumAccountNumbers(AccountType.SAVINGS, 100);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    protected  void countPercents () {
+        // TODO надо что то сделать
     }
 
 }
