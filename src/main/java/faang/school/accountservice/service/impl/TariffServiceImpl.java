@@ -20,6 +20,7 @@ public class TariffServiceImpl implements TariffService {
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
     private final SavingsAccountRateRepository savingsAccountRateRepository;
+    private final String TARIFF_NOT_FOUND = "Tariff with id {} not found";
 
     @Transactional
     @Override
@@ -30,7 +31,6 @@ public class TariffServiceImpl implements TariffService {
                 .tariff(tariff)
                 .rate(tariffDto.getRate())
                 .build();
-        savingsAccountRateRepository.save(savingsAccountRate);
 
         tariffDto = tariffMapper.toDto(tariff);
         tariffDto.setRate(savingsAccountRateRepository.save(savingsAccountRate).getRate());
@@ -42,7 +42,7 @@ public class TariffServiceImpl implements TariffService {
     @Override
     public TariffDto updateTariff(Long id, Double rate) {
         Tariff tariff = tariffRepository.findById(id).orElseGet(() -> {
-            log.info("Tariff with  id {} not found", id);
+            log.info(TARIFF_NOT_FOUND, id);
             throw new EntityNotFoundException("Tariff with id " + id + " not found");
         });
 
@@ -60,7 +60,7 @@ public class TariffServiceImpl implements TariffService {
     @Override
     public TariffDto getTariff(Long id) {
         Tariff tariff = tariffRepository.findById(id).orElseGet(() -> {
-            log.info("Tariff with  id {} not found", id);
+            log.info(TARIFF_NOT_FOUND, id);
             throw new EntityNotFoundException("Tariff with id " + id + " not found");
         });
 

@@ -56,7 +56,6 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                 .tariffId(tariff)
                 .build();
         tariffHistoryRepository.save(tariffHistory);
-
         return savingsAccountMapper
                 .savingsAccountToSavingsAccountDto(savingsAccount);
     }
