@@ -26,6 +26,7 @@ public class PaymentClearEventListener extends AbstractEventListener implements 
             event = objectMapper.readValue(message.getBody(), PaymentClearEvent.class);
             operationService.clearPayment(event);
         } catch (IOException e) {
+            log.error("Error while parsing message");
             throw new RuntimeException(e);
         }
     }

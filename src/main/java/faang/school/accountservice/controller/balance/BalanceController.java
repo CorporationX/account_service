@@ -1,8 +1,8 @@
 package faang.school.accountservice.controller.balance;
 
-import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

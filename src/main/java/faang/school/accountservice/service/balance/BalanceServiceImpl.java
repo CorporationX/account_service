@@ -1,12 +1,11 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
-import faang.school.accountservice.entity.BalanceAudit;
+import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.PaymentAccount;
 import faang.school.accountservice.entity.PendingOperation;
 import faang.school.accountservice.exception.UnauthorizedAccessException;
 import faang.school.accountservice.mapper.balance.BalanceMapper;
-import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.repository.PaymentAccountRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.service.audit.BalanceAuditService;
@@ -51,8 +50,7 @@ public class BalanceServiceImpl implements BalanceService {
         Balance balance = initializeBalance(accountId);
         BalanceDto balanceDto = balanceMapper.toDto(balanceRepository.save(balance));
         log.info("Successfully created balance for account with id: {}", accountId);
-//        var audit = balanceAuditService.saveAudit(balance);
-//        log.info("Successfully updated audit for balance with id: {}", audit.getId());
+
         return balanceDto;
     }
 

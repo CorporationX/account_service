@@ -33,8 +33,8 @@ public class OperationServiceImpl implements OperationService {
 
     public void handlePaymentRequest(PaymentRequestEvent paymentRequest) {
 
-        PaymentAccount paymentAccount = paymentAccountRepository.findByUserId(paymentRequest.getUserId()).orElseThrow(
-                () -> {
+        PaymentAccount paymentAccount = paymentAccountRepository.findByUserId(paymentRequest.getUserId())
+                .orElseThrow(() -> {
                     log.error("Account not found for user with id {}", paymentRequest.getUserId());
                     return new EntityNotFoundException(
                             String.format("Account not found for user with id %s", paymentRequest.getUserId()));
@@ -120,5 +120,4 @@ public class OperationServiceImpl implements OperationService {
         balanceService.updateBalance(balance.getId(), balanceDto, operation);
         log.info("Payment successfully cleared for account ID: {}", balance.getId());
     }
-
 }
