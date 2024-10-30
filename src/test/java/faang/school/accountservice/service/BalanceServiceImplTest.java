@@ -58,7 +58,6 @@ class BalanceServiceImplTest {
     @Test
     void create_whenOk() {
         service.create(balanceDto);
-        balance.nextVersion();
 
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
                 .save(balance);

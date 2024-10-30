@@ -29,8 +29,8 @@ public class TariffServiceController {
         return tariffService.addTariff(requestDto.getTariffDto(), requestDto.getSavingsAccountDto());
     }
 
-    @PatchMapping("/{id}")
-    public TariffDto changeRateTariff(@PathVariable @Positive Long id, @NotNull @Positive BigDecimal newRate) {
+    @PatchMapping("/{id}/{newRate}")
+    public TariffDto changeRateTariff(@PathVariable @Positive Long id,@PathVariable @NotNull @Positive BigDecimal newRate) {
         return tariffService.changeRateTariff(id, newRate);
     }
 

@@ -1,6 +1,5 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.enums.AccountRate;
 import faang.school.accountservice.enums.TariffType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

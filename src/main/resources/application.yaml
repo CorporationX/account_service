@@ -33,6 +33,7 @@ scheduled:
   task:
     cronForAccrual: "0 0 0 * * *"
     cronForGenerateNumbers: "0 0 * * * *"
+    amountGenerateNumbers: 100
 
 poolThreads:
   poolForAccrual: 10
