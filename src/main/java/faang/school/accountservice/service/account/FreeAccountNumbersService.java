@@ -21,8 +21,8 @@ public class FreeAccountNumbersService {
 
 
     @Transactional
-    public void processAccountNumber(AccountEnum accountType, Consumer<Long> action) {
-        Long accountNumber = freeAccountNumbersRepository.findAndRemoveFreeAccountNumber(accountType);
+    public void processAccountNumber(AccountEnum accountType, Consumer<String> action) {
+        String accountNumber = freeAccountNumbersRepository.findAndRemoveFreeAccountNumber(accountType);
 
         if (accountNumber == null) {
             accountNumber = generateNewAccountNumber(accountType);
@@ -35,14 +35,14 @@ public class FreeAccountNumbersService {
         }
     }
 
-    private Long generateNewAccountNumber(AccountEnum accountType) {
+    private String generateNewAccountNumber(AccountEnum accountType) {
         AccountNumbersSequence sequence = accountNumbersSequenceRepository.findById(accountType)
             .orElseGet(() -> createCounterForAccountType(accountType));
 
         boolean hasIncremented = accountNumbersSequenceRepository.incrementCounterForAccountType(accountType, sequence.getCurrentCounter());
 
         if (hasIncremented) {
-            long newAccountNumber = Long.parseLong(accountType.getPrefix() + String.format("%08d", sequence.getCurrentCounter() + 1));
+            String newAccountNumber = accountType.getPrefix() + String.format("%12d", sequence.getCurrentCounter() + 1);
             createFreeAccountNumber(accountType, newAccountNumber);
             return newAccountNumber;
         }
@@ -56,7 +56,7 @@ public class FreeAccountNumbersService {
         return accountNumbersSequenceRepository.save(sequence);
     }
 
-    private FreeAccountNumber createFreeAccountNumber(AccountEnum accountType, Long freeAccountNumber) {
+    private FreeAccountNumber createFreeAccountNumber(AccountEnum accountType, String freeAccountNumber) {
         FreeAccountNumber entity = new FreeAccountNumber();
         entity.setAccountType(accountType);
         entity.setFreeAccountNumber(freeAccountNumber);

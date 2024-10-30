@@ -27,6 +27,6 @@ public class FreeAccountNumber {
     private AccountEnum accountType;
 
     @Column(name = "free_account_number", nullable = false, unique = true)
-    private Long freeAccountNumber;
+    private String freeAccountNumber;
 
 }

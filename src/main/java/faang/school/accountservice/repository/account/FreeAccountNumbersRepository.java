@@ -24,6 +24,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
         """, 
         nativeQuery = true
     )
-    Long findAndRemoveFreeAccountNumber(AccountEnum accountType);
+    String findAndRemoveFreeAccountNumber(AccountEnum accountType);
 
 }
