@@ -14,7 +14,18 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     @Modifying
     @Transactional
-    @Query(value = "WITH deleted_row AS (DELETE FROM free_account_numbers WHERE id = (SELECT id FROM free_account_numbers WHERE account_type = :accountType ORDER BY id LIMIT 1) RETURNING free_account_number) SELECT free_account_number FROM deleted_row", nativeQuery = true)
+    @Query(value = """
+        DELETE FROM free_account_numbers
+        WHERE id = (
+            SELECT id
+            FROM free_account_numbers
+            WHERE account_type = :accountType
+            LIMIT 1
+        )
+        RETURNING free_account_number
+        """, 
+        nativeQuery = true
+    )
     Long findAndRemoveFreeAccountNumber(AccountEnum accountType);
 
     default FreeAccountNumber createFreeAccountNumber(AccountEnum accountType, Long freeAccountNumber) {

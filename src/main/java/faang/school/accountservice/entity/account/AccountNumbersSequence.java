@@ -23,6 +23,5 @@ public class AccountNumbersSequence {
 
     @Column(name = "current_counter", nullable = false)
     private Long currentCounter;
-
-    // getters and setters
+    
 }
