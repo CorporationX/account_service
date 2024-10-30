@@ -36,7 +36,7 @@ class NumbersSequenceService {
                     .map(accountNumber -> new FreeAccountNumber(type, accountNumber))
                     .toList();
             freeAccountNumbersRepository.saveAll(accountNumbers);
-            accountNumbersSequenceRepository.incrementToValueAndGet(type.toString(), accountNumberConfig.getMaxNumberOfFreeAccounts() - 1);
+            accountNumbersSequenceRepository.upCounterAndGet(type.toString(), accountNumberConfig.getMaxNumberOfFreeAccounts() - 1);
 
             log.info("Generated {} account numbers for type {}\n{}", accountNumberConfig.getMaxNumberOfFreeAccounts(), type, accountNumbers);
         }

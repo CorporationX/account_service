@@ -1,14 +1,10 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.model.number.AccountUniqueNumberCounter;
-import faang.school.accountservice.enums.AccountNumberType;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountUniqueNumberCounter, String> {
@@ -28,5 +24,5 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountU
             WHERE type = :type
             RETURNING counter;
             """)
-    long incrementToValueAndGet(@Param("type") String type, @Param("increment") long increment);
+    long upCounterAndGet(@Param("type") String type, @Param("increment") long increment);
 }
