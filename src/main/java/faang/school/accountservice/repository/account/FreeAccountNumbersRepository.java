@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import faang.school.accountservice.entity.account.FreeAccountNumber;
 import faang.school.accountservice.enums.account.AccountEnum;
@@ -13,7 +12,6 @@ import faang.school.accountservice.enums.account.AccountEnum;
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, Long> {
 
     @Modifying
-    @Transactional
     @Query(value = """
         DELETE FROM free_account_numbers
         WHERE id = (
@@ -28,10 +26,4 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
     )
     Long findAndRemoveFreeAccountNumber(AccountEnum accountType);
 
-    default FreeAccountNumber createFreeAccountNumber(AccountEnum accountType, Long freeAccountNumber) {
-        FreeAccountNumber entity = new FreeAccountNumber();
-        entity.setAccountType(accountType);
-        entity.setFreeAccountNumber(freeAccountNumber);
-        return save(entity);
-    }
 }
