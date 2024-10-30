@@ -28,3 +28,11 @@ account:
     length: 4
   number:
     length: 16
+
+user-service:
+  host: localhost
+  port: 8080
+
+project-service:
+  host: localhost
+  port: 8082
