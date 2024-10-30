@@ -1,6 +1,7 @@
 package faang.school.accountservice.handler.request;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.enums.RequestHandlerType;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.AccountRepository;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AccountRecordHandler implements RequestTaskHandler {
+public class AccountRecordHandler implements RequestTaskHandler<AccountDto> {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final RequestJpaRepository requestRepository;
@@ -23,7 +24,7 @@ public class AccountRecordHandler implements RequestTaskHandler {
     }
 
     @Override
-    public Long getHandlerId() {
-        return 2L;
+    public RequestHandlerType getHandlerId() {
+        return RequestHandlerType.ACCOUNT_RECORD_HANDLER;
     }
 }

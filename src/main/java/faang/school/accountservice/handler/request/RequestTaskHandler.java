@@ -1,9 +1,9 @@
 package faang.school.accountservice.handler.request;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.enums.RequestHandlerType;
 
-public interface RequestTaskHandler {
-    void execute(AccountDto accountDto);
+public interface RequestTaskHandler<T> {
+    void execute(T param);
 
-    Long getHandlerId();
+    RequestHandlerType getHandlerId();
 }

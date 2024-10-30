@@ -1,0 +1,10 @@
+package faang.school.accountservice.enums;
+
+public enum RequestHandlerType {
+    AMOUNT_HANDLER,
+    ACCOUNT_RECORD_HANDLER,
+    AUDIT_RECORD_HANDLER,
+    BALANCE_RECORD_HANDLER,
+    OPEN_ACCOUNT_NOTIFICATION_HANDLER,
+    CASHBACK_RECORD_HANDLER
+}

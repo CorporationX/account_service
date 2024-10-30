@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
 @Table(name = "request")
 @Data
@@ -24,9 +27,12 @@ public class Request {
 
     @Timestamp
     @Column(name = "scheduled_at")
-    private String scheduledAt;
+    private LocalDateTime scheduledAt;
 
     @JoinColumn(name = "balance", unique = true)
     @OneToOne(cascade = CascadeType.ALL)
     private Account account;
+
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
+    private List<RequestTask> requestTasks;
 }

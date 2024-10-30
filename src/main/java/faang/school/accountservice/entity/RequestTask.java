@@ -1,5 +1,7 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.RequestHandlerType;
+import faang.school.accountservice.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,14 +24,13 @@ public class RequestTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "request_Id", unique = true, nullable = false)
-    private Long requestId;
-
     @Column(name = "handler")
-    private String handler;
+    @Enumerated(EnumType.STRING)
+    private RequestHandlerType handler;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status;
 
     @Column(name = "created_at")
     @CreationTimestamp
@@ -42,4 +43,12 @@ public class RequestTask {
     @Column(name = "version", nullable = false)
     @Version
     private int version;
+
+    @JoinColumn(name = "account_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "request_id", nullable = false)
+    private Request request;
 }

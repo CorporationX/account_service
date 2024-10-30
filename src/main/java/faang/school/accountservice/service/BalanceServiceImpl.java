@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 public class BalanceServiceImpl implements BalanceService {
     private final BalanceJpaRepository balanceRepository;
     private final BalanceAuditRepository balanceAuditRepository;
-    private final AccountRepository accountRepository;
     private final BalanceMapper mapper;
     private final BalanceAuditMapper auditMapper;
 
@@ -30,7 +29,6 @@ public class BalanceServiceImpl implements BalanceService {
         Balance balance = mapper.toEntity(balanceDto);
         balance.setVersion(1);
 
-        balanceAuditRepository.save(auditMapper.toEntity(balance));
         balanceRepository.save(balance);
     }
 
@@ -38,7 +36,6 @@ public class BalanceServiceImpl implements BalanceService {
         Balance balance = mapper.toEntity(balanceDto);
         balance.setUpdatedAt(LocalDateTime.now());
 
-        balanceAuditRepository.save(auditMapper.toEntity(balance));
         balanceRepository.save(balance);
     }
 
