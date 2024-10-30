@@ -1,6 +1,5 @@
 package faang.school.accountservice.service;
 
-
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.SavingsAccount;
@@ -22,12 +21,14 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 public class SavingsAccountInterestTest {
 
     @Mock
     private SavingsAccountRepository savingsAccountRepository;
+
+    @Mock
+    private BalanceJpaRepository balanceRepository;
 
     @InjectMocks
     private SavingsAccountInterest savingsAccountInterest;
