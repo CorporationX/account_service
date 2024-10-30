@@ -12,10 +12,10 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     Optional<AccountNumbersSequence> findByAccountType(String accountType);
 
     @Query(nativeQuery = true, value = """
-            UPDATE account_numbers_sequence 
-            SET current_number = current_number + 1
+            UPDATE account_numbers_sequence
+            SET current_number = current_number + :batchSize
             WHERE account_type =:accountType
-            RETURNING account_type, current_number, version
+            RETURNING account_type, current_number
             """)
-    Optional<AccountNumbersSequence> incrementCounter(String accountType);
+    AccountNumbersSequence incrementCounter(String accountType, int batchSize);
 }

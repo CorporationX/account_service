@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FreeAccountNumberMapperTest {
     private FreeAccountNumberMapper mapper;
 
-
     @BeforeEach
     void setUp() {
         mapper = Mappers.getMapper(FreeAccountNumberMapper.class);

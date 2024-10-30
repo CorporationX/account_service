@@ -10,14 +10,14 @@ import java.util.Optional;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, String> {
     @Query(value = """
-            DELETE FROM free_account_numbers 
-            WHERE account_type = :accountType 
+            DELETE FROM free_account_numbers
+            WHERE account_type = :accountType
             AND account_number = (
                 SELECT account_number FROM free_account_numbers
                 WHERE account_type = :accountType
                 ORDER BY account_number
                 LIMIT 1
-            ) 
+            )
             RETURNING account_number;
             """, nativeQuery = true)
     Optional<String> getFreeAccountNumber(String accountType);

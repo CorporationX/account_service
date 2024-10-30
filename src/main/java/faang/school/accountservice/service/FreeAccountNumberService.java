@@ -1,22 +1,19 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.enums.account.AccountType;
-import faang.school.accountservice.exception.ResourceNotAvailableException;
-import faang.school.accountservice.exception.TypeNotFoundException;
 import faang.school.accountservice.mapper.FreeAccountNumberMapper;
 import faang.school.accountservice.model.AccountNumbersSequence;
 import faang.school.accountservice.model.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.LongStream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,15 +24,15 @@ public class FreeAccountNumberService {
     private final FreeAccountNumberMapper freeAccountNumberMapper;
 
     @Value("${account.number.length}")
-    private int accountNumberLength; //16
+    private int accountNumberLength;
     @Value("${account.type.length}")
-    private int typeCodeLength;//4
+    private int typeCodeLength;
 
     @Transactional
     public String getFreeAccountNumber(AccountType accountType) {
         return freeAccountNumbersRepository
                 .getFreeAccountNumber(accountType.getCode())
-                .orElseGet(() -> createNextNumber(accountType, false).getAccountNumber());
+                .orElseGet(() -> generateAccountNumbers(accountType, 1, false).get(0).getAccountNumber());
     }
 
     @Transactional
@@ -44,26 +41,30 @@ public class FreeAccountNumberService {
     }
 
     @Transactional
-    @Retryable(retryFor = PersistenceException.class,
-            maxAttempts = 5, backoff = @Backoff(delay = 500, multiplier = 2))
-    public FreeAccountNumber createNextNumber(AccountType accountType, boolean isSaved) {
-        log.info("Trying to create new free account number");
-        AccountNumbersSequence accountNumbersSequence = accountNumbersSequenceRepository
-                .incrementCounter(accountType.getCode())
-                .orElseThrow(() -> new TypeNotFoundException(accountType.name()));
-        Long currentNumber = accountNumbersSequence.getCurrentNumber() - 1;
-        FreeAccountNumber freeAccountNumber = freeAccountNumberMapper
-                .toFreeAccountNumber(accountType, currentNumber, accountNumberLength - typeCodeLength);
-        if (isSaved) {
-            freeAccountNumbersRepository.save(freeAccountNumber);
+    public List<FreeAccountNumber> generateAccountNumbers(AccountType accountType, int batchSize, boolean isSave) {
+        if (!accountNumbersSequenceRepository.existsById(accountType.getCode())) {
+            saveSequenceWithNewType(accountType);
         }
-        log.info("Free account number was created {}", freeAccountNumber);
-        return freeAccountNumber;
+        AccountNumbersSequence sequence = accountNumbersSequenceRepository
+                .incrementCounter(accountType.getCode(), batchSize);
+        long currentNumber = sequence.getCurrentNumber();
+        long initial = currentNumber - batchSize;
+        List<FreeAccountNumber> freeAccountNumbers = LongStream
+                .range(initial, currentNumber)
+                .mapToObj(number -> freeAccountNumberMapper
+                        .toFreeAccountNumber(accountType, number, accountNumberLength - typeCodeLength))
+                .toList();
+        if (isSave) {
+            freeAccountNumbersRepository.saveAll(freeAccountNumbers);
+        }
+        log.info("Generated free account numbers: {}", freeAccountNumbers.size());
+        return freeAccountNumbers;
     }
 
-    @Recover
-    public FreeAccountNumber recover(PersistenceException e, AccountType accountType, boolean isSaved) {
-        log.error("Failed to get next number for account type {} after retries: {}, {}", accountType.getCode(), e.getMessage(), isSaved);
-        throw new ResourceNotAvailableException("Unable to get next account number after retries", e);
+    private void saveSequenceWithNewType(AccountType accountType) {
+        AccountNumbersSequence accountNumbersSequence = AccountNumbersSequence.builder()
+                .accountType(accountType.getCode())
+                .build();
+        accountNumbersSequenceRepository.save(accountNumbersSequence);
     }
 }

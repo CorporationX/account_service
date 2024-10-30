@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -30,9 +29,4 @@ public class AccountNumbersSequence {
     @Builder.Default
     @Column(name = "current_number", nullable = false)
     private Long currentNumber = 0L;
-
-    @Builder.Default
-    @Column(name = "version", nullable = false)
-    @Version
-    private Long version = 1L;
 }
