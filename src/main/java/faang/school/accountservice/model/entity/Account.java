@@ -87,4 +87,7 @@ public class Account {
             version = 1L;
         }
     }
+
+    @OneToOne(mappedBy = "account")
+    private CashbackTariff cashbackTariff;
 }
