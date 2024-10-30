@@ -109,15 +109,9 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         return savingsAccountDtos;
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
-    protected void savingsAccountNumberGenerator () {
-        freeAccountNumbersServiceImpl.ensureMinimumAccountNumbers(AccountType.SAVINGS, 100);
-    }
-
     @Scheduled(cron = "0 0 0 * * *")
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
-    protected  void countPercents () {
+    protected void countPercents() {
         // TODO надо что то сделать
     }
 
