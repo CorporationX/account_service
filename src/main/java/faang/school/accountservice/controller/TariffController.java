@@ -29,4 +29,11 @@ public class TariffController {
     public TariffDto updateTariffById(@Positive @PathVariable Long id, @RequestParam Double rate) {
         return tariffService.updateTariff(id, rate);
     }
+
+    @Operation(summary = "Get tariff by id", description = "Get tariff by id in DB")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{id}")
+    public TariffDto getTariffById(@Positive @PathVariable Long id) {
+        return tariffService.getTariff(id);
+    }
 }

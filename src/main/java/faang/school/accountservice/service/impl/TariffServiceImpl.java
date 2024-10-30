@@ -32,9 +32,10 @@ public class TariffServiceImpl implements TariffService {
                 .build();
         savingsAccountRateRepository.save(savingsAccountRate);
 
-        return null;
+        tariffDto = tariffMapper.toDto(tariff);
+        tariffDto.setRate(savingsAccountRateRepository.save(savingsAccountRate).getRate());
 
-        // TODO dad
+        return tariffDto;
     }
 
     @Transactional
@@ -52,6 +53,25 @@ public class TariffServiceImpl implements TariffService {
 
         TariffDto tariffDto = tariffMapper.toDto(tariff);
         tariffDto.setRate(savingsAccountRateRepository.save(savingsAccountRate).getRate());
+
+        return tariffDto;
+    }
+
+    @Override
+    public TariffDto getTariff(Long id) {
+        Tariff tariff = tariffRepository.findById(id).orElseGet(() -> {
+            log.info("Tariff with  id {} not found", id);
+            throw new EntityNotFoundException("Tariff with id " + id + " not found");
+        });
+
+        Double rate = savingsAccountRateRepository.findLatestRateIdByTariffId(id).orElseGet(() -> {
+            log.info("Rate with tariff id {} not found", id);
+            throw new EntityNotFoundException("Rate with tariff id " + id + " not found");
+        });
+
+        TariffDto tariffDto = tariffMapper.toDto(tariff);
+        tariffDto.setRate(rate);
+
         return tariffDto;
     }
 }
