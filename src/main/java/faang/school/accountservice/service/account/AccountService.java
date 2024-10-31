@@ -67,7 +67,7 @@ public class AccountService {
         log.debug("account has been saved, account: {}", account);
 
         balanceService.create(account);
-        log.debug("balance has been created");
+        log.debug("balance has been created, accountID: {}", account.getId());
 
         AccountDto accountDto = accountMapper.toAccountDto(account);
         log.info("createAccount() - finish, accountDto - {}", accountDto);

@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.balance;
 
-import faang.school.accountservice.dto.balance.BalanceDtoWhenUpdate;
-import faang.school.accountservice.dto.balance.ReturnedBalanceDto;
+import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.balance.UpdateBalanceRequest;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.mapper.BalanceMapper;
@@ -36,18 +36,16 @@ public class BalanceService {
     }
 
     @Transactional
-    public ReturnedBalanceDto update(long accountId, BalanceDtoWhenUpdate balanceDtoWhenUpdate) {
+    public BalanceDto update(long accountId, UpdateBalanceRequest updateBalanceRequest) {
         log.info("Update method started for accountId: {}", accountId);
-        Balance balance = balanceMapper.toBalance(balanceDtoWhenUpdate);
-
+        Balance balance = balanceMapper.toBalance(updateBalanceRequest);
         Account account = findAccountById(accountId);
-
         balance.setAccount(account);
         balance.setCreatedAt(account.getBalance().getCreatedAt());
-        log.debug("Balance updated: {}", balance);
-
+        balance = balanceRepository.save(balance);
         log.debug("balance has been updated, balance: {}", balance);
-        ReturnedBalanceDto result = balanceMapper.toReturnedBalanceDto(balance);
+
+        BalanceDto result = balanceMapper.toReturnedBalanceDto(balance);
         result.setAccountId(accountId);
         log.debug("Update method completed successfully, result: {}", result);
         return result;

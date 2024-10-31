@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller.balance;
 
-import faang.school.accountservice.dto.balance.BalanceDtoWhenUpdate;
-import faang.school.accountservice.dto.balance.ReturnedBalanceDto;
+import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.balance.UpdateBalanceRequest;
 import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -22,8 +22,8 @@ public class BalanceController {
     private final BalanceService balanceService;
 
     @PutMapping
-    public ReturnedBalanceDto update(@PathVariable @Positive long accountId,
-                                     @RequestBody @Valid BalanceDtoWhenUpdate balanceDtoWhenUpdate) {
-        return balanceService.update(accountId, balanceDtoWhenUpdate);
+    public BalanceDto update(@PathVariable @Positive long accountId,
+                             @RequestBody @Valid UpdateBalanceRequest updateBalanceRequest) {
+        return balanceService.update(accountId, updateBalanceRequest);
     }
 }

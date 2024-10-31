@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnedBalanceDto {
+public class BalanceDto {
     private long id;
     private double authorizationBalance;
     private double actualBalance;

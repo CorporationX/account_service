@@ -39,7 +39,6 @@ public class Balance {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    //@Temporal(TemporalType.TIMESTAMP) есть ли смысл добавлять данную строку? как я понимаю JPA и так сохранит в TIMESTAMP тип LocalDateTime.
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

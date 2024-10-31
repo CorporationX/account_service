@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BalanceDtoWhenUpdate {
+public class UpdateBalanceRequest {
 
     @Positive
     private long id;
