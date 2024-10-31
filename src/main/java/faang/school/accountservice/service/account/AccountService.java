@@ -4,16 +4,16 @@ import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.dto.account.UpdateAccountDto;
 import faang.school.accountservice.dto.filter.AccountFilterDto;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 public interface AccountService {
 
-    List<AccountDto> getAllAccounts(AccountFilterDto filterDto);
+    Page<AccountDto> getAllAccounts(AccountFilterDto filterDto, Long ownerId, int page, int size);
 
     AccountDto getAccount(Long accountId);
 
-    void updateAccount(UpdateAccountDto updateAccountDto);
+    AccountDto updateAccount(Long accountId, UpdateAccountDto updateAccountDto);
 
-    void createAccount(CreateAccountDto accountDto);
+    AccountDto createAccount(CreateAccountDto accountDto);
 }

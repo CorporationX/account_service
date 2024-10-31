@@ -2,19 +2,19 @@ package faang.school.accountservice.enums;
 
 import lombok.Getter;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 public enum AccountType {
-    CURRENCY_ACCOUNT(List.of(OwnerType.USER, OwnerType.PROJECT)),
-    INDIVIDUAL_ACCOUNT(List.of(OwnerType.USER)),
-    LEGAL_ENTITY_ACCOUNT(List.of(OwnerType.PROJECT)),
+    CURRENCY_ACCOUNT(Set.of(OwnerType.USER, OwnerType.PROJECT)),
+    INDIVIDUAL_ACCOUNT(Set.of(OwnerType.USER)),
+    LEGAL_ENTITY_ACCOUNT(Set.of(OwnerType.PROJECT)),
 
     ;
 
-    private final List<OwnerType> allowedOwnerTypes;
+    private final Set<OwnerType> allowedOwnerTypes;
 
-    AccountType(List<OwnerType> allowedOwnerTypes) {
+    AccountType(Set<OwnerType> allowedOwnerTypes) {
         this.allowedOwnerTypes = allowedOwnerTypes;
     }
 }
