@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: ["basilisk-master-stream6", "dev"]
+    branches: ["basilisk-master-stream6"]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,7 +15,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
 
       - name: gradlew
         run: ./gradlew clean build test
