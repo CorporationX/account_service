@@ -54,8 +54,9 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                 .tariff(tariff)
                 .build();
         tariffHistoryRepository.save(tariffHistory);
-        return savingsAccountMapper
-                .savingsAccountToSavingsAccountDto(savingsAccount);
+        SavingsAccountDto resultDto = savingsAccountMapper.savingsAccountToSavingsAccountDto(savingsAccount);
+        resultDto.setTariffId(tariff.getId());
+        return resultDto;
     }
 
     @Override
@@ -80,7 +81,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         savingsAccountDtos
                 .forEach(saDto -> {
                     Long id = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(saDto.getId()).orElseGet(() -> {
-                        log.info("Tariff with id {} not found", saDto.getId());
+                        log.info("Tariff history with id {} not found", saDto.getId());
                         throw new EntityNotFoundException("Tariff with id " + saDto.getId() + " not found");
                     });
                     Double rate = savingsAccountRateRepository.findLatestRateIdByTariffId(id).orElseGet(() -> {
@@ -90,7 +91,8 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                     saDto.setTariffId(id);
                     saDto.setRate(rate);
                 });
-
+        System.out.println("1111111" + savingsAccountDtos);
+        // TODO adf
         return savingsAccountDtos;
     }
 

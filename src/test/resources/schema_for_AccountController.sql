@@ -116,9 +116,19 @@ CREATE TABLE IF NOT EXISTS savings_account (
     updated_at                  timestamptz DEFAULT current_timestamp
 );
 
+INSERT INTO savings_account (account_number)
+VALUES (14534523124),
+       (45927037032456),
+       (2397205732457);
+
 CREATE TABLE IF NOT EXISTS tariff_history (
     id                          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     savings_account_id          bigint NOT NULL,
     savings_account_tariff_id      bigint NOT NULL,
     created_at                  timestamptz DEFAULT current_timestamp
 );
+
+INSERT INTO tariff_history (savings_account_id, savings_account_tariff_id)
+VALUES (1,2),
+       (2,3),
+       (3,3);
