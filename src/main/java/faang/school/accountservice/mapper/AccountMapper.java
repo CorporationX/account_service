@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
@@ -17,5 +18,5 @@ public interface AccountMapper {
 
     Account toAccount(CreateAccountDto accountDto);
 
-    List<AccountDto> toAccountDtos(List<Account> accounts);
+    List<AccountDto> toAccountDtos(Stream<Account> accounts);
 }

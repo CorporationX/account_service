@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,5 +54,27 @@ public class AccountOwnerServiceTest {
     public void testGetNonExistingOwnerById() {
         when(accountOwnerRepository.findById(OWNER_ID)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> accountOwnerService.getAccountOwnerById(OWNER_ID));
+    }
+
+    @Test
+    public void testGetOrCreateAccountOwnerGet() {
+        when(accountOwnerRepository.findByOwnerIdAndOwnerType(accountOwner.getOwnerId(), accountOwner.getOwnerType())).thenReturn(accountOwner);
+
+        AccountOwner result = accountOwnerService.getOrCreateAccountOwner(accountOwner.getOwnerId(), accountOwner.getOwnerType());
+
+        assertEquals(accountOwner.getOwnerId(), result.getOwnerId());
+        assertEquals(accountOwner.getOwnerType(), result.getOwnerType());
+
+        verify(accountOwnerRepository).findByOwnerIdAndOwnerType(accountOwner.getOwnerId(), accountOwner.getOwnerType());
+    }
+
+    @Test
+    public void testGetOrCreateAccountOwnerCreate() {
+        when(accountOwnerRepository.findByOwnerIdAndOwnerType(accountOwner.getOwnerId(), accountOwner.getOwnerType())).thenReturn(null);
+
+        accountOwnerService.getOrCreateAccountOwner(accountOwner.getOwnerId(), accountOwner.getOwnerType());
+
+        verify(accountOwnerRepository).findByOwnerIdAndOwnerType(accountOwner.getOwnerId(), accountOwner.getOwnerType());
+        verify(accountOwnerRepository).save(any(AccountOwner.class));
     }
 }

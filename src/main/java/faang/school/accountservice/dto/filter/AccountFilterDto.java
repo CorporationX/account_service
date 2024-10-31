@@ -8,6 +8,4 @@ public record AccountFilterDto(
         AccountType accountType,
         AccountStatus status,
         Currency currency
-)
-{
-}
+) {}

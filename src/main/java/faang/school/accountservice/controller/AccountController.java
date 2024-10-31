@@ -8,6 +8,7 @@ import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,15 +16,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @Validated
 @RequestMapping("/api/v1/accounts")
-public class AccountsController {
+public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/{accountId}")
@@ -32,17 +32,21 @@ public class AccountsController {
     }
 
     @GetMapping
-    public List<AccountDto> getAllAccounts(@RequestBody AccountFilterDto filterDto) {
-        return accountService.getAllAccounts(filterDto);
+    public Page<AccountDto> getAllAccountsByOwnerId(@RequestBody AccountFilterDto filterDto,
+                                           @RequestParam Long ownerId,
+                                           @RequestParam(defaultValue = "1") @Positive int page,
+                                           @RequestParam(defaultValue = "5") @Positive int size) {
+        return accountService.getAllAccounts(filterDto, ownerId, page - 1, size);
     }
 
-    @PostMapping()
-    public void createAccount(@RequestBody @Valid CreateAccountDto createAccountDto) {
-        accountService.createAccount(createAccountDto);
+    @PostMapping
+    public AccountDto createAccount(@RequestBody @Valid CreateAccountDto createAccountDto) {
+        return accountService.createAccount(createAccountDto);
     }
 
-    @PutMapping()
-    public void updateAccount(@RequestBody @Valid UpdateAccountDto updateAccountDto) {
-        accountService.updateAccount(updateAccountDto);
+    @PutMapping("/{accountId}")
+    public AccountDto updateAccount(@PathVariable @Positive Long accountId,
+                                    @RequestBody @Valid UpdateAccountDto updateAccountDto) {
+        return accountService.updateAccount(accountId, updateAccountDto);
     }
 }

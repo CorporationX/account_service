@@ -6,7 +6,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -37,35 +36,17 @@ public class GlobalExceptionHandler {
         return new ConstraintErrorResponse(violations);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ConstraintErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        final List<Violation> violations = new java.util.ArrayList<>(ex.getBindingResult().getFieldErrors().stream()
-                .map(violation -> new Violation(
-                        violation.getField(),
-                        violation.getDefaultMessage()
-                ))
-                .toList());
-        violations.addAll(ex.getBindingResult().getGlobalErrors().stream()
-                .map(violation -> new Violation(
-                        "",
-                        violation.getDefaultMessage()
-                ))
-                .toList());
-        log.error(ex.getMessage(), ex);
-        return new ConstraintErrorResponse(violations);
-    }
-
-    @ExceptionHandler(IllegalAccountTypeForOwner.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalAccountTypeForOwner(IllegalAccountTypeForOwner ex) {
+    @ExceptionHandler(ForbiddenAccessException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenAccessException(ForbiddenAccessException ex) {
         log.error(ex.getMessage());
         return new ErrorResponse(ex.getMessage());
     }
 
-    @ExceptionHandler(NotUniqueAccountNumberException.class)
+    @ExceptionHandler({
+            IllegalAccountTypeForOwner.class,NotUniqueAccountNumberException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNotUniqueAccountNumber(NotUniqueAccountNumberException ex) {
+    public ErrorResponse handleIllegalAccountTypeForOwner(RuntimeException ex) {
         log.error(ex.getMessage());
         return new ErrorResponse(ex.getMessage());
     }
