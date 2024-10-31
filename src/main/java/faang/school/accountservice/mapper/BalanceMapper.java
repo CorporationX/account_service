@@ -18,6 +18,8 @@ public abstract class BalanceMapper {
     @Mapping(target = "account", source = "accountId", qualifiedByName = "getAccount")
     public abstract Balance toEntity(BalanceDto dto);
 
+    public abstract Balance accountToEntity(Account account);
+
     @Mapping(target = "accountId", source = "account.id")
     public abstract BalanceDto toDto(Balance balance);
 

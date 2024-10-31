@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.RequestHandlerType;
 import faang.school.accountservice.enums.RequestStatus;
 import jakarta.persistence.*;

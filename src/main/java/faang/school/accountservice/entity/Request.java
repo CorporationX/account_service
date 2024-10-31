@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.RequestStatus;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,10 @@ public class Request {
 
     @Column(name = "context")
     private String context;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status;
 
     @Timestamp
     @Column(name = "scheduled_at")

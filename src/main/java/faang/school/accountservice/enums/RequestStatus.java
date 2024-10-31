@@ -1,6 +1,8 @@
 package faang.school.accountservice.enums;
 
 public enum RequestStatus {
+    IN_PROGRESS,
+    FAILED,
     COUNT_ACCOUNTS,
     CREATE_ACCOUNT_RECORD,
     CREATE_BALANCE_RECORD,
