@@ -1,23 +1,21 @@
 package faang.school.accountservice.entity.account;
 
 import faang.school.accountservice.entity.owner.Owner;
-import faang.school.accountservice.entity.type.AccountType;
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.entity.tariff.Tariff;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +24,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -34,32 +33,41 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "account")
-public class Account {
+@Table(name = "savings_accounts")
+public class SavingsAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Size(min = 12, max = 20)
-    @Column(name = "number")
+    @NotNull
     private String number;
+
+    @NotNull
+    @PositiveOrZero
+    private BigDecimal balance;
+
+    @OneToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
-    @ManyToOne
-    @JoinColumn(name = "type_id", nullable = false)
-    private AccountType accountType;
+    @OneToOne
+    @JoinColumn(name = "tariff_id")
+    private Tariff tariff;
 
-    @JoinColumn(name = "currency_id", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Currency currency;
+    @Column(name = "tariff_history", columnDefinition = "TEXT")
+    private String tariffHistory;
 
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private AccountStatus status;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "last_interest_date")
+    private LocalDateTime lastInterestDate;
+
+    @Version
+    private int version;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -70,23 +78,4 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "closed_at")
-    private LocalDateTime closedAt;
-
-    @Version
-    private int version;
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", number='" + number + '\'' +
-                ", currency=" + currency +
-                ", status=" + status +
-                ", createdAt=" + createdAt +
-                ", version=" + version +
-                '}';
-    }
 }

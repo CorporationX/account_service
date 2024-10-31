@@ -29,3 +29,11 @@ account:
   nameLength:
     min: 12
     max: 20
+
+executor:
+  threads:
+    count: 5
+
+scheduler:
+  calculatePercents:
+    cron: "0 0 * * * ?" # every day at 00:00
