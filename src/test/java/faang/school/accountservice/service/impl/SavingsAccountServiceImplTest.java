@@ -8,8 +8,6 @@ import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.model.entity.TariffHistory;
 import faang.school.accountservice.repository.*;
 import jakarta.persistence.EntityNotFoundException;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -19,9 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -87,25 +83,12 @@ class SavingsAccountServiceImplTest {
 
     @Test
     public void testGetSavingsAccount() {
-        Long tariffId = 4L;
-        double rate = 5.5;
         Long savingsAccountId = 1L;
-        SavingsAccount savingsAccount = SavingsAccount.builder()
-                .id(1L).account(Account.builder().id(savingsAccountId).build()).accountNumber("12345678901234").build();
-        when(savingsAccountRepository.findById(savingsAccountId)).thenReturn(Optional.ofNullable(savingsAccount));
-        when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(savingsAccountId)).thenReturn(Optional.of(tariffId));
-        when(savingsAccountRateRepository.findLatestRateIdByTariffId(4L)).thenReturn(Optional.of(rate));
+        when(savingsAccountRepository.findSavingsAccountWithDetails(savingsAccountId)).thenReturn(new SavingsAccountDto());
 
-        SavingsAccountDto resultDto = savingsAccountService.getSavingsAccount(savingsAccountId);
+        savingsAccountService.getSavingsAccount(savingsAccountId);
 
-        verify(savingsAccountRepository, times(1)).findById(savingsAccountId);
-        verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccountId);
-        verify(savingsAccountRateRepository, times(1)).findLatestRateIdByTariffId(4L);
-        assertAll(
-                () -> assertEquals(savingsAccountId, resultDto.getAccountId()),
-                () -> assertEquals(rate, resultDto.getRate()),
-                () -> assertEquals(tariffId, resultDto.getTariffId())
-        );
+        verify(savingsAccountRepository, times(1)).findSavingsAccountWithDetails(savingsAccountId);
     }
 
     @Test

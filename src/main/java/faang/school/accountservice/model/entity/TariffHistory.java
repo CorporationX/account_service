@@ -33,5 +33,5 @@ public class TariffHistory {
     @ManyToOne
     @JoinColumn(name = "savings_account_tariff_id")
     @JsonIgnore
-    private Tariff tariffId;
+    private Tariff tariff;
 }

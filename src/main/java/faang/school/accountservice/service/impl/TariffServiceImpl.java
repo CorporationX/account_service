@@ -59,19 +59,11 @@ public class TariffServiceImpl implements TariffService {
 
     @Override
     public TariffDto getTariff(Long id) {
-        Tariff tariff = tariffRepository.findById(id).orElseGet(() -> {
+        TariffDto tariffDto = tariffRepository.findTariffDtoWithDetails(id);
+        if (tariffDto == null) {
             log.info(TARIFF_NOT_FOUND, id);
             throw new EntityNotFoundException("Tariff with id " + id + " not found");
-        });
-
-        Double rate = savingsAccountRateRepository.findLatestRateIdByTariffId(id).orElseGet(() -> {
-            log.info("Rate with tariff id {} not found", id);
-            throw new EntityNotFoundException("Rate with tariff id " + id + " not found");
-        });
-
-        TariffDto tariffDto = tariffMapper.toDto(tariff);
-        tariffDto.setRate(rate);
-
+        }
         return tariffDto;
     }
 }

@@ -27,6 +27,6 @@ public class Tariff {
     @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL)
     private List<SavingsAccountRate> savingsAccountRates;
 
-    @OneToMany(mappedBy = "tariffId")
+    @OneToMany(mappedBy = "tariff")
     List<TariffHistory> tariffHistories;
 }

@@ -36,12 +36,9 @@ class TariffServiceImplTest {
     @Captor
     private ArgumentCaptor<SavingsAccountRate> savingsAccountRateArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor<Tariff> tariffArgumentCaptor;
-
     private Tariff tariff;
-    private Long tariffId = 1L;
-    private String tariffName = "tariff1";
+    private final Long tariffId = 1L;
+    private final String tariffName = "tariff1";
 
     @BeforeEach
     void setUp() {
@@ -101,12 +98,15 @@ class TariffServiceImplTest {
     @Test
     public void getTariffSuccess() {
         double rate = 6.7;
-        when(tariffRepository.findById(tariffId)).thenReturn(Optional.ofNullable(tariff));
-        when(savingsAccountRateRepository.findLatestRateIdByTariffId(tariffId)).thenReturn(Optional.of(rate));
+        TariffDto tariffDto = new TariffDto();
+        tariffDto.setId(tariffId);
+        tariffDto.setName(tariffName);
+        tariffDto.setRate(rate);
+        when(tariffRepository.findTariffDtoWithDetails(tariffId)).thenReturn(tariffDto);
 
         TariffDto resultDto = tariffService.getTariff(tariffId);
 
-        verify(tariffRepository, times(1)).findById(tariffId);
+        verify(tariffRepository, times(1)).findTariffDtoWithDetails(tariffId);
         assertAll(
                 () -> assertEquals(rate, resultDto.getRate()),
                 () -> assertEquals(tariff.getName(), resultDto.getName())
@@ -116,18 +116,8 @@ class TariffServiceImplTest {
     @Test
     public void getTariffWrongTariffId() {
         Long wrongId = 100_000L;
-        when(tariffRepository.findById(wrongId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> tariffService.getTariff(wrongId));
     }
-
-    @Test
-    public void getTariffRateNotExist() {
-        when(tariffRepository.findById(tariffId)).thenReturn(Optional.ofNullable(tariff));
-        when(savingsAccountRateRepository.findLatestRateIdByTariffId(tariffId)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> tariffService.getTariff(tariffId));
-    }
-
 
 }
