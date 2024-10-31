@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -54,8 +55,8 @@ class AccountServiceTest {
                 .build();
 
         Balance balance = Balance.builder()
-                .authorization(0.0)
-                .actual(100.0)
+                .authorization(BigDecimal.valueOf(0))
+                .actual(BigDecimal.valueOf(100))
                 .build();
 
         account = Account.builder()
