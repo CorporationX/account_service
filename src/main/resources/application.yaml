@@ -17,9 +17,16 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  account:
+    pattern-number: "000000000000"
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+
+retryable:
+  max-attempts: 5
+  delay: 5000
