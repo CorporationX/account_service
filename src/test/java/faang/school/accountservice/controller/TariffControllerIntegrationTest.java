@@ -1,6 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.model.dto.TariffDto;
+import faang.school.accountservice.util.ContainerCreator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,12 +30,7 @@ public class TariffControllerIntegrationTest {
     MockMvc mockMvc;
 
     @Container
-    private static final PostgreSQLContainer<?> postgresContainer =
-            new PostgreSQLContainer<>("postgres:latest")
-                    .withDatabaseName("testdb")
-                    .withUsername("admin")
-                    .withPassword("admin")
-                    .withInitScript("schema_for_AccountController.sql");
+    private static final PostgreSQLContainer<?> postgresContainer = ContainerCreator.POSTGRES_CONTAINER;
 
     @DynamicPropertySource
     static void overrideSourceProperties(DynamicPropertyRegistry registry) {
@@ -44,6 +40,7 @@ public class TariffControllerIntegrationTest {
         registry.add("spring.datasource.driver-class-name", postgresContainer::getDriverClassName);
         registry.add("spring.liquibase.enabled", () -> false);
     }
+
 
     @Test
     void testGetTariffById() throws Exception {
