@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.executor.ExecutorServiceConfig;
 import faang.school.accountservice.dto.account.SavingsAccountCreatedDto;
 import faang.school.accountservice.dto.account.SavingsAccountDto;
-import faang.school.accountservice.dto.tariff.TariffRequestDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.SavingsAccount;
 import faang.school.accountservice.entity.tariff.Tariff;
@@ -45,13 +44,7 @@ public class SavingsAccountService {
         Account account = accountService.getAccount(savingsAccountCreatedDto.getAccountId());
         Tariff tariff = tariffService.getTariffByTariffType(savingsAccountCreatedDto.getTariffType());
 
-        SavingsAccount savingsAccount = SavingsAccount.builder()
-                .account(account)
-                .owner(account.getOwner())
-                .tariff(tariff)
-                .balance(BigDecimal.ZERO)
-                .number(UUID.randomUUID().toString())
-                .build();
+        SavingsAccount savingsAccount = createSavingsAccount(account, tariff);
 
         updateTariffHistory(tariff, savingsAccount);
 
@@ -63,33 +56,33 @@ public class SavingsAccountService {
 
     public SavingsAccountDto getSavingsAccountById(Long savingsAccountId) {
         log.info("start getSavingsAccountById with id - {}", savingsAccountId);
-        SavingsAccount existedSavingsAccount = savingsAccountRepository.findById(savingsAccountId)
+        SavingsAccount existingSavingsAccount = savingsAccountRepository.findById(savingsAccountId)
                 .orElseThrow(() -> new NoSuchElementException("SavingsAccount with id - "
                         + savingsAccountId + " does not exist"));
-        log.info("finish getSavingsAccountById with entity: {}", existedSavingsAccount.toString());
+        log.info("finish getSavingsAccountById with entity: {}", existingSavingsAccount.toString());
 
-        return savingsAccountMapper.toDto(existedSavingsAccount);
+        return savingsAccountMapper.toDto(existingSavingsAccount);
     }
 
     public SavingsAccountDto getSavingsAccountByOwnerId(Long ownerId) {
         log.info("start getSavingsAccountByOwnerId with ownerId - {}", ownerId);
-        SavingsAccount existedSavingsAccount = savingsAccountRepository.findByOwnerId(ownerId)
+        SavingsAccount existingSavingsAccount = savingsAccountRepository.findByOwnerId(ownerId)
                 .orElseThrow(() -> new NoSuchElementException("SavingsAccount at ownerId - "
                 + ownerId + " does not exist"));
-        log.info("finish getSavingsAccountByOwnerId with entity: {}", existedSavingsAccount.toString());
+        log.info("finish getSavingsAccountByOwnerId with entity: {}", existingSavingsAccount.toString());
 
-        return savingsAccountMapper.toDto(existedSavingsAccount);
+        return savingsAccountMapper.toDto(existingSavingsAccount);
     }
 
     @Async("executor")
     public void calculatePercents() {
         log.info("start calculatePercents, thread name: {}", Thread.currentThread().getName());
-        List<SavingsAccount> existedSavingsAccounts = savingsAccountRepository.findAllReadyToInterestCalculation();
+        List<SavingsAccount> existingSavingsAccounts = savingsAccountRepository.findAllReadyToInterestCalculation();
 
         CompletableFuture<Void> calculatedSavingsAccount = CompletableFuture.runAsync(
-                () -> calculate(existedSavingsAccounts), executorServiceConfig.executor());
+                () -> calculate(existingSavingsAccounts), executorServiceConfig.executor());
 
-        calculatedSavingsAccount.thenAccept(result -> savingsAccountRepository.saveAll(existedSavingsAccounts));
+        calculatedSavingsAccount.thenAccept(result -> savingsAccountRepository.saveAll(existingSavingsAccounts));
         log.info("finish calculatePercents, thread name: {}", Thread.currentThread().getName());
     }
 
@@ -121,5 +114,15 @@ public class SavingsAccountService {
             log.info("Failed to updated tariff in savingsAccount - {}", savingsAccount);
             throw new RuntimeException(ex);
         }
+    }
+
+    private SavingsAccount createSavingsAccount(Account account, Tariff tariff) {
+        return SavingsAccount.builder()
+                .account(account)
+                .owner(account.getOwner())
+                .tariff(tariff)
+                .balance(BigDecimal.ZERO)
+                .number(UUID.randomUUID().toString())
+                .build();
     }
 }
