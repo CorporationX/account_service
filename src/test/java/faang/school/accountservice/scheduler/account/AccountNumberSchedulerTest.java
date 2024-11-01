@@ -1,8 +1,10 @@
 package faang.school.accountservice.scheduler.account;
 
 import faang.school.accountservice.config.account.AccountNumberConfig;
+import faang.school.accountservice.dto.account.FreeAccountNumberDto;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.service.FreeAccountNumbersService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,13 +26,57 @@ public class AccountNumberSchedulerTest {
     @InjectMocks
     private AccountNumberScheduler accountNumberScheduler;
 
+    private int checkingIndividualBatchSize;
+    private int savingsBatchSize;
+    private int investmentBatchSize;
+
+    @BeforeEach
+    public void setUp() {
+        checkingIndividualBatchSize = 1000;
+        savingsBatchSize = 400;
+        investmentBatchSize = 100;
+    }
+
     @Test
-    public void generateRegularAccountNumbers_ShouldCallEnsureMinimumNumbers() {
-        int minNumbers = 1000;
-        when(accountNumberConfig.getCheckingIndividual()).thenReturn(minNumbers);
+    public void generateCheckingIndividual_Success() {
+        when(accountNumberConfig.getBatchSize()).thenReturn(checkingIndividualBatchSize);
 
-        accountNumberScheduler.generateRegularAccountNumbers();
+        FreeAccountNumberDto freeAccountNumberDto = FreeAccountNumberDto.builder()
+                .type(AccountType.SAVINGS_ACCOUNT)
+                .batchSize(accountNumberConfig.getBatchSize())
+                .build();
 
-        verify(freeAccountNumbersService).ensureMinimumNumbers(AccountType.CHECKING_INDIVIDUAL, minNumbers);
+        accountNumberScheduler.generateSavingsAccountNumbers();
+
+        verify(freeAccountNumbersService).createFreeAccountNumbers(freeAccountNumberDto);
+
+    }
+
+    @Test
+    public void generateSavingsAccountNumbers_Success() {
+        when(accountNumberConfig.getBatchSize()).thenReturn(savingsBatchSize);
+
+        FreeAccountNumberDto expectedDto = FreeAccountNumberDto.builder()
+                .type(AccountType.SAVINGS_ACCOUNT)
+                .batchSize(savingsBatchSize)
+                .build();
+
+        accountNumberScheduler.generateSavingsAccountNumbers();
+
+        verify(freeAccountNumbersService).createFreeAccountNumbers(expectedDto);
+    }
+
+    @Test
+    public void generateInvestmentAccountNumbers_Success() {
+        when(accountNumberConfig.getBatchSize()).thenReturn(investmentBatchSize);
+
+        FreeAccountNumberDto expectedDto = FreeAccountNumberDto.builder()
+                .type(AccountType.INVESTMENT_ACCOUNT)
+                .batchSize(investmentBatchSize)
+                .build();
+
+        accountNumberScheduler.generateInvestmentAccountNumbers();
+
+        verify(freeAccountNumbersService).createFreeAccountNumbers(expectedDto);
     }
 }

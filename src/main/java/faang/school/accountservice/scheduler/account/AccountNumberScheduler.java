@@ -25,7 +25,7 @@ public class AccountNumberScheduler {
         freeAccountNumbersService.createFreeAccountNumbers(freeAccountNumberDto);
     }
 
-    @Scheduled(cron = "${account.numbers.generation.cron-for-type-investment}")
+    @Scheduled(cron = "${account.numbers.generation.cron-for-type-savings}")
     public void generateSavingsAccountNumbers() {
         FreeAccountNumberDto freeAccountNumberDto = FreeAccountNumberDto.builder()
                 .type(AccountType.SAVINGS_ACCOUNT)
