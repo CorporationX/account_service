@@ -6,10 +6,12 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice
@@ -43,8 +45,24 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ConstraintErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        final List<Violation> violations = new ArrayList<>(ex.getBindingResult().getFieldErrors().stream()
+                .map(violation -> new Violation(
+                        violation.getField(),
+                        violation.getDefaultMessage()
+                ))
+                .toList());
+        log.error(ex.getMessage(), ex);
+        return new ConstraintErrorResponse(violations);
+    }
+
     @ExceptionHandler({
-            IllegalAccountTypeForOwner.class, NotUniqueAccountNumberException.class})
+            IllegalAccountTypeForOwner.class,
+            NotUniqueAccountNumberException.class,
+            IllegalAccountStatus.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalAccountTypeForOwner(RuntimeException ex) {
         log.error(ex.getMessage());

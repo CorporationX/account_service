@@ -32,11 +32,10 @@ public class AccountController {
     }
 
     @GetMapping
-    public Page<AccountDto> getAllAccountsByOwnerId(AccountFilterDto filterDto,
-                                           @RequestParam Long ownerId,
-                                           @RequestParam(defaultValue = "1") @Positive int page,
-                                           @RequestParam(defaultValue = "5") @Positive int size) {
-        return accountService.getAllAccounts(filterDto, ownerId, page - 1, size);
+    public Page<AccountDto> getAccountsByOwnerId(@Valid AccountFilterDto filterDto,
+                                                 @RequestParam(defaultValue = "1") @Positive int page,
+                                                 @RequestParam(defaultValue = "5") @Positive int size) {
+        return accountService.getAccounts(filterDto, page - 1, size);
     }
 
     @PostMapping
