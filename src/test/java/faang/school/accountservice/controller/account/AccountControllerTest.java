@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
 
 class AccountControllerTest extends BaseContextTest {
 
@@ -163,7 +164,8 @@ class AccountControllerTest extends BaseContextTest {
                                     .characterEncoding(StandardCharsets.UTF_8)
                                     .content(objectMapper.writeValueAsString(accountCreateDto))
                     ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").exists());
+                    .andExpect(jsonPath("$.message").value(containsString("NotNull.owner")))
+                    .andExpect(jsonPath("$.message").value(containsString("NotNull.type")));
         }
 
         @Test
