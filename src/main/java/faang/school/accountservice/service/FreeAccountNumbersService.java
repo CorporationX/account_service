@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.FreeAccountNumberDto;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.FreeAccountNumber;
 
@@ -9,5 +10,5 @@ public interface FreeAccountNumbersService {
 
     void retrieveFreeAccountNumber(AccountType type, Consumer<FreeAccountNumber> consumer);
 
-    FreeAccountNumber generateAccountNumber(AccountType type);
+    FreeAccountNumberDto generateAccountNumber(AccountType type);
 }
