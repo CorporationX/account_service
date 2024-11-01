@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -94,10 +95,9 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         return savingsAccountDtos;
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
-    @Retryable(backoff = @Backoff(delay = 5000))
-    protected void countPercents() {
-        // TODO надо что то сделать
+    @Transactional
+    public void calculatePercent() {
+        Random random = new Random();
+        int randomBalance = random.nextInt(1000,100_000);
     }
-
 }
