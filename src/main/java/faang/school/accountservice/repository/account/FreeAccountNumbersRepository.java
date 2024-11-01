@@ -5,25 +5,26 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import faang.school.accountservice.entity.account.FreeAccountId;
 import faang.school.accountservice.entity.account.FreeAccountNumber;
-import faang.school.accountservice.enums.account.AccountEnum;
 
 @Repository
-public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, Long> {
+public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
     @Modifying
-    @Query(value = """
-        DELETE FROM free_account_numbers
-        WHERE id = (
-            SELECT id
-            FROM free_account_numbers
-            WHERE account_type = :accountType
-            LIMIT 1
-        )
-        RETURNING free_account_number
-        """, 
-        nativeQuery = true
+    @Query(
+        nativeQuery = true,
+        value = """
+            DELETE FROM free_account_numbers fan
+            WHERE fan.type = : type AND fan.accountNumber = (
+                SELECT account_number
+                FROM free_account_numbers
+                WHERE type = :type
+                LIMIT 1
+            )
+            RETURNING fan.type, fan.account_number
+        """
     )
-    String findAndRemoveFreeAccountNumber(AccountEnum accountType);
+    FreeAccountNumber findAndRemoveFreeAccountNumber(String type);
 
 }

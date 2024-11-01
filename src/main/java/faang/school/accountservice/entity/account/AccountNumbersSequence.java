@@ -3,10 +3,9 @@ package faang.school.accountservice.entity.account;
 import faang.school.accountservice.enums.account.AccountEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,11 +16,13 @@ import lombok.Setter;
 public class AccountNumbersSequence {
 
     @Id
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false)
-    private AccountEnum accountType;
+    @Column(name = "type", nullable = false, length = 20)
+    private AccountEnum type;
 
-    @Column(name = "current_counter", nullable = false)
-    private Long currentCounter;
+    @Column(name = "counter", nullable = false)
+    private long counter;
+
+    @Transient
+    private long initialValue;
     
 }

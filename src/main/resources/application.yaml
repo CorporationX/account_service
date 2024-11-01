@@ -29,3 +29,5 @@ account:
   nameLength:
     min: 12
     max: 20
+  batch:
+    size: 5
