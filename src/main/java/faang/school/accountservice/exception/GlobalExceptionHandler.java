@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-            IllegalAccountTypeForOwner.class,NotUniqueAccountNumberException.class})
+            IllegalAccountTypeForOwner.class, NotUniqueAccountNumberException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalAccountTypeForOwner(RuntimeException ex) {
         log.error(ex.getMessage());
