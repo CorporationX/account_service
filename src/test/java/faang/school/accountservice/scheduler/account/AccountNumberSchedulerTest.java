@@ -42,7 +42,7 @@ public class AccountNumberSchedulerTest {
         when(accountNumberConfig.getBatchSize()).thenReturn(checkingIndividualBatchSize);
 
         FreeAccountNumberDto freeAccountNumberDto = FreeAccountNumberDto.builder()
-                .type(AccountType.SAVINGS_ACCOUNT)
+                .type(AccountType.CHECKING_INDIVIDUAL)
                 .batchSize(accountNumberConfig.getBatchSize())
                 .build();
 
