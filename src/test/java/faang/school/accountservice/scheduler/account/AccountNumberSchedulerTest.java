@@ -46,7 +46,7 @@ public class AccountNumberSchedulerTest {
                 .batchSize(accountNumberConfig.getBatchSize())
                 .build();
 
-        accountNumberScheduler.generateSavingsAccountNumbers();
+        accountNumberScheduler.generateCheckingIndividualAccountNumbers();
 
         verify(freeAccountNumbersService).createFreeAccountNumbers(freeAccountNumberDto);
 
