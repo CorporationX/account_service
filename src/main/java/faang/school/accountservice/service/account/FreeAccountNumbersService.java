@@ -39,9 +39,22 @@ public class FreeAccountNumbersService {
     }
 
     @Transactional
-    public void retrieveAccontNumber(AccountEnum type, Consumer<FreeAccountNumber> numberConsumer) {
-        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findAndRemoveFreeAccountNumber(type.name());
+    public void retrieveAccountNumber(AccountEnum type, Consumer<FreeAccountNumber> numberConsumer) {
+        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findAndRemoveFreeAccountNumber(type.name())
+            .orElseGet(() -> generateFreeAccountNumber(type, 1));
+        
         numberConsumer.accept(freeAccountNumber);
     }
+
+    @Transactional
+    private FreeAccountNumber generateFreeAccountNumber(AccountEnum type, int batchSize) {
+        AccountNumbersSequence ans = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
+        long initialValue = ans.getInitialValue();
+        FreeAccountId freeAccountId = new FreeAccountId(type, ACCOUNT_PATTERN + initialValue);
+        FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
+        freeAccountNumbersRepository.save(freeAccountNumber);
+        return freeAccountNumber;
+    }
+
 
 }
