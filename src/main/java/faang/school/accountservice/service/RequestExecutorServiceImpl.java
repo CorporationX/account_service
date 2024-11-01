@@ -17,14 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static faang.school.accountservice.enums.RequestStatus.CREATE_ACCOUNT_RECORD;
-
 @Service
 @RequiredArgsConstructor
 public class RequestExecutorServiceImpl implements RequestExecutorService {
     private final RequestTaskRepository requestTaskRepository;
     private final RequestJpaRepository requestRepository;
-    private final List<RequestTaskHandler> handlers;
+    private final List<RequestTaskHandler<?>> handlers;
     private final AccountMapper accountMapper;
 
     @Transactional
@@ -47,10 +45,10 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
                 try {
                     handler.execute(accountDto);
                     task.setStatus(RequestStatus.COMPLETED);
-                    requestTaskRepository.save(task.getRequest());
+                    requestTaskRepository.save(task);
                 } catch (Exception e) {
                     task.setStatus(RequestStatus.FAILED);
-                    requestTaskRepository.save(task.getRequest());
+                    requestTaskRepository.save(task);
                     break;
                 }
             } else {
