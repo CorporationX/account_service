@@ -38,7 +38,7 @@ public class AccountNumberSchedulerTest {
     }
 
     @Test
-    public void generateCheckingIndividual_Success() {
+    public void testGenerateCheckingIndividualAccountNumbers_Success() {
         when(accountNumberConfig.getBatchSize()).thenReturn(checkingIndividualBatchSize);
 
         FreeAccountNumberDto freeAccountNumberDto = FreeAccountNumberDto.builder()
@@ -53,7 +53,7 @@ public class AccountNumberSchedulerTest {
     }
 
     @Test
-    public void generateSavingsAccountNumbers_Success() {
+    public void testGenerateSavingsAccountNumbers_Success() {
         when(accountNumberConfig.getBatchSize()).thenReturn(savingsBatchSize);
 
         FreeAccountNumberDto expectedDto = FreeAccountNumberDto.builder()

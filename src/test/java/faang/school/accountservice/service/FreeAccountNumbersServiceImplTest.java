@@ -1,5 +1,8 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.config.account.AccountNumberConfig;
+import faang.school.accountservice.dto.account.FreeAccountNumberDto;
+import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountType;
@@ -15,9 +18,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class FreeAccountNumbersServiceImplTest {
@@ -29,15 +40,22 @@ public class FreeAccountNumbersServiceImplTest {
     private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
     @Mock
+    private AccountNumbersSequence accountNumbersSequence;
+
+    @Mock
     private AccountNumberGenerator accountNumberGenerator;
+
+    @Mock
+    private AccountNumberConfig accountNumberConfig;
 
     @InjectMocks
     private FreeAccountNumbersServiceImpl freeAccountNumbersService;
 
+    private final String expectedAccountNumber = "4200000000000001";
+
     @Test
     public void testGenerateNumberByType_FoundNumber() {
         AccountType type = AccountType.CHECKING_INDIVIDUAL;
-        String expectedAccountNumber = "4200000000000001";
 
         when(freeAccountNumbersRepository.getFreeAccountNumberByType(type.name()))
                 .thenReturn(Optional.of(expectedAccountNumber));
@@ -101,26 +119,51 @@ public class FreeAccountNumbersServiceImplTest {
     }
 
     @Test
-    public void testEnsureMinimumNumbers_ShouldGenerateNumbers_WhenLessThanMinimum() {
-        AccountType type = AccountType.CHECKING_INDIVIDUAL;
-        int minRequiredNumbers = 1000;
+    public void createFreeAccountNumbers_WhenGenerateCheckingIndividual_Success() {
+        FreeAccountNumberDto freeAccountNumberDto = FreeAccountNumberDto.builder()
+                .type(AccountType.CHECKING_INDIVIDUAL)
+                .batchSize(accountNumberConfig.getBatchSize())
+                .build();
 
-        when(freeAccountNumbersRepository.countByIdType(type)).thenReturn(500L);
-        freeAccountNumbersService.ensureMinimumNumbers(type, minRequiredNumbers);
+        accountNumbersSequence = AccountNumbersSequence.builder()
+                .type(freeAccountNumberDto.getType())
+                .sequenceValue(1000L)
+                .initialValue(1L)
+                .build();
 
-        verify(accountNumbersSequenceRepository, times(minRequiredNumbers - 500)).incrementAndGet(type.name());
-        verify(accountNumberGenerator, times(minRequiredNumbers - 500)).generateAccountNumber(eq(type), anyLong());
+        when(freeAccountNumbersRepository.incrementByBatchSize(freeAccountNumberDto.getType().name(),
+                freeAccountNumberDto.getBatchSize())
+        ).thenReturn(accountNumbersSequence);
+
+        when(accountNumberGenerator.generateAccountNumber(freeAccountNumberDto.getType(), 1L)).thenReturn(expectedAccountNumber);
+
+        freeAccountNumbersService.createFreeAccountNumbers(freeAccountNumberDto);
+
+        verify(freeAccountNumbersRepository, times(freeAccountNumberDto.getBatchSize())).save(any(FreeAccountNumber.class));
     }
 
     @Test
-    public void testEnsureMinimumNumbers_NoGeneration_WhenSufficientNumbersExist() {
-        AccountType type = AccountType.CHECKING_INDIVIDUAL;
-        int minRequiredNumbers = 1000;
+    public void createFreeAccountNumbers_WhenGenerateAccountNumberFails_Failure() {
+        FreeAccountNumberDto freeAccountNumberDto = FreeAccountNumberDto.builder()
+                .type(AccountType.CHECKING_INDIVIDUAL)
+                .batchSize(5)
+                .build();
 
-        when(freeAccountNumbersRepository.countByIdType(type)).thenReturn(1000L);
-        freeAccountNumbersService.ensureMinimumNumbers(type, minRequiredNumbers);
+        accountNumbersSequence = AccountNumbersSequence.builder()
+                .type(freeAccountNumberDto.getType())
+                .sequenceValue(6L)
+                .initialValue(1L)
+                .build();
 
-        verify(accountNumbersSequenceRepository, never()).incrementAndGet(anyString());
-        verify(accountNumberGenerator, never()).generateAccountNumber(any(), anyLong());
+        when(freeAccountNumbersRepository.incrementByBatchSize(freeAccountNumberDto.getType().name(),
+                freeAccountNumberDto.getBatchSize())
+        ).thenReturn(accountNumbersSequence);
+
+        when(accountNumberGenerator.generateAccountNumber(freeAccountNumberDto.getType(), 1L))
+                .thenThrow(new RuntimeException("Error generating account number"));
+
+        assertThrows(RuntimeException.class, () -> freeAccountNumbersService.createFreeAccountNumbers(freeAccountNumberDto));
+
+        verify(freeAccountNumbersRepository, never()).save(any(FreeAccountNumber.class));
     }
 }
