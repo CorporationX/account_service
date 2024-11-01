@@ -46,15 +46,13 @@ public class AccountServiceImpl implements AccountService {
     private final List<Filter<AccountFilterDto, Account>> filters;
 
     @Override
-    public Page<AccountDto> getAllAccounts(AccountFilterDto filterDto, Long accountOwnerId, int page, int size) {
-        accountOwnerValidator.validateOwnerByAccountOwnerId(accountOwnerId);
+    public Page<AccountDto> getAccounts(AccountFilterDto filterDto, int page, int size) {
+        accountOwnerValidator.validateOwnerByAccountOwnerId(filterDto.ownerId());
         Pageable pageable = PageRequest.of(page, size);
         Specification<Account> filterSpecification =
-                SpecsUtils.combineSpecsFromFilters(filters, filterDto);
-        Specification<Account> ownerIdSpec =
-                ((root, query, builder) -> builder.equal(root.get("owner"), accountOwnerId));
+                SpecsUtils.combineSpecsWithAndFromFilters(filters, filterDto);
         Page<Account> accounts =
-                accountRepository.findAll(filterSpecification.and(ownerIdSpec), pageable);
+                accountRepository.findAll(filterSpecification, pageable);
         return new PageImpl<>(
                 accountMapper.toAccountDtos(accounts.get()),
                 pageable,

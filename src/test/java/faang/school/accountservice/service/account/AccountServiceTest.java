@@ -106,9 +106,9 @@ public class AccountServiceTest {
 
     @Test
     public void testGetAllProjectsWithoutFilters() {
+        AccountFilterDto accountFilterDto = new AccountFilterDto(OWNER_ID, null, null, null);
         when(accountRepository.findAll(Mockito.<Specification<Account>>any(), any(Pageable.class))).thenReturn(preparePageOfAccounts());
-
-        Page<AccountDto> result = accountService.getAllAccounts(null, OWNER_ID, PAGEABLE.getPageNumber(), PAGEABLE.getPageSize());
+        Page<AccountDto> result = accountService.getAccounts(accountFilterDto, PAGEABLE.getPageNumber(), PAGEABLE.getPageSize());
 
         assertEquals(2, result.getTotalElements());
         verify(accountRepository).findAll(Mockito.<Specification<Account>>any(), any(Pageable.class));
@@ -117,14 +117,14 @@ public class AccountServiceTest {
 
     @Test
     public void testGetAllProjectsWithFilters() {
-        AccountFilterDto filterDto = new AccountFilterDto(AccountType.INDIVIDUAL_ACCOUNT, AccountStatus.ACTIVE, Currency.EUR);
+        AccountFilterDto filterDto = new AccountFilterDto(OWNER_ID, AccountType.INDIVIDUAL_ACCOUNT, AccountStatus.ACTIVE, Currency.EUR);
         when(accountRepository.findAll(Mockito.<Specification<Account>>any(), any(Pageable.class))).thenReturn(preparePageOfAccounts());
         when(filters.get(0).isApplicable(filterDto)).thenReturn(true);
         when(filters.get(0).apply(filterDto)).thenReturn(any());
         when(filters.get(1).isApplicable(filterDto)).thenReturn(true);
         when(filters.get(1).apply(filterDto)).thenReturn(any());
 
-        Page<AccountDto> result = accountService.getAllAccounts(filterDto, OWNER_ID, PAGEABLE.getPageNumber(), PAGEABLE.getPageSize());
+        Page<AccountDto> result = accountService.getAccounts(filterDto, PAGEABLE.getPageNumber(), PAGEABLE.getPageSize());
 
         assertEquals(2, result.getTotalElements());
         verify(accountRepository).findAll(Mockito.<Specification<Account>>any(), any(Pageable.class));

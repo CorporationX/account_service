@@ -36,14 +36,16 @@ public class BaseContextTest {
     protected ObjectMapper objectMapper;
 
     @Container
-    public static PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
-            new PostgreSQLContainer<>("postgres:13.6");
+    protected static PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
+            new PostgreSQLContainer<>("postgres:13.6")
+                    .withReuse(true);
     @Container
-    private static final RedisContainer REDIS_CONTAINER =
-            new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"));
+    protected static final RedisContainer REDIS_CONTAINER =
+            new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"))
+                    .withReuse(true);
 
     @DynamicPropertySource
-    static void postgresqlProperties(DynamicPropertyRegistry registry) {
+    protected static void postgresqlProperties(DynamicPropertyRegistry registry) {
         POSTGRESQL_CONTAINER.start();
         REDIS_CONTAINER.start();
 

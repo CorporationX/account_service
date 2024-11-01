@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 
 public interface AccountService {
 
-    Page<AccountDto> getAllAccounts(AccountFilterDto filterDto, Long ownerId, int page, int size);
+    Page<AccountDto> getAccounts(AccountFilterDto filterDto, int page, int size);
 
     AccountDto getAccount(Long accountId);
 
