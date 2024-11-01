@@ -35,6 +35,6 @@ public class AccountOwnerValidator {
 
     public void validateOwnerByAccountOwnerId(Long accountOwnerId) {
         AccountOwner accountOwner = accountOwnerService.getAccountOwnerById(accountOwnerId);
-        validateOwnerByOwnerIdAndType(accountOwner.getOwnerId(), accountOwner.getOwnerType());
+        validateOwner(accountOwner);
     }
 }
