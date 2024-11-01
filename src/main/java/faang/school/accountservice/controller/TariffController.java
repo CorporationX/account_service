@@ -19,7 +19,7 @@ public class TariffController {
     @Operation(summary = "Create tariff", description = "Create tariff in DB")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public TariffDto createTariff(@Validated @RequestBody TariffDto tariffDto) {
+    public TariffDto createTariff(@RequestBody @Validated(TariffDto.Create.class) TariffDto tariffDto) {
         return tariffService.createTariff(tariffDto);
     }
 

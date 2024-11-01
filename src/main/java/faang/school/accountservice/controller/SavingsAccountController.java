@@ -22,7 +22,7 @@ public class SavingsAccountController {
     @Operation(summary = "Create SavingsAccount", description = "Create SavingsAccount in DB")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public SavingsAccountDto openSavingAccount(@RequestBody SavingsAccountDto savingsAccountDto) {
+    public SavingsAccountDto openSavingAccount(@RequestBody @Validated(SavingsAccountDto.Create.class) SavingsAccountDto savingsAccountDto) {
         return savingsAccountService.openSavingsAccount(savingsAccountDto);
     }
 

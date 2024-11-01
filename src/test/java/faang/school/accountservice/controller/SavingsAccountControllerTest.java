@@ -3,9 +3,7 @@ package faang.school.accountservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.dto.TariffDto;
 import faang.school.accountservice.service.impl.SavingsAccountServiceImpl;
-import faang.school.accountservice.service.impl.TariffServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +19,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SavingsAccountController.class)
 class SavingsAccountControllerTest {
@@ -54,6 +50,7 @@ class SavingsAccountControllerTest {
 
     @Test
     public void testOpenSavingsAccount() throws Exception {
+        savingsAccountDto.setId(null);
         String json = objectMapper.writeValueAsString(savingsAccountDto);
         when(savingsAccountService.openSavingsAccount(savingsAccountDto)).thenReturn(savingsAccountDto);
 

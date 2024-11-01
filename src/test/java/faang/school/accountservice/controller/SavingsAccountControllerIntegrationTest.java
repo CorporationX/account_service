@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.dto.TariffDto;
 import faang.school.accountservice.util.ContainerCreator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -61,10 +58,10 @@ public class SavingsAccountControllerIntegrationTest {
 
     @Test
     void testGetSavingsAccountByUserId() throws Exception {
-        Long userId = 2L;
+        long userId = 2L;
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/savings-account")
-                        .param("userId", userId.toString()))
+                        .param("userId", Long.toString(userId)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
@@ -78,8 +75,6 @@ public class SavingsAccountControllerIntegrationTest {
 
     @Test
     void testOpenSavingsAccount() throws Exception {
-        // TODO asdf
-
         SavingsAccountDto savingsAccountDto = new SavingsAccountDto();
         savingsAccountDto.setAccountId(5L);
         savingsAccountDto.setTariffId(2L);
@@ -93,33 +88,8 @@ public class SavingsAccountControllerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].accountId").value(3))
-                .andExpect(jsonPath("$[0].rate").value("2.4"))
-                .andExpect(jsonPath("$[0].tariffId").value("3"))
-                .andExpect(jsonPath("$[0].lastDatePercent").hasJsonPath())
+                .andExpect(jsonPath("$.accountId").value(5))
+                .andExpect(jsonPath("$.tariffId").value(2))
                 .andReturn();
     }
-//    59728975298
-//    @Test
-//    void testCreateTariff() throws Exception {
-//        String name = "NewTariff";
-//        double rate = 8.1;
-//        TariffDto tariffDto = new TariffDto();
-//        tariffDto.setName(name);
-//        tariffDto.setRate(rate);
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String json = objectMapper.writeValueAsString(tariffDto);
-//
-//        mockMvc.perform(post("/api/v1/tariff")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(json))
-//                .andDo(print())
-//                .andExpect(status().isCreated())
-//                .andExpect(content().contentType("application/json"))
-//                .andExpect(jsonPath("$.id").value(4))
-//                .andExpect(jsonPath("$.name").value(name))
-//                .andExpect(jsonPath("$.rate").value(rate))
-//                .andReturn();
-//    }
 }
