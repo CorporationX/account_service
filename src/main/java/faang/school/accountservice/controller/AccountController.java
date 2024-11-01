@@ -32,7 +32,7 @@ public class AccountController {
     }
 
     @GetMapping
-    public Page<AccountDto> getAllAccountsByOwnerId(@RequestBody AccountFilterDto filterDto,
+    public Page<AccountDto> getAllAccountsByOwnerId(AccountFilterDto filterDto,
                                            @RequestParam Long ownerId,
                                            @RequestParam(defaultValue = "1") @Positive int page,
                                            @RequestParam(defaultValue = "5") @Positive int size) {
