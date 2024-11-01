@@ -91,8 +91,6 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                     saDto.setTariffId(id);
                     saDto.setRate(rate);
                 });
-        System.out.println("1111111" + savingsAccountDtos);
-        // TODO adf
         return savingsAccountDtos;
     }
 
