@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -56,8 +55,8 @@ public class SavingsAccount {
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
-    @OneToOne
-    @JoinColumn(name = "tariff_id")
+    @ManyToOne
+    @JoinColumn(name = "tariff_id", nullable = false)
     private Tariff tariff;
 
     @Column(name = "tariff_history", columnDefinition = "TEXT")
