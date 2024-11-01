@@ -4,7 +4,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "account.numbers.minimum-numbers")
+@ConfigurationProperties(prefix = "account.numbers.batch-size")
 public class AccountNumberConfig {
-    private int checkingIndividual;
+
+    private int batchSize;
 }
