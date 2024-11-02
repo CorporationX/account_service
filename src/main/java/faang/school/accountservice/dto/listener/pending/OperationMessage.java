@@ -1,7 +1,8 @@
 package faang.school.accountservice.dto.listener.pending;
 
+import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.pending.OperationStatus;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.pending.OperationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,9 +17,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OperationMessage {
     private UUID operationId;
-    private UUID accountId;
+    private UUID sourceAccountId;
+    private UUID targetAccountId;
     private String idempotencyKey;
     private BigDecimal amount;
     private Currency currency;
-    private OperationType operationType;
+    private Category category;
+    private OperationStatus status;
 }

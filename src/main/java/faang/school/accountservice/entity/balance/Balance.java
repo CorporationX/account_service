@@ -63,6 +63,6 @@ public class Balance {
     @Column(name = "version")
     private long version;
 
-    @OneToMany(mappedBy = "balance")
+    @OneToMany(mappedBy = "sourceBalance")
     private List<AuthPayment> authorizationPayments;
 }

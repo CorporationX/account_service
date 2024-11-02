@@ -3,7 +3,6 @@ package faang.school.accountservice.listener.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.listener.pending.OperationMessage;
-import faang.school.accountservice.enums.pending.OperationType;
 import faang.school.accountservice.exception.ApiException;
 import faang.school.accountservice.exception.pending.UnknownOperationException;
 import faang.school.accountservice.service.pending.PendingOperationService;
@@ -13,7 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static faang.school.accountservice.enums.pending.OperationType.UNKNOWN;
+import static faang.school.accountservice.enums.pending.OperationStatus.AUTHORIZATION;
+import static faang.school.accountservice.enums.pending.OperationStatus.CANCELLATION;
+import static faang.school.accountservice.enums.pending.OperationStatus.CLEARING;
+import static faang.school.accountservice.enums.pending.OperationStatus.ERROR;
+import static faang.school.accountservice.enums.pending.OperationStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -36,7 +39,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_authorization() throws JsonProcessingException {
-        operationMessage.setOperationType(OperationType.AUTHORIZATION);
+        operationMessage.setStatus(AUTHORIZATION);
         when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenReturn(operationMessage);
 
         kafkaListener.onMessage(MESSAGE);
@@ -47,7 +50,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_clearing() throws JsonProcessingException {
-        operationMessage.setOperationType(OperationType.CLEARING);
+        operationMessage.setStatus(CLEARING);
         when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenReturn(operationMessage);
 
         kafkaListener.onMessage(MESSAGE);
@@ -58,7 +61,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_cancellation() throws JsonProcessingException {
-        operationMessage.setOperationType(OperationType.CANCELLATION);
+        operationMessage.setStatus(CANCELLATION);
         when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenReturn(operationMessage);
 
         kafkaListener.onMessage(MESSAGE);
@@ -69,7 +72,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_error() throws JsonProcessingException {
-        operationMessage.setOperationType(OperationType.ERROR);
+        operationMessage.setStatus(ERROR);
         when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenReturn(operationMessage);
 
         kafkaListener.onMessage(MESSAGE);
@@ -80,7 +83,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_unknownTypeException() throws JsonProcessingException {
-        operationMessage.setOperationType(UNKNOWN);
+        operationMessage.setStatus(UNKNOWN);
         when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenReturn(operationMessage);
 
         assertThatThrownBy(() -> kafkaListener.onMessage(MESSAGE))
@@ -89,8 +92,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_jsonProcessingException() throws JsonProcessingException {
-        when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenThrow(new JsonProcessingException("Error") {
-        });
+        when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenThrow(new JsonProcessingException("Error") {});
 
         assertThatThrownBy(() -> kafkaListener.onMessage(MESSAGE))
                 .isInstanceOf(ApiException.class);

@@ -1,9 +1,10 @@
 package faang.school.accountservice.enums.pending;
 
-public enum OperationType {
+public enum OperationStatus {
     UNKNOWN,
+    PENDING,
     AUTHORIZATION,
     CANCELLATION,
     CLEARING,
-    ERROR,
+    ERROR
 }

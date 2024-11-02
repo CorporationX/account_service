@@ -9,15 +9,15 @@ import faang.school.accountservice.service.pending.PendingOperationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Profile("kafka")
-@Component
+@ConditionalOnProperty(prefix = "app", name = "messaging", havingValue = "kafka")
 @RequiredArgsConstructor
+@Component
 public class PendingOperationKafkaListener {
     @Value("${spring.kafka.topic.pending_operation}")
     private String topic;
@@ -32,11 +32,11 @@ public class PendingOperationKafkaListener {
     public void onMessage(String message) {
         try {
             OperationMessage operation = objectMapper.readValue(message, OperationMessage.class);
-            switch (operation.getOperationType()) {
+            switch (operation.getStatus()) {
                 case AUTHORIZATION -> pendingOperationService.authorization(operation);
                 case CLEARING -> pendingOperationService.clearing(operation);
                 case CANCELLATION, ERROR -> pendingOperationService.cancellation(operation);
-                default -> throw new UnknownOperationException(operation.getOperationType());
+                default -> throw new UnknownOperationException(operation.getStatus());
             }
         } catch (JsonProcessingException exception) {
             log.error("Unexpected error, listen topic: {} of group: {}", topic, group, exception);

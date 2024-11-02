@@ -1,8 +1,10 @@
 package faang.school.accountservice.util.fabrics;
 
 import faang.school.accountservice.dto.listener.pending.OperationMessage;
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.pending.OperationType;
+import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.pending.OperationStatus;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
@@ -21,18 +23,28 @@ public class OperationMessageFabric {
                 .build();
     }
 
-    public static OperationMessage buildOperationMessage(OperationType type) {
+    public static OperationMessage buildOperationMessage(UUID id, UUID sourceAccountId) {
         return OperationMessage.builder()
-                .operationType(type)
+                .operationId(id)
+                .sourceAccountId(sourceAccountId)
                 .build();
     }
 
-    public static OperationMessage buildOperationMessage(UUID id, UUID accountId, BigDecimal amount, Currency currency) {
+    public static OperationMessage buildOperationMessage(OperationStatus status) {
+        return OperationMessage.builder()
+                .status(status)
+                .build();
+    }
+
+    public static OperationMessage buildOperationMessage(UUID id, UUID sourceAccountId, UUID targetAccountId,
+                                                         BigDecimal amount, Currency currency, Category category) {
         return OperationMessage.builder()
                 .operationId(id)
-                .accountId(accountId)
+                .sourceAccountId(sourceAccountId)
+                .targetAccountId(targetAccountId)
                 .amount(amount)
                 .currency(currency)
+                .category(category)
                 .build();
     }
 }

@@ -1,24 +1,32 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.Money;
-import faang.school.accountservice.exception.ValidationException;
+import faang.school.accountservice.dto.balance.response.CheckingAccountBalance;
+import faang.school.accountservice.dto.listener.pending.OperationMessage;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.exception.ValidationException;
+import faang.school.accountservice.publisher.pending.PendingOperationStatusPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
-import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.enums.pending.AccountBalanceStatus.INSUFFICIENT_FUNDS;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class BalanceValidator {
-    public void checkFreeAmount(Balance balance, Money money) {
+    private final PendingOperationStatusPublisher publisher;
+
+    public void checkFreeAmount(OperationMessage operation, Balance balance, Money money) {
         double freeAmount = balance.getCurrentBalance().subtract(balance.getAuthBalance()).doubleValue();
         if (money.amount().doubleValue() > freeAmount) {
-            throw new ValidationException("Not enough funds to authorize the amount: %s", money.amount());
+            publisher.publish(new CheckingAccountBalance(operation.getOperationId(), operation.getSourceAccountId(),
+                    INSUFFICIENT_FUNDS));
+            throw new ValidationException("Not enough funds, amount: %s, operation id: %s, balance id: %s",
+                    money.amount(), operation.getOperationId(), balance.getId());
         }
     }
 

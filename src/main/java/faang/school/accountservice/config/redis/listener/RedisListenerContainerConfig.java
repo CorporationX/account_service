@@ -1,4 +1,4 @@
-package faang.school.accountservice.config.redis;
+package faang.school.accountservice.config.redis.listener;
 
 import faang.school.accountservice.listener.redis.abstracts.EventMessageListener;
 import org.springframework.context.annotation.Bean;

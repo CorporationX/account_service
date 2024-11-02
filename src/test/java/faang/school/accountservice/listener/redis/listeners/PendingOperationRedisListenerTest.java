@@ -1,7 +1,6 @@
 package faang.school.accountservice.listener.redis.listeners;
 
 import faang.school.accountservice.dto.listener.pending.OperationMessage;
-import faang.school.accountservice.enums.pending.OperationType;
 import faang.school.accountservice.exception.pending.UnknownOperationException;
 import faang.school.accountservice.service.pending.PendingOperationService;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.listener.Topic;
 
-import static faang.school.accountservice.enums.pending.OperationType.UNKNOWN;
+import static faang.school.accountservice.enums.pending.OperationStatus.AUTHORIZATION;
+import static faang.school.accountservice.enums.pending.OperationStatus.CANCELLATION;
+import static faang.school.accountservice.enums.pending.OperationStatus.CLEARING;
+import static faang.school.accountservice.enums.pending.OperationStatus.ERROR;
+import static faang.school.accountservice.enums.pending.OperationStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -33,7 +36,7 @@ class PendingOperationRedisListenerTest {
 
     @Test
     void testSaveEvent_authorization() {
-        operationMessage.setOperationType(OperationType.AUTHORIZATION);
+        operationMessage.setStatus(AUTHORIZATION);
 
         redisListener.saveEvent(operationMessage);
 
@@ -43,7 +46,7 @@ class PendingOperationRedisListenerTest {
 
     @Test
     void testSaveEvent_clearing() {
-        operationMessage.setOperationType(OperationType.CLEARING);
+        operationMessage.setStatus(CLEARING);
 
         redisListener.saveEvent(operationMessage);
 
@@ -53,7 +56,7 @@ class PendingOperationRedisListenerTest {
 
     @Test
     void testSaveEvent_cancellation() {
-        operationMessage.setOperationType(OperationType.CANCELLATION);
+        operationMessage.setStatus(CANCELLATION);
 
         redisListener.saveEvent(operationMessage);
 
@@ -63,7 +66,7 @@ class PendingOperationRedisListenerTest {
 
     @Test
     void testSaveEvent_error() {
-        operationMessage.setOperationType(OperationType.ERROR);
+        operationMessage.setStatus(ERROR);
 
         redisListener.saveEvent(operationMessage);
 
@@ -73,7 +76,7 @@ class PendingOperationRedisListenerTest {
 
     @Test
     void testSaveEvent_unknownTypeException() {
-        operationMessage.setOperationType(UNKNOWN);
+        operationMessage.setStatus(UNKNOWN);
 
         assertThatThrownBy(() -> redisListener.saveEvent(operationMessage))
                 .isInstanceOf(UnknownOperationException.class);

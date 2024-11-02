@@ -1,9 +1,9 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.Money;
+import faang.school.accountservice.dto.listener.pending.OperationMessage;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
-import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
@@ -19,19 +19,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.CLOSED;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.REJECTED;
+import static faang.school.accountservice.enums.pending.Category.OTHER;
 import static faang.school.accountservice.util.fabrics.AccountFabric.buildAccount;
 import static faang.school.accountservice.util.fabrics.AuthPaymentFabric.buildAuthPayment;
 import static faang.school.accountservice.util.fabrics.BalanceFabric.buildBalance;
 import static faang.school.accountservice.util.fabrics.MoneyFabric.buildMoney;
+import static faang.school.accountservice.util.fabrics.OperationMessageFabric.buildOperationMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceTest {
     private static final UUID ACCOUNT_ID = UUID.randomUUID();
+    private static final UUID SOURCE_BALANCE_ID = UUID.randomUUID();
+    private static final UUID TARGET_BALANCE_ID = UUID.randomUUID();
     private static final UUID BALANCE_ID = UUID.randomUUID();
     private static final UUID PENDING_ID = UUID.randomUUID();
     private static final UUID AUTH_PAYMENT_ID = UUID.randomUUID();
@@ -49,8 +56,7 @@ class BalanceServiceTest {
     private BalanceService balanceService;
 
     @Test
-    @DisplayName("Create balance successful")
-    void testCreateBalanceSuccessful() {
+    void testCreateBalance_successful() {
         Account account = buildAccount();
         balanceService.createBalance(account);
 
@@ -58,100 +64,114 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("Authorize payment successful")
-    void testAuthorizePaymentSuccessful() {
+    void testAuthorizePayment_successful() {
         double moneyAmount = 1.0;
         double authBalance = 1.0;
         double currentBalance = 1.0;
-        Balance balance = buildBalance(BALANCE_ID, authBalance, currentBalance);
+        Balance sourceBalance = buildBalance(SOURCE_BALANCE_ID, authBalance, currentBalance);
+        Balance targetBalance = buildBalance(TARGET_BALANCE_ID, authBalance, currentBalance);
         Money money = buildMoney(moneyAmount);
-        when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.of(balance));
+        OperationMessage operation = buildOperationMessage(PENDING_ID, ACCOUNT_ID);
 
-        balanceService.authorizePayment(BALANCE_ID, PENDING_ID, money);
+        balanceService.authorizePayment(operation, sourceBalance, targetBalance, money, OTHER);
 
-        ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
+        verify(balanceValidator).checkFreeAmount(operation, sourceBalance, money);
+
+        ArgumentCaptor<Balance> sourceBalanceCaptor = ArgumentCaptor.forClass(Balance.class);
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
 
-        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        verify(balanceRepository).saveAndFlush(sourceBalanceCaptor.capture());
         verify(authPaymentRepository).saveAndFlush(paymentCaptor.capture());
 
-        Balance resultBalance = balanceCaptor.getValue();
+        Balance resultBalance = sourceBalanceCaptor.getValue();
         assertThat(resultBalance.getAuthBalance().doubleValue())
                 .isEqualTo(authBalance + moneyAmount);
 
         AuthPayment resultPayment = paymentCaptor.getValue();
-        assertThat(resultPayment.getBalance())
+        assertThat(resultPayment.getSourceBalance())
                 .isNotNull()
                 .isEqualTo(resultBalance);
+        assertThat(resultPayment.getTargetBalance())
+                .isNotNull()
+                .isEqualTo(targetBalance);
         assertThat(resultPayment.getAmount().doubleValue())
                 .isEqualTo(moneyAmount);
     }
 
     @Test
     @DisplayName("Accept payment successful")
-    void testAcceptPaymentSuccessful() {
+    void testAcceptPayment_successful() {
         double moneyAmount = 2.0;
         double authBalance = 2.0;
         double paymentAmount = 2.0;
         double currentBalance = 2.0;
-        Balance balance = buildBalance(BALANCE_ID, authBalance, currentBalance);
-        AuthPayment payment = buildAuthPayment(AUTH_PAYMENT_ID, paymentAmount, balance);
+        Balance sourceBalance = buildBalance(SOURCE_BALANCE_ID, authBalance, currentBalance);
+        Balance targetBalance = buildBalance(TARGET_BALANCE_ID, authBalance, currentBalance);
+        AuthPayment payment = buildAuthPayment(AUTH_PAYMENT_ID, sourceBalance, targetBalance, paymentAmount);
         Money money = buildMoney(moneyAmount);
         when(authPaymentRepository.findById(AUTH_PAYMENT_ID)).thenReturn(Optional.of(payment));
 
         balanceService.acceptPayment(AUTH_PAYMENT_ID, money);
 
-        ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
+        verify(balanceValidator).checkAuthPaymentForAccept(money, payment);
+
+        ArgumentCaptor<Balance> sourceBalanceCaptor = ArgumentCaptor.forClass(Balance.class);
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
 
-        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        verify(balanceRepository, times(2)).saveAndFlush(sourceBalanceCaptor.capture());
         verify(authPaymentRepository).saveAndFlush(paymentCaptor.capture());
 
-        Balance resultBalance = balanceCaptor.getValue();
-        assertThat(resultBalance.getCurrentBalance().doubleValue())
+        Balance resultSourceBalance = sourceBalanceCaptor.getAllValues().get(0);
+        assertThat(resultSourceBalance.getCurrentBalance().doubleValue())
                 .isEqualTo(currentBalance - moneyAmount);
-        assertThat(resultBalance.getAuthBalance().doubleValue())
+        assertThat(resultSourceBalance.getAuthBalance().doubleValue())
                 .isEqualTo(authBalance - paymentAmount);
+
+        Balance resultTargetBalance = sourceBalanceCaptor.getAllValues().get(1);
+        assertThat(resultTargetBalance.getCurrentBalance().doubleValue())
+                .isEqualTo(currentBalance + moneyAmount);
+        assertThat(resultTargetBalance.getAuthBalance().doubleValue())
+                .isEqualTo(authBalance);
 
         AuthPayment paymentResult = paymentCaptor.getValue();
         assertThat(paymentResult.getAmount().doubleValue())
                 .isEqualTo(moneyAmount);
         assertThat(paymentResult.getStatus())
                 .isNotNull()
-                .isEqualTo(AuthPaymentStatus.CLOSED);
+                .isEqualTo(CLOSED);
     }
 
     @Test
-    @DisplayName("Reject payment successful")
-    void testRejectPaymentSuccessful() {
+    void testRejectPayment_successful() {
         double authBalance = 5.0;
         double paymentAmount = 2.0;
         double currentBalance = 5.0;
-        Balance balance = buildBalance(BALANCE_ID, authBalance, currentBalance);
-        AuthPayment payment = buildAuthPayment(AUTH_PAYMENT_ID, paymentAmount, balance);
+        Balance sourceBalance = buildBalance(SOURCE_BALANCE_ID, authBalance, currentBalance);
+        AuthPayment payment = buildAuthPayment(AUTH_PAYMENT_ID, sourceBalance, paymentAmount);
         when(authPaymentRepository.findById(AUTH_PAYMENT_ID)).thenReturn(Optional.of(payment));
 
         balanceService.rejectPayment(AUTH_PAYMENT_ID);
 
-        ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
-        ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
+        verify(balanceValidator).checkAuthPaymentForReject(payment);
 
-        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
+        ArgumentCaptor<Balance> sourceBalanceCaptor = ArgumentCaptor.forClass(Balance.class);
+
+        verify(balanceRepository).saveAndFlush(sourceBalanceCaptor.capture());
         verify(authPaymentRepository).saveAndFlush(paymentCaptor.capture());
 
         AuthPayment resultPayment = paymentCaptor.getValue();
         assertThat(resultPayment.getStatus())
                 .isNotNull()
-                .isEqualTo(AuthPaymentStatus.REJECTED);
+                .isEqualTo(REJECTED);
 
-        Balance resultBalance = balanceCaptor.getValue();
+        Balance resultBalance = sourceBalanceCaptor.getValue();
         assertThat(resultBalance.getAuthBalance().doubleValue())
                 .isEqualTo(authBalance - paymentAmount);
     }
 
     @Test
-    @DisplayName("Top up current balance successful")
-    void testTopUpCurrentBalanceSuccessful() {
+    void testTopUpCurrentBalance_successful() {
         double moneyAmount = 5.0;
         double authBalance = 5.0;
         double currentBalance = 5.0;
@@ -171,8 +191,7 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("Multiply current balance successful")
-    void testMultiplyCurrentBalanceSuccessful() {
+    void testMultiplyCurrentBalance_successful() {
         double value = 2.0;
         double authBalance = 5.0;
         double currentBalance = 5.0;
@@ -191,28 +210,7 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("No auth payment by id and throw exception")
-    void testFindAuthPaymentBiIdThrowException() {
-        when(authPaymentRepository.findById(AUTH_PAYMENT_ID)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> balanceService.findAuthPaymentBiId(AUTH_PAYMENT_ID))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("%s id=%s not found", AuthPayment.class.getName(), AUTH_PAYMENT_ID);
-    }
-
-    @Test
-    @DisplayName("Find auth payment by id successful")
-    void testFindAuthPaymentBiIdSuccessful() {
-        AuthPayment payment = buildAuthPayment(AUTH_PAYMENT_ID);
-        when(authPaymentRepository.findById(AUTH_PAYMENT_ID)).thenReturn(Optional.of(payment));
-
-        assertThat(balanceService.findAuthPaymentBiId(AUTH_PAYMENT_ID))
-                .isEqualTo(payment);
-    }
-
-    @Test
-    @DisplayName("No balance by id and throw exception")
-    void testFindByIdThrowException() {
+    void testFindById_throwException() {
         when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> balanceService.findById(BALANCE_ID))
@@ -221,8 +219,7 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("Find balance by id successful")
-    void testFindBiIdSuccessful() {
+    void testFindBiId_successful() {
         Balance balance = buildBalance(BALANCE_ID);
         when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.of(balance));
 
@@ -231,8 +228,25 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("No balance by account id and throw exception")
-    void testFindByAccountIdThrowException() {
+    void testFindAuthPaymentBiId_throwException() {
+        when(authPaymentRepository.findById(AUTH_PAYMENT_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> balanceService.findAuthPaymentBiId(AUTH_PAYMENT_ID))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("%s id=%s not found", AuthPayment.class.getName(), AUTH_PAYMENT_ID);
+    }
+
+    @Test
+    void testFindAuthPaymentBiId_successful() {
+        AuthPayment payment = buildAuthPayment(AUTH_PAYMENT_ID);
+        when(authPaymentRepository.findById(AUTH_PAYMENT_ID)).thenReturn(Optional.of(payment));
+
+        assertThat(balanceService.findAuthPaymentBiId(AUTH_PAYMENT_ID))
+                .isEqualTo(payment);
+    }
+
+    @Test
+    void testFindByAccountId_throwException() {
         when(balanceRepository.findBalanceByAccountId(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> balanceService.findByAccountId(ACCOUNT_ID))
@@ -241,8 +255,7 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("Find balance by account id successful")
-    void testFindBiAccountIdSuccessful() {
+    void testFindBiAccountId_successful() {
         Balance balance = buildBalance(BALANCE_ID);
         when(balanceRepository.findBalanceByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(balance));
 

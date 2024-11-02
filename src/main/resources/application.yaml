@@ -20,6 +20,8 @@ spring:
       port: 6379
       channel:
         pending_operation: pending_operation
+        checking_balance: checking_balance
+
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -39,8 +41,9 @@ spring:
       default-topic: pending_operation
     topic:
       pending_operation: pending_operation
-  profiles:
-    active: redis
+
+app:
+  messaging: redis
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

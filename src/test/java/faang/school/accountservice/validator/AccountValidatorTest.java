@@ -52,10 +52,15 @@ public class AccountValidatorTest {
                 .currency(Currency.RUB)
                 .build();
 
-        userDto = new UserDto(
-                openAccount.getUserId(),
-                "Mike",
-                "test@email.com");
+//        userDto = new UserDto(
+//                openAccount.getUserId(),
+//                "Mike",
+//                "test@email.com");
+        userDto = UserDto.builder()
+                .id(openAccount.getUserId())
+                .username("Mike")
+                .email("email.com")
+                .build();
 
         projectDto = new ProjectDto(
                 openAccount.getProjectId(),

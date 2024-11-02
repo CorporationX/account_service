@@ -1,10 +1,12 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.Money;
+import faang.school.accountservice.dto.listener.pending.OperationMessage;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
-import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.enums.pending.Category;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.exception.auth.payment.AuthPaymentHasBeenUpdatedException;
 import faang.school.accountservice.exception.balance.BalanceHasBeenUpdatedException;
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static faang.school.accountservice.entity.auth.payment.AuthPaymentBuilder.build;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.CLOSED;
 import static faang.school.accountservice.entity.balance.BalanceBuilder.build;
 
 @Slf4j
@@ -38,13 +41,14 @@ public class BalanceService {
     }
 
     @Transactional
-    public AuthPayment authorizePayment(UUID balanceId, UUID operationId, Money money) {
-        Balance balance = findById(balanceId);
-        balanceValidator.checkFreeAmount(balance, money);
-        AuthPayment payment = build(operationId, balance, money.amount());
-        balance.setAuthBalance(balance.getAuthBalance().add(money.amount()));
+    public AuthPayment authorizePayment(OperationMessage operation, Balance sourceBalance, Balance targetBalance,
+                                        Money money, Category category) {
+        balanceValidator.checkFreeAmount(operation, sourceBalance, money);
 
-        saveBalance(balance);
+        AuthPayment payment = build(operation.getOperationId(), sourceBalance, targetBalance, money.amount(), category);
+        sourceBalance.setAuthBalance(sourceBalance.getAuthBalance().add(money.amount()));
+
+        saveBalance(sourceBalance);
         return saveAuthPayment(payment);
     }
 
@@ -53,16 +57,14 @@ public class BalanceService {
         AuthPayment payment = findAuthPaymentBiId(authPaymentId);
         balanceValidator.checkAuthPaymentForAccept(money, payment);
 
-        Balance balance = payment.getBalance();
-        BigDecimal newCurrentBalance = balance.getCurrentBalance().subtract(money.amount());
-        balance.setCurrentBalance(newCurrentBalance);
-        BigDecimal newAuthBalance = balance.getAuthBalance().subtract(payment.getAmount());
-        balance.setAuthBalance(newAuthBalance);
+        Balance sourceBalance = sourceBalanceUpdate(payment, money);
+        Balance targetBalance = targetBalanceUpdate(payment, money);
 
         payment.setAmount(money.amount());
-        payment.setStatus(AuthPaymentStatus.CLOSED);
+        payment.setStatus(CLOSED);
 
-        saveBalance(balance);
+        saveBalance(sourceBalance);
+        saveBalance(targetBalance);
         return saveAuthPayment(payment);
     }
 
@@ -71,13 +73,13 @@ public class BalanceService {
         AuthPayment payment = findAuthPaymentBiId(authPaymentId);
         balanceValidator.checkAuthPaymentForReject(payment);
 
-        Balance balance = payment.getBalance();
-        BigDecimal newAuthBalance = balance.getAuthBalance().subtract(payment.getAmount());
-        balance.setAuthBalance(newAuthBalance);
+        Balance sourceBalance = payment.getSourceBalance();
+        BigDecimal newAuthBalance = sourceBalance.getAuthBalance().subtract(payment.getAmount());
+        sourceBalance.setAuthBalance(newAuthBalance);
 
         payment.setStatus(AuthPaymentStatus.REJECTED);
 
-        saveBalance(balance);
+        saveBalance(sourceBalance);
         return saveAuthPayment(payment);
     }
 
@@ -102,21 +104,41 @@ public class BalanceService {
     }
 
     @Transactional(readOnly = true)
-    public AuthPayment findAuthPaymentBiId(UUID id) {
-        return authPaymentRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException(AuthPayment.class, id));
-    }
-
-    @Transactional(readOnly = true)
     public Balance findById(UUID id) {
         return balanceRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(Balance.class, id));
     }
 
     @Transactional(readOnly = true)
+    public AuthPayment findAuthPaymentBiId(UUID id) {
+        return authPaymentRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException(AuthPayment.class, id));
+    }
+
+    @Transactional(readOnly = true)
     public Balance findByAccountId(UUID accountId) {
         return balanceRepository.findBalanceByAccountId(accountId).orElseThrow(() ->
                 new ResourceNotFoundException(Account.class, accountId));
+    }
+
+    private Balance sourceBalanceUpdate(AuthPayment payment, Money money) {
+        Balance sourceBalance = payment.getSourceBalance();
+
+        BigDecimal newCurrentBalance = sourceBalance.getCurrentBalance().subtract(money.amount());
+        sourceBalance.setCurrentBalance(newCurrentBalance);
+        BigDecimal newAuthBalance = sourceBalance.getAuthBalance().subtract(payment.getAmount());
+        sourceBalance.setAuthBalance(newAuthBalance);
+
+        return sourceBalance;
+    }
+
+    private Balance targetBalanceUpdate(AuthPayment payment, Money money) {
+        Balance targetBalance = payment.getTargetBalance();
+
+        BigDecimal newCurrentBalance = targetBalance.getCurrentBalance().add(money.amount());
+        targetBalance.setCurrentBalance(newCurrentBalance);
+
+        return targetBalance;
     }
 
     private Balance saveBalance(Balance balance) {
