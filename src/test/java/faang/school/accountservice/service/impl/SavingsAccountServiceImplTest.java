@@ -107,7 +107,7 @@ class SavingsAccountServiceImplTest {
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount1, savingsAccount2);
 
         when(accountRepository.findNumbersByUserId(userId)).thenReturn(numbers);
-        when(savingsAccountRepository.findSaIdsByAccountNumbers(numbers)).thenReturn(savingsAccounts);
+        when(savingsAccountRepository.findSaByAccountNumbers(numbers)).thenReturn(savingsAccounts);
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(savingsAccount1Id));
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(2L)).thenReturn(Optional.of(savingsAccount2Id));
         when(savingsAccountRateRepository.findLatestRateIdByTariffId(anyLong())).thenReturn(Optional.of(5.0));
@@ -117,7 +117,7 @@ class SavingsAccountServiceImplTest {
         assertThat(result).isNotEmpty();
         assertThat(result).hasSize(2);
         verify(accountRepository).findNumbersByUserId(userId);
-        verify(savingsAccountRepository).findSaIdsByAccountNumbers(numbers);
+        verify(savingsAccountRepository).findSaByAccountNumbers(numbers);
         verify(savingsAccountMapper).toDtos(savingsAccounts);
         verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccount1Id);
         verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccount2Id);

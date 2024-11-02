@@ -11,12 +11,12 @@ import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Year;
 import java.util.List;
 import java.util.Random;
 
@@ -30,6 +30,8 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final TariffRepository tariffRepository;
     private final TariffHistoryRepository tariffHistoryRepository;
     private final SavingsAccountRateRepository savingsAccountRateRepository;
+    private final BalanceServiceImpl balanceService;
+    private final DataSourceTransactionManagerAutoConfiguration dataSourceTransactionManagerAutoConfiguration;
 
     @Transactional
     @Override
@@ -77,7 +79,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
         }
 
-        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaIdsByAccountNumbers(numbers);
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaByAccountNumbers(numbers);
         List<SavingsAccountDto> savingsAccountDtos = savingsAccountMapper.toDtos(savingsAccounts);
         savingsAccountDtos
                 .forEach(saDto -> {
@@ -96,8 +98,17 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     }
 
     @Transactional
+    @Async("calculatePercentsExecutor")
     public void calculatePercent() {
         Random random = new Random();
-        int randomBalance = random.nextInt(1000,100_000);
+        double accountBalance = random.nextDouble(100.0, 1001.0);
+        int currentYearDays = Year.now().length();
+        double dailyRate = (double) 150 / currentYearDays;
+        double dailyInterest = accountBalance * (dailyRate / 100);
+        double newBalance = accountBalance + dailyInterest;
+        System.out.println(Thread.currentThread().getName()+ "Current balance = "+accountBalance);
+        System.out.println(Thread.currentThread().getName() + " = new balance " + newBalance);
+//        BalanceDto balanceDto = balanceService.getBalanceByAccountId(5L);
+//        balanceDto.getActualBalance();
     }
 }
