@@ -22,24 +22,21 @@ public class PendingOperationKafkaListener {
     @Value("${spring.kafka.topic.pending_operation}")
     private String topic;
 
-    @Value("${spring.kafka.consumer.group-id}")
-    private String group;
-
     private final ObjectMapper objectMapper;
     private final PendingOperationService pendingOperationService;
 
-    @KafkaListener(topics ="${spring.kafka.topic.pending_operation}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics ="${spring.kafka.topic.pending_operation}")
     public void onMessage(String message) {
         try {
             OperationMessage operation = objectMapper.readValue(message, OperationMessage.class);
             switch (operation.getStatus()) {
-                case AUTHORIZATION -> pendingOperationService.authorization(operation);
+                case PENDING -> pendingOperationService.authorization(operation);
                 case CLEARING -> pendingOperationService.clearing(operation);
                 case CANCELLATION, ERROR -> pendingOperationService.cancellation(operation);
                 default -> throw new UnknownOperationException(operation.getStatus());
             }
         } catch (JsonProcessingException exception) {
-            log.error("Unexpected error, listen topic: {} of group: {}", topic, group, exception);
+            log.error("Unexpected error, listen topic: {}", topic, exception);
             throw new ApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

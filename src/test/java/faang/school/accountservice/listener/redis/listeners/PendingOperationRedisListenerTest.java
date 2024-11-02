@@ -10,10 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.listener.Topic;
 
-import static faang.school.accountservice.enums.pending.OperationStatus.AUTHORIZATION;
 import static faang.school.accountservice.enums.pending.OperationStatus.CANCELLATION;
 import static faang.school.accountservice.enums.pending.OperationStatus.CLEARING;
 import static faang.school.accountservice.enums.pending.OperationStatus.ERROR;
+import static faang.school.accountservice.enums.pending.OperationStatus.PENDING;
 import static faang.school.accountservice.enums.pending.OperationStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,7 +36,7 @@ class PendingOperationRedisListenerTest {
 
     @Test
     void testSaveEvent_authorization() {
-        operationMessage.setStatus(AUTHORIZATION);
+        operationMessage.setStatus(PENDING);
 
         redisListener.saveEvent(operationMessage);
 

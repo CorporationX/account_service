@@ -41,9 +41,10 @@ spring:
       default-topic: pending_operation
     topic:
       pending_operation: pending_operation
+      checking_balance: checking_balance
 
 app:
-  messaging: redis
+  messaging: kafka
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

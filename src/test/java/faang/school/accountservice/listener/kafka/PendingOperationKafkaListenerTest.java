@@ -12,10 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static faang.school.accountservice.enums.pending.OperationStatus.AUTHORIZATION;
 import static faang.school.accountservice.enums.pending.OperationStatus.CANCELLATION;
 import static faang.school.accountservice.enums.pending.OperationStatus.CLEARING;
 import static faang.school.accountservice.enums.pending.OperationStatus.ERROR;
+import static faang.school.accountservice.enums.pending.OperationStatus.PENDING;
 import static faang.school.accountservice.enums.pending.OperationStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -39,7 +39,7 @@ class PendingOperationKafkaListenerTest {
 
     @Test
     void testOnMessage_authorization() throws JsonProcessingException {
-        operationMessage.setStatus(AUTHORIZATION);
+        operationMessage.setStatus(PENDING);
         when(objectMapper.readValue(MESSAGE, OperationMessage.class)).thenReturn(operationMessage);
 
         kafkaListener.onMessage(MESSAGE);

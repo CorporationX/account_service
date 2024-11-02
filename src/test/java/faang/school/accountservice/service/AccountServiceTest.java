@@ -46,7 +46,7 @@ public class AccountServiceTest {
     private Account account;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         account = Account.builder()
                 .userId(1L)
                 .projectId(1L)
