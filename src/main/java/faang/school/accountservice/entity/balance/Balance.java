@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,9 +31,11 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @DecimalMin("0.0")
     @Column(name = "authorization_balance")
     private double authorizationBalance;
 
+    @DecimalMin("0.0")
     @Column(name = "actual_balance", nullable = false)
     private double actualBalance;
 

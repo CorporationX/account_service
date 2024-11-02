@@ -7,5 +7,7 @@ CREATE TABLE balance(
     version NUMERIC,
     account_id BIGINT NOT NULL,
 
-    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES  account (id)
+    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES  account (id),
+    CONSTRAINT chk_authorization_balance CHECK (authorization_balance <= 0),
+    CONSTRAINT chk_actual_balance CHECK (actual_balance <= 0)
 );
