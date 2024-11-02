@@ -4,7 +4,7 @@ import faang.school.accountservice.enums.AccountNumberType;
 import faang.school.accountservice.model.number.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 class NumbersSequenceService {
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
@@ -28,17 +28,10 @@ class NumbersSequenceService {
     public void checkForGenerationSequencesAsync(AccountNumberType type) {
         long amountSequences = freeAccountNumbersRepository.countFreeAccountNumberByType(type);
         if (amountSequences < accountNumberConfig.getMinNumberOfFreeAccounts()) {
-            long incrementKey = accountNumbersSequenceRepository.incrementAndGet(type.toString());
-            String prefixCode = type.getCode();
-            List<FreeAccountNumber> accountNumbers = IntStream
-                    .range(0, accountNumberConfig.getMaxNumberOfFreeAccounts())
-                    .mapToObj(i -> concatenate(incrementKey + i, prefixCode))
-                    .map(accountNumber -> new FreeAccountNumber(type, accountNumber))
-                    .toList();
+            List<FreeAccountNumber> accountNumbers = generationSequencesByNumberConfig(type);
             freeAccountNumbersRepository.saveAll(accountNumbers);
             accountNumbersSequenceRepository.upCounterAndGet(type.toString(), accountNumberConfig.getMaxNumberOfFreeAccounts() - 1);
-
-            log.info("Generated {} account numbers for type {}\n{}", accountNumberConfig.getMaxNumberOfFreeAccounts(), type, accountNumbers);
+            log.info("Saved {} account numbers for type {}\n{}", accountNumberConfig.getMaxNumberOfFreeAccounts(), type, accountNumbers);
         }
     }
 
@@ -79,5 +72,15 @@ class NumbersSequenceService {
             throw new IllegalArgumentException("Total length exceeds maxLength limit.");
         }
         return prefixCode + "0".repeat(zerosCount) + incrementKey;
+    }
+
+    private List<FreeAccountNumber> generationSequencesByNumberConfig(AccountNumberType type) {
+        long incrementKey = accountNumbersSequenceRepository.incrementAndGet(type.toString());
+        String prefixCode = type.getCode();
+        return IntStream
+                .range(0, accountNumberConfig.getMaxNumberOfFreeAccounts())
+                .mapToObj(i -> concatenate(incrementKey + i, prefixCode))
+                .map(accountNumber -> new FreeAccountNumber(type, accountNumber))
+                .toList();
     }
 }

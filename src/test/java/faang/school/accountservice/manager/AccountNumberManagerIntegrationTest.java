@@ -9,7 +9,6 @@ import faang.school.accountservice.service.account.numbers.AccountNumberConfig;
 import faang.school.accountservice.service.account.numbers.AccountNumbersManager;
 import faang.school.accountservice.util.BaseContextTest;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,11 +32,6 @@ public class AccountNumberManagerIntegrationTest extends BaseContextTest {
 
     @Autowired
     private AccountNumbersManager accountNumbersManager;
-
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     public void testAccountNumberIncrementAndRetrieval() throws InterruptedException {

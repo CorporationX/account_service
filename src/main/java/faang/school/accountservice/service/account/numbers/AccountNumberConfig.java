@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 @Getter
 public class AccountNumberConfig {
 
-    @Value("${account-service.account-numbers.max-length-of-account-number}")
+    @Value("${account-service.account-numbers.max-length-sequence}")
     private int maxlengthOfDigitSequence;
 
-    @Value("${account-service.account-numbers.min-number-of-free-accounts}")
+    @Value("${account-service.account-numbers.min-free-accounts}")
     private int minNumberOfFreeAccounts;
 
-    @Value("${account-service.account-numbers.max-number-of-free-accounts}")
+    @Value("${account-service.account-numbers.max-free-accounts}")
     private int maxNumberOfFreeAccounts;
 }

@@ -21,9 +21,9 @@ server:
 
 account-service:
   account-numbers:
-    max-number-of-free-accounts: 10
-    min-number-of-free-accounts: 1
-    max-length-of-account-number: 20
+    max-free-accounts: 10
+    min-free-accounts: 1
+    max-length-sequence: 20
 
 
 project-service:
