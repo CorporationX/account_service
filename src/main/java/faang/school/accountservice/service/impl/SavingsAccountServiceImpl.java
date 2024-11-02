@@ -2,23 +2,19 @@ package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.entity.Account;
-import faang.school.accountservice.model.entity.SavingsAccount;
-import faang.school.accountservice.model.entity.Tariff;
-import faang.school.accountservice.model.entity.TariffHistory;
+import faang.school.accountservice.model.entity.*;
 import faang.school.accountservice.repository.*;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Year;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +26,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final TariffRepository tariffRepository;
     private final TariffHistoryRepository tariffHistoryRepository;
     private final SavingsAccountRateRepository savingsAccountRateRepository;
-    private final BalanceServiceImpl balanceService;
-    private final DataSourceTransactionManagerAutoConfiguration dataSourceTransactionManagerAutoConfiguration;
+    private final BalanceRepository balanceRepository;
 
     @Transactional
     @Override
@@ -99,16 +94,30 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
 
     @Transactional
     @Async("calculatePercentsExecutor")
-    public void calculatePercent() {
-        Random random = new Random();
-        double accountBalance = random.nextDouble(100.0, 1001.0);
+    public void calculatePercent(Long id, double rate) {
+
+        Balance balance = balanceRepository.findByAccountId(id).orElseGet(() -> {
+            log.info("Balance with id {} not found", id);
+            throw new EntityNotFoundException("Balance with id " + id + " not found");
+        });
+
         int currentYearDays = Year.now().length();
-        double dailyRate = (double) 150 / currentYearDays;
-        double dailyInterest = accountBalance * (dailyRate / 100);
-        double newBalance = accountBalance + dailyInterest;
-        System.out.println(Thread.currentThread().getName()+ "Current balance = "+accountBalance);
-        System.out.println(Thread.currentThread().getName() + " = new balance " + newBalance);
-//        BalanceDto balanceDto = balanceService.getBalanceByAccountId(5L);
-//        balanceDto.getActualBalance();
+        double temp = (double) 150 / currentYearDays;
+        BigDecimal dailyRate = BigDecimal.valueOf(temp);
+        BigDecimal dailyInterest = balance.getActualBalance().multiply((dailyRate.divide(BigDecimal.valueOf(100))));
+
+        BigDecimal newBalance = balance.getActualBalance().add(dailyInterest);
+        System.out.println(Thread.currentThread().getName() + " Balance = " + balance.getActualBalance());
+        balance.setActualBalance(newBalance);
+        System.out.println(Thread.currentThread().getName() + " New balance = " + balance.getActualBalance());
+        System.out.println(Thread.currentThread().getName() + " NNNNNNew balance = " + newBalance);
+//        Random random = new Random();
+//        double accountBalance = random.nextDouble(100.0, 1001.0);
+//        int currentYearDays = Year.now().length();
+//        double dailyRate = (double) 150 / currentYearDays;
+//        double dailyInterest = accountBalance * (dailyRate / 100);
+//        double newBalance = accountBalance + dailyInterest;
+//        System.out.println(Thread.currentThread().getName()+ "Current balance = "+accountBalance);
+//        System.out.println(Thread.currentThread().getName() + " = new balance " + newBalance);
     }
 }
