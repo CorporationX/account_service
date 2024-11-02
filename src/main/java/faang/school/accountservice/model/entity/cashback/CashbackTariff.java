@@ -1,14 +1,11 @@
-package faang.school.accountservice.model.entity;
+package faang.school.accountservice.model.entity.cashback;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,19 +26,20 @@ import java.util.List;
 public class CashbackTariff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @Builder.Default
+    @OneToMany(mappedBy = "cashbackTariff")
+    private List<CashbackTariffOperationType> operationTypes = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "cashbackTariffs", fetch = FetchType.LAZY)
-    private List<OperationType> operationTypes;
-
-    @ManyToMany(mappedBy = "cashbackTariffs", fetch = FetchType.LAZY)
-    private List<Merchant> merchants;
+    @Builder.Default
+    @OneToMany(mappedBy = "tariff")
+    private List<CashbackTariffMerchant> cashbackTariffMerchants = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.entity;
 
+import faang.school.accountservice.model.entity.cashback.CashbackTariff;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.model.enums.Currency;
@@ -11,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -88,6 +91,7 @@ public class Account {
         }
     }
 
-    @OneToOne(mappedBy = "account")
+    @ManyToOne
+    @JoinColumn(name = "cashback_tariff_id")
     private CashbackTariff cashbackTariff;
 }

@@ -1,40 +1,50 @@
 CREATE TABLE IF NOT EXISTS cashback_tariff
 (
     id         BIGSERIAL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    name       VARCHAR(128) NOT NULL UNIQUE,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE account
-    ADD COLUMN IF NOT EXISTS cashback_tariff_id BIGINT REFERENCES cashback_tariff (id) UNIQUE;
-
-CREATE TABLE IF NOT EXISTS operation_type
+CREATE TABLE IF NOT EXISTS operation_type_cashback
 (
     id             BIGSERIAL PRIMARY KEY,
-    operation_type VARCHAR(32),
-    percentage     DECIMAL(5, 2)
+    operation_type VARCHAR(64) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS cashback_tariff_operation_type
+CREATE TABLE IF NOT EXISTS merchant_cashback
 (
+    id          BIGSERIAL PRIMARY KEY,
+    merchant_id VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cashback_tariff__operation_type_cashback
+(
+    id                 BIGSERIAL PRIMARY KEY,
     cashback_tariff_id BIGINT REFERENCES cashback_tariff (id),
-    operation_type_id  BIGINT REFERENCES operation_type (id)
+    operation_type_id  BIGINT REFERENCES operation_type_cashback (id),
+    percentage         DECIMAL(5, 2) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS merchant
+CREATE TABLE IF NOT EXISTS cashback_tariff__merchant_cashback
 (
-    id           BIGSERIAL PRIMARY KEY,
-    name         VARCHAR(256),
-    tariff_id    BIGINT REFERENCES cashback_tariff (id),
-    operation_id BIGSERIAL REFERENCES operation_type (id) UNIQUE,
-    percentage   DECIMAL(5, 2)
-);
-
-CREATE TABLE IF NOT EXISTS cashback_tariff_merchant
-(
+    id                 BIGSERIAL PRIMARY KEY,
     cashback_tariff_id BIGINT REFERENCES cashback_tariff (id),
-    merchant_id        BIGINT REFERENCES merchant (id)
+    merchant_id        BIGINT REFERENCES merchant_cashback (id),
+    percentage         DECIMAL(5, 2) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_tariff_merchant ON merchant (tariff_id, name);
+INSERT INTO operation_type_cashback (operation_type)
+VALUES ('PURCHASE'),
+       ('RESTAURANT'),
+       ('TRAVEL'),
+       ('ENTERTAINMENT'),
+       ('TRANSPORT'),
+       ('PHARMACY'),
+       ('HEALTH_AND_SPORTS'),
+       ('CLOTHING_AND_SHOES'),
+       ('ELECTRONICS'),
+       ('SERVICES'),
+       ('EDUCATION');
 
-
+ALTER TABLE account
+    ADD COLUMN IF NOT EXISTS cashback_tariff_id BIGINT REFERENCES cashback_tariff (id);
