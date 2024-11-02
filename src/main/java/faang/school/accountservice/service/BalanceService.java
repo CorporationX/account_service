@@ -1,13 +1,13 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.Money;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.balance.BalanceAuthPayment;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuthPaymentRepository;
 import faang.school.accountservice.repository.BalanceRepository;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,6 @@ public class BalanceService {
     @Transactional
     public Balance createBalance() {
         Balance balance = Balance.builder()
-                .authorization(BigDecimal.valueOf(0))
-                .actual(BigDecimal.valueOf(0.0))
                 .build();
 
         return balanceRepository.save(balance);
@@ -39,13 +37,11 @@ public class BalanceService {
 
     @Transactional
     public BalanceAuthPayment authPayment(UUID balanceId, Money money) {
+        validateCurrency(money.currency());
+        validatePositiveSum(money.amount());
+
         Balance balance = balanceRepository.findById(balanceId).orElseThrow();
-
-        BigDecimal currentBalanceAmount = balance.getActual().subtract(balance.getAuthorization());
-
-        if (money.amount().compareTo(currentBalanceAmount) < 0) {
-            throw new ValidationException("Not enough money");
-        }
+        validateEnoughMoney(balance, money.amount());
 
         BalanceAuthPayment authPayment = BalanceAuthPayment.builder()
                 .balance(balance)
@@ -53,16 +49,24 @@ public class BalanceService {
                 .build();
 
         balance.setAuthorization(balance.getAuthorization().add(money.amount()));
-        balanceRepository.save(balance);
+        saveBalance(balance);
 
-        try {
-            authPayment = balanceAuthPaymentRepository.save(authPayment);
-            balanceAuthPaymentRepository.flush();
-        } catch (OptimisticLockingFailureException exception) {
-            throw new RuntimeException(String.format("Error authorization payment %s", authPayment.getId()));
-        }
-        return authPayment;
+        return saveBalanceAuthPayment(authPayment);
     }
+
+
+    @Transactional
+    public BalanceAuthPayment rejectAuthPayment(UUID authPaymentId) {
+        BalanceAuthPayment payment = balanceAuthPaymentRepository.findById(authPaymentId).orElseThrow();
+
+        Balance balance = payment.getBalance();
+        BigDecimal newAuthBalance = balance.getAuthorization().subtract(payment.getAmount());
+        balance.setAuthorization(newAuthBalance);
+        saveBalance(balance);
+
+        return saveBalanceAuthPayment(payment);
+    }
+
 
     @Transactional
     public Balance topUpCurrentBalance(UUID balanceId, Money money) {
@@ -70,25 +74,7 @@ public class BalanceService {
 
         BigDecimal currentBalance = balance.getActual();
         balance.setAuthorization(currentBalance.add(money.amount()));
-        return balanceRepository.save(balance);
-    }
-
-
-    @Transactional
-    public Balance updateBalance(UUID accountUuid, Balance balance) {
-        Account account = accountRepository.findById(accountUuid)
-                .orElseThrow();
-
-        Balance storedBalance = account.getBalance();
-        storedBalance.setAuthorization(balance.getAuthorization());
-        storedBalance.setActual(balance.getActual());
-
-        try {
-            return balanceRepository.save(storedBalance);
-        } catch (OptimisticLockException e) {
-            log.error(e.getMessage());
-            throw e;
-        }
+        return saveBalance(balance);
     }
 
     @Transactional(readOnly = true)
@@ -97,5 +83,44 @@ public class BalanceService {
                 .orElseThrow();
 
         return account.getBalance();
+    }
+
+    private void validateCurrency(Currency currency) {
+        if (!currency.equals(Currency.RUB)) {
+            throw new ValidationException(String.format("Our bank accepts only rubles. Your currency is  %s", currency));
+        }
+    }
+
+    private void validatePositiveSum(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ValidationException(String.format("The amount of money must be positive. Your sum is  %s", amount));
+        }
+    }
+
+    private void validateEnoughMoney(Balance balance, BigDecimal amount) {
+        BigDecimal currentBalanceAmount = balance.getActual().subtract(balance.getAuthorization());
+        if (amount.compareTo(currentBalanceAmount) > 0) {
+            throw new ValidationException(String.format("Not enough money for authorization %s", amount));
+        }
+    }
+
+    private Balance saveBalance(Balance balance) {
+        try {
+            balance = balanceRepository.save(balance);
+            balanceRepository.flush();
+        } catch (OptimisticLockingFailureException exception) {
+            throw new RuntimeException(String.format("Error authorization payment %s", balance.getId()));
+        }
+        return balance;
+    }
+
+    private BalanceAuthPayment saveBalanceAuthPayment(BalanceAuthPayment balanceAuthPayment) {
+        try {
+            balanceAuthPayment = balanceAuthPaymentRepository.save(balanceAuthPayment);
+            balanceAuthPaymentRepository.flush();
+        } catch (OptimisticLockingFailureException exception) {
+            throw new RuntimeException(String.format("Error authorization payment %s", balanceAuthPayment.getId()));
+        }
+        return balanceAuthPayment;
     }
 }
