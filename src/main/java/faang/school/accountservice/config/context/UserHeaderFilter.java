@@ -1,5 +1,6 @@
 package faang.school.accountservice.config.context;
 
+import faang.school.accountservice.config.openapi.OpenApiConfig;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,6 +17,7 @@ import java.io.IOException;
 public class UserHeaderFilter implements Filter {
 
     private final UserContext userContext;
+    private final OpenApiConfig openApiConfig;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -23,8 +25,7 @@ public class UserHeaderFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
 
         String requestURI = req.getRequestURI();
-        if (!requestURI.startsWith("/swagger-ui") && !requestURI.startsWith("/v3/api-docs") &&
-                !requestURI.startsWith("/swagger-resources")) {
+        if (openApiConfig.getUris().stream().noneMatch(requestURI::contains)) {
             String userId = req.getHeader("x-user-id");
             if (userId != null) {
                 userContext.setUserId(Long.parseLong(userId));
