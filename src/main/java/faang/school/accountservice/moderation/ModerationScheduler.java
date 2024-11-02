@@ -3,6 +3,7 @@ package faang.school.accountservice.moderation;
 import faang.school.accountservice.service.account.SavingsAccountService;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;

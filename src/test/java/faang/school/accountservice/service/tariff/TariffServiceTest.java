@@ -70,11 +70,11 @@ class TariffServiceTest {
     @BeforeEach
     public void init() {
         tariffRequestDto = TariffRequestDto.builder()
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .interestRate(INTEREST_RATE)
                 .build();
         newTariffRequestDto = TariffRequestDto.builder()
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .interestRate(NEW_INTEREST_RATE)
                 .build();
         rate = Rate.builder()
@@ -84,18 +84,18 @@ class TariffServiceTest {
                 .interestRate(NEW_INTEREST_RATE)
                 .build();
         tariff = Tariff.builder()
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .rateHistory(RATE_HISTORY)
                 .rate(rate)
                 .build();
         updatedTariff = Tariff.builder()
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .rateHistory(NEW_RATE_HISTORY)
                 .rate(newRate)
                 .build();
         tariffDto = TariffDto.builder()
                 .id(ID)
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .rateHistory(RATE_HISTORY)
                 .rateDto(RateDto.builder()
                         .interestRate(INTEREST_RATE)
@@ -103,7 +103,7 @@ class TariffServiceTest {
                 .build();
         newTariffDto = TariffDto.builder()
                 .id(ID)
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .rateHistory(NEW_RATE_HISTORY)
                 .rateDto(RateDto.builder()
                         .interestRate(NEW_INTEREST_RATE)
@@ -116,14 +116,14 @@ class TariffServiceTest {
     @Test
     @DisplayName("Успешное создание тарифа")
     public void whenCreateTariffThenCreateTariff() {
-        when(rateService.getRateByInterestRate(INTEREST_RATE)).thenReturn(rate);
+        when(rateService.generateRateByInterestRate(INTEREST_RATE)).thenReturn(rate);
         when(tariffRepository.save(any(Tariff.class))).thenReturn(tariff);
         when(tariffMapper.toDto(tariff)).thenReturn(tariffDto);
 
         TariffDto resultTariffDto = tariffService.createTariff(tariffRequestDto);
 
         assertNotNull(resultTariffDto);
-        verify(rateService).getRateByInterestRate(INTEREST_RATE);
+        verify(rateService).generateRateByInterestRate(INTEREST_RATE);
         verify(tariffRepository).save(any(Tariff.class));
         verify(tariffMapper).toDto(tariff);
     }
@@ -147,8 +147,8 @@ class TariffServiceTest {
     public void whenUpdateTariffRateShouldSuccess() throws JsonProcessingException {
         List<Double> rates = new ArrayList<>();
         rates.add(INTEREST_RATE);
-        when(tariffRepository.findByTariffType(TARIFF_TYPE)).thenReturn(Optional.of(tariff));
-        when(rateService.getRateByInterestRate(NEW_INTEREST_RATE)).thenReturn(newRate);
+        when(tariffRepository.findByTariffName(TARIFF_TYPE)).thenReturn(Optional.of(tariff));
+        when(rateService.generateRateByInterestRate(NEW_INTEREST_RATE)).thenReturn(newRate);
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(rates);
         when(tariffRepository.save(any(Tariff.class))).thenReturn(updatedTariff);
         when(tariffMapper.toDto(updatedTariff)).thenReturn(newTariffDto);
@@ -156,14 +156,14 @@ class TariffServiceTest {
         TariffDto resultTariffDto = tariffService.updateTariffRate(newTariffRequestDto);
 
         assertNotNull(resultTariffDto);
-        assertEquals(updatedTariff.getTariffType(), resultTariffDto.getTariffType());
+        assertEquals(updatedTariff.getTariffName(), resultTariffDto.getTariffName());
         assertEquals(updatedTariff.getRateHistory(), resultTariffDto.getRateHistory());
         assertNotNull(resultTariffDto.getRateDto());
         assertEquals(updatedTariff.getRate().getId(), resultTariffDto.getRateDto().getId());
         assertEquals(updatedTariff.getRate().getInterestRate(), resultTariffDto.getRateDto().getInterestRate());
 
-        verify(tariffRepository).findByTariffType(TARIFF_TYPE);
-        verify(rateService).getRateByInterestRate(NEW_INTEREST_RATE);
+        verify(tariffRepository).findByTariffName(TARIFF_TYPE);
+        verify(rateService).generateRateByInterestRate(NEW_INTEREST_RATE);
         verify(tariffRepository).save(any(Tariff.class));
         verify(tariffMapper).toDto(updatedTariff);
     }
@@ -171,7 +171,7 @@ class TariffServiceTest {
     @Test
     @DisplayName("Ошибка при обновлении тарифной ставки если тариф не найден")
     public void whenUpdateTariffRateThenThrowException() {
-        when(tariffRepository.findByTariffType(TARIFF_TYPE)).thenReturn(Optional.empty());
+        when(tariffRepository.findByTariffName(TARIFF_TYPE)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> tariffService.updateTariffRate(tariffRequestDto));

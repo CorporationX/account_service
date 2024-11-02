@@ -10,6 +10,7 @@ import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.SavingsAccount;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.mapper.account.SavingsAccountMapper;
+import faang.school.accountservice.moderation.InterestCalculator;
 import faang.school.accountservice.repository.account.SavingsAccountRepository;
 import faang.school.accountservice.service.tariff.TariffService;
 import jakarta.transaction.Transactional;
@@ -19,7 +20,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -34,6 +35,7 @@ public class SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final ExecutorServiceConfig executorServiceConfig;
     private final SavingsAccountMapper savingsAccountMapper;
+    private final InterestCalculator interestCalculator;
     private final AccountService accountService;
     private final TariffService tariffService;
     private final ObjectMapper objectMapper;
@@ -42,11 +44,11 @@ public class SavingsAccountService {
     public SavingsAccountDto openSavingsAccount(SavingsAccountCreatedDto savingsAccountCreatedDto) {
         log.info("start openSavingsAccount with dto - {}", savingsAccountCreatedDto.toString());
         Account account = accountService.getAccount(savingsAccountCreatedDto.getAccountId());
-        Tariff tariff = tariffService.getTariffByTariffType(savingsAccountCreatedDto.getTariffType());
+        Tariff tariff = tariffService.getTariffByTariffType(savingsAccountCreatedDto.getTariffName());
 
         SavingsAccount savingsAccount = createSavingsAccount(account, tariff);
 
-        updateTariffHistory(tariff, savingsAccount);
+        addTariffToHistory(tariff, savingsAccount);
 
         SavingsAccount createdSavingsAccount = savingsAccountRepository.save(savingsAccount);
         log.info("finish openSavingsAccount with entity: {}", createdSavingsAccount);
@@ -77,29 +79,17 @@ public class SavingsAccountService {
     @Async("executor")
     public void calculatePercents() {
         log.info("start calculatePercents, thread name: {}", Thread.currentThread().getName());
-        List<SavingsAccount> existingSavingsAccounts = savingsAccountRepository.findAllReadyToInterestCalculation();
+        List<SavingsAccount> existingSavingsAccounts =
+                savingsAccountRepository.findByLastInterestDateIsNullOrLastInterestDateLessThan(LocalDateTime.now());
 
         CompletableFuture<Void> calculatedSavingsAccount = CompletableFuture.runAsync(
-                () -> calculate(existingSavingsAccounts), executorServiceConfig.executor());
+                () -> interestCalculator.calculate(existingSavingsAccounts), executorServiceConfig.executor());
 
         calculatedSavingsAccount.thenAccept(result -> savingsAccountRepository.saveAll(existingSavingsAccounts));
         log.info("finish calculatePercents, thread name: {}", Thread.currentThread().getName());
     }
 
-    private void calculate(List<SavingsAccount> savingsAccounts) {
-        log.info("start calculate, thread name: {}", Thread.currentThread().getName());
-        savingsAccounts.forEach(savingsAccount -> {
-            log.info("Thread name: {} take Account id: {}", Thread.currentThread().getName(), savingsAccount.getId());
-            BigDecimal updatedBalance = savingsAccount.getBalance()
-                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(savingsAccount.getTariff().getRate().getInterestRate()));
-
-            log.info("Thread name: {} save Account id: {}", Thread.currentThread().getName(), savingsAccount.getId());
-            savingsAccount.setBalance(updatedBalance);
-        });
-    }
-
-    private void updateTariffHistory(Tariff tariff, SavingsAccount savingsAccount) {
+    private void addTariffToHistory(Tariff tariff, SavingsAccount savingsAccount) {
         try {
             List<String> tariffs = new ArrayList<>();
 
@@ -107,7 +97,7 @@ public class SavingsAccountService {
                 tariffs = objectMapper.readValue(savingsAccount.getTariffHistory(), new TypeReference<>() {
                 });
             }
-            tariffs.add(tariff.getTariffType());
+            tariffs.add(tariff.getTariffName());
 
             savingsAccount.setTariffHistory(objectMapper.writeValueAsString(tariffs));
         } catch (JsonProcessingException ex) {

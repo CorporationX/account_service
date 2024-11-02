@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TariffDto {
     private Long id;
-    private String tariffType;
+    private String tariffName;
     private RateDto rateDto;
     private String rateHistory;
 }

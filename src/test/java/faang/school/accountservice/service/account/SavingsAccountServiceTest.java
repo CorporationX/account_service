@@ -1,7 +1,6 @@
 package faang.school.accountservice.service.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.account.SavingsAccountCreatedDto;
 import faang.school.accountservice.dto.account.SavingsAccountDto;
@@ -23,14 +22,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,8 +66,7 @@ class SavingsAccountServiceTest {
     @BeforeEach
     public void init() {
         tariff = Tariff.builder()
-                .id(ID)
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .rate(Rate.builder()
                         .interestRate(INTEREST_RATE)
                         .build())
@@ -92,7 +88,7 @@ class SavingsAccountServiceTest {
         savingsAccountDto = SavingsAccountDto.builder().build();
         savingsAccountCreatedDto = SavingsAccountCreatedDto.builder()
                 .accountId(ID)
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .build();
     }
 

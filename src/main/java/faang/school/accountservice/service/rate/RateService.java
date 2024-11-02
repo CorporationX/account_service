@@ -13,7 +13,7 @@ public class RateService {
 
     private final RateRepository rateRepository;
 
-    public Rate getRateByInterestRate(Double interestRate) {
+    public Rate generateRateByInterestRate(Double interestRate) {
         log.info("start getRateByInterestRate with interestRate: {}", interestRate);
         return rateRepository.findByInterestRate(interestRate)
                 .orElseGet(() -> {

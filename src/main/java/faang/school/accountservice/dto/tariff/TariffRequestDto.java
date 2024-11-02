@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class TariffRequestDto {
 
     @NotNull
-    private String tariffType;
+    private String tariffName;
 
     @NotNull
     private Double interestRate;

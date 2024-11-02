@@ -30,7 +30,7 @@ public class SavingsAccountController {
         return savingsAccountService.getSavingsAccountById(savingsAccountId);
     }
 
-    @GetMapping("/account/{ownerId}")
+    @GetMapping("/owner/{ownerId}")
     public SavingsAccountDto getSavingsAccountByOwnerId(@PathVariable @NotNull Long ownerId) {
         return savingsAccountService.getSavingsAccountByOwnerId(ownerId);
     }

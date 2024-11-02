@@ -4,8 +4,6 @@ import faang.school.accountservice.entity.account.SavingsAccount;
 import faang.school.accountservice.entity.rate.Rate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -30,11 +28,8 @@ import java.util.List;
 public class Tariff {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "tariff_type", length = 24, nullable = false)
-    private String tariffType;
+    @Column(name = "tariff_name", length = 24, nullable = false, unique = true)
+    private String tariffName;
 
     @OneToOne
     @JoinColumn(name = "rate_id")

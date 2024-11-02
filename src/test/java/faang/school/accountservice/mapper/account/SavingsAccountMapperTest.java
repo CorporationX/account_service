@@ -35,8 +35,7 @@ class SavingsAccountMapperTest {
                         .id(ID)
                         .build())
                 .tariff(Tariff.builder()
-                        .id(ID)
-                        .tariffType(TARIFF_TYPE)
+                        .tariffName(TARIFF_TYPE)
                         .rate(Rate.builder()
                                 .id(ID)
                                 .interestRate(INTEREST_RATE)
@@ -58,10 +57,8 @@ class SavingsAccountMapperTest {
         assertEquals(savingsAccount.getAccount().getId(), resultSavingsAccountDto.getAccountId());
 
         assertNotNull(resultSavingsAccountDto.getTariffDto());
-        assertEquals(savingsAccount.getTariff().getId(),
-                resultSavingsAccountDto.getTariffDto().getId());
-        assertEquals(savingsAccount.getTariff().getTariffType(),
-                resultSavingsAccountDto.getTariffDto().getTariffType());
+        assertEquals(savingsAccount.getTariff().getTariffName(),
+                resultSavingsAccountDto.getTariffDto().getTariffName());
         assertEquals(savingsAccount.getTariff().getRate().getId(),
                 resultSavingsAccountDto.getTariffDto().getRateDto().getId());
         assertEquals(savingsAccount.getTariff().getRate().getInterestRate(),

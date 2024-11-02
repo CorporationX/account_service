@@ -4,8 +4,7 @@ CREATE TABLE rates (
 );
 
 CREATE TABLE tariffs (
-    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    tariff_type VARCHAR(24) UNIQUE NOT NULL,
+    tariff_name VARCHAR(24) PRIMARY KEY UNIQUE NOT NULL,
     rate_id BIGINT NOT NULL,
     rate_history TEXT NOT NULL,
 
@@ -18,7 +17,7 @@ CREATE TABLE savings_accounts (
     balance DECIMAL(15, 2) CHECK (balance >= 0) NOT NULL,
     account_id BIGINT NOT NULL,
     owner_id BIGINT NOT NULL,
-    tariff_id BIGINT NOT NULL,
+    tariff_name VARCHAR(24) NOT NULL,
     last_interest_date TIMESTAMP,
     version NUMERIC,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,5 +26,5 @@ CREATE TABLE savings_accounts (
 
     CONSTRAINT fk_savings_account_account FOREIGN KEY (account_id) REFERENCES account (id),
     CONSTRAINT fk_savings_account_owner FOREIGN KEY (owner_id) REFERENCES owner (id),
-    CONSTRAINT fk_savings_account_tariff FOREIGN KEY (tariff_id) REFERENCES tariffs (id)
+    CONSTRAINT fk_savings_account_tariff FOREIGN KEY (tariff_name) REFERENCES tariffs (tariff_name)
 );

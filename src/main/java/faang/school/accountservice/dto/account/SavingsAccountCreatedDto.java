@@ -16,5 +16,5 @@ public class SavingsAccountCreatedDto {
     private Long accountId;
 
     @NotNull
-    private String tariffType;
+    private String tariffName;
 }

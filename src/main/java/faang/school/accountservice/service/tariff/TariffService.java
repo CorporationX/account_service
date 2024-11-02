@@ -32,14 +32,14 @@ public class TariffService {
     @Transactional
     public TariffDto createTariff(TariffRequestDto tariffRequestDto) {
         log.info("start createTariff with dto: {}", tariffRequestDto.toString());
-        Rate existingRate = rateService.getRateByInterestRate(tariffRequestDto.getInterestRate());
+        Rate existingRate = rateService.generateRateByInterestRate(tariffRequestDto.getInterestRate());
 
         Tariff tariff = Tariff.builder()
-                .tariffType(tariffRequestDto.getTariffType())
+                .tariffName(tariffRequestDto.getTariffName())
                 .rate(existingRate)
                 .build();
 
-        updateRateHistory(tariff, tariffRequestDto);
+        addRateToHistory(tariff, tariffRequestDto);
 
         Tariff createdTariff = tariffRepository.save(tariff);
         log.info("finish createTariff with entity: {}", createdTariff);
@@ -55,14 +55,14 @@ public class TariffService {
     @Transactional
     public TariffDto updateTariffRate(TariffRequestDto tariffRequestDto) {
         log.info("start updateTariffRate with dto: {}", tariffRequestDto.toString());
-        Tariff existingTariff = tariffRepository.findByTariffType(tariffRequestDto.getTariffType())
+        Tariff existingTariff = tariffRepository.findByTariffName(tariffRequestDto.getTariffName())
                 .orElseThrow(() -> new NoSuchElementException("Tariff with type - "
-                        + tariffRequestDto.getTariffType() + " does not exist"));
+                        + tariffRequestDto.getTariffName() + " does not exist"));
 
-        Rate existingRate = rateService.getRateByInterestRate(tariffRequestDto.getInterestRate());
+        Rate existingRate = rateService.generateRateByInterestRate(tariffRequestDto.getInterestRate());
         existingTariff.setRate(existingRate);
 
-        updateRateHistory(existingTariff, tariffRequestDto);
+        addRateToHistory(existingTariff, tariffRequestDto);
 
         Tariff updatedTariff = tariffRepository.save(existingTariff);
         log.info("finish updateTariffRate with entity: {}", updatedTariff);
@@ -72,12 +72,12 @@ public class TariffService {
 
     public Tariff getTariffByTariffType(String tariffType) {
         log.info("start getTariffByTariffType with tariffType: {}", tariffType);
-        return tariffRepository.findByTariffType(tariffType)
+        return tariffRepository.findByTariffName(tariffType)
                 .orElseThrow(() -> new NoSuchElementException("Tariff with type - "
                         + tariffType + " does not exist"));
     }
 
-    private void updateRateHistory(Tariff tariff, TariffRequestDto tariffRequestDto) {
+    private void addRateToHistory(Tariff tariff, TariffRequestDto tariffRequestDto) {
         try {
             List<Double> rates = new ArrayList<>();
 
@@ -89,7 +89,6 @@ public class TariffService {
 
             tariff.setRateHistory(objectMapper.writeValueAsString(rates));
         } catch (JsonProcessingException ex) {
-            log.info("Failed to updated rate in tariff - {}", tariff);
             throw new RuntimeException(ex);
         }
     }

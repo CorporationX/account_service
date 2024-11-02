@@ -56,7 +56,7 @@ public class SavingsAccount {
     private Owner owner;
 
     @ManyToOne
-    @JoinColumn(name = "tariff_id", nullable = false)
+    @JoinColumn(name = "tariff_name", nullable = false)
     private Tariff tariff;
 
     @Column(name = "tariff_history", columnDefinition = "TEXT")

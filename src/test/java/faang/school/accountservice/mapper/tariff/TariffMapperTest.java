@@ -27,8 +27,7 @@ class TariffMapperTest {
     @BeforeEach
     public void init() {
         tariff = Tariff.builder()
-                .id(ID)
-                .tariffType(TARIFF_TYPE)
+                .tariffName(TARIFF_TYPE)
                 .rate(Rate.builder()
                         .id(ID)
                         .interestRate(INTEREST_RATE)
@@ -45,8 +44,7 @@ class TariffMapperTest {
         TariffDto resultTariffDto = tariffMapper.toDto(tariff);
 
         assertNotNull(resultTariffDto);
-        assertEquals(tariff.getId(), resultTariffDto.getId());
-        assertEquals(tariff.getTariffType(), resultTariffDto.getTariffType());
+        assertEquals(tariff.getTariffName(), resultTariffDto.getTariffName());
 
         assertNotNull(resultTariffDto.getRateDto());
         assertEquals(tariff.getRate().getId(), resultTariffDto.getRateDto().getId());
@@ -61,8 +59,7 @@ class TariffMapperTest {
 
         assertNotNull(resultTariffDtos);
         assertEquals(tariffs.size(), resultTariffDtos.size());
-        assertEquals(tariffs.get(0).getId(), resultTariffDtos.get(0).getId());
-        assertEquals(tariffs.get(0).getTariffType(), resultTariffDtos.get(0).getTariffType());
+        assertEquals(tariffs.get(0).getTariffName(), resultTariffDtos.get(0).getTariffName());
 
         assertNotNull(resultTariffDtos.get(0).getRateDto());
         assertEquals(tariffs.get(0).getRate().getId(), resultTariffDtos.get(0).getRateDto().getId());
