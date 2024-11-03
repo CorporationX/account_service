@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.List;
 
@@ -94,30 +96,27 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
 
     @Transactional
     @Async("calculatePercentsExecutor")
-    public void calculatePercent(Long id, double rate) {
+    @Override
+    public void calculatePercent(Long balanceId, BigDecimal rate, Long savingsAccountId) {
 
-        Balance balance = balanceRepository.findByAccountId(id).orElseGet(() -> {
-            log.info("Balance with id {} not found", id);
-            throw new EntityNotFoundException("Balance with id " + id + " not found");
+        SavingsAccount savingsAccount = savingsAccountRepository.findById(savingsAccountId).orElseGet(() -> {
+            log.info("SavingsAccount with id {} not found", savingsAccountId);
+            throw new EntityNotFoundException("SavingsAccount with id " + savingsAccountId + " not found");
+        });
+
+        Balance balance = balanceRepository.findById(balanceId).orElseGet(() -> {
+            log.info("Balance with id {} not found", balanceId);
+            throw new EntityNotFoundException("Balance with id " + balanceId + " not found");
         });
 
         int currentYearDays = Year.now().length();
-        double temp = (double) 150 / currentYearDays;
-        BigDecimal dailyRate = BigDecimal.valueOf(temp);
-        BigDecimal dailyInterest = balance.getActualBalance().multiply((dailyRate.divide(BigDecimal.valueOf(100))));
-
+        BigDecimal dailyRate = rate.divide(BigDecimal.valueOf(currentYearDays), 8, RoundingMode.HALF_UP);
+        BigDecimal dailyInterest = balance.getActualBalance()
+                .multiply((dailyRate.divide(BigDecimal.valueOf(100), 8, RoundingMode.HALF_UP)));
         BigDecimal newBalance = balance.getActualBalance().add(dailyInterest);
-        System.out.println(Thread.currentThread().getName() + " Balance = " + balance.getActualBalance());
         balance.setActualBalance(newBalance);
-        System.out.println(Thread.currentThread().getName() + " New balance = " + balance.getActualBalance());
-        System.out.println(Thread.currentThread().getName() + " NNNNNNew balance = " + newBalance);
-//        Random random = new Random();
-//        double accountBalance = random.nextDouble(100.0, 1001.0);
-//        int currentYearDays = Year.now().length();
-//        double dailyRate = (double) 150 / currentYearDays;
-//        double dailyInterest = accountBalance * (dailyRate / 100);
-//        double newBalance = accountBalance + dailyInterest;
-//        System.out.println(Thread.currentThread().getName()+ "Current balance = "+accountBalance);
-//        System.out.println(Thread.currentThread().getName() + " = new balance " + newBalance);
+        LocalDateTime currentTime = LocalDateTime.now();
+        savingsAccount.setUpdatedAt(currentTime);
+        savingsAccount.setLastDatePercent(currentTime);
     }
 }

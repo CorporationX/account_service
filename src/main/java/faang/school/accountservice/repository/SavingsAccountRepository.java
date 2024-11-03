@@ -23,8 +23,23 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             "WHERE sa.id  = :id ORDER BY sar.createdAt DESC LIMIT 1")
     SavingsAccountDto findSavingsAccountWithDetails(@Param("id") Long id);
 
-    @Query(value = "SELECT account_number FROM savings_account sa", nativeQuery = true)
-    List<String> findAccountNumbers();
-
+    @Query(value = "WITH last_tariff_history AS ( " +
+            "    SELECT th.*, " +
+            "           ROW_NUMBER() OVER(PARTITION BY th.savings_account_id ORDER BY th.created_at DESC) AS rn " +
+            "    FROM tariff_history th " +
+            "), " +
+            "last_savings_account_rate AS ( " +
+            "    SELECT sar.*, " +
+            "           ROW_NUMBER() OVER(PARTITION BY sar.tariff_id ORDER BY sar.created_at DESC) AS rn " +
+            "    FROM savings_account_rate sar " +
+            ") " +
+            "SELECT b.id AS balance_id, last_sar.rate, sa.id " +
+            "FROM savings_account sa " +
+            "LEFT JOIN account a ON a.number = sa.account_number " +
+            "LEFT JOIN balance b ON b.account_id = a.id " +
+            "LEFT JOIN last_tariff_history last_th ON last_th.savings_account_id = sa.id AND last_th.rn = 1 " +
+            "LEFT JOIN last_savings_account_rate last_sar ON last_sar.tariff_id = last_th.savings_account_tariff_id AND last_sar.rn = 1",
+            nativeQuery = true)
+    List<Object[]> findBalanceAndRate();
 
 }
