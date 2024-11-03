@@ -55,6 +55,9 @@ class SavingsAccountServiceImplTest {
     @Captor
     ArgumentCaptor<TariffHistory> tariffHistoryArgumentCaptor;
 
+    @Captor
+    ArgumentCaptor<BigDecimal> bigDecimalArgumentCaptor;
+
     @Test
     public void testOpenSavingsAccount() {
         Long tariffId = 1L;
@@ -135,16 +138,23 @@ class SavingsAccountServiceImplTest {
 
     @Test
     public void calculatePercentSuccess() {
-        // TODO make tests
+        BigDecimal initBalance = BigDecimal.valueOf(100_000);
         Long balanceId = 1L;
         BigDecimal rate = BigDecimal.valueOf(5.5);
         Long savingsAccountId = 2L;
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(savingsAccountId);
-        Balance balance = new Balance();
-        balance.setId(balanceId);
-        balance.setActualBalance(BigDecimal.valueOf(100_000));
+        Balance balance = mock(Balance.class);
         when(savingsAccountRepository.findById(savingsAccountId)).thenReturn(Optional.of(savingsAccount));
         when(balanceRepository.findById(balanceId)).thenReturn(Optional.of(balance));
+        when(balance.getActualBalance()).thenReturn(initBalance);
+
+        savingsAccountService.calculatePercent(balanceId, rate, savingsAccountId);
+
+        verify(savingsAccountRepository, times(1)).findById(savingsAccountId);
+        verify(balanceRepository, times(1)).findById(balanceId);
+        verify(balance, times(1)).setActualBalance(bigDecimalArgumentCaptor.capture());
+        BigDecimal newBalance = bigDecimalArgumentCaptor.getValue();
+        assertEquals(1, newBalance.compareTo(initBalance));
     }
 }
