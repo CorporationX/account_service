@@ -28,6 +28,13 @@ account:
       hibernate:
         format_sql: true
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        request_status_notification: request_status_notification_channel
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
