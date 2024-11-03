@@ -50,7 +50,7 @@ public class AccountServiceImpl implements AccountService {
         accountOwnerValidator.validateOwnerByAccountOwnerId(filterDto.ownerId());
         Pageable pageable = PageRequest.of(page, size);
         Specification<Account> filterSpecification =
-                SpecsUtils.combineSpecsWithAndFromFilters(filters, filterDto);
+                SpecsUtils.combineSpecsWithAndConditionFromFilters(filters, filterDto);
         Page<Account> accounts =
                 accountRepository.findAll(filterSpecification, pageable);
         return new PageImpl<>(

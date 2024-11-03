@@ -23,5 +23,7 @@ CREATE TABLE IF NOT EXISTS public.accounts
 );
 
 insert into accounts_owners(owner_id, owner_type) VALUES (1, 0) ON CONFLICT DO NOTHING;
+insert into accounts_owners(owner_id, owner_type) VALUES (2, 0) ON CONFLICT DO NOTHING;
 insert into accounts(account_number, owner_id, account_type, currency, status) VALUES ('123456789012', 1, 0, 0, 0) ON CONFLICT DO NOTHING;
 insert into accounts(account_number, owner_id, account_type, currency, status) VALUES ('123456789013', 1, 0, 1, 1) ON CONFLICT DO NOTHING;
+insert into accounts(account_number, owner_id, account_type, currency, status) VALUES ('123456789014', 2, 0, 1, 0) ON CONFLICT DO NOTHING;

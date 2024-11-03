@@ -1,5 +1,6 @@
 package faang.school.accountservice.controller;
 
+import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.dto.account.UpdateAccountDto;
 import faang.school.accountservice.dto.account_owner.AccountOwnerDto;
@@ -17,6 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -27,20 +29,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-@Sql(value = "/db/account/test_accounts.sql")
+@Sql(value = "/db/account/test_accounts_schema.sql")
 public class AccountControllerIT extends BaseContextTest {
 
     @Test
     public void testGetAccountOk() throws Exception {
-        mockMvc.perform(get("/api/v1/accounts/1").header("x-user-id", 1))
+        String result = mockMvc.perform(get("/api/v1/accounts/1").header("x-user-id", 1))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.id").value(1))
+                .andReturn().getResponse().getContentAsString();
+
+        AccountDto accountDto = objectMapper.readValue(result, AccountDto.class);
+        assertEquals(1L, accountDto.id());
+        assertEquals(AccountStatus.ACTIVE, accountDto.status());
+        assertEquals(AccountType.CURRENCY_ACCOUNT, accountDto.accountType());
+        assertEquals("123456789012", accountDto.accountNumber());
+        assertEquals(Currency.USD, accountDto.currency());
     }
 
     @Test
-    public void testGetAccountForbidden() throws Exception {
+    public void testGetAccountForbiddenAccess() throws Exception {
         mockMvc.perform(get("/api/v1/accounts/1").header("x-user-id", 2))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("User 2 has no appropriate privileges"));
     }
 
     @Test
@@ -51,7 +62,7 @@ public class AccountControllerIT extends BaseContextTest {
     }
 
     @Test
-    public void testGetAccountsBadRequest() throws Exception {
+    public void testGetAccountsWithoutOwnerIdParam() throws Exception {
         mockMvc.perform(get("/api/v1/accounts").header("x-user-id", 1))
                 .andExpect(status().isBadRequest());
     }
@@ -60,8 +71,7 @@ public class AccountControllerIT extends BaseContextTest {
     public void testGetAccountsWithFilters() throws Exception {
         mockMvc.perform(get("/api/v1/accounts?ownerId=1&currency=USD&status=ACTIVE").header("x-user-id", 1))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalElements").value(1))
-                .andDo(print());
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
@@ -88,7 +98,7 @@ public class AccountControllerIT extends BaseContextTest {
     }
 
     @Test
-    public void testCreateAccountBadRequest() throws Exception {
+    public void testCreateAccountWithoutOwner() throws Exception {
         CreateAccountDto createAccountDto = CreateAccountDto.builder()
                 .accountNumber("1234567891011")
                 .accountType(AccountType.INDIVIDUAL_ACCOUNT)
@@ -101,7 +111,9 @@ public class AccountControllerIT extends BaseContextTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.violations.[0].fieldName").value("owner"))
+                .andExpect(jsonPath("$.violations.[0].message").value("must not be null"));
     }
 
     @Test
@@ -109,8 +121,8 @@ public class AccountControllerIT extends BaseContextTest {
         UpdateAccountDto updateAccountDto = UpdateAccountDto.builder()
                 .status(AccountStatus.FROZEN)
                 .build();
-        mockMvc.perform(put("/api/v1/accounts/1")
-                        .header("x-user-id", 1)
+        mockMvc.perform(put("/api/v1/accounts/3")
+                        .header("x-user-id", 2)
                         .content(objectMapper.writeValueAsString(updateAccountDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,17 +133,18 @@ public class AccountControllerIT extends BaseContextTest {
     }
 
     @Test
-    public void testUpdateAccountBadRequest() throws Exception {
+    public void testUpdateAccountWithSameStatus() throws Exception {
         UpdateAccountDto updateAccountDto = UpdateAccountDto.builder()
                 .status(AccountStatus.ACTIVE)
                 .build();
-        mockMvc.perform(put("/api/v1/accounts/1")
-                        .header("x-user-id", 1)
+        mockMvc.perform(put("/api/v1/accounts/3")
+                        .header("x-user-id", 2)
                         .content(objectMapper.writeValueAsString(updateAccountDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Can't change account 3 with status ACTIVE to status ACTIVE"));
     }
 }
