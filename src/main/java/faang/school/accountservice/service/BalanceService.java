@@ -37,7 +37,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceAuthPayment authPayment(UUID balanceId, Money money) {
+    public BalanceAuthPayment createAuthPayment(UUID balanceId, Money money) {
         validateCurrency(money.currency());
         validatePositiveSum(money.amount());
 
@@ -47,8 +47,8 @@ public class BalanceService {
         BalanceAuthPayment authPayment = BalanceAuthPayment.builder()
                 .balance(balance)
                 .amount(money.amount())
+                .status(AuthorizationStatus.ACTIVATED)
                 .build();
-        authPayment.setStatus(AuthorizationStatus.ACTIVATED);
 
         balance.setAuthorization(balance.getAuthorization().add(money.amount()));
         saveBalance(balance);
