@@ -98,7 +98,6 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     @Async("calculatePercentsExecutor")
     @Override
     public void calculatePercent(Long balanceId, BigDecimal rate, Long savingsAccountId) {
-
         SavingsAccount savingsAccount = savingsAccountRepository.findById(savingsAccountId).orElseGet(() -> {
             log.info("SavingsAccount with id {} not found", savingsAccountId);
             throw new EntityNotFoundException("SavingsAccount with id " + savingsAccountId + " not found");

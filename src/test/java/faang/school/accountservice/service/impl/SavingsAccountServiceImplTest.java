@@ -3,6 +3,7 @@ package faang.school.accountservice.service.impl;
 import faang.school.accountservice.mapper.SavingsAccountMapperImpl;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
 import faang.school.accountservice.model.entity.Account;
+import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.SavingsAccount;
 import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.model.entity.TariffHistory;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +42,9 @@ class SavingsAccountServiceImplTest {
 
     @Mock
     private SavingsAccountRateRepository savingsAccountRateRepository;
+
+    @Mock
+    private BalanceRepository balanceRepository;
 
     @InjectMocks
     private SavingsAccountServiceImpl savingsAccountService;
@@ -126,5 +131,20 @@ class SavingsAccountServiceImplTest {
     @Test
     public void testGetSavingsAccountByUserIdNotFound() {
         assertThrows(EntityNotFoundException.class, () -> savingsAccountService.getSavingsAccount(1L));
+    }
+
+    @Test
+    public void calculatePercentSuccess() {
+        // TODO make tests
+        Long balanceId = 1L;
+        BigDecimal rate = BigDecimal.valueOf(5.5);
+        Long savingsAccountId = 2L;
+        SavingsAccount savingsAccount = new SavingsAccount();
+        savingsAccount.setId(savingsAccountId);
+        Balance balance = new Balance();
+        balance.setId(balanceId);
+        balance.setActualBalance(BigDecimal.valueOf(100_000));
+        when(savingsAccountRepository.findById(savingsAccountId)).thenReturn(Optional.of(savingsAccount));
+        when(balanceRepository.findById(balanceId)).thenReturn(Optional.of(balance));
     }
 }
