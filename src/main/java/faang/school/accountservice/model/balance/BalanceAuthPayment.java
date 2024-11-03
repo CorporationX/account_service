@@ -2,6 +2,8 @@ package faang.school.accountservice.model.balance;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -21,6 +23,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static faang.school.accountservice.model.balance.AuthorizationStatus.ACTIVATED;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,6 +39,10 @@ public class BalanceAuthPayment {
     @GeneratedValue(generator = "UUID")
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private AuthorizationStatus status = ACTIVATED;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;

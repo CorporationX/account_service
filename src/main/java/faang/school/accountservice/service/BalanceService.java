@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.account.Account;
+import faang.school.accountservice.model.balance.AuthorizationStatus;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.balance.BalanceAuthPayment;
 import faang.school.accountservice.repository.AccountRepository;
@@ -32,7 +33,7 @@ public class BalanceService {
         Balance balance = Balance.builder()
                 .build();
 
-        return balanceRepository.save(balance);
+        return saveBalance(balance);
     }
 
     @Transactional
@@ -47,6 +48,7 @@ public class BalanceService {
                 .balance(balance)
                 .amount(money.amount())
                 .build();
+        authPayment.setStatus(AuthorizationStatus.ACTIVATED);
 
         balance.setAuthorization(balance.getAuthorization().add(money.amount()));
         saveBalance(balance);
@@ -54,14 +56,16 @@ public class BalanceService {
         return saveBalanceAuthPayment(authPayment);
     }
 
-
     @Transactional
     public BalanceAuthPayment rejectAuthPayment(UUID authPaymentId) {
         BalanceAuthPayment payment = balanceAuthPaymentRepository.findById(authPaymentId).orElseThrow();
 
         Balance balance = payment.getBalance();
         BigDecimal newAuthBalance = balance.getAuthorization().subtract(payment.getAmount());
+        BigDecimal actualBalance = balance.getActual().add(payment.getAmount());
         balance.setAuthorization(newAuthBalance);
+        balance.setActual(actualBalance);
+        payment.setStatus(AuthorizationStatus.REJECTED);
         saveBalance(balance);
 
         return saveBalanceAuthPayment(payment);
@@ -72,8 +76,11 @@ public class BalanceService {
     public Balance topUpCurrentBalance(UUID balanceId, Money money) {
         Balance balance = balanceRepository.findById(balanceId).orElseThrow();
 
+        validateCurrency(money.currency());
+        validatePositiveSum(money.amount());
+
         BigDecimal currentBalance = balance.getActual();
-        balance.setAuthorization(currentBalance.add(money.amount()));
+        balance.setActual(currentBalance.add(money.amount()));
         return saveBalance(balance);
     }
 
