@@ -25,11 +25,11 @@ public class SavingsAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @OneToOne(mappedBy = "savingsAccount")
+    @OneToOne(mappedBy = "savingsAccount", fetch = FetchType.LAZY)
     private Tariff tariff;
 
     @Column(name = "last_date_before_interest", nullable = false)

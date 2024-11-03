@@ -1,9 +1,11 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,12 +14,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceImplTest {
@@ -32,19 +42,27 @@ class BalanceServiceImplTest {
     private BalanceJpaRepository balanceJpaRepository;
 
     @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
     private BalanceAuditMapper auditMapper;
 
     @Mock
     private BalanceMapper mapper;
 
+    @Captor
+    private ArgumentCaptor<Balance> balanceCaptor;
+
     private BalanceDto balanceDto;
     private Balance balance;
+    private Account account;
     private final long accountId = 1L;
+    private final long balanceId = 2L;
 
     @BeforeEach
     public void init() {
         balance = new Balance();
-        balance.setId(1L);
+        balance.setId(balanceId);
 
         balance.setVersion(1);
 
@@ -52,23 +70,25 @@ class BalanceServiceImplTest {
         balanceDto.setId(1L);
         balanceDto.setAccountId(1L);
 
-        Mockito.lenient().when(mapper.toDto(balance))
+        account = new Account();
+
+        Mockito.lenient().when(mapper.toDto(balance, account))
                 .thenReturn(balanceDto);
-        Mockito.lenient().when(mapper.toEntity(balanceDto))
+        Mockito.lenient().when(mapper.toEntity(balanceDto, account))
                 .thenReturn(balance);
         Mockito.lenient().when(balanceJpaRepository.findByAccountId(accountId))
                 .thenReturn(Optional.of(balance));
+        Mockito.lenient().when(accountRepository.getReferenceById(accountId)).thenReturn(account);
     }
 
     @Test
     void create_whenOk() {
         service.create(balanceDto);
 
-        Mockito.verify(balanceJpaRepository, Mockito.times(1))
+        verify(balanceJpaRepository, times(1))
                 .save(balance);
-        Mockito.verify(mapper, Mockito.times(1))
-                .toEntity(balanceDto);
-        Mockito.verify(balanceAuditRepository, Mockito.times(1))
+        verify(mapper, times(1)).toEntity(balanceDto, account);
+        verify(balanceAuditRepository, times(1))
                 .save(auditMapper.toEntity(balance));
     }
 
@@ -78,9 +98,9 @@ class BalanceServiceImplTest {
 
         service.update(balanceDto);
 
-        Mockito.verify(balanceJpaRepository, Mockito.times(1))
+        verify(balanceJpaRepository, times(1))
                 .save(captor.capture());
-        Mockito.verify(balanceAuditRepository, Mockito.times(1))
+        verify(balanceAuditRepository, times(1))
                 .save(auditMapper.toEntity(balance));
 
         Balance actual = captor.getValue();
@@ -89,11 +109,37 @@ class BalanceServiceImplTest {
     }
 
     @Test
+    void updateBalanceWithoutBalanceAudit_balanceExists_updatesBalance() {
+        BigDecimal newBalance = BigDecimal.valueOf(200);
+        when(balanceJpaRepository.findById(balanceId)).thenReturn(Optional.of(balance));
+
+        service.updateBalanceWithoutBalanceAudit(balanceId, newBalance);
+
+        verify(balanceJpaRepository, times(1)).save(balanceCaptor.capture());
+        Balance balance = balanceCaptor.getValue();
+        this.balance.setCurAuthBalance(newBalance);
+        Assertions.assertEquals(this.balance, balance);
+    }
+
+    @Test
+    void updateBalanceWithoutBalanceAudit_balanceDoesNotExist_throwsException() {
+        String correctMessage = "Balance %d not found".formatted(balanceId);
+        BigDecimal newBalance = BigDecimal.valueOf(200);
+        when(balanceJpaRepository.findById(balanceId)).thenReturn(Optional.empty());
+
+
+        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> service.updateBalanceWithoutBalanceAudit(balanceId, newBalance));
+
+        verify(balanceJpaRepository, never()).save(any(Balance.class));
+        Assertions.assertEquals(correctMessage, exception.getMessage());
+    }
+
+    @Test
     void getBalance_whenOk() {
         service.getBalance(accountId);
 
-        Mockito.verify(mapper, Mockito.times(1)).toDto(balance);
-        Mockito.verify(balanceJpaRepository, Mockito.times(1)).findByAccountId(accountId);
+        verify(mapper, times(1)).toDto(balance, account);
+        verify(balanceJpaRepository, times(1)).findByAccountId(accountId);
     }
 
     @Test
@@ -102,6 +148,6 @@ class BalanceServiceImplTest {
 
         Assertions.assertThrows(EntityNotFoundException.class, () -> service.getBalance(accountId));
 
-        Mockito.verify(mapper, Mockito.never()).toDto(balance);
+        verify(mapper, never()).toDto(balance, account);
     }
 }

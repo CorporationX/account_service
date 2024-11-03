@@ -1,14 +1,16 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.RequestStatus;
-import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.enums.OperationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.Data;
@@ -37,7 +39,7 @@ public class Request {
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type", nullable = false)
-    private RequestType type;
+    private OperationType type;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "input_data", columnDefinition = "jsonb")
@@ -61,4 +63,7 @@ public class Request {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "request", fetch = FetchType.LAZY)
+    private BalanceAudit balanceAudit;
 }

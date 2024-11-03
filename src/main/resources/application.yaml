@@ -27,6 +27,16 @@ spring:
 server:
   port: 8090
 
+cashback:
+  cron: "0 0 3 1 * ?"
+  tariff:
+    expenditure-operations:
+      - WITHDRAWAL
+      - TRANSFER
+      - PAYMENT
+  max-attempts: 3
+  backoff-delay: 3000
+
 logging:
   level:
     root: info
@@ -43,4 +53,5 @@ scheduled:
     amountGenerateNumbers: 100
 
 poolThreads:
+  mainPoolSize: 12
   poolForAccrual: 10
