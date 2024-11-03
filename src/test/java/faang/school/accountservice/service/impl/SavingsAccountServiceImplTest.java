@@ -3,6 +3,7 @@ package faang.school.accountservice.service.impl;
 import faang.school.accountservice.mapper.SavingsAccountMapperImpl;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
 import faang.school.accountservice.model.entity.Account;
+import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.SavingsAccount;
 import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.model.entity.TariffHistory;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +43,9 @@ class SavingsAccountServiceImplTest {
     @Mock
     private SavingsAccountRateRepository savingsAccountRateRepository;
 
+    @Mock
+    private BalanceRepository balanceRepository;
+
     @InjectMocks
     private SavingsAccountServiceImpl savingsAccountService;
 
@@ -49,6 +54,9 @@ class SavingsAccountServiceImplTest {
 
     @Captor
     ArgumentCaptor<TariffHistory> tariffHistoryArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<BigDecimal> bigDecimalArgumentCaptor;
 
     @Test
     public void testOpenSavingsAccount() {
@@ -107,7 +115,7 @@ class SavingsAccountServiceImplTest {
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount1, savingsAccount2);
 
         when(accountRepository.findNumbersByUserId(userId)).thenReturn(numbers);
-        when(savingsAccountRepository.findSaIdsByAccountNumbers(numbers)).thenReturn(savingsAccounts);
+        when(savingsAccountRepository.findSaByAccountNumbers(numbers)).thenReturn(savingsAccounts);
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(savingsAccount1Id));
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(2L)).thenReturn(Optional.of(savingsAccount2Id));
         when(savingsAccountRateRepository.findLatestRateIdByTariffId(anyLong())).thenReturn(Optional.of(5.0));
@@ -117,7 +125,7 @@ class SavingsAccountServiceImplTest {
         assertThat(result).isNotEmpty();
         assertThat(result).hasSize(2);
         verify(accountRepository).findNumbersByUserId(userId);
-        verify(savingsAccountRepository).findSaIdsByAccountNumbers(numbers);
+        verify(savingsAccountRepository).findSaByAccountNumbers(numbers);
         verify(savingsAccountMapper).toDtos(savingsAccounts);
         verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccount1Id);
         verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccount2Id);
@@ -126,5 +134,27 @@ class SavingsAccountServiceImplTest {
     @Test
     public void testGetSavingsAccountByUserIdNotFound() {
         assertThrows(EntityNotFoundException.class, () -> savingsAccountService.getSavingsAccount(1L));
+    }
+
+    @Test
+    public void calculatePercentSuccess() {
+        BigDecimal initBalance = BigDecimal.valueOf(100_000);
+        Long balanceId = 1L;
+        BigDecimal rate = BigDecimal.valueOf(5.5);
+        Long savingsAccountId = 2L;
+        SavingsAccount savingsAccount = new SavingsAccount();
+        savingsAccount.setId(savingsAccountId);
+        Balance balance = mock(Balance.class);
+        when(savingsAccountRepository.findById(savingsAccountId)).thenReturn(Optional.of(savingsAccount));
+        when(balanceRepository.findById(balanceId)).thenReturn(Optional.of(balance));
+        when(balance.getActualBalance()).thenReturn(initBalance);
+
+        savingsAccountService.calculatePercent(balanceId, rate, savingsAccountId);
+
+        verify(savingsAccountRepository, times(1)).findById(savingsAccountId);
+        verify(balanceRepository, times(1)).findById(balanceId);
+        verify(balance, times(1)).setActualBalance(bigDecimalArgumentCaptor.capture());
+        BigDecimal newBalance = bigDecimalArgumentCaptor.getValue();
+        assertEquals(1, newBalance.compareTo(initBalance));
     }
 }

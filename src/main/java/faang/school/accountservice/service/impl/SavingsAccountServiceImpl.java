@@ -2,21 +2,20 @@ package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.entity.Account;
-import faang.school.accountservice.model.entity.SavingsAccount;
-import faang.school.accountservice.model.entity.Tariff;
-import faang.school.accountservice.model.entity.TariffHistory;
+import faang.school.accountservice.model.entity.*;
 import faang.school.accountservice.repository.*;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.List;
 
 @Service
@@ -29,6 +28,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final TariffRepository tariffRepository;
     private final TariffHistoryRepository tariffHistoryRepository;
     private final SavingsAccountRateRepository savingsAccountRateRepository;
+    private final BalanceRepository balanceRepository;
 
     @Transactional
     @Override
@@ -76,7 +76,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
         }
 
-        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaIdsByAccountNumbers(numbers);
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaByAccountNumbers(numbers);
         List<SavingsAccountDto> savingsAccountDtos = savingsAccountMapper.toDtos(savingsAccounts);
         savingsAccountDtos
                 .forEach(saDto -> {
@@ -94,10 +94,28 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         return savingsAccountDtos;
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
-    @Retryable(backoff = @Backoff(delay = 5000))
-    protected void countPercents() {
-        // TODO надо что то сделать
-    }
+    @Transactional
+    @Async("calculatePercentsExecutor")
+    @Override
+    public void calculatePercent(Long balanceId, BigDecimal rate, Long savingsAccountId) {
+        SavingsAccount savingsAccount = savingsAccountRepository.findById(savingsAccountId).orElseGet(() -> {
+            log.info("SavingsAccount with id {} not found", savingsAccountId);
+            throw new EntityNotFoundException("SavingsAccount with id " + savingsAccountId + " not found");
+        });
 
+        Balance balance = balanceRepository.findById(balanceId).orElseGet(() -> {
+            log.info("Balance with id {} not found", balanceId);
+            throw new EntityNotFoundException("Balance with id " + balanceId + " not found");
+        });
+
+        int currentYearDays = Year.now().length();
+        BigDecimal dailyRate = rate.divide(BigDecimal.valueOf(currentYearDays), 8, RoundingMode.HALF_UP);
+        BigDecimal dailyInterest = balance.getActualBalance()
+                .multiply((dailyRate.divide(BigDecimal.valueOf(100), 8, RoundingMode.HALF_UP)));
+        BigDecimal newBalance = balance.getActualBalance().add(dailyInterest);
+        balance.setActualBalance(newBalance);
+        LocalDateTime currentTime = LocalDateTime.now();
+        savingsAccount.setUpdatedAt(currentTime);
+        savingsAccount.setLastDatePercent(currentTime);
+    }
 }
