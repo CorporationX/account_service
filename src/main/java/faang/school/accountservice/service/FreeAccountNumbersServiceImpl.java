@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +57,17 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
     }
 
     @Override
+    public void saveNumbers(AccountType type, List<String> numbers) {
+        freeAccountNumbersRepository.saveAll(
+                numbers.stream()
+                        .map(number -> FreeAccountNumber.builder()
+                                .id(new FreeAccountNumberId(type, number))
+                                .build())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
     @Transactional
     public void createFreeAccountNumbers(FreeAccountNumberDto freeAccountNumberDto) {
         generateFreeAccountNumbers(freeAccountNumberDto.getType(), freeAccountNumberDto.getBatchSize());
@@ -67,11 +79,9 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
 
         for (long i = numberPeriod.getInitialValue(); i < numberPeriod.getSequenceValue(); i++) {
             String generatedAccountNumber = accountNumberGenerator.generateAccountNumber(type, i);
-
-            freeAccountNumbers.add(
-                    FreeAccountNumber.builder()
-                            .id(new FreeAccountNumberId(type, generatedAccountNumber))
-                            .build()
+            freeAccountNumbers.add(FreeAccountNumber.builder()
+                    .id(new FreeAccountNumberId(type, generatedAccountNumber))
+                    .build()
             );
         }
 

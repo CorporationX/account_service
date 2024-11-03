@@ -3,14 +3,17 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -71,10 +74,13 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    @OneToOne
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
     private Balance balance;
 
-    public void nextVersion() {
-        this.version++;
-    }
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    private SavingsAccount savingsAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cashback_tariff_id")
+    private CashbackTariff cashbackTariff;
 }

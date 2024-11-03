@@ -5,20 +5,6 @@ spring:
     username: user
     password: password
 
-account:
-  numbers:
-    generation:
-      cron-for-type-individual: "0 0 2 * * ?"
-      cron-for-type-savings: "0 0 0 * * ?"
-      cron-for-type-investment: "0 0 3 * * ?"
-      # ...
-    batch-size:
-      checking-individual: 1000
-      checking-corporate: 500
-      currency_account: 300
-      savings_account: 400
-      investment_account: 100
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -38,9 +24,48 @@ account:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+account:
+  numbers:
+    generation:
+      cron-for-type-individual: "0 0 2 * * ?"
+      cron-for-type-savings: "0 0 0 * * ?"
+      cron-for-type-investment: "0 0 3 * * ?"
+      # ...
+    batch-size:
+      checking-individual: 1000
+      checking-corporate: 500
+      currency_account: 300
+      savings_account: 400
+      investment_account: 100
+
 server:
   port: 8090
+
+cashback:
+  cron: "0 0 3 1 * ?"
+  tariff:
+    expenditure-operations:
+      - WITHDRAWAL
+      - TRANSFER
+      - PAYMENT
+  max-attempts: 3
+  backoff-delay: 3000
 
 logging:
   level:
     root: info
+
+interest:
+  accrual:
+    days: 365
+    hours: 24
+
+scheduled:
+  task:
+    cronForAccrual: "0 0 0 * * *"
+    cronForGenerateNumbers: "0 0 * * * *"
+    amountGenerateNumbers: 100
+
+poolThreads:
+  mainPoolSize: 12
+  poolForAccrual: 10
