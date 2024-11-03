@@ -8,14 +8,18 @@ import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.util.FreeNumberGeneratorUtil;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Service
@@ -25,6 +29,9 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @Transactional
@@ -56,10 +63,6 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
 
         if (saveToDatabase) {
             freeAccountNumbersRepository.save(newFreeAccountNumber);
-            log.info("Saved new free account number: {} for account type: {}", value, accountType);
-        } else {
-            log.info("Generated free account number: {} without saving to database for account type: {}",
-                    value, accountType);
         }
 
         return newFreeAccountNumber;
@@ -80,5 +83,34 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         action.accept(freeAccountNumber);
         log.info("Successfully retrieved free account number: {} for account type: {}",
                 freeAccountNumber.getId().getNumber(), accountType);
+    }
+
+    @Transactional
+    public void generateAndSaveAccountNumbers(AccountType accountType, int amount) {
+        List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
+
+        for (int i = 0; i < amount; i++) {
+                FreeAccountNumber newAccountNumber = addFreeAccountNumber(accountType, false);
+                freeAccountNumbers.add(newAccountNumber);
+                entityManager.clear();
+        }
+
+        freeAccountNumbersRepository.saveAll(freeAccountNumbers);
+        log.info("Successfully generated {} free account numbers for account type: {}",
+                freeAccountNumbers.size(), accountType);
+    }
+
+    @Override
+    @Transactional
+    public void ensureMinimumAccountNumbers(AccountType accountType, int minAmount) {
+        int existingCount = freeAccountNumbersRepository.countById_Type(accountType);
+        int toGenerate = minAmount - existingCount;
+
+        if (toGenerate > 0) {
+            log.info("Generating {} free account numbers for account type: {}", toGenerate, accountType);
+            generateAndSaveAccountNumbers(accountType, toGenerate);
+        } else {
+            log.info("No additional free account numbers need to be generated for account type: {}", accountType);
+        }
     }
 }

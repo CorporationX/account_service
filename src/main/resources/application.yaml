@@ -23,3 +23,25 @@ server:
 logging:
   level:
     root: info
+
+free-account-numbers:
+  accounts:
+    INDIVIDUAL:
+      targetAmount: 15
+    CORPORATE:
+      targetAmount: 30
+    SAVINGS:
+      targetAmount: 25
+    INVESTMENT:
+      targetAmount: 40
+    RETIREMENT:
+      targetAmount: 25
+    STUDENT:
+      targetAmount: 10
+    BUSINESS:
+      targetAmount: 15
+    PREPAID:
+      targetAmount: 25
+
+scheduler:
+  account-numbers-generation: "0 30 5 * * *"

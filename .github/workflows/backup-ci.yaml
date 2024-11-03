@@ -1,9 +1,9 @@
 name: CI pipeline for account_service
 
-on:
-  pull_request:
-    branches:
-      - werewolf-master-stream6
+#on:
+#  pull_request:
+#    branches:
+#      - werewolf-master-stream6
 
 jobs:
   job_unit_tests:
