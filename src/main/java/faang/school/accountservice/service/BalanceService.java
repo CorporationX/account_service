@@ -92,6 +92,38 @@ public class BalanceService {
         return account.getBalance();
     }
 
+    @Transactional
+    public BalanceAuthPayment completeAuthorizationWriteOff(UUID authPaymentId) {
+        BalanceAuthPayment authPayment = balanceAuthPaymentRepository.findById(authPaymentId)
+                .orElseThrow(() -> new ValidationException("Authorization payment not found"));
+        log.error("Authorization payment {} not found", authPaymentId);
+
+        validatePaymentIsStatus(authPayment);
+        validateActualBalance_ToBeWrittenOff(authPayment);
+
+        Balance balance = authPayment.getBalance();
+
+        balance.setActual(balance.getActual().subtract(authPayment.getAmount()));
+        balance.setAuthorization(balance.getAuthorization().subtract(authPayment.getAmount()));
+
+        authPayment.setStatus(AuthorizationStatus.CONFIRMED);
+        saveBalance(balance);
+        return saveBalanceAuthPayment(authPayment);
+    }
+
+    private void validatePaymentIsStatus(BalanceAuthPayment authPayment) {
+        if(authPayment.getStatus() != AuthorizationStatus.ACTIVATED) {
+            throw new ValidationException("The payment is not in an authorized state and cannot be processed");
+        }
+    }
+
+    private void validateActualBalance_ToBeWrittenOff(BalanceAuthPayment authPayment) {
+        Balance balance = authPayment.getBalance();
+        if(balance.getActual().compareTo(authPayment.getAmount()) < 0) {
+            throw new ValidationException("Insufficient funds for clearing the payment");
+        }
+    }
+
     private void validateCurrency(Currency currency) {
         if (!currency.equals(Currency.RUB)) {
             throw new ValidationException(String.format("Our bank accepts only rubles. Your currency is  %s", currency));
