@@ -1,4 +1,4 @@
-package faang.school.accountservice.model.operation;
+package faang.school.accountservice.model.payment_operation;
 
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.account.Account;
@@ -58,8 +58,4 @@ public class PaymentOperation {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
-
-    @Column(name = "clear_scheduled_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime clearScheduledAt;
 }

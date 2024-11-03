@@ -23,6 +23,7 @@ spring:
       host: localhost
       channels:
         payment-event: payment_event
+        payment-operation-responce-event: payment_event_responce
 
 server:
   port: 8090
