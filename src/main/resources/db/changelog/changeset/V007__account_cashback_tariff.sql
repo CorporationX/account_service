@@ -41,12 +41,14 @@ CREATE TABLE cashback_tariff_merchant_mapping
 );
 
 ALTER TABLE account
-    ADD COLUMN IF NOT EXISTS cashback_tariff_id BIGINT NOT NULL REFERENCES cashback_tariff (id),
+    ADD COLUMN IF NOT EXISTS cashback_tariff_id BIGINT REFERENCES cashback_tariff (id),
     DROP COLUMN IF EXISTS balance_id;
 
-CREATE INDEX idx_operation_type ON operation_type_mapping (operation_type);
-CREATE INDEX idx_merchant_id ON merchant_mapping (merchant_id);
+ALTER TABLE balance
+    ALTER COLUMN account_id SET NOT NULL;
+
+CREATE UNIQUE INDEX ON operation_type_mapping (operation_type, percentage);
+CREATE UNIQUE INDEX ON merchant_mapping (merchant_id, percentage);
 
 ALTER TABLE balance_audit
-    ADD COLUMN IF NOT EXISTS
-        request_by uuid NOT NULL REFERENCES request (id);
+    ADD COLUMN IF NOT EXISTS request_by uuid NOT NULL REFERENCES request (id);
