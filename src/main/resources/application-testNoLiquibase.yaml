@@ -1,0 +1,11 @@
+spring:
+  liquibase:
+    enabled: false
+
+redis:
+  topic:
+    pending_operation: pending_operation
+    checking_balance: checking_balance
+
+app:
+  messaging: redis

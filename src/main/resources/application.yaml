@@ -44,7 +44,7 @@ spring:
       checking_balance: checking_balance
 
 app:
-  messaging: kafka
+  messaging: redis
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

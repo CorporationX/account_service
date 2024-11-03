@@ -1,5 +1,6 @@
 package faang.school.accountservice.util.fabrics;
 
+import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.balance.Balance;
 import lombok.experimental.UtilityClass;
 
@@ -10,6 +11,12 @@ import java.util.UUID;
 public class BalanceFabric {
     public static Balance buildBalance() {
         return Balance.builder()
+                .build();
+    }
+
+    public static Balance buildBalance(Account account) {
+        return Balance.builder()
+                .account(account)
                 .build();
     }
 

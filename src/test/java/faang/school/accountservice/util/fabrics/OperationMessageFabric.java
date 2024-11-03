@@ -47,4 +47,18 @@ public class OperationMessageFabric {
                 .category(category)
                 .build();
     }
+
+    public static OperationMessage buildOperationMessage(UUID id, UUID sourceAccountId, UUID targetAccountId,
+                                                         BigDecimal amount, Currency currency, Category category,
+                                                         OperationStatus status) {
+        return OperationMessage.builder()
+                .operationId(id)
+                .sourceAccountId(sourceAccountId)
+                .targetAccountId(targetAccountId)
+                .amount(amount)
+                .currency(currency)
+                .category(category)
+                .status(status)
+                .build();
+    }
 }
