@@ -1,0 +1,6 @@
+<changeSet id="V20241030-add-rate-bonus" author="dmitridorje">
+    <addColumn tableName="savings_account">
+        <column name="rate_bonus" type="DECIMAL(10, 2)" defaultValue="0.00" />
+        <column name="last_bonus_update" type="TIMESTAMP" />
+    </addColumn>
+</changeSet>

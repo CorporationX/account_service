@@ -1,0 +1,9 @@
+{
+  "achievement_increase": {
+    "WRITER": 0.1,
+    "EXPERT": 0.2
+  },
+  "activity_decrease": {
+    "INAPPROPRIATE_POST": -0.15
+  }
+}
