@@ -9,17 +9,17 @@ import java.util.Map;
 @Component
 public class BalanceChangeRegistry {
 
-    private final Map<ChangeBalanceType, BalanceChange> changes = new HashMap<>();
+    private final Map<ChangeBalanceType, BalanceChanger> changes = new HashMap<>();
 
-    public void registerBalanceChange(BalanceChange change) {
+    public void registerBalanceChange(BalanceChanger change) {
         changes.put(change.getChangeBalanceType(), change);
     }
 
-    public BalanceChange getBalanceChange(ChangeBalanceType changeBalanceType) {
-        BalanceChange balanceChange = changes.get(changeBalanceType);
-        if (balanceChange == null) {
+    public BalanceChanger getBalanceChange(ChangeBalanceType changeBalanceType) {
+        BalanceChanger balanceChanger = changes.get(changeBalanceType);
+        if (balanceChanger == null) {
             throw new IllegalArgumentException("Unknown change type: " + changeBalanceType);
         }
-        return balanceChange;
+        return balanceChanger;
     }
 }

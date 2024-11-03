@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 
-public interface BalanceChange {
+public interface BalanceChanger {
 
     Balance processBalance(Balance balance, BigDecimal amount, Operation operation);
 

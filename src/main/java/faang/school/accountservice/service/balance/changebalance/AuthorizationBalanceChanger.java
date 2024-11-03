@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
-public class AuthorizationBalanceChange implements BalanceChange {
+public class AuthorizationBalanceChanger implements BalanceChanger {
 
     @Override
     public Balance processBalance(Balance balance, BigDecimal amount, Operation operation) {

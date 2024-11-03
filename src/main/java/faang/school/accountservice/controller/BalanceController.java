@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,13 +29,13 @@ public class BalanceController {
         return balanceService.getBalanceById(balanceId);
     }
 
-    @GetMapping("/{accountId}/account")
-    public BalanceDto getBalanceByAccountId(@PathVariable @Positive Long accountId) {
+    @GetMapping
+    public BalanceDto getBalanceByAccountId(@RequestParam @Positive Long accountId) {
         return balanceService.getBalanceByAccountId(accountId);
     }
 
-    @PostMapping("/{accountId}/account")
-    public BalanceDto createBalance(@PathVariable @Positive Long accountId) {
+    @PostMapping
+    public BalanceDto createBalance(@RequestParam @Positive Long accountId) {
         return balanceService.createBalance(accountId);
     }
 

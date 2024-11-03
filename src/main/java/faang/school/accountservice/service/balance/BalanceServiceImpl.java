@@ -8,7 +8,7 @@ import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.BalanceService;
-import faang.school.accountservice.service.balance.changebalance.BalanceChange;
+import faang.school.accountservice.service.balance.changebalance.BalanceChanger;
 import faang.school.accountservice.service.balance.changebalance.BalanceChangeRegistry;
 import faang.school.accountservice.service.balance.operation.Operation;
 import faang.school.accountservice.service.balance.operation.OperationRegistry;
@@ -39,8 +39,8 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     public BalanceDto getBalanceByAccountId(Long accountId) {
         Balance balance = balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("The balance for account with id %s was not found"
-                        .formatted(accountId)));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("The balance was not found for account with id: " + accountId));
         log.debug("balance by accountId: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }
@@ -54,6 +54,9 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class,
+            maxAttemptsExpression = "${retryable.max-attempts}",
+            backoff = @Backoff(delayExpression = "${retryable.delay}"))
     public BalanceDto createBalance(Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Not found account id: " + accountId));
@@ -66,6 +69,8 @@ public class BalanceServiceImpl implements BalanceService {
                 .actualBalance(BigDecimal.ZERO)
                 .authBalance(BigDecimal.ZERO)
                 .build();
+        account.setCurrentBalance(balance);
+        accountRepository.save(account);
         balanceRepository.save(balance);
         log.info("Created new balance: {}", balance);
         return balanceMapper.toBalanceDto(balance);
@@ -73,14 +78,14 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Transactional
-    @Retryable(retryFor = {OptimisticLockException.class},
+    @Retryable(retryFor = OptimisticLockException.class,
             maxAttemptsExpression = "${retryable.max-attempts}",
             backoff = @Backoff(delayExpression = "${retryable.delay}"))
     public BalanceDto changeBalance(Long balanceId, AmountChangeRequest amount) {
         Balance balance = getBalance(balanceId);
         Operation operation = operationRegistry.getOperation(amount.operationType());
-        BalanceChange balanceChange = balanceChangeRegistry.getBalanceChange(amount.changeBalanceType());
-        balance = balanceChange.processBalance(balance, amount.amount(), operation);
+        BalanceChanger balanceChanger = balanceChangeRegistry.getBalanceChange(amount.changeBalanceType());
+        balance = balanceChanger.processBalance(balance, amount.amount(), operation);
         balanceRepository.save(balance);
         log.debug("balance changed: {}", balance);
         return balanceMapper.toBalanceDto(balance);
