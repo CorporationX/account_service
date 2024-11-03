@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.account.AccountDto;
 
 public interface AccountService {
 

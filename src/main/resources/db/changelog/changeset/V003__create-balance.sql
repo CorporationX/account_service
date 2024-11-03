@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS balance(
      version          INT NOT NULL             DEFAULT 1
 );
 
-CREATE INDEX account_id_index ON balance (account_id);
+CREATE INDEX account_id_index ON balance(account_id);
 
 ALTER TABLE account ADD COLUMN balance_id bigint;
