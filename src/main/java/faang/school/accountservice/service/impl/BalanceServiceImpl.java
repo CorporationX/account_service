@@ -4,6 +4,7 @@ import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.dto.BalanceDto;
 import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

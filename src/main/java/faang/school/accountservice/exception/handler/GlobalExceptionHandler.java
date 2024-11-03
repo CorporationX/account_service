@@ -1,5 +1,8 @@
 package faang.school.accountservice.exception.handler;
 
+import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.exception.EventProcessingException;
+import faang.school.accountservice.exception.EventPublishingException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -42,4 +45,24 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Runtime exception", ex.getMessage());
     }
 
+    @ExceptionHandler(DataValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleDataValidationException(DataValidationException ex) {
+        log.error("Data Validation Error", ex);
+        return new ErrorResponse("Data Validation Exception", ex.getMessage());
+    }
+
+    @ExceptionHandler(EventProcessingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleEventProcessingException(EventProcessingException ex) {
+        log.error("Event Processing Exception", ex);
+        return new ErrorResponse("Event Processing Exception", ex.getMessage());
+    }
+
+    @ExceptionHandler(EventPublishingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleEventPublishingException(EventPublishingException ex) {
+        log.error("Event Publishing Exception", ex);
+        return new ErrorResponse("Event Publishing Exception", ex.getMessage());
+    }
 }

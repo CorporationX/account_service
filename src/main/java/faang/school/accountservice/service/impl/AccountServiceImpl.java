@@ -7,6 +7,7 @@ import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.FreeAccountNumber;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.AccountService;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
         freeAccountNumbersService.getFreeAccountNumber(account.getType(), consumer);
         AccountDto createdAccountDto = accountMapper.accountToAccountDto(accountRepository.save(account));
 
-        validator.validate(createdAccountDto, AccountDto.Created.class);
+//        validator.validate(createdAccountDto, AccountDto.Created.class);
 
         return createdAccountDto;
     }

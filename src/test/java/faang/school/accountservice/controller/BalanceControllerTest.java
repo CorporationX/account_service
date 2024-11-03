@@ -3,7 +3,7 @@ package faang.school.accountservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.model.dto.BalanceDto;
-import faang.school.accountservice.service.impl.BalanceService;
+import faang.school.accountservice.service.BalanceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

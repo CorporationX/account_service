@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.model.dto.BalanceDto;
-import faang.school.accountservice.service.impl.BalanceService;
+import faang.school.accountservice.service.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
