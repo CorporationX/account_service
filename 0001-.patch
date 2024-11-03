@@ -1,0 +1,59 @@
+From 289bbe958155d1c179691a1a7aab331dc5844f35 Mon Sep 17 00:00:00 2001
+From: Denis Alginin <AlgininDK@gmail.com>
+Date: Sun, 3 Nov 2024 19:57:54 +0500
+Subject: [PATCH] =?UTF-8?q?=D0=94=D0=BE=D0=B1=D0=B0=D0=B2=D0=B8=D0=BB=20?=
+ =?UTF-8?q?=D0=BA=D0=BB=D0=B8=D1=80=D0=B8=D0=BD=D0=B3?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../service/BalanceService.java               | 32 +++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/src/main/java/faang/school/accountservice/service/BalanceService.java b/src/main/java/faang/school/accountservice/service/BalanceService.java
+index 5c154b71..4088f16e 100644
+--- a/src/main/java/faang/school/accountservice/service/BalanceService.java
++++ b/src/main/java/faang/school/accountservice/service/BalanceService.java
+@@ -92,6 +92,38 @@ public class BalanceService {
+         return account.getBalance();
+     }
+ 
++    @Transactional
++    public BalanceAuthPayment completeAuthorizationWriteOff(UUID authPaymentId) {
++        BalanceAuthPayment authPayment = balanceAuthPaymentRepository.findById(authPaymentId)
++                .orElseThrow(() -> new ValidationException("Authorization payment not found"));
++        log.error("Authorization payment {} not found", authPaymentId);
++
++        validatePaymentIsStatus(authPayment);
++        validateActualBalance_ToBeWrittenOff(authPayment);
++
++        Balance balance = authPayment.getBalance();
++
++        balance.setActual(balance.getActual().subtract(authPayment.getAmount()));
++        balance.setAuthorization(balance.getAuthorization().subtract(authPayment.getAmount()));
++
++        authPayment.setStatus(AuthorizationStatus.CONFIRMED);
++        saveBalance(balance);
++        return saveBalanceAuthPayment(authPayment);
++    }
++
++    private void validatePaymentIsStatus(BalanceAuthPayment authPayment) {
++        if(authPayment.getStatus() != AuthorizationStatus.ACTIVATED) {
++            throw new ValidationException("The payment is not in an authorized state and cannot be processed");
++        }
++    }
++
++    private void validateActualBalance_ToBeWrittenOff(BalanceAuthPayment authPayment) {
++        Balance balance = authPayment.getBalance();
++        if(balance.getActual().compareTo(authPayment.getAmount()) < 0) {
++            throw new ValidationException("Insufficient funds for clearing the payment");
++        }
++    }
++
+     private void validateCurrency(Currency currency) {
+         if (!currency.equals(Currency.RUB)) {
+             throw new ValidationException(String.format("Our bank accepts only rubles. Your currency is  %s", currency));
+-- 
+2.39.5 (Apple Git-154)
+
