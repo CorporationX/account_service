@@ -1,7 +1,7 @@
 CREATE TABLE balance_audit (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     account_id BIGINT NOT NULL,
-    balance_version INTEGER DEFAULT 0,
+    balance_version BIGINT DEFAULT 0,
     authorized_balance NUMERIC,
     actual_balance NUMERIC,
     operation_id BIGINT NOT NULL,

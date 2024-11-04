@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class BalanceAuditDto {
-    private long id;
-    private long accountId;
-    private long balanceAuditVersion;
-    private long authorizedBalance;
-    private long actualBalance;
-    private long operationId;
+    private Long id;
+    private Long accountId;
+    private Long balanceVersion;
+    private Long authorizedBalance;
+    private Long actualBalance;
+    private Long operationId;
     private LocalDateTime createdAt;
 }

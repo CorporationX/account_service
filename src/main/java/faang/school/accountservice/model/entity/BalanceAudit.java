@@ -27,15 +27,13 @@ import java.time.LocalDateTime;
 public class BalanceAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "account_id")
-    private long accountId;
+    private Long accountId;
 
-    @Version
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pet_seq")
     @Column(name = "balance_version")
-    private Integer balanceVersion;
+    private Long balanceVersion;
 
     @Column(name = "authorized_balance")
     private BigDecimal authorizedBalance;
@@ -44,7 +42,7 @@ public class BalanceAudit {
     private BigDecimal actualBalance;
 
     @Column(name = "operation_id")
-    private long operationId;
+    private Long operationId;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
