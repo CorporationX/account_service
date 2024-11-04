@@ -17,6 +17,6 @@ public class BalanceAuditDto {
     private Long balanceVersion;
     private Long authorizedBalance;
     private Long actualBalance;
-    private Long operationId;
+    private Long requestId;
     private LocalDateTime createdAt;
 }

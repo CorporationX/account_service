@@ -41,8 +41,8 @@ public class BalanceAudit {
     @Column(name = "actual_balance")
     private BigDecimal actualBalance;
 
-    @Column(name = "operation_id")
-    private Long operationId;
+    @Column(name = "request_id")
+    private Long requestId;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

@@ -4,7 +4,7 @@ CREATE TABLE balance_audit (
     balance_version BIGINT DEFAULT 0,
     authorized_balance NUMERIC,
     actual_balance NUMERIC,
-    operation_id BIGINT NOT NULL,
+    request_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp
 );
 
