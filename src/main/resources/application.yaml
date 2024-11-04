@@ -29,3 +29,6 @@ account:
   nameLength:
     min: 12
     max: 20
+
+openapi:
+  uris: /swagger-ui, /v3/api-docs, /swagger-resources
