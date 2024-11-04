@@ -13,20 +13,25 @@ import faang.school.accountservice.entity.account.FreeAccountNumber;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
+    @Query(
+        nativeQuery = true,
+        value = """
+            SELECT *
+            FROM free_account_numbers
+            WHERE type = :type
+            LIMIT 1
+        """
+    )
+    Optional<FreeAccountNumber> findFirstFreeAccountNumberByType(String type);
+
     @Modifying
     @Query(
         nativeQuery = true,
         value = """
-            DELETE FROM free_account_numbers fan
-            WHERE fan.type = : type AND fan.accountNumber = (
-                SELECT account_number
-                FROM free_account_numbers
-                WHERE type = :type
-                LIMIT 1
-            )
-            RETURNING fan.type, fan.account_number
+            DELETE FROM free_account_numbers
+            WHERE type = :type AND account_number = :accountNumber
         """
     )
-    Optional<FreeAccountNumber> findAndRemoveFreeAccountNumber(String type);
+    int deleteFreeAccountNumberByTypeAndAccountNumber(String type, String accountNumber);
 
 }

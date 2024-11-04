@@ -6,6 +6,8 @@ CREATE TABLE free_account_numbers (
 );
 
 CREATE TABLE account_numbers_sequence (
-    type VARCHAR(20) NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    type VARCHAR(20) NOT NULL,
     counter BIGINT NOT NULL DEFAULT 1,
-);
+
+    CONSTRAINT account_numbers_sequence_pk PRIMARY KEY (type, counter)
+); 

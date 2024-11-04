@@ -53,4 +53,5 @@ public class AccountController {
     public void closeAccount(@PathVariable("id") long accountId) {
         accountService.closeAccount(accountId);
     }
+
 }
