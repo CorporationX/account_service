@@ -1,9 +1,9 @@
 package faang.school.accountservice.dto.account;
 
 
+import faang.school.accountservice.enums.AccountNumberType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.account.AccountStatus;
-import faang.school.accountservice.model.account.AccountType;
 import faang.school.accountservice.model.owner.OwnerType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -34,7 +34,7 @@ public class AccountDto {
     private OwnerType ownerType;
 
     @NotNull(message = "\"accountType\" cannot be NULL")
-    private AccountType accountType;
+    private AccountNumberType accountType;
 
     @NotNull(message = "\"currency\" cannot be NULL")
     private Currency currency;

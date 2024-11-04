@@ -19,16 +19,16 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
         SELECT f.digitSequence
         FROM FreeAccountNumber f
         WHERE f.type = :type
-        ORDER BY f.id
+        ORDER BY f.digitSequence
         LIMIT 1
         """)
-    Optional<String> getFreeAccountNumberByType(@Param("type") AccountNumberType type);
+    Optional<String> getFreeAccountNumberByType(AccountNumberType type);
 
 
     @Modifying
     @Query(value = """
             DELETE FROM FreeAccountNumber f
-            WHERE f.digitSequence = :accountNumber
+            WHERE f.digitSequence = :digitSequence
             """)
-    int removeFreeAccountNumber(@Param("accountNumber") String accountNumber);
+    int removeFreeAccountNumber(String digitSequence);
 }

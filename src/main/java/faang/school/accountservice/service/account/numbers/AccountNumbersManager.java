@@ -5,23 +5,24 @@ import faang.school.accountservice.model.number.FreeAccountNumber;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Service
 @AllArgsConstructor
 public class AccountNumbersManager {
-    private final NumbersSequenceService numbersSequenceService;
+    private final DigitSequenceService digitSequenceService;
 
-    public <T> T getAccountNumberAndApply(AccountNumberType type, Function<FreeAccountNumber, T> action) {
-        String accountNumber = numbersSequenceService.getAndRemoveFreeAccountNumberByType(type)
-                .orElseGet(() ->(createNewAccountNumber(type)));
+    public void getAccountNumberAndApply(AccountNumberType type, Consumer<FreeAccountNumber> action) {
+        String digitSequence = digitSequenceService.getAndRemoveFreeAccountNumberByType(type)
+                .orElseGet(() -> (createNewAccountNumber(type)));
 
-        FreeAccountNumber accountNumberEntity = new FreeAccountNumber(type, accountNumber);
-        return action.apply(accountNumberEntity);
+        FreeAccountNumber accountNumberEntity = new FreeAccountNumber(type, digitSequence);
+        action.accept(accountNumberEntity);
     }
 
     private String createNewAccountNumber(AccountNumberType type) {
-        numbersSequenceService.checkForGenerationSequencesAsync(type);
-        return numbersSequenceService.generateAccountNumber(type);
+        digitSequenceService.checkForGenerationSequencesAsync(type);
+        return digitSequenceService.generateNewAccountNumberWithoutPool(type);
     }
 }

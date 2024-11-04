@@ -1,6 +1,7 @@
 package faang.school.accountservice.service.account.numbers;
 
 import faang.school.accountservice.enums.AccountNumberType;
+import faang.school.accountservice.model.number.AccountUniqueNumberCounter;
 import faang.school.accountservice.model.number.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
@@ -17,7 +18,7 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-class NumbersSequenceService {
+public class DigitSequenceService {
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumberConfig accountNumberConfig;
@@ -26,6 +27,28 @@ class NumbersSequenceService {
     @Async
     @Transactional
     public void checkForGenerationSequencesAsync(AccountNumberType type) {
+        Optional<AccountUniqueNumberCounter> counterOpt =
+                accountNumbersSequenceRepository.findByTypeForUpdate(type.toString());
+        if (counterOpt.isEmpty()) {
+            log.warn("No counter found for type: {}", type);
+            return;
+        }
+        tryActivateGenerationState(type, counterOpt.get());
+    }
+
+    @Transactional
+    public void tryActivateGenerationState(AccountNumberType type, AccountUniqueNumberCounter counter) {
+        if (!counter.getGeneration_state()) {
+            accountNumbersSequenceRepository.setActiveGenerationState(type.toString());
+            generateAndSaveAccountNumbers(type);
+            accountNumbersSequenceRepository.setNonActiveGenerationState(type.toString());
+        } else {
+            log.info("Generation is already in progress for type {}", type);
+        }
+    }
+
+    @Transactional
+    public void generateAndSaveAccountNumbers(AccountNumberType type) {
         long amountSequences = freeAccountNumbersRepository.countFreeAccountNumberByType(type);
         if (amountSequences < accountNumberConfig.getMinNumberOfFreeAccounts()) {
             List<FreeAccountNumber> accountNumbers = generationSequencesByNumberConfig(type);
@@ -38,24 +61,22 @@ class NumbersSequenceService {
 
     @Transactional
     public Optional<String> getAndRemoveFreeAccountNumberByType(AccountNumberType type) {
-        Optional<String> accountNumberOpt = freeAccountNumbersRepository.getFreeAccountNumberByType(type);
-
-        return accountNumberOpt.map(digitSequence -> {
-            log.info("Found free account number {} for type {}", digitSequence, type);
-
-            if (freeAccountNumbersRepository.removeFreeAccountNumber(digitSequence) == 1) {
-                log.info("Removed free account number {} for type {}", digitSequence, type);
-                return digitSequence;
+        Optional<String> accountNumber = freeAccountNumbersRepository.getFreeAccountNumberByType(type);
+        if (accountNumber.isPresent()) {
+            int deletedCount = freeAccountNumbersRepository.removeFreeAccountNumber(accountNumber.get());
+            log.debug("From pool Get account number {} for type {}", accountNumber.get(), type);
+            if (deletedCount == 1) {
+                log.info("From pool Removed account number {} for type {}", accountNumber.get(), type);
             } else {
-                log.error("Failed to remove account number {}", digitSequence);
-                return null;
+                log.warn("Unable to remove account number due to a version conflict.");
             }
-        });
+        }
+        return accountNumber;
     }
 
 
     @Transactional
-    public String generateAccountNumber(AccountNumberType type) {
+    public String generateNewAccountNumberWithoutPool(AccountNumberType type) {
         long incrementKey = accountNumbersSequenceRepository.incrementAndGet(type.toString());
         String prefixCode = type.getCode();
         String accountNumber = concatenate(incrementKey, prefixCode);

@@ -1,6 +1,7 @@
 package faang.school.accountservice.model.account;
 
 
+import faang.school.accountservice.enums.AccountNumberType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.Column;
@@ -50,7 +51,7 @@ public class Account {
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private AccountType type;
+    private AccountNumberType type;
 
     @Column(name = "currency", nullable = false)
     @Enumerated(EnumType.STRING)

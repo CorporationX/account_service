@@ -2,12 +2,14 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
+import faang.school.accountservice.enums.AccountNumberType;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.account.AccountStatus;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.model.owner.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import faang.school.accountservice.service.account.numbers.AccountNumbersManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class AccountService {
     private final OwnerRepository ownerRepository;
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
+    private final AccountNumbersManager accountNumbersManager;
 
     @Transactional
     public Account createAccount(Account account) {
@@ -35,10 +38,11 @@ public class AccountService {
         Owner exsistOwner = ownerRepository.findOwner(externalId, ownerType)
                 .orElse(createOwner(externalId, ownerType));
 
-        String newAccountNumber = generateAccountNumber();
-        account.setAccountNumber(newAccountNumber);
-        account.setStatus(AccountStatus.ACTIVE);
-        account.setOwner(exsistOwner);
+        accountNumbersManager.getAccountNumberAndApply(account.getType(), accountNumber -> {
+            account.setAccountNumber(accountNumber.getDigitSequence());
+            account.setStatus(AccountStatus.ACTIVE);
+            account.setOwner(exsistOwner);
+        });
 
         return accountRepository.save(account);
     }
