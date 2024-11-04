@@ -11,18 +11,18 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AccountNumberScheduler {
 
-    @Value("${scheduler.batch-size}")
+    @Value("${scheduler.generate.card-numbers.batch-size}")
     private int batchSize;
 
     private final FreeAccountNumbersServiceImpl freeAccountNumbersService;
 
     @Scheduled(cron = "${scheduler.cron}")
-    public void generateDebit() {
+    public void generateAccountNumberDebitType() {
         freeAccountNumbersService.generateAccountNumbers(AccountType.DEBIT, batchSize);
     }
 
     @Scheduled(cron = "${scheduler.cron}")
-    public void generateCredit() {
+    public void generateAccountNumberCreditType() {
         freeAccountNumbersService.generateAccountNumbers(AccountType.CREDIT, batchSize);
     }
 

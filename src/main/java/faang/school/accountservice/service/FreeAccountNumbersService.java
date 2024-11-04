@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
 
@@ -10,5 +11,7 @@ public interface FreeAccountNumbersService {
     void generateAccountNumbers(AccountType type, int batchSize);
 
     void retrieveAccountNumber(AccountType type, Consumer<FreeAccountNumber> numberConsumer);
+
+    AccountNumbersSequence createCounter(String type);
 
 }

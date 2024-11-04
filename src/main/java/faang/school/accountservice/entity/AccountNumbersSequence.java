@@ -21,11 +21,12 @@ public class AccountNumbersSequence {
 
     @Id
     @Enumerated(EnumType.STRING)
-    private AccountType accountType;
+    @Column(name = "type", nullable = false, length = 32)
+    private AccountType type;
 
     @Column(name = "current_counter", nullable = false)
-    private long currentCounter;
+    private long counter;
 
     @Version
-    private Long version;
+    private long version;
 }

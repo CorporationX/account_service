@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountSeqRepository;
@@ -23,9 +24,9 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService{
 
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
-        long period = accountSeqRepository.findByAccountType(type.name()).getCounter();
+        long period = accountSeqRepository.findByType(type.name()).get().getCounter();
         accountSeqRepository.incrementCounter(type.name(), batchSize);
-        long updatedCount = accountSeqRepository.findByAccountType(type.name()).getCounter();
+        long updatedCount = accountSeqRepository.findByType(type.name()).get().getCounter();
 
         List<FreeAccountNumber> numbers = new ArrayList<>();
         for (long i = period; i < updatedCount; i++) {
@@ -41,6 +42,17 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService{
     @Transactional
     public void retrieveAccountNumber(AccountType type, Consumer<FreeAccountNumber> numberConsumer) {
         numberConsumer.accept(freeAccountNumberRepository.retrieveFirst(type.name()));
+    }
+
+    @Transactional
+    public AccountNumbersSequence createCounter(String type) {
+        if (accountSeqRepository.findByType(type).isPresent()) {
+            return null;
+        }
+        AccountNumbersSequence sequence = new AccountNumbersSequence();
+        sequence.setType(AccountType.valueOf(type));
+
+        return accountSeqRepository.save(sequence);
     }
 
 }

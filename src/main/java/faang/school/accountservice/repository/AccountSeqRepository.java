@@ -1,29 +1,17 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.entity.AccountSeq;
-import faang.school.accountservice.enums.AccountType;
-import jakarta.transaction.Transactional;
+import faang.school.accountservice.entity.AccountNumbersSequence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface AccountSeqRepository extends JpaRepository<AccountSeq, String> {
+public interface AccountSeqRepository extends JpaRepository<AccountNumbersSequence, String> {
 
-    AccountSeq findByAccountType(String accountType);
-
-    @Transactional
-    default AccountSeq createCounter(String accountType) {
-        if (findByAccountType(accountType) != null) {
-            return null;
-        }
-        AccountSeq sequence = new AccountSeq();
-        sequence.setAccountType(AccountType.valueOf(accountType));
-        sequence.setCounter(1L);
-
-        return save(sequence);
-    }
+    Optional<AccountNumbersSequence> findByType(String accountType);
 
     @Query(nativeQuery = true, value = """
             UPDATE account_numbers_sequence SET counter = counter + :batchSize
