@@ -31,6 +31,8 @@ public class BalanceService {
     @Transactional
     public Balance createBalance() {
         Balance balance = Balance.builder()
+                .authorization(BigDecimal.ZERO)
+                .actual(BigDecimal.ZERO)
                 .build();
 
         return saveBalance(balance);
@@ -41,7 +43,10 @@ public class BalanceService {
         validateCurrency(money.currency());
         validatePositiveSum(money.amount());
 
-        Balance balance = balanceRepository.findById(balanceId).orElseThrow();
+        Balance balance = balanceRepository.findById(balanceId)
+                .orElseThrow(() -> new ValidationException("Cannot find balance by id"));
+        log.error("Create authorization payment: cannot find balance by id: {}", balanceId);
+
         validateEnoughMoney(balance, money.amount());
 
         BalanceAuthPayment authPayment = BalanceAuthPayment.builder()
@@ -58,7 +63,9 @@ public class BalanceService {
 
     @Transactional
     public BalanceAuthPayment rejectAuthPayment(UUID authPaymentId) {
-        BalanceAuthPayment payment = balanceAuthPaymentRepository.findById(authPaymentId).orElseThrow();
+        BalanceAuthPayment payment = balanceAuthPaymentRepository.findById(authPaymentId)
+                .orElseThrow(() -> new ValidationException("Authorization payment not found"));
+        log.error("Reject authorization payment: cannot find authorization payment by id {}", authPaymentId);
 
         Balance balance = payment.getBalance();
         BigDecimal newAuthBalance = balance.getAuthorization().subtract(payment.getAmount());
@@ -71,10 +78,11 @@ public class BalanceService {
         return saveBalanceAuthPayment(payment);
     }
 
-
     @Transactional
     public Balance topUpCurrentBalance(UUID balanceId, Money money) {
-        Balance balance = balanceRepository.findById(balanceId).orElseThrow();
+        Balance balance = balanceRepository.findById(balanceId)
+                .orElseThrow(() -> new ValidationException("Cannot find balance by id"));
+        log.error("Top up balance: cannot find balance by id: {}", balanceId);
 
         validateCurrency(money.currency());
         validatePositiveSum(money.amount());
@@ -112,14 +120,14 @@ public class BalanceService {
     }
 
     private void validatePaymentIsStatus(BalanceAuthPayment authPayment) {
-        if(authPayment.getStatus() != AuthorizationStatus.ACTIVATED) {
+        if (authPayment.getStatus() != AuthorizationStatus.ACTIVATED) {
             throw new ValidationException("The payment is not in an authorized state and cannot be processed");
         }
     }
 
     private void validateActualBalance_ToBeWrittenOff(BalanceAuthPayment authPayment) {
         Balance balance = authPayment.getBalance();
-        if(balance.getActual().compareTo(authPayment.getAmount()) < 0) {
+        if (balance.getActual().compareTo(authPayment.getAmount()) < 0) {
             throw new ValidationException("Insufficient funds for clearing the payment");
         }
     }
@@ -148,7 +156,7 @@ public class BalanceService {
             balance = balanceRepository.save(balance);
             balanceRepository.flush();
         } catch (OptimisticLockingFailureException exception) {
-            throw new RuntimeException(String.format("Error authorization payment %s", balance.getId()));
+            throw new RuntimeException(String.format("Error saving balance %s", balance.getId()));
         }
         return balance;
     }
