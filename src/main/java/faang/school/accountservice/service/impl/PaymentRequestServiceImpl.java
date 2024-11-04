@@ -6,7 +6,7 @@ import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.Request;
 import faang.school.accountservice.model.enums.RequestStatus;
 import faang.school.accountservice.model.event.PaymentStatusEvent;
-import faang.school.accountservice.model.event.RequestEvent;
+import faang.school.accountservice.model.event.PaymentEvent;
 import faang.school.accountservice.publisher.PaymentStatusEventPublisher;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
@@ -44,15 +44,15 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
     @Override
     @Transactional
-    public void authorize(RequestEvent requestEvent) {
-        boolean activeRequestExists = requestRepository.existsByAccountIdAndStatus(requestEvent.getAccountId(), RequestStatus.IN_PROGRESS);
+    public void authorize(PaymentEvent paymentEvent) {
+        boolean activeRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getAccountId(), RequestStatus.IN_PROGRESS);
 
         if (activeRequestExists) {
-            log.debug(String.format("An active payment request already exists for accountId = %d; ignoring duplicate request", requestEvent.getAccountId()));
+            log.debug(String.format("An active payment request already exists for accountId = %d; ignoring duplicate request", paymentEvent.getAccountId()));
             return;
         }
 
-        Optional<Request> existingRequestOpt = requestRepository.findByIdempotencyToken(requestEvent.getIdempotencyToken());
+        Optional<Request> existingRequestOpt = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken());
 
         if (existingRequestOpt.isPresent()) {
             Request existingRequest = existingRequestOpt.get();
@@ -67,7 +67,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 case FAILED:
                     log.debug(String.format("The request with id = %d, idempotencyToken = %s previously failed; retrying it",
                             existingRequest.getId(), existingRequest.getIdempotencyToken()));
-                    Request request = retryFailedRequest(existingRequest, requestEvent);
+                    Request request = retryFailedRequest(existingRequest, paymentEvent);
                     //TODO  добавить createAuditRecord
                     if (request.getStatus() == RequestStatus.IN_PROGRESS) {
                         applicationEventPublisher.publishEvent(new PaymentStatusEvent(request.getId(), request.getIdempotencyToken(), request.getStatus()));
@@ -85,21 +85,21 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             }
         }
 
-        ValidationResult commonResult = validatePaymentEvent(requestEvent);
+        ValidationResult commonResult = validatePaymentEvent(paymentEvent);
 
         Map<String, Object> inputData = new HashMap<>();
-        inputData.put("amount", requestEvent.getAmount());
-        inputData.put("firstSentDateTime", requestEvent.getSentDateTime());
-        inputData.put("lastSentDateTime", requestEvent.getSentDateTime());
+        inputData.put("amount", paymentEvent.getAmount());
+        inputData.put("firstSentDateTime", paymentEvent.getSentDateTime());
+        inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
 
-        Request request = createRequest(requestEvent, inputData, commonResult);
+        Request request = createRequest(paymentEvent, inputData, commonResult);
         Request savedRequest = requestRepository.save(request);
         //TODO  добавить createAuditRecord
         applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
     }
 
     @Override
-    public void cancel(RequestEvent requestEvent) {
+    public void cancel(PaymentEvent paymentEvent) {
 
     }
 
@@ -108,17 +108,17 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         paymentStatusEventPublisher.publish(event);
     }
 
-    private Request retryFailedRequest(Request existingRequest, RequestEvent requestEvent) {
+    private Request retryFailedRequest(Request existingRequest, PaymentEvent paymentEvent) {
         Map<String, Object> inputData = existingRequest.getInputData();
 
-        if (inputData.containsKey("amount") && !inputData.get("amount").equals(requestEvent.getAmount())) {
-            log.debug("Updating amount in request for retry. Old amount: " + inputData.get("amount") + ", new amount: " + requestEvent.getAmount());
-            inputData.put("amount", requestEvent.getAmount());
-            inputData.put("lastSentDateTime", requestEvent.getSentDateTime());
+        if (inputData.containsKey("amount") && !inputData.get("amount").equals(paymentEvent.getAmount())) {
+            log.debug("Updating amount in request for retry. Old amount: " + inputData.get("amount") + ", new amount: " + paymentEvent.getAmount());
+            inputData.put("amount", paymentEvent.getAmount());
+            inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
             existingRequest.setInputData(inputData);
         }
 
-        ValidationResult retryResult = validatePaymentEvent(requestEvent);
+        ValidationResult retryResult = validatePaymentEvent(paymentEvent);
         if (retryResult.isValid()) {
             existingRequest.setStatus(RequestStatus.IN_PROGRESS);
         } else {
@@ -129,21 +129,21 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         return requestRepository.save(existingRequest);
     }
 
-    private Request createRequest(RequestEvent requestEvent, Map<String, Object> inputData, ValidationResult commonResult) {
-        Account account = accountRepository.findById(requestEvent.getAccountId()).orElseThrow(() ->
-                new EntityNotFoundException(String.format("Account with id = %d not found", requestEvent.getAccountId())));
+    private Request createRequest(PaymentEvent paymentEvent, Map<String, Object> inputData, ValidationResult commonResult) {
+        Account account = accountRepository.findById(paymentEvent.getAccountId()).orElseThrow(() ->
+                new EntityNotFoundException(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
         Balance balance = account.getBalance();
 
         Request request = new Request();
-        request.setIdempotencyToken(requestEvent.getIdempotencyToken());
+        request.setIdempotencyToken(paymentEvent.getIdempotencyToken());
         request.setAccount(account);
-        request.setRequestType(requestEvent.getRequestType());
-        request.setOperationType(requestEvent.getOperationType());
+        request.setRequestType(paymentEvent.getRequestType());
+        request.setOperationType(paymentEvent.getOperationType());
         request.setInputData(inputData);
 
         if (commonResult.isValid()) {
-            balance.setAuthorizedBalance(requestEvent.getAmount());
-            balance.setActualBalance(balance.getActualBalance().subtract(requestEvent.getAmount()));
+            balance.setAuthorizedBalance(paymentEvent.getAmount());
+            balance.setActualBalance(balance.getActualBalance().subtract(paymentEvent.getAmount()));
             balanceRepository.save(balance);
 
             request.setStatus(RequestStatus.IN_PROGRESS);
@@ -154,20 +154,20 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         return request;
     }
 
-    private ValidationResult validatePaymentEvent(RequestEvent requestEvent) {
-        ValidationResult jakartaValidationResult = jakartaValidator.validate(requestEvent);
-        ValidationResult requestTypeResult = validator.validateRequestTypeTransferTo(requestEvent.getRequestType());
-        ValidationResult operationTypeResult = validator.validateOperationTypeAuthorize(requestEvent.getOperationType());
-        ValidationResult sentTimeNotOlderResult = validator.validateSentTimeNotOlderThan(requestEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES);
-        ValidationResult accountExistsResult = validator.validateAccountExists(requestEvent.getAccountId());
+    private ValidationResult validatePaymentEvent(PaymentEvent paymentEvent) {
+        ValidationResult jakartaValidationResult = jakartaValidator.validate(paymentEvent);
+        ValidationResult requestTypeResult = validator.validateRequestTypeTransferTo(paymentEvent.getRequestType());
+        ValidationResult operationTypeResult = validator.validateOperationTypeAuthorize(paymentEvent.getOperationType());
+        ValidationResult sentTimeNotOlderResult = validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES);
+        ValidationResult accountExistsResult = validator.validateAccountExists(paymentEvent.getAccountId());
 
-        Account account = accountRepository.findById(requestEvent.getAccountId()).orElseThrow(() ->
-                new EntityNotFoundException(String.format("Account with id = %d not found", requestEvent.getAccountId())));
+        Account account = accountRepository.findById(paymentEvent.getAccountId()).orElseThrow(() ->
+                new EntityNotFoundException(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
         ValidationResult accountActiveResult = validator.validateIfAccountActive(account);
 
         Balance balance = account.getBalance();
         ValidationResult sufficientBalanceResult = validator.validateSufficientActualBalance(
-                balance.getActualBalance(), requestEvent.getAmount(), requestEvent.getAccountId());
+                balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getAccountId());
 
         return ValidationResult.getCommonResult(
                 jakartaValidationResult,

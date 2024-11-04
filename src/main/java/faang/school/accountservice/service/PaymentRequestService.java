@@ -1,8 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.model.event.RequestEvent;
+import faang.school.accountservice.model.event.PaymentEvent;
 
 public interface PaymentRequestService {
-    void authorize(RequestEvent requestEvent);
-    void cancel(RequestEvent requestEvent);
+    void authorize(PaymentEvent paymentEvent);
+    void cancel(PaymentEvent paymentEvent);
 }

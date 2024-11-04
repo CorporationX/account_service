@@ -17,7 +17,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestEvent {
+public class PaymentEvent {
     @NotNull
     private UUID idempotencyToken;
     @NotNull
