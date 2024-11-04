@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "account_numbers_sequence")
-public class AccountSequence {
+public class AccountNumbersSequence {
 
     @Id
     @Enumerated(EnumType.STRING)
