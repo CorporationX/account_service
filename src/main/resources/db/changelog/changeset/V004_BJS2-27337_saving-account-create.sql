@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS tariff (
 
 CREATE TABLE IF NOT EXISTS savings_account_rate (
     id          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    tariff_id   bigint,
+    tariff_id   bigint NOT NULL,
     rate        decimal NOT NULL,
     created_at  timestamptz DEFAULT current_timestamp,
 

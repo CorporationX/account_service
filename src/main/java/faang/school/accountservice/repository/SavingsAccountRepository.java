@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
@@ -21,7 +22,7 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             "LEFT JOIN TariffHistory th ON th.savingsAccount.id = sa.id " +
             "LEFT JOIN SavingsAccountRate sar ON sar.tariff.id = th.tariff.id " +
             "WHERE sa.id  = :id ORDER BY sar.createdAt DESC LIMIT 1")
-    SavingsAccountDto findSavingsAccountWithDetails(@Param("id") Long id);
+    Optional<SavingsAccountDto> findSavingsAccountWithDetails(@Param("id") Long id);
 
     @Query(value = "WITH last_tariff_history AS ( " +
             "    SELECT th.*, " +

@@ -21,13 +21,13 @@ public class SavingsAccountRate {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name = "tariff_id")
+    @JoinColumn(name = "tariff_id", nullable = false)
     private Tariff tariff;
 
     @Column(name = "rate")
     private double rate;
 
-    @Column(name = "created_at", insertable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
 }

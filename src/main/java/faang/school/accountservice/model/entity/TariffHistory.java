@@ -23,15 +23,15 @@ public class TariffHistory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "savings_account_id")
+    @JoinColumn(name = "savings_account_id", nullable = false)
     @JsonIgnore
     private SavingsAccount savingsAccount;
 
-    @Column(name = "created_at",insertable = false, updatable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "savings_account_tariff_id")
+    @JoinColumn(name = "savings_account_tariff_id", nullable = false)
     @JsonIgnore
     private Tariff tariff;
 }
