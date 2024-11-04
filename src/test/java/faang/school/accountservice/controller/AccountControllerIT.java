@@ -10,11 +10,8 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.util.BaseContextTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.nio.charset.StandardCharsets;
 
@@ -26,14 +23,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Testcontainers
-@AutoConfigureMockMvc
 @Sql(value = "/db/account/test_accounts_schema.sql")
 public class AccountControllerIT extends BaseContextTest {
 
     @Test
-    public void testGetAccountOk() throws Exception {
+    public void testGetAccountByOwner() throws Exception {
         String result = mockMvc.perform(get("/api/v1/accounts/1").header("x-user-id", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
