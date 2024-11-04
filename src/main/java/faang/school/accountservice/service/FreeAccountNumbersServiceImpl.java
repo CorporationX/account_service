@@ -23,9 +23,9 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService{
 
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
-        long period = accountSeqRepository.findByAccountType(type.name()).getCounter();
+        long period = accountSeqRepository.findByType(type.name()).getCounter();
         accountSeqRepository.incrementCounter(type.name(), batchSize);
-        long updatedCount = accountSeqRepository.findByAccountType(type.name()).getCounter();
+        long updatedCount = accountSeqRepository.findByType(type.name()).getCounter();
 
         List<FreeAccountNumber> numbers = new ArrayList<>();
         for (long i = period; i < updatedCount; i++) {
