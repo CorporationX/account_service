@@ -8,7 +8,7 @@ import faang.school.accountservice.dto.account.OpenAccountDto;
 import faang.school.accountservice.dto.project.ProjectDto;
 import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.integration.config.TestContainersConfig;
+import faang.school.accountservice.integration.config.RedisPostgresTestContainers;
 import faang.school.accountservice.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -32,20 +31,16 @@ import static faang.school.accountservice.util.fabrics.UserDtoFabric.buildUserDt
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql(scripts = "/test-sql/create-account-no-constraint-and-balance-auth-payment.sql", executionPhase = BEFORE_TEST_METHOD)
-@Sql(scripts = "/test-sql/drop-account-balance-auth-payment.sql", executionPhase = AFTER_TEST_METHOD)
 @AutoConfigureMockMvc
-@ActiveProfiles("testNoLiquibase")
+@ActiveProfiles("testLiquibaseRedis")
 @SpringBootTest
-public class AccountControllerIntegrationTest extends TestContainersConfig {
+public class AccountControllerIntegrationTest extends RedisPostgresTestContainers {
     private static final long USER_ID = 1L;
     private static final long PROJECT_ID = 1L;
     private static final String PROJECT_NAME = "Project name";

@@ -1,4 +1,4 @@
-package faang.school.accountservice.integration.config.listener;
+package faang.school.accountservice.integration.config.listener.redis;
 
 import lombok.Getter;
 import org.springframework.context.annotation.Profile;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-@Profile("testNoLiquibase")
+@Profile("testLiquibaseRedis")
 public class RedisCheckingBalanceListener implements MessageListener {
     private String receivedMessage;
 

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changeset-test/test_users_project_country.sql
+  - include:
+      file: db/changelog/changeset-test/V001__account-service_account.sql
+  - include:
+      file: db/changelog/changeset-test/account_V002__balance.sql
+  - include:
+      file: db/changelog/changeset-test/test_insert_country_users_projects.sql

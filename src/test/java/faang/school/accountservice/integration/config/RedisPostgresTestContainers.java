@@ -9,7 +9,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
-public class TestContainersConfig {
+public class RedisPostgresTestContainers {
     private static final String POSTGRES_IMAGE = "postgres:13.3";
     private static final String POSTGRES_DB_NAME = "testdb";
     private static final String POSTGRES_USER = "testuser";
