@@ -18,7 +18,7 @@ public class BalanceAudit {
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
 
-    @Column(name = "version", nullable = false)
+    @Column(name = "balance_version", nullable = false)
     private Long version;
 
     @Column(name = "cur_auth_balance")
@@ -28,15 +28,11 @@ public class BalanceAudit {
     private double curFactBalance;
 
     @Column(name = "update_operation_id")
-    private Long updateOperationId;
+    private long updateOperationId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "balance_id", nullable = false)

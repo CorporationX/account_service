@@ -11,6 +11,7 @@ import faang.school.accountservice.publisher.PaymentStatusChangePublisher;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,21 +71,19 @@ class BalanceServiceImplTest {
 
         balanceDto = new BalanceDto();
         balanceDto.setId(1L);
-        balanceDto.setVersion(1);
         balanceDto.setAccountId(1L);
 
         Mockito.lenient().when(mapper.toDto(balance))
                 .thenReturn(balanceDto);
         Mockito.lenient().when(mapper.toEntity(balanceDto))
                 .thenReturn(balance);
-        Mockito.lenient().when(balanceJpaRepository.findBalanceByAccount_Id(accountId))
-                .thenReturn(balance);
+        Mockito.lenient().when(balanceJpaRepository.findById(accountId))
+                .thenReturn(Optional.of(balance));
     }
 
     @Test
     void create_whenOk() {
         service.create(balanceDto);
-        balance.nextVersion();
 
         verify(balanceJpaRepository, times(1))
                 .save(balance);
@@ -105,7 +105,6 @@ class BalanceServiceImplTest {
                 .save(auditMapper.toEntity(balance));
 
         Balance actual = captor.getValue();
-        balanceDto.nextVersion();
         Assertions.assertNotNull(actual.getUpdatedAt());
         Assertions.assertNull(actual.getCreatedAt());
         assertEquals(balanceDto.getVersion(), actual.getVersion());
@@ -120,21 +119,20 @@ class BalanceServiceImplTest {
 
         verify(mapper, times(1))
                 .toDto(balance);
-        verify(balanceJpaRepository, times(1))
-                .findBalanceByAccount_Id(accountId);
+        Mockito.verify(balanceJpaRepository, Mockito.times(1))
+                .findById(accountId);
 
     }
 
     @Test
-    void create_whenBadDto() {
-        balanceDto.setId(-1);
+    void getBalance_whenAccountNotExist() {
+        Mockito.lenient().when(balanceJpaRepository.findById(accountId))
+                .thenReturn(Optional.ofNullable(null));
 
-        Assertions.assertThrows(DataValidationException.class, () -> service.create(balanceDto));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> service.getBalance(accountId));
 
-        balanceDto.setId(2);
-        balanceDto.setAccountId(-2);
-        Assertions.assertThrows(DataValidationException.class, () -> service.create(balanceDto));
-
+        Mockito.verify(mapper, Mockito.never())
+                .toDto(balance);
 
         verify(balanceJpaRepository, never())
                 .save(any());

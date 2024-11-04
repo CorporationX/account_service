@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.annotation.OneHolderAccount;
 import faang.school.accountservice.enums.AccountStatus;

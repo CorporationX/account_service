@@ -1,42 +1,59 @@
-    package faang.school.accountservice.entity;
+package faang.school.accountservice.entity;
 
-    import jakarta.persistence.*;
-    import lombok.Data;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-    import java.time.LocalDateTime;
-    import java.util.List;
+import jakarta.persistence.*;
+import lombok.Data;
 
-    @Entity
-    @Data
-    @Table(name = "balance")
-    public class Balance {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private long id;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-        @JoinColumn(name = "account_id", unique = true)
-        @OneToOne(cascade = CascadeType.ALL)
-        private Account account;
+@Entity
+@Data
+@Table(name = "balance")
+@NoArgsConstructor
+public class Balance {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-        @Column(name = "cur_auth_balance")
-        private double curAuthBalance;
+    @JoinColumn(name = "account_id", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
+    private Account account;
 
-        @Column(name = "cur_fact_balance")
-        private double curFactBalance;
+    @Column(name = "cur_auth_balance")
+    private BigDecimal curAuthBalance;
 
-        @Column(name = "created_at")
-        private LocalDateTime createdAt;
+    @Column(name = "cur_fact_balance")
+    private BigDecimal curFactBalance;
 
-        @Column(name = "updated_at")
-        private LocalDateTime updatedAt;
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-        @Column(name = "version", nullable = false)
-        private int version;
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-        @OneToMany(mappedBy = "balance", cascade = CascadeType.ALL)
-        private List<BalanceAudit> audits;
+    @OneToMany(mappedBy = "balance", cascade = CascadeType.ALL)
+    private List<BalanceAudit> audits;
 
-        public void nextVersion() {
-            this.version++;
-        }
-    }
+    @Column(name = "version", nullable = false)
+    @Version
+    private int version;
+}

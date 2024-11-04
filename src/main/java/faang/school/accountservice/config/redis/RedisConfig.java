@@ -48,4 +48,10 @@ public class RedisConfig {
         String channel = properties.getChannels().get("init_payment");
         return new ChannelTopic(channel);
     }
+
+    @Bean
+    public ChannelTopic requestStatusNotificationsChannel() {
+        String channel = properties.getChannels().get("request_status_notification");
+        return new ChannelTopic(channel);
+    }
 }

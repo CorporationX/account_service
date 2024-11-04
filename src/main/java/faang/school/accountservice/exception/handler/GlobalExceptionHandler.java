@@ -40,11 +40,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = exception.getBindingResult()
-                .getAllErrors()
+                .getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(
-                        error -> error instanceof FieldError ? ((FieldError) error).getField() : "Error",
-                        error -> Optional.ofNullable(error.getDefaultMessage()).orElse(SOMETHING_ERROR)
+                        FieldError::getField,
+                        error -> Optional.ofNullable(error.getDefaultMessage())
+                                .orElse("Something went wrong")
                 ));
         log.error("Validation errors: {}", errors);
 
@@ -73,22 +74,6 @@ public class GlobalExceptionHandler {
         return Error.builder()
                 .code(HttpStatus.BAD_REQUEST.toString())
                 .message(message)
-                .build();
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Error handleHttpMessageNotReadableException(HttpMessageNotReadableException exception, WebRequest request) {
-        Map<String, String> errorDetails = Map.of(
-                "error", exception.getLocalizedMessage(),
-                "path", request.getDescription(false)
-        );
-        log.error("Validation error: {}", errorDetails);
-
-        return Error.builder()
-                .code(HttpStatus.BAD_REQUEST.toString())
-                .message("Malformed JSON request")
-                .errors(errorDetails)
                 .build();
     }
 }
