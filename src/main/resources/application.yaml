@@ -19,7 +19,9 @@ spring:
 
 scheduler:
   cron: 0 0 0 * * *
-  batch-size: 100
+  generate:
+    card-numbers:
+      batch-size: 100
 
 server:
   port: 8090
