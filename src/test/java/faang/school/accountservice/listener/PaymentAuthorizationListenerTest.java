@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class InitPaymentListenerTest {
+class PaymentAuthorizationListenerTest {
 
     @Mock
     private ObjectMapper objectMapper;
@@ -33,7 +33,7 @@ class InitPaymentListenerTest {
     private Message message;
 
     @InjectMocks
-    private InitPaymentListener initPaymentListener;
+    private PaymentAuthorizationEventListener paymentAuthorizationListener;
 
     @Test
     void testOnMessage_Success() throws IOException {
@@ -44,7 +44,7 @@ class InitPaymentListenerTest {
         when(message.getBody()).thenReturn(messageBody);
         when(objectMapper.readValue(messageBody, PendingDto.class)).thenReturn(pendingDto);
 
-        initPaymentListener.onMessage(message, null);
+        paymentAuthorizationListener.onMessage(message, null);
 
         verify(balanceService, times(1)).paymentAuthorization(pendingDto);
     }
@@ -55,7 +55,7 @@ class InitPaymentListenerTest {
         when(message.getBody()).thenReturn(messageBody);
         when(objectMapper.readValue(messageBody, PendingDto.class)).thenThrow(new IOException("Deserialization failed"));
 
-        assertThrows(RuntimeException.class, () -> initPaymentListener.onMessage(message, null));
+        assertThrows(RuntimeException.class, () -> paymentAuthorizationListener.onMessage(message, null));
         verify(balanceService, never()).paymentAuthorization(any());
     }
 }

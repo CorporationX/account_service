@@ -1,7 +1,7 @@
 package faang.school.accountservice.config.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.listener.InitPaymentListener;
+import faang.school.accountservice.listener.PaymentAuthorizationEventListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +39,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public MessageListenerAdapter initPayment(InitPaymentListener listener) {
+    public MessageListenerAdapter initPayment(PaymentAuthorizationEventListener listener) {
         return new MessageListenerAdapter(listener, "handleMessage");
     }
 

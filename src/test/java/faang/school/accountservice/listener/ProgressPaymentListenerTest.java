@@ -37,7 +37,7 @@ class ProgressPaymentListenerTest {
     private Message message;
 
     @InjectMocks
-    private ProgressPaymentListener progressPaymentListener;
+    private ProgressPaymentEventListener progressPaymentListener;
 
     @Test
     void testOnMessage_Success() throws IOException {
@@ -53,7 +53,7 @@ class ProgressPaymentListenerTest {
 
         progressPaymentListener.onMessage(message, null);
 
-        verify(balanceService, times(1)).submitPayment(pendingDtoList);
+        verify(balanceService, times(1)).clearPayment(pendingDtoList);
     }
 
     @Test
@@ -65,6 +65,6 @@ class ProgressPaymentListenerTest {
                 .thenThrow(new IOException("Deserialization failed"));
 
         assertThrows(RuntimeException.class, () -> progressPaymentListener.onMessage(message, null));
-        verify(balanceService, never()).submitPayment(any());
+        verify(balanceService, never()).clearPayment(any());
     }
 }

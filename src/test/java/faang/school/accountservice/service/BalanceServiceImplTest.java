@@ -7,7 +7,7 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.publisher.SubmitPaymentPublisher;
+import faang.school.accountservice.publisher.PaymentStatusChangePublisher;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
@@ -54,7 +54,7 @@ class BalanceServiceImplTest {
     private BalanceMapper mapper;
 
     @Mock
-    private SubmitPaymentPublisher submitPaymentPublisher;
+    private PaymentStatusChangePublisher paymentStatusChangePublisher;
 
     private BalanceDto balanceDto;
     private Balance balance;
@@ -182,7 +182,7 @@ class BalanceServiceImplTest {
         assertEquals(80.0, toBalance.getCurAuthBalance());
         verify(balanceJpaRepository).save(fromBalance);
         verify(balanceJpaRepository).save(toBalance);
-        verify(submitPaymentPublisher, never()).publish(pendingDto);
+        verify(paymentStatusChangePublisher, never()).publish(pendingDto);
     }
 
     @Test
@@ -200,12 +200,12 @@ class BalanceServiceImplTest {
         service.paymentAuthorization(pendingDto);
 
         assertEquals(PendingStatus.CANCELED, pendingDto.getStatus());
-        verify(submitPaymentPublisher, times(1)).publish(pendingDto);
+        verify(paymentStatusChangePublisher, times(1)).publish(pendingDto);
         verify(balanceJpaRepository, never()).save(any());
     }
 
     @Test
-    void testSubmitPayment() {
+    void testClearPayment() {
         PendingDto dto1 = new PendingDto();
         dto1.setFromAccountId(1L);
         dto1.setToAccountId(2L);
@@ -233,7 +233,7 @@ class BalanceServiceImplTest {
 
         List<PendingDto> pendingDtos = Arrays.asList(dto1, dto2);
 
-        service.submitPayment(pendingDtos);
+        service.clearPayment(pendingDtos);
 
         assertEquals(150.0, fromBalance1.getCurFactBalance());
         assertEquals(150.0, toBalance1.getCurFactBalance());
@@ -244,6 +244,6 @@ class BalanceServiceImplTest {
         verify(balanceJpaRepository, times(2)).save(toBalance1);
         verify(balanceJpaRepository, times(1)).save(fromBalance2);
         verify(balanceJpaRepository, times(1)).save(toBalance2);
-        verify(submitPaymentPublisher, times(2)).publish(any(PendingDto.class));
+        verify(paymentStatusChangePublisher, times(2)).publish(any(PendingDto.class));
     }
 }

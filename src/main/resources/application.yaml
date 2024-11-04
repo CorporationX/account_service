@@ -22,6 +22,27 @@ spring:
         progress_payment: progress_payment_channel
         result_progress_payment: result_progress_payment_channel
 
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    pool-size: 3
+    consumer:
+      group-id: "group"
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    topics:
+      payment-authorization:
+        name: payment-authorization-topic
+        num-partitions: 5
+        replication-factor: 2
+      payment-clear:
+        name: payment-clear-topic
+        num-partitions: 3
+        replication-factor: 1
+      payment-status-reset:
+        name: payment-status-reset-topic
+        num-partitions: 3
+        replication-factor: 1
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 

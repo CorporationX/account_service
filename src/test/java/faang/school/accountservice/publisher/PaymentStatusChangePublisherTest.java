@@ -16,7 +16,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class SubmitPaymentPublisherTest {
+class PaymentStatusChangePublisherTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -25,7 +25,7 @@ class SubmitPaymentPublisherTest {
     private RedisProperties redisProperties;
 
     @InjectMocks
-    private SubmitPaymentPublisher submitPaymentPublisher;
+    private PaymentStatusChangePublisher paymentStatusChangePublisher;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +38,7 @@ class SubmitPaymentPublisherTest {
         pendingDto.setAmount(BigDecimal.valueOf(100.0));
         when(redisProperties.getChannels()).thenReturn(Map.of("result_progress_payment", "test_channel"));
 
-        submitPaymentPublisher.publish(pendingDto);
+        paymentStatusChangePublisher.publish(pendingDto);
 
         verify(redisTemplate, times(1)).convertAndSend("test_channel", pendingDto);
     }

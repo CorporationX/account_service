@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.PendingDto;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public interface BalanceService {
 
     void paymentAuthorization(PendingDto pendingDto);
 
-    void submitPayment(List<PendingDto> pendingDto);
+    void clearPayment(List<PendingDto> pendingDto);
 
     BalanceDto getBalance(long accountId);
 }

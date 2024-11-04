@@ -7,7 +7,7 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.publisher.SubmitPaymentPublisher;
+import faang.school.accountservice.publisher.PaymentStatusChangePublisher;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
@@ -31,7 +31,7 @@ public class BalanceServiceImpl implements BalanceService {
     private final AccountRepository accountRepository;
     private final BalanceMapper mapper;
     private final BalanceAuditMapper auditMapper;
-    private final SubmitPaymentPublisher submitPaymentPublisher;
+    private final PaymentStatusChangePublisher paymentStatusChangePublisher;
 
     @Override
     public void create(BalanceDto balanceDto) {
@@ -67,7 +67,7 @@ public class BalanceServiceImpl implements BalanceService {
 
         if (fromBalance.getCurAuthBalance() < amount) {
             pendingDto.setStatus(PendingStatus.CANCELED);
-            submitPaymentPublisher.publish(pendingDto);
+            paymentStatusChangePublisher.publish(pendingDto);
             log.info("Payment authorization failed");
             return;
         }
@@ -82,7 +82,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Transactional
-    public void submitPayment(List<PendingDto> pendingDtos) {
+    public void clearPayment(List<PendingDto> pendingDtos) {
         for (PendingDto pendingDto : pendingDtos) {
             submitPayment(pendingDto);
         }
@@ -100,7 +100,7 @@ public class BalanceServiceImpl implements BalanceService {
         balanceRepository.save(toBalance);
 
         pendingDto.setStatus(PendingStatus.SUCCESS);
-        submitPaymentPublisher.publish(pendingDto);
+        paymentStatusChangePublisher.publish(pendingDto);
         log.info("Сlearing was successful");
     }
 
