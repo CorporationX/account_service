@@ -76,4 +76,5 @@ public class AccountController {
     public void closeAccount(@PathVariable("id") @Parameter(description = "account Id") long accountId) {
         accountService.closeAccount(accountId);
     }
+
 }
