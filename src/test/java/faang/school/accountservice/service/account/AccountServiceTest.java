@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 class AccountServiceTest {
 
     private static final String TEST = "TEST";
-
     private static final int ID = 1;
 
     @InjectMocks

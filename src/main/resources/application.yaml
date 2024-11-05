@@ -32,3 +32,15 @@ account:
 
 openapi:
   uris: /swagger-ui, /v3/api-docs, /swagger-resources
+
+executor:
+  threads:
+    count: 5
+
+scheduler:
+  calculatePercents:
+    cron: "0 0 * * * ?" # every day at 00:00
+
+retry:
+  interestCalculator:
+    maxAttempts: 5
