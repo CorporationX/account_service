@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationContext;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -58,9 +59,17 @@ class BalanceServiceImplTest {
     @Mock
     private PaymentStatusChangePublisher paymentStatusChangePublisher;
 
+    @Mock
+    private ApplicationContext applicationContext;
+
     private BalanceDto balanceDto;
     private Balance balance;
     private final long accountId = 1L;
+    private Balance toBalance;
+    private Balance fromBalance;
+    private long firstAccountId;
+    private long secondAccountId;
+    private PendingDto pendingDto;
 
     @BeforeEach
     public void init() {
@@ -79,6 +88,20 @@ class BalanceServiceImplTest {
                 .thenReturn(balance);
         Mockito.lenient().when(balanceJpaRepository.findById(accountId))
                 .thenReturn(Optional.of(balance));
+        Mockito.lenient().when(applicationContext.getBean(any(Class.class))).thenReturn(service);
+
+        toBalance = new Balance();
+        toBalance.setCurAuthBalance(BigDecimal.valueOf(30.0));
+
+        fromBalance = new Balance();
+        fromBalance.setCurAuthBalance(BigDecimal.valueOf(100.0));
+
+        firstAccountId = 1L;
+        secondAccountId = 2L;
+
+        pendingDto = new PendingDto();
+        pendingDto.setToAccountId(firstAccountId);
+        pendingDto.setFromAccountId(secondAccountId);
     }
 
     @Test
@@ -107,7 +130,6 @@ class BalanceServiceImplTest {
         Balance actual = captor.getValue();
         Assertions.assertNotNull(actual.getUpdatedAt());
         Assertions.assertNull(actual.getCreatedAt());
-        assertEquals(balanceDto.getVersion(), actual.getVersion());
     }
 
     @Test
@@ -127,7 +149,7 @@ class BalanceServiceImplTest {
     @Test
     void getBalance_whenAccountNotExist() {
         Mockito.lenient().when(balanceJpaRepository.findById(accountId))
-                .thenReturn(Optional.ofNullable(null));
+                .thenReturn(Optional.empty());
 
         Assertions.assertThrows(EntityNotFoundException.class, () -> service.getBalance(accountId));
 
@@ -151,7 +173,6 @@ class BalanceServiceImplTest {
         Assertions.assertThrows(DataValidationException.class, () -> service.update(balanceDto));
 
         balanceDto.setAccountId(2);
-        balanceDto.setVersion(-1);
         Assertions.assertThrows(DataValidationException.class, () -> service.update(balanceDto));
 
         verify(balanceJpaRepository, never()).save(any());
@@ -160,24 +181,14 @@ class BalanceServiceImplTest {
 
     @Test
     void testPaymentAuthorization_Success() {
-        PendingDto pendingDto = new PendingDto();
-        pendingDto.setFromAccountId(1L);
-        pendingDto.setToAccountId(2L);
-        pendingDto.setAmount(BigDecimal.valueOf(50.0));
-
-        Balance fromBalance = new Balance();
-        fromBalance.setCurAuthBalance(100.0);
-
-        Balance toBalance = new Balance();
-        toBalance.setCurAuthBalance(30.0);
-
-        when(balanceJpaRepository.findBalanceByAccount_Id(1L)).thenReturn(fromBalance);
-        when(balanceJpaRepository.findBalanceByAccount_Id(2L)).thenReturn(toBalance);
+        pendingDto.setAmount(BigDecimal.valueOf(20.0));
+        when(balanceJpaRepository.findByAccountId(secondAccountId)).thenReturn(Optional.of(fromBalance));
+        when(balanceJpaRepository.findByAccountId(firstAccountId)).thenReturn(Optional.of(toBalance));
 
         service.paymentAuthorization(pendingDto);
 
-        assertEquals(50.0, fromBalance.getCurAuthBalance());
-        assertEquals(80.0, toBalance.getCurAuthBalance());
+        assertEquals(BigDecimal.valueOf(80.0), fromBalance.getCurAuthBalance());
+        assertEquals(BigDecimal.valueOf(50.0), toBalance.getCurAuthBalance());
         verify(balanceJpaRepository).save(fromBalance);
         verify(balanceJpaRepository).save(toBalance);
         verify(paymentStatusChangePublisher, never()).publish(pendingDto);
@@ -185,15 +196,9 @@ class BalanceServiceImplTest {
 
     @Test
     void testPaymentAuthorization_Failure_InsufficientBalance() {
-        PendingDto pendingDto = new PendingDto();
-        pendingDto.setFromAccountId(1L);
-        pendingDto.setToAccountId(2L);
         pendingDto.setAmount(BigDecimal.valueOf(150.0));
-
-        Balance fromBalance = new Balance();
-        fromBalance.setCurAuthBalance(100.0);
-
-        when(balanceJpaRepository.findBalanceByAccount_Id(1L)).thenReturn(fromBalance);
+        when(balanceJpaRepository.findByAccountId(firstAccountId)).thenReturn(Optional.of(fromBalance));
+        when(balanceJpaRepository.findByAccountId(secondAccountId)).thenReturn(Optional.of(toBalance));
 
         service.paymentAuthorization(pendingDto);
 
@@ -215,28 +220,28 @@ class BalanceServiceImplTest {
         dto2.setAmount(BigDecimal.valueOf(30.0));
 
         Balance fromBalance1 = new Balance();
-        fromBalance1.setCurFactBalance(200.0);
+        fromBalance1.setCurFactBalance(BigDecimal.valueOf(200.0));
         Balance toBalance1 = new Balance();
-        toBalance1.setCurFactBalance(100.0);
+        toBalance1.setCurFactBalance(BigDecimal.valueOf(100.0));
 
         Balance fromBalance2 = new Balance();
-        fromBalance2.setCurFactBalance(120.0);
+        fromBalance2.setCurFactBalance(BigDecimal.valueOf(120.0));
         Balance toBalance2 = new Balance();
-        toBalance2.setCurFactBalance(80.0);
+        toBalance2.setCurFactBalance(BigDecimal.valueOf(80.0));
 
-        when(balanceJpaRepository.findBalanceByAccount_Id(1L)).thenReturn(fromBalance1);
-        when(balanceJpaRepository.findBalanceByAccount_Id(2L)).thenReturn(toBalance1);
-        when(balanceJpaRepository.findBalanceByAccount_Id(3L)).thenReturn(fromBalance2);
-        when(balanceJpaRepository.findBalanceByAccount_Id(4L)).thenReturn(toBalance2);
+        when(balanceJpaRepository.findByAccountId(1L)).thenReturn(Optional.of(fromBalance1));
+        when(balanceJpaRepository.findByAccountId(2L)).thenReturn(Optional.of(toBalance1));
+        when(balanceJpaRepository.findByAccountId(3L)).thenReturn(Optional.of(fromBalance2));
+        when(balanceJpaRepository.findByAccountId(4L)).thenReturn(Optional.of(toBalance2));
 
         List<PendingDto> pendingDtos = Arrays.asList(dto1, dto2);
 
         service.clearPayment(pendingDtos);
 
-        assertEquals(150.0, fromBalance1.getCurFactBalance());
-        assertEquals(150.0, toBalance1.getCurFactBalance());
-        assertEquals(90.0, fromBalance2.getCurFactBalance());
-        assertEquals(110.0, toBalance2.getCurFactBalance());
+        assertEquals(BigDecimal.valueOf(150.0), fromBalance1.getCurFactBalance());
+        assertEquals(BigDecimal.valueOf(150.0), toBalance1.getCurFactBalance());
+        assertEquals(BigDecimal.valueOf(90.0), fromBalance2.getCurFactBalance());
+        assertEquals(BigDecimal.valueOf(110.0), toBalance2.getCurFactBalance());
 
         verify(balanceJpaRepository, times(2)).save(fromBalance1);
         verify(balanceJpaRepository, times(2)).save(toBalance1);
