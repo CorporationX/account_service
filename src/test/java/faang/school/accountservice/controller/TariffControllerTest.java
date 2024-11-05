@@ -2,17 +2,10 @@ package faang.school.accountservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
-import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.dto.TariffDto;
-import faang.school.accountservice.model.enums.AccountStatus;
-import faang.school.accountservice.model.enums.AccountType;
-import faang.school.accountservice.model.enums.Currency;
 import faang.school.accountservice.service.impl.TariffServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,12 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TariffController.class)
 class TariffControllerTest {
@@ -49,7 +42,7 @@ class TariffControllerTest {
     public void setUp() {
         tariffDto = new TariffDto();
         tariffDto.setName("tariff1");
-        tariffDto.setRate(5.5);
+        tariffDto.setRate(BigDecimal.valueOf(5.5));
         tariffId = 1L;
     }
 

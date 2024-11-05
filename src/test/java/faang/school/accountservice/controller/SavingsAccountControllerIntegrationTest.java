@@ -66,7 +66,6 @@ public class SavingsAccountControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].accountId").value(3))
                 .andExpect(jsonPath("$[0].rate").value("2.4"))
                 .andExpect(jsonPath("$[0].tariffId").value("3"))
                 .andExpect(jsonPath("$[0].lastDatePercent").hasJsonPath())

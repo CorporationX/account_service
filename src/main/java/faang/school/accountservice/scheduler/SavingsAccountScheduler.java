@@ -30,7 +30,7 @@ public class SavingsAccountScheduler {
         freeAccountNumbersServiceImpl.ensureMinimumAccountNumbers(AccountType.SAVINGS, 100);
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     @Retryable(backoff = @Backoff(delay = 5000))
     protected void calculatePercents() {
         List<BalanceRateDto> dtos = getBalanceAndRate();

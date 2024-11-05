@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +50,7 @@ class TariffServiceImplTest {
 
     @Test
     public void testCreateTariff() {
-        double rate = 5.5;
+        BigDecimal rate = BigDecimal.valueOf(5.5);
         TariffDto tariffDto = new TariffDto();
         tariffDto.setRate(rate);
         tariffDto.setName("tariff1");
@@ -73,7 +74,7 @@ class TariffServiceImplTest {
 
     @Test
     public void testUpdateTariffSuccess() {
-        double rate = 6.0;
+        BigDecimal rate = BigDecimal.valueOf(6.0);
         SavingsAccountRate savingsAccountRate = new SavingsAccountRate();
         savingsAccountRate.setRate(rate);
         when(tariffRepository.findById(tariffId)).thenReturn(Optional.ofNullable(tariff));
@@ -89,7 +90,7 @@ class TariffServiceImplTest {
     @Test
     public void testUpdateTariffUnSuccess() {
         Long wrongId = 100_000L;
-        double rate = 6.0;
+        BigDecimal rate = BigDecimal.valueOf(6.0);
         when(tariffRepository.findById(wrongId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> tariffService.updateTariff(wrongId, rate));
@@ -97,7 +98,7 @@ class TariffServiceImplTest {
 
     @Test
     public void getTariffSuccess() {
-        double rate = 6.7;
+        BigDecimal rate = BigDecimal.valueOf(6.7);
         TariffDto tariffDto = new TariffDto();
         tariffDto.setId(tariffId);
         tariffDto.setName(tariffName);
