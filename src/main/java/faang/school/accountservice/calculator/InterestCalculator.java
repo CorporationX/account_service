@@ -1,4 +1,4 @@
-package faang.school.accountservice.moderation;
+package faang.school.accountservice.calculator;
 
 import faang.school.accountservice.entity.account.SavingsAccount;
 import lombok.extern.slf4j.Slf4j;

@@ -38,10 +38,10 @@ class RateServiceTest {
 
     @Test
     @DisplayName("Успех при получении Rate если такая Rate уже есть в БД")
-    public void whenGenerateRateByInterestRateShouldReturnExistedEntity() {
+    public void whenGetOrCreateRateByInterestRateShouldReturnExistedEntity() {
         when(rateRepository.findByInterestRate(INTEREST_RATE)).thenReturn(Optional.of(rate));
 
-        Rate rate = rateService.generateRateByInterestRate(INTEREST_RATE);
+        Rate rate = rateService.getOrCreateRateByInterestRate(INTEREST_RATE);
 
         assertNotNull(rate);
         assertEquals(INTEREST_RATE, rate.getInterestRate());
@@ -50,11 +50,11 @@ class RateServiceTest {
 
     @Test
     @DisplayName("Успех при получении Rate если такой Rate еще нет в БД")
-    public void whenGenerateRateByInterestRateShouldReturnException() {
+    public void whenGetOrCreateRateByInterestRateShouldReturnException() {
         when(rateRepository.findByInterestRate(INTEREST_RATE)).thenReturn(Optional.empty());
         when(rateRepository.save(any(Rate.class))).thenReturn(rate);
 
-        Rate rate = rateService.generateRateByInterestRate(INTEREST_RATE);
+        Rate rate = rateService.getOrCreateRateByInterestRate(INTEREST_RATE);
 
         assertNotNull(rate);
         assertEquals(INTEREST_RATE, rate.getInterestRate());

@@ -4,7 +4,7 @@ CREATE TABLE rates (
 );
 
 CREATE TABLE tariffs (
-    tariff_name VARCHAR(24) PRIMARY KEY UNIQUE NOT NULL,
+    tariff_name VARCHAR(24) PRIMARY KEY NOT NULL,
     rate_id BIGINT NOT NULL,
     rate_history TEXT NOT NULL,
 

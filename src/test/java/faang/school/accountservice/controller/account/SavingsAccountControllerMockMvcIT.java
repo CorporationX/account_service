@@ -130,7 +130,7 @@ class SavingsAccountControllerMockMvcIT {
                             .content(objectMapper.writeValueAsString(SavingsAccountCreatedDto.builder()
                                     .tariffName(TARIFF_NAME)
                                     .build())))
-                    .andExpect(status().isInternalServerError());
+                    .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -143,7 +143,7 @@ class SavingsAccountControllerMockMvcIT {
                             .content(objectMapper.writeValueAsString(SavingsAccountCreatedDto.builder()
                                     .accountId(ID)
                                     .build())))
-                    .andExpect(status().isInternalServerError());
+                    .andExpect(status().isBadRequest());
         }
     }
 

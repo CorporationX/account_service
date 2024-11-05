@@ -94,7 +94,6 @@ class TariffServiceTest {
                 .rate(newRate)
                 .build();
         tariffDto = TariffDto.builder()
-                .id(ID)
                 .tariffName(TARIFF_TYPE)
                 .rateHistory(RATE_HISTORY)
                 .rateDto(RateDto.builder()
@@ -102,7 +101,6 @@ class TariffServiceTest {
                         .build())
                 .build();
         newTariffDto = TariffDto.builder()
-                .id(ID)
                 .tariffName(TARIFF_TYPE)
                 .rateHistory(NEW_RATE_HISTORY)
                 .rateDto(RateDto.builder()
@@ -116,14 +114,14 @@ class TariffServiceTest {
     @Test
     @DisplayName("Успешное создание тарифа")
     public void whenCreateTariffThenCreateTariff() {
-        when(rateService.generateRateByInterestRate(INTEREST_RATE)).thenReturn(rate);
+        when(rateService.getOrCreateRateByInterestRate(INTEREST_RATE)).thenReturn(rate);
         when(tariffRepository.save(any(Tariff.class))).thenReturn(tariff);
         when(tariffMapper.toDto(tariff)).thenReturn(tariffDto);
 
         TariffDto resultTariffDto = tariffService.createTariff(tariffRequestDto);
 
         assertNotNull(resultTariffDto);
-        verify(rateService).generateRateByInterestRate(INTEREST_RATE);
+        verify(rateService).getOrCreateRateByInterestRate(INTEREST_RATE);
         verify(tariffRepository).save(any(Tariff.class));
         verify(tariffMapper).toDto(tariff);
     }
@@ -148,7 +146,7 @@ class TariffServiceTest {
         List<Double> rates = new ArrayList<>();
         rates.add(INTEREST_RATE);
         when(tariffRepository.findByTariffName(TARIFF_TYPE)).thenReturn(Optional.of(tariff));
-        when(rateService.generateRateByInterestRate(NEW_INTEREST_RATE)).thenReturn(newRate);
+        when(rateService.getOrCreateRateByInterestRate(NEW_INTEREST_RATE)).thenReturn(newRate);
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(rates);
         when(tariffRepository.save(any(Tariff.class))).thenReturn(updatedTariff);
         when(tariffMapper.toDto(updatedTariff)).thenReturn(newTariffDto);
@@ -163,7 +161,7 @@ class TariffServiceTest {
         assertEquals(updatedTariff.getRate().getInterestRate(), resultTariffDto.getRateDto().getInterestRate());
 
         verify(tariffRepository).findByTariffName(TARIFF_TYPE);
-        verify(rateService).generateRateByInterestRate(NEW_INTEREST_RATE);
+        verify(rateService).getOrCreateRateByInterestRate(NEW_INTEREST_RATE);
         verify(tariffRepository).save(any(Tariff.class));
         verify(tariffMapper).toDto(updatedTariff);
     }

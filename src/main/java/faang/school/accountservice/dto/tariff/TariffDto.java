@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TariffDto {
-    private Long id;
     private String tariffName;
     private RateDto rateDto;
     private String rateHistory;

@@ -185,7 +185,7 @@ class TariffControllerMockMvcIT {
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
                             .content(objectMapper.writeValueAsString(requestDto)))
-                    .andExpect(status().isInternalServerError());
+                    .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -198,7 +198,7 @@ class TariffControllerMockMvcIT {
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
                             .content(objectMapper.writeValueAsString(requestDto)))
-                    .andExpect(status().isInternalServerError());
+                    .andExpect(status().isBadRequest());
         }
 
         @Test

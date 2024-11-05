@@ -18,7 +18,7 @@ public class ModerationScheduler {
 
     private final SavingsAccountService savingsAccountService;
 
-    @Retryable(retryFor = {IOException.class, OptimisticLockException.class}, maxAttempts = 5)
+    @Retryable(retryFor = {IOException.class, OptimisticLockException.class})
     @Scheduled(cron = "${scheduler.calculatePercents.cron}")
     public void calculatePercentsForSavingsAccounts() {
         savingsAccountService.calculatePercents();

@@ -10,7 +10,7 @@ import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.SavingsAccount;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.mapper.account.SavingsAccountMapper;
-import faang.school.accountservice.moderation.InterestCalculator;
+import faang.school.accountservice.calculator.InterestCalculator;
 import faang.school.accountservice.repository.account.SavingsAccountRepository;
 import faang.school.accountservice.service.tariff.TariffService;
 import jakarta.transaction.Transactional;

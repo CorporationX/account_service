@@ -32,7 +32,7 @@ public class TariffService {
     @Transactional
     public TariffDto createTariff(TariffRequestDto tariffRequestDto) {
         log.info("start createTariff with dto: {}", tariffRequestDto.toString());
-        Rate existingRate = rateService.generateRateByInterestRate(tariffRequestDto.getInterestRate());
+        Rate existingRate = rateService.getOrCreateRateByInterestRate(tariffRequestDto.getInterestRate());
 
         Tariff tariff = Tariff.builder()
                 .tariffName(tariffRequestDto.getTariffName())
@@ -59,7 +59,7 @@ public class TariffService {
                 .orElseThrow(() -> new NoSuchElementException("Tariff with type - "
                         + tariffRequestDto.getTariffName() + " does not exist"));
 
-        Rate existingRate = rateService.generateRateByInterestRate(tariffRequestDto.getInterestRate());
+        Rate existingRate = rateService.getOrCreateRateByInterestRate(tariffRequestDto.getInterestRate());
         existingTariff.setRate(existingRate);
 
         addRateToHistory(existingTariff, tariffRequestDto);

@@ -40,3 +40,7 @@ executor:
 scheduler:
   calculatePercents:
     cron: "0 0 * * * ?" # every day at 00:00
+
+retry:
+  interestCalculator:
+    maxAttempts: 5
