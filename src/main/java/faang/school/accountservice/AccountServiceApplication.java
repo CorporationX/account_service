@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@ConfigurationPropertiesScan("faang.school.accountservice.config")
 @EnableFeignClients("faang.school.accountservice.client")
 @ConfigurationPropertiesScan("faang.school.accountservice.config")
 public class AccountServiceApplication {

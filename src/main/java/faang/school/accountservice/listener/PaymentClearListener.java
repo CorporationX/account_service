@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ProgressPaymentEventListener implements KafkaEventListener<String> {
+public class PaymentClearListener implements KafkaEventListener<String> {
 
     private final ObjectMapper objectMapper;
     private final BalanceService balanceService;
@@ -28,7 +28,7 @@ public class ProgressPaymentEventListener implements KafkaEventListener<String> 
             log.info("Received event: {}", jsonEvent);
             List<PendingDto> pendingDto = objectMapper.readValue(jsonEvent, new TypeReference<>() {});
             balanceService.clearPayment(pendingDto);
-            acknowledgment.acknowledge();
+           acknowledgment.acknowledge();
         } catch (JsonProcessingException exception) {
             log.error(exception.getMessage());
             throw new RuntimeException(exception);

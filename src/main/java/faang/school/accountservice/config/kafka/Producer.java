@@ -4,8 +4,6 @@ import lombok.Data;
 
 @Data
 public class Producer {
-    private String keySerializer;
-    private String valueSerializer;
     private String acks;
     private boolean enableIdempotence;
     private int retries;

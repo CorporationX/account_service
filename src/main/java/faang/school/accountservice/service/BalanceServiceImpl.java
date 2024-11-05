@@ -4,20 +4,21 @@ import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.PendingDto;
 import faang.school.accountservice.dto.PendingStatus;
 import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.publisher.PaymentStatusChangePublisher;
-import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,10 +29,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     private final BalanceJpaRepository balanceRepository;
     private final BalanceAuditRepository balanceAuditRepository;
-    private final AccountRepository accountRepository;
     private final BalanceMapper mapper;
     private final BalanceAuditMapper auditMapper;
     private final PaymentStatusChangePublisher paymentStatusChangePublisher;
+    private final ApplicationContext applicationContext;
 
     @Override
     public void create(BalanceDto balanceDto) {
@@ -54,19 +55,19 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     @Transactional
     public void paymentAuthorization(@Validated PendingDto pendingDto) {
-        Balance fromBalance = balanceRepository.findBalanceByAccount_Id(pendingDto.getFromAccountId());
-        Balance toBalance = balanceRepository.findBalanceByAccount_Id(pendingDto.getToAccountId());
-        double amount = pendingDto.getAmount().doubleValue();
+        Balance fromBalance = getBalanceByAccountId(pendingDto.getFromAccountId());
+        Balance toBalance = getBalanceByAccountId(pendingDto.getToAccountId());
+        BigDecimal amount = pendingDto.getAmount();
 
-        if (fromBalance.getCurAuthBalance() < amount) {
+        if (fromBalance.getCurAuthBalance().compareTo(amount) < 0) {
             pendingDto.setStatus(PendingStatus.CANCELED);
             paymentStatusChangePublisher.publish(pendingDto);
-            log.info("Payment authorization failed");
+            log.warn("Payment authorization failed");
             return;
         }
 
-        fromBalance.setCurAuthBalance(fromBalance.getCurAuthBalance() - amount);
-        toBalance.setCurAuthBalance(toBalance.getCurAuthBalance() + amount);
+        fromBalance.setCurAuthBalance(fromBalance.getCurAuthBalance().subtract(amount));
+        toBalance.setCurAuthBalance(toBalance.getCurAuthBalance().add(amount));
 
         balanceRepository.save(fromBalance);
         balanceRepository.save(toBalance);
@@ -74,20 +75,23 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    @Transactional
     public void clearPayment(List<PendingDto> pendingDtos) {
-        for (PendingDto pendingDto : pendingDtos) {
-            submitPayment(pendingDto);
-        }
+        pendingDtos.forEach(pendingDto -> {
+            BalanceService self = applicationContext.getBean(this.getClass());
+            self.clearPayment(pendingDto);
+        });
     }
 
-    private void submitPayment(PendingDto pendingDto) {
-        Balance fromBalance = balanceRepository.findBalanceByAccount_Id(pendingDto.getFromAccountId());
-        Balance toBalance = balanceRepository.findBalanceByAccount_Id(pendingDto.getToAccountId());
-        double amount = pendingDto.getAmount().doubleValue();
+    @Override
+    @Transactional
+    @Async("mainExecutorService")
+    public void clearPayment(@Validated PendingDto pendingDto) {
+        Balance fromBalance = getBalanceByAccountId(pendingDto.getFromAccountId());
+        Balance toBalance = getBalanceByAccountId(pendingDto.getToAccountId());
+        BigDecimal amount = pendingDto.getAmount();
 
-        fromBalance.setCurFactBalance(fromBalance.getCurFactBalance() - amount);
-        toBalance.setCurFactBalance(toBalance.getCurFactBalance() + amount);
+        fromBalance.setCurFactBalance(fromBalance.getCurFactBalance().subtract(amount));
+        toBalance.setCurFactBalance(toBalance.getCurFactBalance().add(amount));
 
         balanceRepository.save(fromBalance);
         balanceRepository.save(toBalance);
@@ -99,7 +103,12 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public BalanceDto getBalance(long accountId) {
-        return mapper.toDto(balanceRepository.findById(accountId)
+        return mapper.toDto(balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Not found account with id = " + accountId)));
+    }
+
+    private Balance getBalanceByAccountId(Long accountId) {
+        return balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Balance with account id %d not found".formatted(accountId)));
     }
 }

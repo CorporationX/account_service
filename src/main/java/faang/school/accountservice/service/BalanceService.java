@@ -15,5 +15,7 @@ public interface BalanceService {
 
     void clearPayment(List<PendingDto> pendingDto);
 
+    void clearPayment(PendingDto pendingDto);
+
     BalanceDto getBalance(long accountId);
 }

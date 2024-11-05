@@ -4,8 +4,6 @@ import lombok.Data;
 
 @Data
 public class Consumer {
-    private String keyDeserializer;
-    private String valueDeserializer;
     private boolean enableAutoCommit;
     private String isolationLevel;
 }
