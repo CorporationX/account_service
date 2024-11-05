@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +22,7 @@ public class TariffDto {
 
     @NotNull(message = "rate cannot be null")
     @Positive(message = "rate must be positive", groups = {Create.class})
-    private Double rate;
+    private BigDecimal rate;
 
     public interface Create {
     }

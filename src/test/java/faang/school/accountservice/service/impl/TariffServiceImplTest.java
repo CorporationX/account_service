@@ -102,7 +102,7 @@ class TariffServiceImplTest {
         tariffDto.setId(tariffId);
         tariffDto.setName(tariffName);
         tariffDto.setRate(rate);
-        when(tariffRepository.findTariffDtoWithDetails(tariffId)).thenReturn(tariffDto);
+        when(tariffRepository.findTariffDtoWithDetails(tariffId)).thenReturn(Optional.of(tariffDto));
 
         TariffDto resultDto = tariffService.getTariff(tariffId);
 

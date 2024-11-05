@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -43,7 +44,7 @@ public class TariffServiceImpl implements TariffService {
 
     @Transactional
     @Override
-    public TariffDto updateTariff(Long id, Double rate) {
+    public TariffDto updateTariff(Long id, BigDecimal rate) {
         Tariff tariff = tariffRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(TARIFF_ID + id + NOT_FOUND));
 

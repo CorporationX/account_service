@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -25,7 +26,7 @@ public class SavingsAccountRate {
     private Tariff tariff;
 
     @Column(name = "rate")
-    private double rate;
+    private BigDecimal rate;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

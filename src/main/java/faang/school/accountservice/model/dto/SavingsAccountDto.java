@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,7 +21,7 @@ public class SavingsAccountDto {
 
     @Positive(message = "tariff id must be positive, when you create SavingsAccount", groups = {Create.class})
     private Long tariffId;
-    private Double rate;
+    private BigDecimal rate;
     private LocalDateTime lastDatePercent;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

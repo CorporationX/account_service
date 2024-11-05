@@ -92,7 +92,7 @@ class SavingsAccountServiceImplTest {
     @Test
     public void testGetSavingsAccount() {
         Long savingsAccountId = 1L;
-        when(savingsAccountRepository.findSavingsAccountWithDetails(savingsAccountId)).thenReturn(new SavingsAccountDto());
+        when(savingsAccountRepository.findSavingsAccountWithDetails(savingsAccountId)).thenReturn(Optional.of(new SavingsAccountDto()));
 
         savingsAccountService.getSavingsAccount(savingsAccountId);
 

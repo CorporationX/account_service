@@ -76,7 +76,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
                 .forEach(saDto -> {
                     Long id = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(saDto.getId())
                             .orElseThrow(() -> new EntityNotFoundException("Tariff with id " + saDto.getId() + " not found"));
-                    Double rate = savingsAccountRateRepository.findLatestRateIdByTariffId(id).orElseGet(() -> {
+                    BigDecimal rate = savingsAccountRateRepository.findLatestRateIdByTariffId(id).orElseGet(() -> {
                         log.info("Rate with tariff id {} not found", id);
                         throw new EntityNotFoundException("Rate with tariff id " + id + " not found");
                     });
