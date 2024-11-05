@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableFeignClients("faang.school.accountservice.client")
-@ConfigurationPropertiesScan
+@ConfigurationPropertiesScan("faang.school.accountservice.config")
 public class AccountServiceApplication {
     public static void main(String[] args) {
         new SpringApplicationBuilder(AccountServiceApplication.class)

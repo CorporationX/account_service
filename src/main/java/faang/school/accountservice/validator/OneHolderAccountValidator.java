@@ -1,7 +1,7 @@
 package faang.school.accountservice.validator;
 
 import faang.school.accountservice.annotation.OneHolderAccount;
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.account.AccountDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
