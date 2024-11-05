@@ -15,7 +15,11 @@ public class JakartaValidator {
     private final Validator validator;
 
     public <T> ValidationResult validate(T object) {
-        Set<ConstraintViolation<T>> violations = validator.validate(object);
+        return validate(object, (Class<?>[]) null);
+    }
+
+    public <T> ValidationResult validate(T object, Class<?>... groups) {
+        Set<ConstraintViolation<T>> violations = validator.validate(object, groups);
 
         if (violations.isEmpty()) {
             return ValidationResult.success();

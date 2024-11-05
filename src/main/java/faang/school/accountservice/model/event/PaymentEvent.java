@@ -18,17 +18,23 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentEvent {
-    @NotNull
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
     private UUID idempotencyToken;
-    @NotNull
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
     private Long accountId;
-    @NotNull
+    @NotNull(groups = {AuthorizePaymentEventMarker.class})
     private RequestType requestType;
-    @NotNull
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
     private OperationType operationType;
-    @NotNull
-    @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than zero")
+    @NotNull(groups = {AuthorizePaymentEventMarker.class})
+    @DecimalMin(groups = {AuthorizePaymentEventMarker.class},
+            value = "0.0", inclusive = false, message = "Amount must be greater than zero")
     private BigDecimal amount;
-    @NotNull
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
     private LocalDateTime sentDateTime;
+
+    public interface AuthorizePaymentEventMarker {};
+    public interface CancelPaymentEventMarker {};
+    public interface ClearingPaymentEventMarker {};
+
 }
