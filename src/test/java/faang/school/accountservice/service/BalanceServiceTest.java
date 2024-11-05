@@ -81,10 +81,9 @@ public class BalanceServiceTest {
     @Test
     @DisplayName("Balance service: validate enough money")
     void testCreateAuthPayment_checkEnoughMoney() {
-        Money money = new Money(BigDecimal.valueOf(100), Currency.RUB);
+        Money money = new Money(BigDecimal.valueOf(150), Currency.RUB);
         when(balanceRepository.findById(balance.getId())).thenReturn(Optional.of(balance));
         balance.setActual(BigDecimal.valueOf(100));
-        balance.setAuthorization(BigDecimal.valueOf(150));
 
         assertThrows(RuntimeException.class, () -> balanceService.createAuthPayment(balance.getId(), money));
     }
@@ -99,8 +98,8 @@ public class BalanceServiceTest {
 
         balanceService.createAuthPayment(balance.getId(), money);
 
-        verify(balanceRepository).save(any(Balance.class));
-        verify(balanceAuthPaymentRepository).save(any(BalanceAuthPayment.class));
+        verify(balanceRepository).saveAndFlush(any(Balance.class));
+        verify(balanceAuthPaymentRepository).saveAndFlush(any(BalanceAuthPayment.class));
     }
 
     @Test
@@ -119,8 +118,8 @@ public class BalanceServiceTest {
         balanceService.rejectAuthPayment(authPayment.getId());
         assertEquals(authPayment.getStatus(), AuthorizationStatus.REJECTED);
 
-        verify(balanceRepository).save(any(Balance.class));
-        verify(balanceAuthPaymentRepository).save(any(BalanceAuthPayment.class));
+        verify(balanceRepository).saveAndFlush(any(Balance.class));
+        verify(balanceAuthPaymentRepository).saveAndFlush(any(BalanceAuthPayment.class));
     }
 
     @Test
@@ -129,12 +128,12 @@ public class BalanceServiceTest {
         when(balanceRepository.findById(balance.getId())).thenReturn(Optional.of(balance));
         Money money = new Money(BigDecimal.valueOf(100), Currency.RUB);
 
-        when(balanceRepository.save(balance)).thenReturn(balance);
+        when(balanceRepository.saveAndFlush(balance)).thenReturn(balance);
         Balance checkedBalance = balanceService.topUpCurrentBalance(balance.getId(), money);
 
         assertEquals(balance.getActual(), money.amount());
         assertNotNull(checkedBalance);
-        verify(balanceRepository).save(any(Balance.class));
+        verify(balanceRepository).saveAndFlush(any(Balance.class));
     }
 
     @Test
@@ -171,7 +170,7 @@ public class BalanceServiceTest {
         assertEquals(authPayment.getBalance().getAuthorization(), BigDecimal.valueOf(0));
         assertEquals(authPayment.getStatus(), AuthorizationStatus.CONFIRMED);
 
-        verify(balanceRepository).save(any(Balance.class));
-        verify(balanceAuthPaymentRepository).save(any(BalanceAuthPayment.class));
+        verify(balanceRepository).saveAndFlush(any(Balance.class));
+        verify(balanceAuthPaymentRepository).saveAndFlush(any(BalanceAuthPayment.class));
     }
 }

@@ -47,7 +47,11 @@ public class BalanceService {
                 .orElseThrow(() -> new ValidationException("Cannot find balance by id"));
         log.error("Create authorization payment: cannot find balance by id: {}", balanceId);
 
-        validateEnoughMoney(balance, money.amount());
+        validateEnoughMoney(balance.getActual(), money.amount());
+        BigDecimal balanceAuthorization = balance.getAuthorization().add(money.amount());
+        BigDecimal balanceActual = balance.getActual().subtract(money.amount());
+        balance.setAuthorization(balanceAuthorization);
+        balance.setActual(balanceActual);
 
         BalanceAuthPayment authPayment = BalanceAuthPayment.builder()
                 .balance(balance)
@@ -55,7 +59,6 @@ public class BalanceService {
                 .status(AuthorizationStatus.ACTIVATED)
                 .build();
 
-        balance.setAuthorization(balance.getAuthorization().add(money.amount()));
         saveBalance(balance);
 
         return saveBalanceAuthPayment(authPayment);
@@ -67,12 +70,15 @@ public class BalanceService {
                 .orElseThrow(() -> new ValidationException("Authorization payment not found"));
         log.error("Reject authorization payment: cannot find authorization payment by id {}", authPaymentId);
 
+        validatePaymentIsStatus(payment);
+
         Balance balance = payment.getBalance();
         BigDecimal newAuthBalance = balance.getAuthorization().subtract(payment.getAmount());
-        BigDecimal actualBalance = balance.getActual().add(payment.getAmount());
+        BigDecimal newActualBalance = balance.getActual().add(payment.getAmount());
         balance.setAuthorization(newAuthBalance);
-        balance.setActual(actualBalance);
+        balance.setActual(newActualBalance);
         payment.setStatus(AuthorizationStatus.REJECTED);
+
         saveBalance(balance);
 
         return saveBalanceAuthPayment(payment);
@@ -107,7 +113,7 @@ public class BalanceService {
         log.error("Authorization payment {} not found", authPaymentId);
 
         validatePaymentIsStatus(authPayment);
-        validateActualBalance_ToBeWrittenOff(authPayment);
+        validateActualBalanceToBeWrittenOff(authPayment);
 
         Balance balance = authPayment.getBalance();
 
@@ -125,7 +131,7 @@ public class BalanceService {
         }
     }
 
-    private void validateActualBalance_ToBeWrittenOff(BalanceAuthPayment authPayment) {
+    private void validateActualBalanceToBeWrittenOff(BalanceAuthPayment authPayment) {
         Balance balance = authPayment.getBalance();
         if (balance.getActual().compareTo(authPayment.getAmount()) < 0) {
             throw new ValidationException("Insufficient funds for clearing the payment");
@@ -144,17 +150,15 @@ public class BalanceService {
         }
     }
 
-    private void validateEnoughMoney(Balance balance, BigDecimal amount) {
-        BigDecimal currentBalanceAmount = balance.getActual().subtract(balance.getAuthorization());
-        if (amount.compareTo(currentBalanceAmount) > 0) {
+    private void validateEnoughMoney(BigDecimal actualBalance, BigDecimal amount) {
+        if (amount.compareTo(actualBalance) > 0) {
             throw new ValidationException(String.format("Not enough money for authorization %s", amount));
         }
     }
 
     private Balance saveBalance(Balance balance) {
         try {
-            balance = balanceRepository.save(balance);
-            balanceRepository.flush();
+            balance = balanceRepository.saveAndFlush(balance);
         } catch (OptimisticLockingFailureException exception) {
             throw new RuntimeException(String.format("Error saving balance %s", balance.getId()));
         }
@@ -163,8 +167,7 @@ public class BalanceService {
 
     private BalanceAuthPayment saveBalanceAuthPayment(BalanceAuthPayment balanceAuthPayment) {
         try {
-            balanceAuthPayment = balanceAuthPaymentRepository.save(balanceAuthPayment);
-            balanceAuthPaymentRepository.flush();
+            balanceAuthPayment = balanceAuthPaymentRepository.saveAndFlush(balanceAuthPayment);
         } catch (OptimisticLockingFailureException exception) {
             throw new RuntimeException(String.format("Error authorization payment %s", balanceAuthPayment.getId()));
         }
