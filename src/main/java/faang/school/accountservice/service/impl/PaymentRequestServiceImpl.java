@@ -4,6 +4,7 @@ import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.Request;
+import faang.school.accountservice.model.enums.OperationType;
 import faang.school.accountservice.model.enums.RequestStatus;
 import faang.school.accountservice.model.event.PaymentEvent;
 import faang.school.accountservice.model.event.PaymentStatusEvent;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +48,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     @Override
     @Transactional
     public void authorize(PaymentEvent paymentEvent) {
-        ValidationResult commonResult = validatePaymentEvent(paymentEvent);
+        ValidationResult commonResult = validateAuthorizePaymentEvent(paymentEvent);
         if (!commonResult.isValid()) {
             Request request = createRequest(paymentEvent, commonResult);
             requestRepository.save(request);
@@ -54,14 +56,12 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         }
 
         boolean activeRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getAccountId(), RequestStatus.IN_PROGRESS);
-
         if (activeRequestExists) {
             log.debug(String.format("An active payment request already exists for accountId = %d; ignoring duplicate request", paymentEvent.getAccountId()));
             return;
         }
 
         Optional<Request> existingRequestOpt = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken());
-
         if (existingRequestOpt.isPresent()) {
             Request existingRequest = existingRequestOpt.get();
 
@@ -102,11 +102,12 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     @Override
     @Transactional
     public void cancel(PaymentEvent paymentEvent) {
-        //статус можно перевести в CANCELED если он IN_PROGRESS или FAILED
-        //если он уже CANCELED, то просто выходим
-        //если он уже в статусе COMPLETED, надо как-то сообщить, что уже поздно отменять
-        Optional<Request> existingRequestOpt = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken());
+        ValidationResult commonResult = validateCancelPaymentEvent(paymentEvent);
+        if (!commonResult.isValid()) {
+            return;
+        }
 
+        Optional<Request> existingRequestOpt = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken());
         if (existingRequestOpt.isPresent()) {
             Request existingRequest = existingRequestOpt.get();
 
@@ -116,40 +117,19 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
                 case IN_PROGRESS:
                 case FAILED:
-                    Request request = cancelRequest();
+                    Request request = cancelRequest(existingRequest, paymentEvent);
                     //TODO  добавить createAuditRecord? или тут уже не надо
-                    if (request.getStatus() == RequestStatus.IN_PROGRESS) {
-                        applicationEventPublisher.publishEvent(new PaymentStatusEvent(request.getId(), request.getIdempotencyToken(), request.getStatus()));
-                    }
+                    applicationEventPublisher.publishEvent(new PaymentStatusEvent(request.getId(), request.getIdempotencyToken(), request.getStatus()));
                     return;
-
-//                case IN_PROGRESS:
-//                    log.debug(String.format("The request with id = %d, idempotencyToken = %s is already being processed; ignoring it",
-//                            existingRequest.getId(), existingRequest.getIdempotencyToken()));
-//                    return;
-
-//                case FAILED:
-//                    log.debug(String.format("The request with id = %d, idempotencyToken = %s previously failed; retrying it",
-//                            existingRequest.getId(), existingRequest.getIdempotencyToken()));
-//                    Request request = retryFailedRequest(existingRequest, paymentEvent);
-//                    TODO  добавить createAuditRecord
-//                    if (request.getStatus() == RequestStatus.IN_PROGRESS) {
-//                        applicationEventPublisher.publishEvent(new PaymentStatusEvent(request.getId(), request.getIdempotencyToken(), request.getStatus()));
-//                    }
-//                    return;
-//
-//                case COMPLETED:
-//                case CANCELLED:
-//                    log.debug(String.format("The request with id = %d, idempotencyToken = %s is already completed/canceled; not executing it again",
-//                            existingRequest.getId(), existingRequest.getIdempotencyToken()));
-//                    return;
-
+                case COMPLETED:
+                    Map<String, Object> inputData = existingRequest.getInputData();
+                    inputData.put("cancelSentDateTime", paymentEvent.getSentDateTime());
+                    inputData.put("additionalInfo", "Attempt to cancel COMPLETED request");
+                    existingRequest.setInputData(inputData);
                 default:
                     throw new DataValidationException(String.format("Unexpected request status: %s", existingRequest.getStatus()));
             }
         }
-
-
     }
 
     @Override
@@ -169,9 +149,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         if (inputData.containsKey("amount") && !inputData.get("amount").equals(paymentEvent.getAmount())) {
             log.debug("Updating amount in request for retry. Old amount: " + inputData.get("amount") + ", new amount: " + paymentEvent.getAmount());
             inputData.put("amount", paymentEvent.getAmount());
-            inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
-            existingRequest.setInputData(inputData);
         }
+        inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
+        existingRequest.setInputData(inputData);
 
         Account account = accountRepository.findById(paymentEvent.getAccountId()).orElseThrow(() ->
                 new IllegalStateException(String.format("Expected account with id = %d to be present because validate " +
@@ -215,11 +195,11 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         return request;
     }
 
-    private ValidationResult validatePaymentEvent(PaymentEvent paymentEvent) {
+    private ValidationResult validateAuthorizePaymentEvent(PaymentEvent paymentEvent) {
         List<ValidationResult> validationResults = new ArrayList<>();
         validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.AuthorizePaymentEventMarker.class));
         validationResults.add(validator.validateRequestTypeTransferTo(paymentEvent.getRequestType()));
-        validationResults.add(validator.validateOperationTypeAuthorize(paymentEvent.getOperationType()));
+        validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.AUTHORIZATION));
         validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
 
         Optional<Account> accountOpt = accountRepository.findById(paymentEvent.getAccountId());
@@ -238,24 +218,32 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         return ValidationResult.getCommonResult(validationResults);
     }
 
+    private ValidationResult validateCancelPaymentEvent(PaymentEvent paymentEvent) {
+        List<ValidationResult> validationResults = new ArrayList<>();
+        validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.CancelPaymentEventMarker.class));
+        validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.CANCEL));
+        validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
+
+        Optional<Account> accountOpt = accountRepository.findById(paymentEvent.getAccountId());
+        if (accountOpt.isEmpty()) {
+            validationResults.add(ValidationResult.failure(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
+        }
+
+        return ValidationResult.getCommonResult(validationResults);
+    }
+
+
     private Request cancelRequest(Request existingRequest, PaymentEvent paymentEvent) {
         Map<String, Object> inputData = existingRequest.getInputData();
-//надо балансы вернуть как были
-        if (inputData.containsKey("amount") && !inputData.get("amount").equals(paymentEvent.getAmount())) {
-            log.debug("Updating amount in request for retry. Old amount: " + inputData.get("amount") + ", new amount: " + paymentEvent.getAmount());
-            inputData.put("amount", paymentEvent.getAmount());
-            inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
-            existingRequest.setInputData(inputData);
-        }
+        inputData.put("cancelSentDateTime", paymentEvent.getSentDateTime());
+        existingRequest.setInputData(inputData);
 
-        ValidationResult retryResult = validatePaymentEvent(paymentEvent);
-        if (retryResult.isValid()) {
-            existingRequest.setStatus(RequestStatus.IN_PROGRESS);
-        } else {
-            existingRequest.setStatus(RequestStatus.FAILED);
-            existingRequest.setStatusDetails(retryResult.getErrorMessage());
-        }
-
+        Account account = existingRequest.getAccount();
+        Balance balance = account.getBalance();
+        balance.setAuthorizedBalance(BigDecimal.ZERO);
+        balance.setActualBalance(balance.getActualBalance().add(paymentEvent.getAmount()));
+        balanceRepository.save(balance);
+        existingRequest.setStatus(RequestStatus.CANCELLED);
         return requestRepository.save(existingRequest);
     }
 }

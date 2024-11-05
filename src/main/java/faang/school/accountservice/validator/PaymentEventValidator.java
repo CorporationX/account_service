@@ -3,10 +3,8 @@ package faang.school.accountservice.validator;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.OperationType;
-import faang.school.accountservice.model.enums.RequestStatus;
 import faang.school.accountservice.model.enums.RequestType;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 public class PaymentEventValidator {
     private final AccountRepository accountRepository;
 
+    //возможно нет смысла в этой проверке
     public ValidationResult validateSentTimeNotOlderThan(LocalDateTime sentDateTime, int sentTimePeriodInMinutes) {
         LocalDateTime now = LocalDateTime.now();
         long minutesDifference = ChronoUnit.MINUTES.between(sentDateTime, now);
@@ -29,15 +28,6 @@ public class PaymentEventValidator {
 
         return ValidationResult.success();
     }
-
-//
-//    public ValidationResult validateAccountExists(Long accountId) {
-//        if (!accountRepository.existsById(accountId)) {
-//            return ValidationResult.failure(String.format("Account with id = %d doesn't exist", accountId));
-//        }
-//
-//        return ValidationResult.success();
-//    }
 
     public ValidationResult validateIfAccountActive(Account account) {
         if (account.getStatus() != AccountStatus.ACTIVE) {
@@ -63,9 +53,9 @@ public class PaymentEventValidator {
         return ValidationResult.success();
     }
 
-    public ValidationResult validateOperationTypeAuthorize(OperationType operationType) {
-        if (operationType != OperationType.AUTHORIZATION) {
-            return ValidationResult.failure("In authorize OperationType should be AUTHORIZATION");
+    public ValidationResult validateOperationType(OperationType operationType, OperationType expectedOperationType) {
+        if (operationType != expectedOperationType) {
+            return ValidationResult.failure(String.format("In authorize OperationType should be %s", expectedOperationType));
         }
 
         return ValidationResult.success();
