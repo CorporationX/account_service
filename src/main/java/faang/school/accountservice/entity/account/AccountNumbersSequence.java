@@ -1,6 +1,5 @@
 package faang.school.accountservice.entity.account;
 
-import faang.school.accountservice.enums.account.AccountEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,7 +16,7 @@ public class AccountNumbersSequence {
 
     @Id
     @Column(name = "type", nullable = false, length = 20)
-    private AccountEnum type;
+    private String type;
 
     @Column(name = "counter", nullable = false)
     private long counter;

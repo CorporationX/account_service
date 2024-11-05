@@ -30,6 +30,9 @@ account:
     min: 12
     max: 20
 
+openapi:
+  uris: /swagger-ui, /v3/api-docs, /swagger-resources
+
 executor:
   threads:
     count: 5

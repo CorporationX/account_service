@@ -28,32 +28,53 @@ public class FreeAccountNumbersService {
 
     @Transactional
     public void generateAccountNumbers(AccountEnum type, int batchSize) {
-        AccountNumbersSequence ans = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
+        AccountNumbersSequence ans = accountNumbersSequenceRepository.findCounterByType(type.name())
+            .orElseGet(() -> generateFirstAccountNumberSequenceForType(type));
+
         List<FreeAccountNumber> numberList = new ArrayList<>();
         for (long i = ans.getInitialValue(); i < ans.getCounter(); i++) {
-            FreeAccountId freeAccountId = new FreeAccountId(type, ACCOUNT_PATTERN + i);
+            FreeAccountId freeAccountId = new FreeAccountId(type, Long.toString(ACCOUNT_PATTERN + i));
             FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
             numberList.add(freeAccountNumber);
         }
         freeAccountNumbersRepository.saveAll(numberList);
+        accountNumbersSequenceRepository.updateCounterForType(type.name(), batchSize);
     }
 
     @Transactional
     public void retrieveAccountNumber(AccountEnum type, Consumer<FreeAccountNumber> numberConsumer) {
-        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findAndRemoveFreeAccountNumber(type.name())
-            .orElseGet(() -> generateFreeAccountNumber(type, 1));
+        FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findFirstFreeAccountNumberByType(type.name())
+            .orElseGet(() -> generateFreeAccountNumber(type));
+        
+        freeAccountNumbersRepository.deleteFreeAccountNumberByTypeAndAccountNumber(
+            type.name(), 
+            freeAccountNumber.getId().getAccountNumber()
+        );
         
         numberConsumer.accept(freeAccountNumber);
     }
 
     @Transactional
-    private FreeAccountNumber generateFreeAccountNumber(AccountEnum type, int batchSize) {
-        AccountNumbersSequence ans = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
+    private FreeAccountNumber generateFreeAccountNumber(AccountEnum type) {
+        AccountNumbersSequence ans = accountNumbersSequenceRepository.findCounterByType(type.name())
+            .orElseGet(() -> {
+                return generateFirstAccountNumberSequenceForType(type);
+            });
+
         long initialValue = ans.getInitialValue();
-        FreeAccountId freeAccountId = new FreeAccountId(type, ACCOUNT_PATTERN + initialValue);
+        FreeAccountId freeAccountId = new FreeAccountId(type, Long.toString(ACCOUNT_PATTERN + initialValue));
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
         freeAccountNumbersRepository.save(freeAccountNumber);
         return freeAccountNumber;
+    }
+
+    @Transactional
+    private AccountNumbersSequence generateFirstAccountNumberSequenceForType(AccountEnum type) {
+        AccountNumbersSequence ans = new AccountNumbersSequence();
+        ans.setType(type.name());
+        ans.setCounter(1);
+        accountNumbersSequenceRepository.save(ans);
+        return ans;
     }
 
 

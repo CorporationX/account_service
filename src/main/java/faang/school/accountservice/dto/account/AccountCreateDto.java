@@ -3,6 +3,7 @@ package faang.school.accountservice.dto.account;
 import faang.school.accountservice.dto.owner.OwnerDto;
 import faang.school.accountservice.dto.type.TypeDto;
 import faang.school.accountservice.enums.Currency;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "POJO for account creation")
 public class AccountCreateDto {
 
     @NotNull
