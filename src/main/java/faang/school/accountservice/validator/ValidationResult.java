@@ -3,7 +3,7 @@ package faang.school.accountservice.validator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
@@ -20,12 +20,12 @@ public class ValidationResult {
         return new ValidationResult(false, errorMessage != null ? errorMessage : "Unknown validation error");
     }
 
-    public static ValidationResult getCommonResult(ValidationResult... results) {
-        if (Arrays.stream(results).allMatch(ValidationResult::isValid)) {
+    public static ValidationResult getCommonResult(List<ValidationResult> results) {
+        if (results.stream().allMatch(ValidationResult::isValid)) {
             return ValidationResult.success();
         }
 
-        String resultMessage = Arrays.stream(results)
+        String resultMessage = results.stream()
                 .filter(result -> !result.isValid())
                 .map(ValidationResult::getErrorMessage)
                 .collect(Collectors.joining("; "));

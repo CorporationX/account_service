@@ -24,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,7 +60,6 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             Request existingRequest = existingRequestOpt.get();
 
             switch (existingRequest.getStatus()) {
-                //FIXME этого же не может быть? мы не дошли до сюда, вышли из метода тут if (activeRequestExists)
                 case IN_PROGRESS:
                     log.debug(String.format("The request with id = %d, idempotencyToken = %s is already being processed; ignoring it",
                             existingRequest.getId(), existingRequest.getIdempotencyToken()));
@@ -95,11 +96,20 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         Request request = createRequest(paymentEvent, inputData, commonResult);
         Request savedRequest = requestRepository.save(request);
         //TODO  добавить createAuditRecord
-        applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
+        if (commonResult.isValid()) {
+            applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
+        }
     }
 
     @Override
+    @Transactional
     public void cancel(PaymentEvent paymentEvent) {
+
+    }
+
+    @Override
+    @Transactional
+    public void clearing(PaymentEvent paymentEvent) {
 
     }
 
@@ -155,28 +165,25 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     }
 
     private ValidationResult validatePaymentEvent(PaymentEvent paymentEvent) {
-        ValidationResult jakartaValidationResult = jakartaValidator.validate(paymentEvent);
-        ValidationResult requestTypeResult = validator.validateRequestTypeTransferTo(paymentEvent.getRequestType());
-        ValidationResult operationTypeResult = validator.validateOperationTypeAuthorize(paymentEvent.getOperationType());
-        ValidationResult sentTimeNotOlderResult = validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES);
-        ValidationResult accountExistsResult = validator.validateAccountExists(paymentEvent.getAccountId());
+        List<ValidationResult> validationResults = new ArrayList<>();
+        validationResults.add(jakartaValidator.validate(paymentEvent));
+        validationResults.add(validator.validateRequestTypeTransferTo(paymentEvent.getRequestType()));
+        validationResults.add(validator.validateOperationTypeAuthorize(paymentEvent.getOperationType()));
+        validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
 
-        Account account = accountRepository.findById(paymentEvent.getAccountId()).orElseThrow(() ->
-                new EntityNotFoundException(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
-        ValidationResult accountActiveResult = validator.validateIfAccountActive(account);
+        Optional<Account> accountOpt = accountRepository.findById(paymentEvent.getAccountId());
+        if (accountOpt.isEmpty()) {
+            validationResults.add(ValidationResult.failure(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
+        } else {
+            Account account = accountOpt.get();
 
-        Balance balance = account.getBalance();
-        ValidationResult sufficientBalanceResult = validator.validateSufficientActualBalance(
-                balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getAccountId());
+            validationResults.add(validator.validateIfAccountActive(account));
 
-        return ValidationResult.getCommonResult(
-                jakartaValidationResult,
-                requestTypeResult,
-                operationTypeResult,
-                sentTimeNotOlderResult,
-                accountExistsResult,
-                accountActiveResult,
-                sufficientBalanceResult
-        );
+            Balance balance = account.getBalance();
+            validationResults.add(validator.validateSufficientActualBalance(
+                    balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getAccountId()));
+        }
+
+        return ValidationResult.getCommonResult(validationResults);
     }
 }

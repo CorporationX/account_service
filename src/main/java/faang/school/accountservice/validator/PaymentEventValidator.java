@@ -30,14 +30,14 @@ public class PaymentEventValidator {
         return ValidationResult.success();
     }
 
-
-    public ValidationResult validateAccountExists(Long accountId) {
-        if (!accountRepository.existsById(accountId)) {
-            return ValidationResult.failure(String.format("Account with id = %d doesn't exist", accountId));
-        }
-
-        return ValidationResult.success();
-    }
+//
+//    public ValidationResult validateAccountExists(Long accountId) {
+//        if (!accountRepository.existsById(accountId)) {
+//            return ValidationResult.failure(String.format("Account with id = %d doesn't exist", accountId));
+//        }
+//
+//        return ValidationResult.success();
+//    }
 
     public ValidationResult validateIfAccountActive(Account account) {
         if (account.getStatus() != AccountStatus.ACTIVE) {
