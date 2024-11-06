@@ -1,10 +1,7 @@
 package faang.school.accountservice.model.entity.cashback;
 
-import faang.school.accountservice.model.enums.Operation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,15 +20,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "operation_type_cashback")
-public class OperationTypeCashback {
+@Table(name = "operation_type")
+public class OperationType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Operation operationType;
+    @Column(name = "operation_type", nullable = false)
+    private String operationType;
 
     @Builder.Default
     @OneToMany(mappedBy = "operationType")

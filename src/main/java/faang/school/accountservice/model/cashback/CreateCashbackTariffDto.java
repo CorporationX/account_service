@@ -12,9 +12,9 @@ public record CreateCashbackTariffDto(
         String name,
 
         @NotEmpty(message = "Operations can't be empty!")
-        List<OperationDto> operations,
+        List<CreateTariffOperationDto> operations,
 
         @NotEmpty(message = "Merchants can't be empty!")
-        List <MerchantDto> merchants
+        List <CreateTariffMerchantDto> merchants
 ) {
 }

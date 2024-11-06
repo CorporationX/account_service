@@ -5,9 +5,9 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record MerchantDto(
+public record ReadMerchantDto(
         Long id,
-        String merchantId,
+        String merchantName,
         BigDecimal percentage
 ) {
 }

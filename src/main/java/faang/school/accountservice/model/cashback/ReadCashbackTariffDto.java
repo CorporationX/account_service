@@ -8,12 +8,10 @@ import java.util.List;
 
 @Builder
 public record ReadCashbackTariffDto(
-        long id,
-        String name,
-        List<OperationDto> operations,
-        List<MerchantDto> merchants,
+                long id,
+                String name,
+                List<ReadOperationDto> operations,
+                List<ReadMerchantDto> merchants,
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        LocalDateTime createdAt
-) {
+                @JsonFormat(shape = JsonFormat.Shape.STRING) LocalDateTime createdAt) {
 }

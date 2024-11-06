@@ -1,14 +1,14 @@
 package faang.school.accountservice.model.cashback;
 
-import faang.school.accountservice.model.enums.Operation;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 @Builder
-public record OperationDto(
+public record CreateTariffMerchantDto(
+        @Positive
         Long id,
-        Operation operationType,
         BigDecimal percentage
 ) {
 }

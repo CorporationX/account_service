@@ -5,35 +5,35 @@ CREATE TABLE IF NOT EXISTS cashback_tariff
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS operation_type_cashback
+CREATE TABLE IF NOT EXISTS operation_type
 (
     id             BIGSERIAL PRIMARY KEY,
     operation_type VARCHAR(64) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS merchant_cashback
+CREATE TABLE IF NOT EXISTS merchant
 (
     id          BIGSERIAL PRIMARY KEY,
-    merchant_id VARCHAR(64) NOT NULL
+    name VARCHAR(64) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS cashback_tariff__operation_type_cashback
+CREATE TABLE IF NOT EXISTS cashback_tariff__operation_type
 (
     id                 BIGSERIAL PRIMARY KEY,
     cashback_tariff_id BIGINT REFERENCES cashback_tariff (id),
-    operation_type_id  BIGINT REFERENCES operation_type_cashback (id),
+    operation_type_id  BIGINT REFERENCES operation_type (id),
     percentage         DECIMAL(5, 2) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS cashback_tariff__merchant_cashback
+CREATE TABLE IF NOT EXISTS cashback_tariff__merchant
 (
     id                 BIGSERIAL PRIMARY KEY,
     cashback_tariff_id BIGINT REFERENCES cashback_tariff (id),
-    merchant_id        BIGINT REFERENCES merchant_cashback (id),
+    merchant_id        BIGINT REFERENCES merchant (id),
     percentage         DECIMAL(5, 2) NOT NULL
 );
 
-INSERT INTO operation_type_cashback (operation_type)
+INSERT INTO operation_type (operation_type)
 VALUES ('PURCHASE'),
        ('RESTAURANT'),
        ('TRAVEL'),

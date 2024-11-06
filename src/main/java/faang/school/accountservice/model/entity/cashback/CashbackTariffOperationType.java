@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "cashback_tariff__operation_type_cashback")
+@Table(name = "cashback_tariff__operation_type")
 public class CashbackTariffOperationType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +35,5 @@ public class CashbackTariffOperationType {
 
     @ManyToOne
     @JoinColumn(name = "operation_type_id")
-    private OperationTypeCashback operationType;
+    private OperationType operationType;
 }

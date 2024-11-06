@@ -23,16 +23,15 @@ INSERT INTO cashback_tariff (name, created_at)
 VALUES ('Test name 1', '2024-11-01 12:00:00'),
        ('Test name 2', '2024-11-02 12:00:00');
 
-ALTER SEQUENCE merchant_cashback_id_seq RESTART WITH 1;
-
-INSERT INTO merchant_cashback (merchant_id)
+ALTER SEQUENCE merchant_id_seq RESTART WITH 1;
+INSERT INTO merchant (name)
 VALUES ('Test Merchant 1'),
        ('Test Merchant 2');
 
-INSERT INTO cashback_tariff__operation_type_cashback (cashback_tariff_id, operation_type_id, percentage)
+INSERT INTO cashback_tariff__operation_type (cashback_tariff_id, operation_type_id, percentage)
 VALUES (1, 1, 1.2),
        (1, 2, 1.3);
 
-INSERT INTO cashback_tariff__merchant_cashback(cashback_tariff_id, merchant_id, percentage)
+INSERT INTO cashback_tariff__merchant(cashback_tariff_id, merchant_id, percentage)
 VALUES (1, 1, 5.0),
        (1, 2, 3.5);

@@ -1,9 +1,9 @@
 package faang.school.accountservice.mapper;
 
 import faang.school.accountservice.model.cashback.CreateCashbackTariffDto;
-import faang.school.accountservice.model.cashback.MerchantDto;
-import faang.school.accountservice.model.cashback.OperationDto;
 import faang.school.accountservice.model.cashback.ReadCashbackTariffDto;
+import faang.school.accountservice.model.cashback.ReadMerchantDto;
+import faang.school.accountservice.model.cashback.ReadOperationDto;
 import faang.school.accountservice.model.entity.cashback.CashbackTariff;
 import faang.school.accountservice.model.entity.cashback.CashbackTariffMerchant;
 import faang.school.accountservice.model.entity.cashback.CashbackTariffOperationType;
@@ -17,18 +17,16 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CashbackTariffMapper {
 
-    @Mapping(target = "operations",
-            expression = "java(addOperations(cashbackTariff.getOperationTypes()))")
-    @Mapping(target = "merchants",
-            expression = "java(addMerchants(cashbackTariff.getCashbackTariffMerchants()))")
+    @Mapping(target = "operations", expression = "java(addOperationsToDto(cashbackTariff.getOperationTypes()))")
+    @Mapping(target = "merchants", expression = "java(addMerchantsToDto(cashbackTariff.getCashbackTariffMerchants()))")
     ReadCashbackTariffDto toDto(CashbackTariff cashbackTariff);
 
-    CashbackTariff toEntity(CreateCashbackTariffDto readCashbackTariffDto);
+    CashbackTariff toEntity(CreateCashbackTariffDto cashbackTariffDto);
 
-    default List<OperationDto> addOperations(List<CashbackTariffOperationType> operations) {
-        var operationDtoList = new ArrayList<OperationDto>();
+    default List<ReadOperationDto> addOperationsToDto(List<CashbackTariffOperationType> operations) {
+        var operationDtoList = new ArrayList<ReadOperationDto>();
         operations.forEach(operation -> {
-            var dto = OperationDto.builder()
+            var dto = ReadOperationDto.builder()
                     .id(operation.getOperationType().getId())
                     .operationType(operation.getOperationType().getOperationType())
                     .percentage(operation.getPercentage())
@@ -38,15 +36,14 @@ public interface CashbackTariffMapper {
         return operationDtoList;
     }
 
-    default List<MerchantDto> addMerchants(List<CashbackTariffMerchant> merchants) {
-        var merchantDtoList = new ArrayList<MerchantDto>();
+    default List<ReadMerchantDto> addMerchantsToDto(List<CashbackTariffMerchant> merchants) {
+        var merchantDtoList = new ArrayList<ReadMerchantDto>();
         merchants.forEach(merchant -> {
-            var dto = MerchantDto.builder()
-                    .id(merchant.getId())
-                    .merchantId(merchant.getMerchant().getMerchantId())
+            var dto = ReadMerchantDto.builder()
+                    .id(merchant.getMerchant().getId())
+                    .merchantName(merchant.getMerchant().getName())
                     .percentage(merchant.getPercentage())
                     .build();
-
             merchantDtoList.add(dto);
         });
         return merchantDtoList;

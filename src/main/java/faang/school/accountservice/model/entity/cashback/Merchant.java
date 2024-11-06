@@ -20,14 +20,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "merchant_cashback")
-public class MerchantCashback {
+@Table(name = "merchant")
+public class Merchant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
 
-    @Column(name = "merchant_id", nullable = false)
-    public String merchantId;
+    @Column(name = "name", nullable = false)
+    public String name;
 
     @Builder.Default
     @OneToMany(mappedBy = "merchant")
