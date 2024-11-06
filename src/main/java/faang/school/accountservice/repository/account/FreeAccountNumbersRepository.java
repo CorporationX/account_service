@@ -34,7 +34,7 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
             WHERE type = :type AND account_number = :accountNumber
         """
     )
-    int deleteFreeAccountNumberByTypeAndAccountNumber(String type, String accountNumber);
+    void deleteFreeAccountNumberByTypeAndAccountNumber(String type, String accountNumber);
 
     @Query("SELECT COUNT(f) FROM FreeAccountNumber f WHERE f.id.type = :accountType")
     int countAllFreeAccountNumbersByType(@Param("accountType") AccountEnum accountType);

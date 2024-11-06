@@ -1,7 +1,6 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.config.account.AccountProperties;
-import faang.school.accountservice.config.generator.AccountNumberGenerator;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.owner.OwnerDto;
