@@ -18,20 +18,24 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentEvent {
-    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class, ClearingPaymentEventMarker.class})
     private UUID idempotencyToken;
-    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
-    private Long accountId;
+    @NotNull(groups = {AuthorizePaymentEventMarker.class})
+    private Long senderAccountId;
+    @NotNull(groups = {AuthorizePaymentEventMarker.class})
+    private Long recipientAccountId;
     @NotNull(groups = {AuthorizePaymentEventMarker.class})
     private RequestType requestType;
-    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class, ClearingPaymentEventMarker.class})
     private OperationType operationType;
     @NotNull(groups = {AuthorizePaymentEventMarker.class})
     @DecimalMin(groups = {AuthorizePaymentEventMarker.class},
             value = "0.0", inclusive = false, message = "Amount must be greater than zero")
     private BigDecimal amount;
-    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class})
+    @NotNull(groups = {AuthorizePaymentEventMarker.class, CancelPaymentEventMarker.class, ClearingPaymentEventMarker.class})
     private LocalDateTime sentDateTime;
+    @NotNull(groups = {CancelPaymentEventMarker.class, ClearingPaymentEventMarker.class})
+    private Long requestId;
 
     public interface AuthorizePaymentEventMarker {};
     public interface CancelPaymentEventMarker {};
