@@ -116,8 +116,6 @@ public class BalanceService {
         validateActualBalanceToBeWrittenOff(authPayment);
 
         Balance balance = authPayment.getBalance();
-
-        balance.setActual(balance.getActual().subtract(authPayment.getAmount()));
         balance.setAuthorization(balance.getAuthorization().subtract(authPayment.getAmount()));
 
         authPayment.setStatus(AuthorizationStatus.CONFIRMED);

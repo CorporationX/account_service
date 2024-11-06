@@ -168,6 +168,7 @@ public class BalanceServiceTest {
         balanceService.completeAuthorizationWriteOff(authPayment.getId());
 
         assertEquals(authPayment.getBalance().getAuthorization(), BigDecimal.valueOf(0));
+        assertEquals(authPayment.getBalance().getActual(), BigDecimal.valueOf(400));
         assertEquals(authPayment.getStatus(), AuthorizationStatus.CONFIRMED);
 
         verify(balanceRepository).saveAndFlush(any(Balance.class));
