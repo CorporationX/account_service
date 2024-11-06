@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.impl;
+package faang.school.accountservice.service;
 
 import faang.school.accountservice.model.dto.AccountDto;
 

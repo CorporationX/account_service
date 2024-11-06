@@ -26,6 +26,9 @@ public class Account {
     @Column(name = "number", unique = true, length = 20)
     private String number;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private SavingsAccount savingsAccount;
+
     @Column(name = "project_id")
     private Long projectId;
 
