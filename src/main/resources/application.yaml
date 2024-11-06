@@ -18,9 +18,10 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 scheduler:
-  cron: 0 0 0 * * *
   generate:
     card-numbers:
+      cron-debit: 0 0 0 * * *
+      cron-credit: 0 0 0 * * *
       batch-size: 100
 
 server:
