@@ -22,13 +22,13 @@ public class RequestTask {
     private UUID id;
 
     @Column(name = "request_id")
-    private Long requestId;
+    private UUID requestId;
 
     @Column(name = "current_step")
-    private Handler currentStep;
+    private Long currentStep;
 
     @Column(name = "request_task_status")
-    private String requestTaskStatus;
+    private String requestTaskStatus; //вроде должен быть лонг
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
