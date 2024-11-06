@@ -4,7 +4,6 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.PaymentAccountStatus;
 import faang.school.accountservice.enums.PaymentAccountType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "account")
 public class PaymentAccount {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -55,4 +53,8 @@ public class PaymentAccount {
     @Column(name = "version", nullable = false)
     @Version
     private Long version;
+
+    @JoinColumn(name = "tariff_id")
+    @OneToOne
+    private CashbackTariff cashbackTariff;
 }
