@@ -20,6 +20,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -30,13 +32,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentRequestServiceImpl implements PaymentRequestService {
     private static final int SENT_TIME_PERIOD_IN_MINUTES = 15;
+    private static final long CACHE_EXPIRATION_TIME_IN_MINUTES = 5;
 
+    private final RedisTemplate<String, PaymentEvent> redisTemplate;
     private final AccountRepository accountRepository;
     private final BalanceRepository balanceRepository;
     private final RequestRepository requestRepository;
@@ -48,6 +53,8 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     @Override
     @Transactional
     public void authorize(PaymentEvent paymentEvent) {
+        if (checkEventMessageRepeated(paymentEvent)) return;
+
         ValidationResult commonResult = validateAuthorizePaymentEvent(paymentEvent);
         if (!commonResult.isValid()) {
             Request request = createRequest(paymentEvent, commonResult);
@@ -55,9 +62,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             return;
         }
 
-        boolean activeRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getAccountId(), RequestStatus.IN_PROGRESS);
+        boolean activeRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getSenderAccountId(), RequestStatus.IN_PROGRESS);
         if (activeRequestExists) {
-            log.debug(String.format("An active payment request already exists for accountId = %d; ignoring duplicate request", paymentEvent.getAccountId()));
+            log.debug(String.format("An active payment request already exists for senderAccountId = %d; ignoring duplicate request", paymentEvent.getSenderAccountId() ));
             return;
         }
 
@@ -102,8 +109,15 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     @Override
     @Transactional
     public void cancel(PaymentEvent paymentEvent) {
+        if (checkEventMessageRepeated(paymentEvent)) return;
         ValidationResult commonResult = validateCancelPaymentEvent(paymentEvent);
         if (!commonResult.isValid()) {
+            Request request = requestRepository.findById(paymentEvent.getRequestId()).orElseThrow(() ->
+                    new IllegalStateException(String.format("Expected request with id = %d to be present because there " +
+                            "was payment event from redis, but it was not found", paymentEvent.getRequestId())));
+            Map<String, Object> inputData = request.getInputData();
+            inputData.put("errorWhileCancel", commonResult.getErrorMessage());
+            requestRepository.save(request);
             return;
         }
 
@@ -153,9 +167,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
         existingRequest.setInputData(inputData);
 
-        Account account = accountRepository.findById(paymentEvent.getAccountId()).orElseThrow(() ->
+        Account account = accountRepository.findById(paymentEvent.getSenderAccountId()).orElseThrow(() ->
                 new IllegalStateException(String.format("Expected account with id = %d to be present because validate " +
-                        "payment event already done without mistakes, but it was not found", paymentEvent.getAccountId())));
+                        "payment event already done without mistakes, but it was not found", paymentEvent.getSenderAccountId())));
         Balance balance = account.getBalance();
         balance.setAuthorizedBalance(paymentEvent.getAmount());
         balance.setActualBalance(balance.getActualBalance().subtract(paymentEvent.getAmount()));
@@ -171,7 +185,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         inputData.put("firstSentDateTime", paymentEvent.getSentDateTime());
         inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
 
-        Optional<Account> accountOptional = accountRepository.findById(paymentEvent.getAccountId());
+        Optional<Account> accountOptional = accountRepository.findById(paymentEvent.getSenderAccountId());
 
         Request request = new Request();
         request.setIdempotencyToken(paymentEvent.getIdempotencyToken());
@@ -188,6 +202,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
             request.setAccount(account);
             request.setStatus(RequestStatus.IN_PROGRESS);
+            request.setStatusDetails(null);
         } else {
             request.setStatus(RequestStatus.FAILED);
             request.setStatusDetails(commonResult.getErrorMessage());
@@ -202,17 +217,20 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.AUTHORIZATION));
         validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
 
-        Optional<Account> accountOpt = accountRepository.findById(paymentEvent.getAccountId());
-        if (accountOpt.isEmpty()) {
-            validationResults.add(ValidationResult.failure(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
+        Optional<Account> senderAccountOpt = accountRepository.findById(paymentEvent.getSenderAccountId());
+        if (senderAccountOpt.isEmpty()) {
+            validationResults.add(ValidationResult.failure(String.format("Sender account with id = %d not found", paymentEvent.getSenderAccountId())));
         } else {
-            Account account = accountOpt.get();
-
+            Account account = senderAccountOpt.get();
             validationResults.add(validator.validateIfAccountActive(account));
 
             Balance balance = account.getBalance();
             validationResults.add(validator.validateSufficientActualBalance(
-                    balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getAccountId()));
+                    balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getSenderAccountId()));
+        }
+
+        if (!accountRepository.existsById(paymentEvent.getRecipientAccountId())) {
+            validationResults.add(ValidationResult.failure(String.format("Recipient account with id = %d not found", paymentEvent.getRecipientAccountId())));
         }
 
         return ValidationResult.getCommonResult(validationResults);
@@ -224,9 +242,12 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.CANCEL));
         validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
 
-        Optional<Account> accountOpt = accountRepository.findById(paymentEvent.getAccountId());
-        if (accountOpt.isEmpty()) {
-            validationResults.add(ValidationResult.failure(String.format("Account with id = %d not found", paymentEvent.getAccountId())));
+        if (!accountRepository.existsById(paymentEvent.getSenderAccountId())) {
+            validationResults.add(ValidationResult.failure(String.format("Sender account with id = %d not found", paymentEvent.getSenderAccountId())));
+        }
+
+        if (!accountRepository.existsById(paymentEvent.getRecipientAccountId())) {
+            validationResults.add(ValidationResult.failure(String.format("Recipient account with id = %d not found", paymentEvent.getRecipientAccountId())));
         }
 
         return ValidationResult.getCommonResult(validationResults);
@@ -245,5 +266,28 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         balanceRepository.save(balance);
         existingRequest.setStatus(RequestStatus.CANCELLED);
         return requestRepository.save(existingRequest);
+    }
+
+    private String generateCacheKey(PaymentEvent paymentEvent) {
+        return String.format("paymentEvent: %s:%s:%s:%s:%s",
+                paymentEvent.getIdempotencyToken(),
+                paymentEvent.getSenderAccountId(),
+                paymentEvent.getRecipientAccountId(),
+                paymentEvent.getRequestType(),
+                paymentEvent.getOperationType());
+    }
+
+
+    private boolean checkEventMessageRepeated(PaymentEvent paymentEvent) {
+        ValueOperations<String, PaymentEvent> valueOps = redisTemplate.opsForValue();
+        String cacheKey = generateCacheKey(paymentEvent);
+
+        if (valueOps.get(cacheKey) != null) {
+            log.debug("Duplicate paymentEvent detected for idempotencyToken: {}; ignoring it", paymentEvent.getIdempotencyToken());
+            return true;
+        }
+
+        valueOps.set(cacheKey, paymentEvent, CACHE_EXPIRATION_TIME_IN_MINUTES, TimeUnit.MINUTES);
+        return false;
     }
 }
