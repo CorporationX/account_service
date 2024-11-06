@@ -1,11 +1,13 @@
 package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.AccountMapperImpl;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,12 @@ class AccountServiceImplTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private BalanceAuditRepository balanceAuditRepository;
+
+    @Mock
+    private BalanceAuditMapper balanceAuditMapper;
 
     @Mock
     private FreeAccountNumbersServiceImpl freeAccountNumbersService;

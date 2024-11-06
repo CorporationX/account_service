@@ -1,9 +1,11 @@
 package faang.school.accountservice.service.impl;
 
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.dto.BalanceDto;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.Balance;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +32,12 @@ class BalanceServiceImplTest {
 
     @Mock
     private ExceptionThrowingValidator validator;
+
+    @Mock
+    private BalanceAuditRepository balanceAuditRepository;
+
+    @Mock
+    private BalanceAuditMapper balanceAuditMapper;
 
     @InjectMocks
     private BalanceServiceImpl balanceService;

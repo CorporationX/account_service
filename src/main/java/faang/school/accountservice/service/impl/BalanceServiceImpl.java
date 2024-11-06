@@ -1,8 +1,10 @@
 package faang.school.accountservice.service.impl;
 
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.dto.BalanceDto;
 import faang.school.accountservice.model.entity.Balance;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
     private final ExceptionThrowingValidator validator;
+    private final BalanceAuditRepository balanceAuditRepository;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     public BalanceDto getBalanceByAccountId(Long accountId) {
 
@@ -63,6 +67,7 @@ public class BalanceServiceImpl implements BalanceService {
         currentBalance.setAuthorizedBalance(balanceToUpdateDto.getAuthorizedBalance());
         currentBalance.setActualBalance(balanceToUpdateDto.getActualBalance());
         Balance updatedBalance = balanceRepository.save(currentBalance);
+        balanceAuditRepository.save(balanceAuditMapper.toAuditEntity(updatedBalance));
 
         BalanceDto updatedBalanceDto = balanceMapper.toDto(updatedBalance);
         validator.validate(updatedBalanceDto, BalanceDto.GetResponse.class);

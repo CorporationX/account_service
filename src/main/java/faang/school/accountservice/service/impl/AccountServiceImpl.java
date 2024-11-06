@@ -1,12 +1,14 @@
 package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.dto.AccountDto;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.Balance;
 import faang.school.accountservice.model.entity.FreeAccountNumber;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
 import faang.school.accountservice.service.AccountService;
@@ -24,6 +26,8 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final FreeAccountNumbersService freeAccountNumbersService;
     private final ExceptionThrowingValidator validator;
+    private final BalanceAuditRepository balanceAuditRepository;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     @Transactional(readOnly = true)
     @Override
@@ -53,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
         Balance balance = new Balance();
         balance.setAccount(account);
         account.setBalance(balance);
-
+        balanceAuditRepository.save(balanceAuditMapper.toAuditEntity(balance));
         freeAccountNumbersService.getFreeAccountNumber(account.getType(), consumer);
         AccountDto createdAccountDto = accountMapper.accountToAccountDto(accountRepository.save(account));
 
