@@ -1,6 +1,7 @@
 package faang.school.accountservice.entity.owner;
 
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.account.SavingsAccount;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +35,9 @@ public class Owner {
 
     @OneToMany(mappedBy = "owner")
     private List<Account> accounts;
+
+    @OneToMany(mappedBy = "owner")
+    private List<SavingsAccount> savingsAccounts;
 
     @Override
     public String toString() {
