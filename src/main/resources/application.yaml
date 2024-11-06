@@ -29,6 +29,20 @@ account:
   nameLength:
     min: 12
     max: 20
+  accountNumbers:
+    needsOfFreeAccountNumbers:
+      - 400 #DEBIT
+      - 200 #SAVINGS
+      - 200 #CREDIT
+      - 200 #DEPOSIT
+      - 100 #SETTLEMENT
+      - 100 #SUBSETTLEMENT
+      - 100 #LETTER_OF_CREDIT
+      - 100 #BUDGET
+    numberFormatter: "%012d"
+    batchSaveSQL: "INSERT INTO free_account_numbers (type, account_number) VALUES (?, ?)"
+    scheduler:
+      cron: "0 */10 * * * *" #every 10 minutes checks
 
 openapi:
   uris: /swagger-ui, /v3/api-docs, /swagger-resources

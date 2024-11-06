@@ -1,0 +1,15 @@
+account:
+  accountNumbers:
+    needsOfFreeAccountNumbers:
+      - 10 #DEBIT
+      - 5 #SAVINGS
+      - 5 #CREDIT
+      - 5 #DEPOSIT
+      - 2 #SETTLEMENT
+      - 2 #SUBSETTLEMENT
+      - 2 #LETTER_OF_CREDIT
+      - 2 #BUDGET
+    numberFormatter: "%012d"
+    batchSaveSQL: "INSERT INTO free_account_numbers (type, account_number) VALUES (?, ?)"
+    scheduler:
+      cron: "* */10 * * * *"

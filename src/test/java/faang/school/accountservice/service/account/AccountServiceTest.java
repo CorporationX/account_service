@@ -7,10 +7,13 @@ import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.owner.OwnerDto;
 import faang.school.accountservice.dto.type.TypeDto;
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.account.FreeAccountId;
+import faang.school.accountservice.entity.account.FreeAccountNumber;
 import faang.school.accountservice.entity.owner.Owner;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.account.AccountEnum;
 import faang.school.accountservice.exception.IllegalStatusException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
@@ -38,7 +41,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
 
-    private static final String TEST = "TEST";
+    private static final String TEST = "DEBIT";
 
     private static final int ID = 1;
 
@@ -61,7 +64,7 @@ class AccountServiceTest {
     private TypeService typeService;
 
     @Mock
-    private AccountNumberGenerator accountNumberGenerator;
+    private FreeAccountNumbersService freeAccountNumbersService;
 
     @Mock
     private AccountStatusManager accountStatusManager;
@@ -74,6 +77,8 @@ class AccountServiceTest {
     private List<Account> accounts;
     private List<AccountDto> accountDtos;
     private List<AccountStatus> availableAccountStatuses;
+    private FreeAccountId freeAccountId;
+    private FreeAccountNumber freeAccountNumber;
 
     @BeforeEach
     void init() {
@@ -86,6 +91,15 @@ class AccountServiceTest {
         accounts = List.of(account);
 
         accountDtos = List.of(accountDto);
+
+        freeAccountId = FreeAccountId.builder()
+                .type(AccountEnum.valueOf(TEST))
+                .accountNumber(AccountEnum.valueOf(TEST).getPrefix() + "%012d")
+                .build();
+
+        freeAccountNumber = FreeAccountNumber.builder()
+                .id(freeAccountId)
+                .build();
     }
 
     @Test
@@ -152,8 +166,8 @@ class AccountServiceTest {
                 .thenReturn(type);
         when(ownerService.getOwnerByName(accountCreateDto.getOwner().getName()))
                 .thenReturn(owner);
-        when(accountNumberGenerator.generateRandomAccountNumberInRange())
-                .thenReturn(TEST);
+        when(freeAccountNumbersService
+                .generateFreeAccountNumber(AccountEnum.valueOf(TEST))).thenReturn(freeAccountNumber);
         when(accountMapper.toAccountDto(any()))
                 .thenReturn(accountDto);
         when(accountRepository.save(any(Account.class)))

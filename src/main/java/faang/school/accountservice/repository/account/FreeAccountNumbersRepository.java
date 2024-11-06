@@ -2,9 +2,11 @@ package faang.school.accountservice.repository.account;
 
 import java.util.Optional;
 
+import faang.school.accountservice.enums.account.AccountEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import faang.school.accountservice.entity.account.FreeAccountId;
@@ -34,4 +36,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
     )
     int deleteFreeAccountNumberByTypeAndAccountNumber(String type, String accountNumber);
 
+    @Query("SELECT COUNT(f) FROM FreeAccountNumber f WHERE f.id.type = :accountType")
+    int countAllFreeAccountNumbersByType(@Param("accountType") AccountEnum accountType);
 }
