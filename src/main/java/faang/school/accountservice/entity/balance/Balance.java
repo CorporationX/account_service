@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +17,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,11 +33,14 @@ public class Balance {
 
     @DecimalMin("0.0")
     @Column(name = "authorization_balance")
-    private double authorizationBalance;
+    private BigDecimal authorizationBalance;
 
     @DecimalMin("0.0")
     @Column(name = "actual_balance", nullable = false)
-    private double actualBalance;
+    private BigDecimal actualBalance;
+
+    @Column(name = "payment_number")
+    private long paymentNumber;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -53,5 +56,4 @@ public class Balance {
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
-
 }
