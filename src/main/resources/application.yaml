@@ -9,7 +9,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: false
@@ -68,6 +68,10 @@ app:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  scheduler:
+    savings_account:
+      accrual: "0 0 0 1 * *" # every month on 1st day
 
 server:
   port: 8090

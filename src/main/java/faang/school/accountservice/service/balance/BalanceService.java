@@ -23,9 +23,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import static faang.school.accountservice.entity.auth.payment.AuthPaymentBuilder.build;
@@ -46,6 +48,21 @@ public class BalanceService {
         Balance newBalance = build(account);
 
         return saveBalance(newBalance);
+    }
+
+    @Transactional
+    public Balance createOrGetBalanceWithAmount(Account account, BigDecimal amount) {
+        Optional<Balance> balanceOpt = balanceRepository.findBalanceByAccountId(account.getId());
+
+        Balance balance;
+        if (balanceOpt.isEmpty()) {
+            balance = build(account, amount);
+        } else {
+            balance = balanceOpt.get();
+            balance.setCurrentBalance(amount);
+        }
+
+        return saveBalance(balance);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -134,16 +151,18 @@ public class BalanceService {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    @Transactional
-    public Balance multiplyCurrentBalance(UUID balanceId, Double value) {
-        Balance balance = findById(balanceId);
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void multiplyCurrentBalance(UUID accountId, double value) {
+        Balance balance = balanceRepository.findByAccount_IdWithLock(accountId).orElseThrow(() ->
+                new ResourceNotFoundException(Balance.class, accountId));
+
         BigDecimal currentBalance = balance.getCurrentBalance();
 
         BigDecimal multiplier = BigDecimal.valueOf(value);
         BigDecimal newCurrentBalance = currentBalance.add(currentBalance.multiply(multiplier));
         balance.setCurrentBalance(newCurrentBalance);
 
-        return saveBalance(balance);
+        persistBalance(balance);
     }
 
     @Transactional(readOnly = true)
@@ -161,7 +180,7 @@ public class BalanceService {
     @Transactional(readOnly = true)
     public Balance findByAccountId(UUID accountId) {
         return balanceRepository.findBalanceByAccountId(accountId).orElseThrow(() ->
-                new ResourceNotFoundException(Account.class, accountId));
+                new ResourceNotFoundException(Balance.class, accountId));
     }
 
     private Balance saveBalance(Balance balance) {
@@ -171,6 +190,10 @@ public class BalanceService {
             throw new BalanceHasBeenUpdatedException(balance.getId());
         }
         return balance;
+    }
+
+    private Balance persistBalance(Balance balance) {
+        return balanceRepository.save(balance);
     }
 
     private AuthPayment saveAuthPayment(AuthPayment payment) {

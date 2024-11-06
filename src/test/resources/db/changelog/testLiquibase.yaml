@@ -2,10 +2,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset-test/test_users_project_country.sql
   - include:
-      file: db/changelog/changeset-test/V001__account-service_account.sql
+      file: db/changelog/changeset-test/account_V001__create_account.sql
   - include:
-      file: db/changelog/changeset-test/account_V002__balance.sql
+      file: db/changelog/changeset-test/account_V002__create_balance.sql
   - include:
       file: db/changelog/changeset-test/test_insert_country_users_projects.sql
   - include:
-      file: db/changelog/changeset-test/account_V004__create_free_accounts_numbers_and_account_numbers_sequence.sql
+      file: db/changelog/changeset-test/account_V003__create_free_accounts_numbers_and_account_numbers_sequence.sql
