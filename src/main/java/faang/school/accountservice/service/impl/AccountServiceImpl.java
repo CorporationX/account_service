@@ -12,6 +12,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.util.ExceptionThrowingValidator;
+import faang.school.accountservice.service.AccountService;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
