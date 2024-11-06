@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS savings_account (
                                                version                     bigint DEFAULT 1,
                                                created_at                  timestamptz DEFAULT current_timestamp,
                                                updated_at                  timestamptz DEFAULT current_timestamp,
+                                                last_bonus_update           timestamptz DEFAULT current_timestamp,
 
                                                CONSTRAINT fk_account_number FOREIGN KEY (account_number) REFERENCES account (number)
 );
@@ -99,7 +100,8 @@ CREATE TABLE IF NOT EXISTS savings_account_rate (
     id          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     tariff_id   bigint,
     rate        decimal NOT NULL,
-    created_at  timestamptz DEFAULT current_timestamp
+    created_at  timestamptz DEFAULT current_timestamp,
+    rate_bonus_added       decimal DEFAULT NULL
 );
 
 INSERT INTO savings_account_rate (tariff_id, rate)
@@ -113,7 +115,8 @@ CREATE TABLE IF NOT EXISTS savings_account (
     last_date_percent           timestamptz,
     version                     bigint DEFAULT 1,
     created_at                  timestamptz DEFAULT current_timestamp,
-    updated_at                  timestamptz DEFAULT current_timestamp
+    updated_at                  timestamptz DEFAULT current_timestamp,
+    last_bonus_update           timestamptz DEFAULT current_timestamp
 );
 
 INSERT INTO savings_account (account_number)

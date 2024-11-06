@@ -5,21 +5,24 @@ import faang.school.accountservice.config.ratechange.RateChangeRulesConfig;
 import faang.school.accountservice.feign.AchievementServiceClient;
 import faang.school.accountservice.model.dto.AchievementDto;
 import faang.school.accountservice.model.event.AchievementEvent;
+import faang.school.accountservice.model.event.RateDecreaseEvent;
 import faang.school.accountservice.service.RateAdjustmentService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class AchievementEventListener extends AbstractEventListener<AchievementEvent> implements MessageListener {
+public class RateDecreaseEventListener extends AbstractEventListener<RateDecreaseEvent> implements MessageListener {
 
     private final RateAdjustmentService rateAdjustmentService;
     private final RateChangeRulesConfig rateChangeRulesConfig;
     private final AchievementServiceClient achievementServiceClient;
 
-    public AchievementEventListener(ObjectMapper objectMapper,
+    @Autowired
+    public RateDecreaseEventListener(ObjectMapper objectMapper,
                                     RateAdjustmentService rateAdjustmentService,
                                     RateChangeRulesConfig rateChangeRulesConfig,
                                     AchievementServiceClient achievementServiceClient) {
@@ -31,11 +34,10 @@ public class AchievementEventListener extends AbstractEventListener<AchievementE
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        handleEvent(message, AchievementEvent.class, event -> {
-            AchievementDto achievementDto = achievementServiceClient.getAchievement(event.getAchievementId());
-            Double rateChange = rateChangeRulesConfig.getRateChange(achievementDto.getTitle());
+        handleEvent(message, RateDecreaseEvent.class, event -> {
+            Double rateChange = rateChangeRulesConfig.getRateChange(event.getTitle());
             if (rateChange != 0.0) {
-                rateAdjustmentService.adjustRate(event.getUserId(), rateChange);
+                event.getUserIds().forEach(userId -> rateAdjustmentService.adjustRate(userId, rateChange));
             }
         });
     }

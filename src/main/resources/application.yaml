@@ -49,3 +49,22 @@ free-account-numbers:
 
 scheduler:
   account-numbers-generation: "0 30 5 * * *"
+
+user-service:
+  host: localhost
+  port: 8080
+achievement-service:
+  host: localhost
+  port: 8085
+
+rate-change-rules:
+  events:
+    writer: 0.1
+    expert: 0.2
+    expletives: -0.05
+    inactivity: -0.01
+  max-rate: 10.0
+
+redis:
+  channels:
+    achievement: achievement_channel

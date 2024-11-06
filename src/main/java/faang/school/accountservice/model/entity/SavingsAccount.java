@@ -48,10 +48,6 @@ public class SavingsAccount {
     @Column(name = "updated_at", insertable = false)
     private LocalDateTime updatedAt;
 
-    // Новые поля
-    @Column(name = "rate_bonus")
-    private BigDecimal rateBonus;  // Используем BigDecimal для финансовых вычислений
-
     @Column(name = "last_bonus_update")
     private LocalDateTime lastBonusUpdate;
 }

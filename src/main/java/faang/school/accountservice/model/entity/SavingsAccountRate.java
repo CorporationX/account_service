@@ -30,4 +30,6 @@ public class SavingsAccountRate {
     @Column(name = "created_at", insertable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "rate_bonus_added")
+    private double rateBonusAdded;
 }

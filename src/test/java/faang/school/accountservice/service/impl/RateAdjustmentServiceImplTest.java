@@ -1,0 +1,189 @@
+package faang.school.accountservice.service.impl;
+
+import faang.school.accountservice.model.entity.SavingsAccount;
+import faang.school.accountservice.model.entity.SavingsAccountRate;
+import faang.school.accountservice.model.entity.Tariff;
+import faang.school.accountservice.model.entity.TariffHistory;
+import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.SavingsAccountRateRepository;
+import faang.school.accountservice.repository.SavingsAccountRepository;
+import faang.school.accountservice.repository.TariffHistoryRepository;
+import faang.school.accountservice.repository.TariffRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class RateAdjustmentServiceImplTest {
+
+    @Mock
+    private SavingsAccountRepository savingsAccountRepository;
+
+    @Mock
+    private TariffHistoryRepository tariffHistoryRepository;
+
+    @Mock
+    private TariffRepository tariffRepository;
+
+    @Mock
+    private SavingsAccountRateRepository savingsAccountRateRepository;
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @InjectMocks
+    private RateAdjustmentServiceImpl rateAdjustmentService;
+
+    @BeforeEach
+    public void setUp() {
+        ReflectionTestUtils.setField(rateAdjustmentService, "maxRate", 10.0);
+    }
+
+    @Test
+    @DisplayName("Should adjust rate and save all entities")
+    @SuppressWarnings("unchecked")
+    public void testAdjustRate_Success() {
+        SavingsAccount savingsAccount = new SavingsAccount();
+        savingsAccount.setId(1L);
+        savingsAccount.setAccountNumber("12345");
+        savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
+
+        Tariff tariff = new Tariff();
+        tariff.setId(1L);
+
+        TariffHistory tariffHistory = new TariffHistory();
+        tariffHistory.setTariff(tariff);
+
+        SavingsAccountRate currentRate = new SavingsAccountRate();
+        currentRate.setRate(5.0);
+
+        List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
+
+        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
+        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(tariffHistoryRepository.findBySavingsAccountId(1L)).thenReturn(List.of(tariffHistory));
+        when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
+        when(savingsAccountRateRepository.findByTariff(tariff)).thenReturn(List.of(currentRate));
+
+        rateAdjustmentService.adjustRate(1L, 1.0);
+
+        ArgumentCaptor<List<SavingsAccount>> savingsAccountCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<SavingsAccountRate>> rateCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<TariffHistory>> historyCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(savingsAccountRepository).saveAll(savingsAccountCaptor.capture());
+        verify(savingsAccountRateRepository).saveAll(rateCaptor.capture());
+        verify(tariffHistoryRepository).saveAll(historyCaptor.capture());
+
+        List<SavingsAccount> savedSavingsAccounts = savingsAccountCaptor.getValue();
+        List<SavingsAccountRate> savedRates = rateCaptor.getValue();
+        List<TariffHistory> savedHistories = historyCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(1, savedSavingsAccounts.size()),
+                () -> assertNotNull(savedSavingsAccounts.get(0).getLastBonusUpdate()),
+                () -> assertTrue(savedSavingsAccounts.get(0).getLastBonusUpdate()
+                        .isAfter(LocalDateTime.now().minusMinutes(1))),
+                () -> assertEquals(1, savedRates.size())
+        );
+
+        SavingsAccountRate savedRate = savedRates.get(0);
+
+        assertAll(
+                () -> assertEquals(tariff, savedRate.getTariff()),
+                () -> assertEquals(6.0, savedRate.getRate()),
+                () -> assertEquals(1.0, savedRate.getRateBonusAdded()),
+                () -> assertNotNull(savedRate.getCreatedAt()),
+                () -> assertTrue(savedRate.getCreatedAt().isBefore(LocalDateTime.now().plusMinutes(1)))
+        );
+
+        assertEquals(1, savedHistories.size());
+
+        TariffHistory savedHistory = savedHistories.get(0);
+
+        assertAll(
+                () -> assertEquals(savingsAccount, savedHistory.getSavingsAccount()),
+                () -> assertEquals(tariff, savedHistory.getTariff()),
+                () -> assertNotNull(savedHistory.getCreatedAt()),
+                () -> assertTrue(savedHistory.getCreatedAt().isBefore(LocalDateTime.now().plusMinutes(1)))
+        );
+    }
+
+    @Test
+    @DisplayName("Should throw exception when rate adjustment attempted within 24 hours")
+    public void testAdjustRate_InsufficientTimeElapsed() {
+
+        SavingsAccount savingsAccount = new SavingsAccount();
+        savingsAccount.setLastBonusUpdate(LocalDateTime.now());
+
+        List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
+
+        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
+        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+
+        assertThrows(IllegalStateException.class, () -> rateAdjustmentService.adjustRate(1L, 1.0),
+                "Rate can only be adjusted once per 24 hours.");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when no tariff history is found")
+    public void testAdjustRate_NoHistoryFound() {
+        SavingsAccount savingsAccount = new SavingsAccount();
+        savingsAccount.setId(1L);
+        savingsAccount.setAccountNumber("12345");
+        savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
+
+        List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
+        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
+        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(tariffHistoryRepository.findBySavingsAccountId(1L)).thenReturn(Collections.emptyList());
+
+        assertThrows(IllegalStateException.class, () -> rateAdjustmentService.adjustRate(1L, 1.0),
+                "No tariff history found for savings account: 12345");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when no rate is found for tariff")
+    public void testAdjustRate_NoRateFound() {
+        SavingsAccount savingsAccount = new SavingsAccount();
+        savingsAccount.setId(1L);
+        savingsAccount.setAccountNumber("12345");
+        savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
+
+        Tariff tariff = new Tariff();
+        tariff.setId(1L);
+
+        TariffHistory tariffHistory = new TariffHistory();
+        tariffHistory.setTariff(tariff);
+
+        List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
+        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
+        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(tariffHistoryRepository.findBySavingsAccountId(1L)).thenReturn(List.of(tariffHistory));
+        when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
+        when(savingsAccountRateRepository.findByTariff(tariff)).thenReturn(Collections.emptyList());
+
+        assertThrows(EntityNotFoundException.class, () -> rateAdjustmentService.adjustRate(1L, 1.0),
+                "No rate found for tariff ID: 1");
+    }
+}

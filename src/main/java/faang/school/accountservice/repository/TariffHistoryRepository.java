@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,4 +16,5 @@ public interface TariffHistoryRepository extends JpaRepository<TariffHistory, Lo
             "WHERE th.savings_account_id = :accountId ORDER BY th.created_at DESC LIMIT 1", nativeQuery = true)
     Optional<Long> findLatestTariffIdBySavingsAccountId(@Param("accountId") Long accountId);
 
+    List<TariffHistory> findBySavingsAccountId(Long id);
 }

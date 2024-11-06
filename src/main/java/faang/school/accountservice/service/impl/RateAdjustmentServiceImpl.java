@@ -2,19 +2,25 @@ package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.model.entity.SavingsAccount;
 import faang.school.accountservice.model.entity.SavingsAccountRate;
+import faang.school.accountservice.model.entity.Tariff;
 import faang.school.accountservice.model.entity.TariffHistory;
+import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.SavingsAccountRateRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffHistoryRepository;
+import faang.school.accountservice.repository.TariffRepository;
 import faang.school.accountservice.service.RateAdjustmentService;
-import faang.school.accountservice.util.RateAdjustmentRulesLoader;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,55 +28,91 @@ import java.util.Comparator;
 public class RateAdjustmentServiceImpl implements RateAdjustmentService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final TariffHistoryRepository tariffHistoryRepository;
-    private final RateAdjustmentRulesLoader rulesLoader;
+    private final TariffRepository tariffRepository;
+    private final SavingsAccountRateRepository savingsAccountRateRepository;
+    private final AccountRepository accountRepository;
+
+    @Value("${rate-change-rules.max-rate}")
+    private double maxRate;
 
     @Override
-    public void adjustRateForAchievement(long userId, String achievementTitle) {
-        // 1. Получаем правило увеличения ставки
-        Double increaseRate = rulesLoader.getIncreaseRate(achievementTitle);
-        if (increaseRate == null) {
-            log.warn("No increase rate rule found for achievement: " + achievementTitle);
-            return;
+    @Transactional
+    public void adjustRate(long userId, double rateChange) {
+        List<String> accountNumbers = accountRepository.findNumbersByUserId(userId);
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaByAccountNumbers(accountNumbers);
+
+        List<SavingsAccountRate> newRateEntries = new ArrayList<>();
+        List<TariffHistory> newTariffHistories = new ArrayList<>();
+
+        for (SavingsAccount savingsAccount : savingsAccounts) {
+            validateLastBonusUpdate(savingsAccount);
+
+            Tariff tariff = getLatestTariffForSavingsAccount(savingsAccount);
+            SavingsAccountRate currentRate = getCurrentRateForTariff(tariff);
+
+            double newRate = calculateAdjustedRate(currentRate.getRate(), rateChange);
+
+            updateSavingsAccountLastBonus(savingsAccount);
+            newRateEntries.add(createNewRateEntry(tariff, newRate, rateChange));
+            newTariffHistories.add(createNewHistoryEntry(savingsAccount, tariff));
         }
 
-        // 2. Ищем накопительный счёт пользователя
-        SavingsAccount account = savingsAccountRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Savings account not found for user: " + userId));
-
-        // 3. Получаем текущий бонус к ставке
-        BigDecimal currentBonus = account.getRateBonus() != null ? account.getRateBonus() : BigDecimal.ZERO;
-        BigDecimal newBonus = currentBonus.add(BigDecimal.valueOf(increaseRate));
-        account.setRateBonus(newBonus);
-        account.setLastBonusUpdate(LocalDateTime.now());
-
-        // 4. Получаем базовую ставку из SavingsAccountRate
-        SavingsAccountRate currentRate = account.getAccount().getSavingsAccountRates()
-                .stream()
-                .max(Comparator.comparing(SavingsAccountRate::getCreatedAt))
-                .orElseThrow(() -> new EntityNotFoundException("No rate found for account: " + account.getAccountNumber()));
-
-        // 5. Рассчитываем новую ставку с учётом бонуса
-        BigDecimal baseRate = BigDecimal.valueOf(currentRate.getRate());
-        BigDecimal newRate = baseRate.add(newBonus);
-
-        // 6. Обновляем ставку в SavingsAccount
-        account.getAccount().setCurrentRate(newRate.doubleValue()); // Предположим, что есть поле для текущей ставки
-
-        // 7. Создаём запись в TariffHistory
-        TariffHistory history = new TariffHistory();
-        history.setSavingsAccount(account);
-        history.setTariff(currentRate.getTariff());
-        history.setCreatedAt(LocalDateTime.now());
-        tariffHistoryRepository.save(history);
-
-        // 8. Сохраняем изменения в SavingsAccount
-        savingsAccountRepository.save(account);
-
-        log.info("Rate adjusted for user {}. New rate: {}", userId, newRate);
+        saveAllEntities(savingsAccounts, newRateEntries, newTariffHistories);
     }
 
-    private double getMaxRate() {
-        // Получение максимальной ставки из конфигурации
-        return 5.0; // Например, 5%
+    private void validateLastBonusUpdate(SavingsAccount savingsAccount) {
+        if (savingsAccount.getLastBonusUpdate() != null &&
+                savingsAccount.getLastBonusUpdate().isAfter(LocalDateTime.now().minusDays(1))) {
+            throw new IllegalStateException("Rate can only be adjusted once per 24 hours.");
+        }
+    }
+
+    private Tariff getLatestTariffForSavingsAccount(SavingsAccount savingsAccount) {
+        List<TariffHistory> tariffHistories = tariffHistoryRepository.findBySavingsAccountId(savingsAccount.getId());
+        TariffHistory latestHistory = tariffHistories.stream()
+                .max(Comparator.comparing(TariffHistory::getCreatedAt))
+                .orElseThrow(() -> new IllegalStateException("No tariff history found for savings account: " + savingsAccount.getAccountNumber()));
+
+        return tariffRepository.findById(latestHistory.getTariff().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Tariff not found for ID: " + latestHistory.getTariff().getId()));
+    }
+
+    private SavingsAccountRate getCurrentRateForTariff(Tariff tariff) {
+        return savingsAccountRateRepository.findByTariff(tariff)
+                .stream()
+                .max(Comparator.comparing(SavingsAccountRate::getCreatedAt))
+                .orElseThrow(() -> new EntityNotFoundException("No rate found for tariff ID: " + tariff.getId()));
+    }
+
+    private double calculateAdjustedRate(double currentRate, double rateChange) {
+        double newRate = currentRate + rateChange;
+        return Math.min(maxRate, Math.max(newRate, 0));
+    }
+
+    private void updateSavingsAccountLastBonus(SavingsAccount savingsAccount) {
+        savingsAccount.setLastBonusUpdate(LocalDateTime.now());
+    }
+
+    private SavingsAccountRate createNewRateEntry(Tariff tariff, double newRate, double rateChange) {
+        SavingsAccountRate newRateEntry = new SavingsAccountRate();
+        newRateEntry.setTariff(tariff);
+        newRateEntry.setRate(newRate);
+        newRateEntry.setCreatedAt(LocalDateTime.now());
+        newRateEntry.setRateBonusAdded(rateChange);
+        return newRateEntry;
+    }
+
+    private TariffHistory createNewHistoryEntry(SavingsAccount savingsAccount, Tariff tariff) {
+        TariffHistory historyEntry = new TariffHistory();
+        historyEntry.setSavingsAccount(savingsAccount);
+        historyEntry.setTariff(tariff);
+        historyEntry.setCreatedAt(LocalDateTime.now());
+        return historyEntry;
+    }
+
+    private void saveAllEntities(List<SavingsAccount> savingsAccounts, List<SavingsAccountRate> newRateEntries, List<TariffHistory> newTariffHistories) {
+        savingsAccountRepository.saveAll(savingsAccounts);
+        savingsAccountRateRepository.saveAll(newRateEntries);
+        tariffHistoryRepository.saveAll(newTariffHistories);
     }
 }

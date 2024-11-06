@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
@@ -42,6 +41,4 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             "LEFT JOIN last_savings_account_rate last_sar ON last_sar.tariff_id = last_th.savings_account_tariff_id AND last_sar.rn = 1",
             nativeQuery = true)
     List<Object[]> findBalanceAndRate();
-
-    Optional<SavingsAccount> findByUserId(long userId);
 }
