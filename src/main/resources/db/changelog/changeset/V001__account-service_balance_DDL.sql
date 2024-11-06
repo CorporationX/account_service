@@ -1,7 +1,7 @@
 CREATE TABLE balance(
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    authorization_balance DOUBLE,
-    actual_balance DOUBLE NOT NULL,
+    authorization_balance DOUBLE PRECISION,
+    actual_balance DOUBLE PRECISION NOT NULL,
     payment_number BIGINT,
     created_at TIMESTAMPTZ DEFAULT current_timestamp NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT current_timestamp,

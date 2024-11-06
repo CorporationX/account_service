@@ -1,15 +1,17 @@
 INSERT INTO balance(
     authorization_balance,
     actual_balance,
+    payment_number,
     created_at,
     updated_at,
     version,
     account_id
 ) VALUES (
-    1000,
-    2000,
+    0,
+    0,
+    1,
     DEFAULT,
     DEFAULT,
-    1.0,
-    123
+    1,
+    1
 );
