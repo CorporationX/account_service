@@ -31,13 +31,13 @@ public class FreeAccountNumberService {
     @Transactional
     public String getFreeAccountNumber(AccountType accountType) {
         return freeAccountNumbersRepository
-                .getFreeAccountNumber(accountType.getCode())
+                .getFreeAccountNumber(accountType.name())
                 .orElse(generateSingleFreeAccountNumber(accountType));
     }
 
     @Transactional
     public Integer getQuantityFreeAccountNumbersByType(AccountType accountType) {
-        return freeAccountNumbersRepository.getFreeAccountNumbersCountByType(accountType.getCode());
+        return freeAccountNumbersRepository.getFreeAccountNumbersCountByType(accountType.name());
     }
 
     @Transactional

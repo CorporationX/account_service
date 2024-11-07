@@ -64,7 +64,7 @@ class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
     void testGetFreeAccountNumberFromWhenFreeAccountNumberExists() {
         FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
                 .accountNumber(number)
-                .accountType(SAVINGS.getCode())
+                .accountType(SAVINGS)
                 .build();
         freeAccountNumbersRepository.save(freeAccountNumber);
 
@@ -148,7 +148,7 @@ class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
     private List<FreeAccountNumber> createFreeAccountNumbers(AccountType accountType, long count) {
         return LongStream.range(0, count)
                 .mapToObj(n -> FreeAccountNumber.builder()
-                        .accountType(accountType.getCode())
+                        .accountType(accountType)
                         .accountNumber(freeAccountNumberMapper
                                 .toFreeAccountNumber(accountType, n, accountNumberLength - typeCodeLength)
                                 .getAccountNumber())

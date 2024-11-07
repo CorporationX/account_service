@@ -11,7 +11,7 @@ public interface FreeAccountNumberMapper {
         String accountNumber = accountType.getCode() + String.format("%0" + numberLength + "d", currentNumber);
         return FreeAccountNumber.builder()
                 .accountNumber(accountNumber)
-                .accountType(accountType.getCode())
+                .accountType(accountType)
                 .build();
     }
 }
