@@ -3,6 +3,8 @@ package faang.school.accountservice.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
 import faang.school.accountservice.AccountServiceApplication;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +46,16 @@ public class BaseContextTest {
             new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"))
                     .withReuse(true);
 
+    @AfterAll
+    public void afterAll() {
+        POSTGRESQL_CONTAINER.stop();
+        REDIS_CONTAINER.stop();
+    }
+
     @DynamicPropertySource
     protected static void postgresqlProperties(DynamicPropertyRegistry registry) {
         POSTGRESQL_CONTAINER.start();
         REDIS_CONTAINER.start();
-
         registry.add("spring.datasource.url", POSTGRESQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);

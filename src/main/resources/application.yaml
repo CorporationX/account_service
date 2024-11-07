@@ -23,3 +23,13 @@ server:
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
+  url: ${user-service.host}:${user-service.port}
+
+project-service:
+  host: localhost
+  port: 8082
+  url: ${project-service.host}:${project-service.port}
