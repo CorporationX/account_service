@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,15 +27,17 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "balance")
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "balance")
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @JoinColumn(name = "account_id", unique = true)
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Account account;
 
     @Column(name = "cur_auth_balance")

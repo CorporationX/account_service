@@ -19,6 +19,6 @@ public class BalanceController {
 
     @GetMapping("/{accountId}")
     BalanceDto getBalance(@PathVariable("accountId") @Positive long accountId) {
-        return service.getBalance(accountId);
+        return service.getBalanceDtoByAccountId(accountId);
     }
 }

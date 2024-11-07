@@ -5,6 +5,52 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        request_status_notification: request_status_notification_channel
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    pool-size: 3
+    producer:
+      acks: all
+      enable-idempotence: true
+      retries: 2147483647 # Integer.MAX_VALUE
+      max-in-flight-requests-per-connection: 1
+    consumer:
+      group-id: "group"
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      isolation-level: read_committed
+    topics:
+      payment-authorization:
+        name: payment-authorization-topic
+        num-partitions: 5
+        replication-factor: 2
+      payment-clear:
+        name: payment-clear-topic
+        num-partitions: 3
+        replication-factor: 1
+      payment-status-reset:
+        name: payment-status-reset-topic
+        num-partitions: 3
+        replication-factor: 1
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
 account:
   numbers:
     generation:
@@ -19,26 +65,16 @@ account:
       savings_account: 400
       investment_account: 100
 
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-  data:
-    redis:
-      port: 6379
-      host: localhost
-      channels:
-        request_status_notification: request_status_notification_channel
-
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+payment:
+  cancel:
+    max-attempts: 5
+    backoff: 2500
+  clearing:
+    max-attempts: 5
+    backoff: 2500
 
 server:
+  main-pool-size: 12
   port: 8090
 
 logging:

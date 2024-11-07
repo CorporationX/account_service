@@ -1,14 +1,21 @@
 package faang.school.accountservice.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(indexes = @Index(name = "idx_balance_id", columnList = "balance_id"))
 public class BalanceAudit {
     @Id
@@ -18,6 +25,7 @@ public class BalanceAudit {
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
 
+    @Version
     @Column(name = "balance_version", nullable = false)
     private Long version;
 
