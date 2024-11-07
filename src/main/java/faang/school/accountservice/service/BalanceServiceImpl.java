@@ -55,8 +55,8 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     @Transactional
     public void paymentAuthorization(@Validated PendingDto pendingDto) {
-        Balance fromBalance = getBalanceByAccountId(pendingDto.getFromAccountId());
-        Balance toBalance = getBalanceByAccountId(pendingDto.getToAccountId());
+        Balance fromBalance = findBalanceByAccountId(pendingDto.getFromAccountId());
+        Balance toBalance = findBalanceByAccountId(pendingDto.getToAccountId());
         BigDecimal amount = pendingDto.getAmount();
 
         if (fromBalance.getCurAuthBalance().compareTo(amount) < 0) {
@@ -86,8 +86,8 @@ public class BalanceServiceImpl implements BalanceService {
     @Transactional
     @Async("mainExecutorService")
     public void clearPayment(@Validated PendingDto pendingDto) {
-        Balance fromBalance = getBalanceByAccountId(pendingDto.getFromAccountId());
-        Balance toBalance = getBalanceByAccountId(pendingDto.getToAccountId());
+        Balance fromBalance = findBalanceByAccountId(pendingDto.getFromAccountId());
+        Balance toBalance = findBalanceByAccountId(pendingDto.getToAccountId());
         BigDecimal amount = pendingDto.getAmount();
 
         fromBalance.setCurFactBalance(fromBalance.getCurFactBalance().subtract(amount));
@@ -103,11 +103,18 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public BalanceDto getBalance(long accountId) {
-        return mapper.toDto(balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Not found account with id = " + accountId)));
+        return balanceRepository.findByAccountId(accountId)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Not found account with id = " + accountId));
     }
 
-    private Balance getBalanceByAccountId(Long accountId) {
+    @Override
+    public BalanceDto getBalanceByAccountId(long accountId) {
+        Balance balance = findBalanceByAccountId(accountId);
+        return mapper.toDto(balance);
+    }
+
+    private Balance findBalanceByAccountId(long accountId) {
         return balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with account id %d not found".formatted(accountId)));
     }

@@ -134,15 +134,14 @@ class BalanceServiceImplTest {
 
     @Test
     void getBalance_whenOk() {
-        when(accountRepository.existsById(accountId))
-                .thenReturn(true);
+        when(balanceJpaRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         service.getBalance(accountId);
 
         verify(mapper, times(1))
                 .toDto(balance);
         Mockito.verify(balanceJpaRepository, Mockito.times(1))
-                .findById(accountId);
+                .findByAccountId(accountId);
 
     }
 
@@ -248,5 +247,16 @@ class BalanceServiceImplTest {
         verify(balanceJpaRepository, times(1)).save(fromBalance2);
         verify(balanceJpaRepository, times(1)).save(toBalance2);
         verify(paymentStatusChangePublisher, times(2)).publish(any(PendingDto.class));
+    }
+
+    @Test
+    void testGetBalanceByAccountId() {
+        when(balanceJpaRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+
+        BalanceDto balanceDto = service.getBalanceByAccountId(accountId);
+
+        assertEquals(this.balanceDto, balanceDto);
+        verify(balanceJpaRepository).findByAccountId(accountId);
+        verify(mapper).toDto(balance);
     }
 }
