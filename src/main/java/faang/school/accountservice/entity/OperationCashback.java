@@ -27,4 +27,8 @@ public class OperationCashback {
 
     @Column(name = "cashback_percentage", nullable = false)
     private double percentage;
+
+    @Column(name = "version")
+    @Version
+    private Long version;
 }

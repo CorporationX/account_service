@@ -38,17 +38,17 @@ public class CashbackTariffController {
         return cashbackTariffService.getCashbackMapping(typeMappingDto);
     }
 
-    @PostMapping("/cashback/create")
+    @PostMapping("/cashback_mapping")
     public TypeMappingDto createCashbackMapping(@Valid @RequestBody TypeMappingDto typeMappingDto) {
         return cashbackTariffService.createCashbackMapping(typeMappingDto);
     }
 
-    @PutMapping("/cashback/update")
+    @PutMapping("/cashback_mapping")
     public void updateCashbackMapping(@Valid @RequestBody TypeMappingDto typeMappingDto) {
         cashbackTariffService.updateCashbackMapping(typeMappingDto);
     }
 
-    @DeleteMapping("/cashback/delete")
+    @DeleteMapping("/cashback_mapping")
     public void deleteCashbackMapping(@RequestBody TypeMappingDto typeMappingDto) {
         cashbackTariffService.deleteCashbackMapping(typeMappingDto);
     }

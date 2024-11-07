@@ -11,7 +11,9 @@ import faang.school.accountservice.enums.MappingType;
 import faang.school.accountservice.mapper.CashbackTariffMapper;
 import faang.school.accountservice.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -114,12 +116,19 @@ public class CashbackTariffServiceImpl implements CashbackTariffService {
         long tariffId = typeMappingDto.getTariffId();
         long typeId = typeMappingDto.getTypeId();
 
-        if (typeMappingDto.getMappingType().equals(MappingType.OPERATION)) {
-            OperationCashbackId operationCashbackId = new OperationCashbackId(tariffId, typeId);
-            operationCashbackRepository.deleteById(operationCashbackId);
-        } else {
-            MerchantCashbackId merchantCashbackId = new MerchantCashbackId(tariffId, typeId);
-            merchantCashbackRepository.deleteById(merchantCashbackId);
+        try {
+            if (typeMappingDto.getMappingType().equals(MappingType.OPERATION)) {
+                OperationCashbackId operationCashbackId = new OperationCashbackId(tariffId, typeId);
+                OperationCashback operationCashback = findOperationCashback(tariffId, typeId);
+                operationCashbackRepository.delete(operationCashback);
+            } else {
+                MerchantCashbackId merchantCashbackId = new MerchantCashbackId(tariffId, typeId);
+                MerchantCashback merchantCashback = findMerchantCashback(tariffId, typeId);
+                merchantCashbackRepository.delete(merchantCashback);
+            }
+        } catch (ObjectOptimisticLockingFailureException e) {
+            MerchantCashback merchantCashback = findMerchantCashback(tariffId, typeId);
+            merchantCashbackRepository.delete(merchantCashback);
         }
     }
 
@@ -143,7 +152,7 @@ public class CashbackTariffServiceImpl implements CashbackTariffService {
     }
 
     private void validateTypeMappingDto(TypeMappingDto typeMappingDto) {
-        if (typeMappingDto.getMappingType().equals(MappingType.OPERATION)) {
+        if (typeMappingDto.getMappingType().equals(MappingType.MERCHANT)) {
             merchantRepository.findById(typeMappingDto.getTypeId())
                     .orElseThrow(() -> new EntityNotFoundException("Merchant not found with id: " + typeMappingDto.getTypeId()));
         }

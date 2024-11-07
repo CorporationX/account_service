@@ -27,4 +27,8 @@ public class MerchantCashback  {
 
     @Column(name = "cashback_percentage", nullable = false)
     private Double percentage;
+
+    @Column(name = "version")
+    @Version
+    private Long version;
 }
