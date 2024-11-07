@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS balance
 
 CREATE TABLE balance_audit (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    account_id BIGINT,
+    account_id BIGINT NOT NULL,
     balance_version BIGINT DEFAULT 0,
     authorized_balance NUMERIC,
     actual_balance NUMERIC,
