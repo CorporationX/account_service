@@ -113,7 +113,7 @@ public class BalanceService {
         log.error("Authorization payment {} not found", authPaymentId);
 
         validatePaymentIsStatus(authPayment);
-        validateActualBalanceToBeWrittenOff(authPayment);
+        validateAuthorizationBalanceToBeWrittenOff(authPayment);
 
         Balance balance = authPayment.getBalance();
         balance.setAuthorization(balance.getAuthorization().subtract(authPayment.getAmount()));
@@ -129,9 +129,9 @@ public class BalanceService {
         }
     }
 
-    private void validateActualBalanceToBeWrittenOff(BalanceAuthPayment authPayment) {
+    private void validateAuthorizationBalanceToBeWrittenOff(BalanceAuthPayment authPayment) {
         Balance balance = authPayment.getBalance();
-        if (balance.getActual().compareTo(authPayment.getAmount()) < 0) {
+        if (balance.getAuthorization().compareTo(authPayment.getAmount()) < 0) {
             throw new ValidationException("Insufficient funds for clearing the payment");
         }
     }
