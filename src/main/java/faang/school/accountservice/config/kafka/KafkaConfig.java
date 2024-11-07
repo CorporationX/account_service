@@ -29,7 +29,9 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
+        KafkaTemplate<String, String> template = new KafkaTemplate<>(producerFactory);
+        template.setTransactionIdPrefix("payment-transaction-");
+        return template;
     }
 
     @Bean
@@ -67,6 +69,7 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, producer.isEnableIdempotence());
         configProps.put(ProducerConfig.RETRIES_CONFIG, producer.getRetries());
         configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, producer.getMaxInFlightRequestsPerConnection());
+        configProps.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, producer.getTransactionalId());
         return configProps;
     }
 
