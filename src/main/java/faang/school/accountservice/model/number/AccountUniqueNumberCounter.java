@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,5 +23,9 @@ public class AccountUniqueNumberCounter {
     private Long counter;
 
     @Column(name = "generation_state")
-    private Boolean generation_state;
+    private Boolean generationState;
+
+    public boolean permissionToStartGeneration() {
+        return !this.generationState;
+    }
 }

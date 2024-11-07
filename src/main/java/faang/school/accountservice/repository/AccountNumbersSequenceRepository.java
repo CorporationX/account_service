@@ -1,7 +1,6 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.model.number.AccountUniqueNumberCounter;
-import feign.Param;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -14,16 +13,19 @@ import java.util.Optional;
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountUniqueNumberCounter, String> {
 
+    Optional<AccountUniqueNumberCounter> findAccountUniqueNumberCounterByType(String type);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM AccountUniqueNumberCounter a WHERE a.type = :type")
-    Optional<AccountUniqueNumberCounter> findByTypeForUpdate(String type);
+    Optional<AccountUniqueNumberCounter> tryLockCounterByTypeForUpdate(String type);
+
 
     @Modifying
-    @Query("UPDATE AccountUniqueNumberCounter a SET a.generation_state = true WHERE a.type = :type")
+    @Query("UPDATE AccountUniqueNumberCounter a SET a.generationState = true WHERE a.type = :type")
     void setActiveGenerationState(String type);
 
     @Modifying
-    @Query("UPDATE AccountUniqueNumberCounter a SET a.generation_state = false WHERE a.type = :type")
+    @Query("UPDATE AccountUniqueNumberCounter a SET a.generationState = false WHERE a.type = :type")
     void setNonActiveGenerationState(String type);
 
     @Query(nativeQuery = true, value = """

@@ -25,4 +25,3 @@ VALUES ('DEBIT'),
        ('RETIREMENT'),
        ('FOREX'),
        ('ESCROW');
-
