@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 public class PaymentEventValidator {
     private final AccountRepository accountRepository;
 
-    //возможно нет смысла в этой проверке
+    //TODO: возможно нет смысла в этой проверке
     public ValidationResult validateSentTimeNotOlderThan(LocalDateTime sentDateTime, int sentTimePeriodInMinutes) {
         LocalDateTime now = LocalDateTime.now();
         long minutesDifference = ChronoUnit.MINUTES.between(sentDateTime, now);
@@ -31,7 +31,7 @@ public class PaymentEventValidator {
 
     public ValidationResult validateIfAccountActive(Account account) {
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            return ValidationResult.failure("Account should be in ACTIVE status");
+            return ValidationResult.failure(String.format("Account with id = %d should be in ACTIVE status", account.getId()));
         }
 
         return ValidationResult.success();

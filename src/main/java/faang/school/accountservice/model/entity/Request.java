@@ -38,9 +38,13 @@ public class Request {
     @Column(name = "idempotency_token")
     private UUID idempotencyToken;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @ManyToOne
+    @JoinColumn(name = "sender_account_id", nullable = false)
+    private Account senderAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "recipient_account_id", nullable = false)
+    private Account recipientAccount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_type", nullable = false)

@@ -62,9 +62,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             return;
         }
 
-        boolean activeRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getSenderAccountId(), RequestStatus.IN_PROGRESS);
-        if (activeRequestExists) {
-            log.debug(String.format("An active payment request already exists for senderAccountId = %d; ignoring duplicate request", paymentEvent.getSenderAccountId() ));
+        boolean inProgressRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getSenderAccountId(), RequestStatus.IN_PROGRESS);
+        if (inProgressRequestExists) {
+            log.debug(String.format("An active payment request already exists for senderAccountId = %d; ignoring duplicate request", paymentEvent.getSenderAccountId()));
             return;
         }
 
@@ -128,7 +128,6 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             switch (existingRequest.getStatus()) {
                 case CANCELLED:
                     return;
-
                 case IN_PROGRESS:
                 case FAILED:
                     Request request = cancelRequest(existingRequest, paymentEvent);
@@ -140,6 +139,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                     inputData.put("cancelSentDateTime", paymentEvent.getSentDateTime());
                     inputData.put("additionalInfo", "Attempt to cancel COMPLETED request");
                     existingRequest.setInputData(inputData);
+                    return;
                 default:
                     throw new DataValidationException(String.format("Unexpected request status: %s", existingRequest.getStatus()));
             }
@@ -149,6 +149,45 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     @Override
     @Transactional
     public void clearing(PaymentEvent paymentEvent) {
+        if (checkEventMessageRepeated(paymentEvent)) return;
+        ValidationResult commonResult = validateClearingPaymentEvent(paymentEvent);
+        if (!commonResult.isValid()) {
+            Request request = requestRepository.findById(paymentEvent.getRequestId()).orElseThrow(() ->
+                    new IllegalStateException(String.format("Expected request with id = %d to be present because there " +
+                            "was payment event from redis, but it was not found", paymentEvent.getRequestId())));
+            Map<String, Object> inputData = request.getInputData();
+            inputData.put("errorWhileClearing", commonResult.getErrorMessage());
+            requestRepository.save(request);
+            return;
+        }
+
+        Optional<Request> existingRequestOpt = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken());
+        if (existingRequestOpt.isPresent()) {
+            Request existingRequest = existingRequestOpt.get();
+            Map<String, Object> inputData = existingRequest.getInputData();
+
+            switch (existingRequest.getStatus()) {
+                case CANCELLED:
+                    inputData.put("clearSentDateTime", paymentEvent.getSentDateTime());
+                    inputData.put("additionalInfo", "Attempt to clearing CANCELLED request");
+                    existingRequest.setInputData(inputData);
+                    return;
+                case IN_PROGRESS:
+                    Request request = clearRequest(existingRequest, paymentEvent);
+                    //TODO  добавить createAuditRecord? или тут уже не надо
+                    applicationEventPublisher.publishEvent(new PaymentStatusEvent(request.getId(), request.getIdempotencyToken(), request.getStatus()));
+                    return;
+                case FAILED:
+                    inputData.put("clearSentDateTime", paymentEvent.getSentDateTime());
+                    inputData.put("additionalInfo", "Attempt to clearing FAILED request");
+                    existingRequest.setInputData(inputData);
+                    return;
+                case COMPLETED:
+                    return;
+                default:
+                    throw new DataValidationException(String.format("Unexpected request status: %s", existingRequest.getStatus()));
+            }
+        }
 
     }
 
@@ -167,15 +206,20 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
         existingRequest.setInputData(inputData);
 
-        Account account = accountRepository.findById(paymentEvent.getSenderAccountId()).orElseThrow(() ->
+        Account senderAccount = accountRepository.findById(paymentEvent.getSenderAccountId()).orElseThrow(() ->
                 new IllegalStateException(String.format("Expected account with id = %d to be present because validate " +
                         "payment event already done without mistakes, but it was not found", paymentEvent.getSenderAccountId())));
-        Balance balance = account.getBalance();
+        Balance balance = senderAccount.getBalance();
         balance.setAuthorizedBalance(paymentEvent.getAmount());
         balance.setActualBalance(balance.getActualBalance().subtract(paymentEvent.getAmount()));
         balanceRepository.save(balance);
+        existingRequest.setSenderAccount(senderAccount);
         existingRequest.setStatus(RequestStatus.IN_PROGRESS);
-
+        existingRequest.setStatusDetails(null);
+        Account recipientAccount = accountRepository.findById(paymentEvent.getRecipientAccountId()).orElseThrow(() ->
+                new IllegalStateException(String.format("Expected recipient account with id = %d to be present because there " +
+                        "was payment event from redis, but it was not found", paymentEvent.getRecipientAccountId())));
+        existingRequest.setRecipientAccount(recipientAccount);
         return requestRepository.save(existingRequest);
     }
 
@@ -185,7 +229,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         inputData.put("firstSentDateTime", paymentEvent.getSentDateTime());
         inputData.put("lastSentDateTime", paymentEvent.getSentDateTime());
 
-        Optional<Account> accountOptional = accountRepository.findById(paymentEvent.getSenderAccountId());
+        Optional<Account> senderAccountOptional = accountRepository.findById(paymentEvent.getSenderAccountId());
 
         Request request = new Request();
         request.setIdempotencyToken(paymentEvent.getIdempotencyToken());
@@ -193,16 +237,20 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         request.setOperationType(paymentEvent.getOperationType());
         request.setInputData(inputData);
 
-        if (commonResult.isValid() && accountOptional.isPresent()) {
-            Account account = accountOptional.get();
-            Balance balance = account.getBalance();
+        if (commonResult.isValid() && senderAccountOptional.isPresent()) {
+            Account senderAccount = senderAccountOptional.get();
+            Balance balance = senderAccount.getBalance();
             balance.setAuthorizedBalance(paymentEvent.getAmount());
             balance.setActualBalance(balance.getActualBalance().subtract(paymentEvent.getAmount()));
             balanceRepository.save(balance);
 
-            request.setAccount(account);
+            request.setSenderAccount(senderAccount);
             request.setStatus(RequestStatus.IN_PROGRESS);
             request.setStatusDetails(null);
+            Account recipientAccount = accountRepository.findById(paymentEvent.getRecipientAccountId()).orElseThrow(() ->
+                    new IllegalStateException(String.format("Expected recipient account with id = %d to be present because there " +
+                            "was payment event from redis, but it was not found", paymentEvent.getRecipientAccountId())));
+            request.setRecipientAccount(recipientAccount);
         } else {
             request.setStatus(RequestStatus.FAILED);
             request.setStatusDetails(commonResult.getErrorMessage());
@@ -221,18 +269,15 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         if (senderAccountOpt.isEmpty()) {
             validationResults.add(ValidationResult.failure(String.format("Sender account with id = %d not found", paymentEvent.getSenderAccountId())));
         } else {
-            Account account = senderAccountOpt.get();
-            validationResults.add(validator.validateIfAccountActive(account));
+            Account senderAccount = senderAccountOpt.get();
+            validationResults.add(validator.validateIfAccountActive(senderAccount));
 
-            Balance balance = account.getBalance();
+            Balance balance = senderAccount.getBalance();
             validationResults.add(validator.validateSufficientActualBalance(
                     balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getSenderAccountId()));
         }
 
-        if (!accountRepository.existsById(paymentEvent.getRecipientAccountId())) {
-            validationResults.add(ValidationResult.failure(String.format("Recipient account with id = %d not found", paymentEvent.getRecipientAccountId())));
-        }
-
+        addAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
         return ValidationResult.getCommonResult(validationResults);
     }
 
@@ -241,30 +286,59 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.CancelPaymentEventMarker.class));
         validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.CANCEL));
         validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
-
-        if (!accountRepository.existsById(paymentEvent.getSenderAccountId())) {
-            validationResults.add(ValidationResult.failure(String.format("Sender account with id = %d not found", paymentEvent.getSenderAccountId())));
-        }
-
-        if (!accountRepository.existsById(paymentEvent.getRecipientAccountId())) {
-            validationResults.add(ValidationResult.failure(String.format("Recipient account with id = %d not found", paymentEvent.getRecipientAccountId())));
-        }
-
+        addAccountValidations(validationResults, paymentEvent.getSenderAccountId());
+        addAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
         return ValidationResult.getCommonResult(validationResults);
     }
 
+    private ValidationResult validateClearingPaymentEvent(PaymentEvent paymentEvent) {
+        List<ValidationResult> validationResults = new ArrayList<>();
+        validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.ClearingPaymentEventMarker.class));
+        validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.CLEARING));
+        validationResults.add(validator.validateSentTimeNotOlderThan(paymentEvent.getSentDateTime(), SENT_TIME_PERIOD_IN_MINUTES));
+        addAccountValidations(validationResults, paymentEvent.getSenderAccountId());
+        addAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
+        return ValidationResult.getCommonResult(validationResults);
+    }
+
+    private void addAccountValidations(List<ValidationResult> validationResults, Long accountId) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            validationResults.add(ValidationResult.failure(String.format("Account with id = %d not found", accountId)));
+        } else {
+            Account account = accountOpt.get();
+            validationResults.add(validator.validateIfAccountActive(account));
+        }
+    }
 
     private Request cancelRequest(Request existingRequest, PaymentEvent paymentEvent) {
         Map<String, Object> inputData = existingRequest.getInputData();
         inputData.put("cancelSentDateTime", paymentEvent.getSentDateTime());
         existingRequest.setInputData(inputData);
 
-        Account account = existingRequest.getAccount();
-        Balance balance = account.getBalance();
+        Account senderAccount = existingRequest.getSenderAccount();
+        Balance balance = senderAccount.getBalance();
         balance.setAuthorizedBalance(BigDecimal.ZERO);
         balance.setActualBalance(balance.getActualBalance().add(paymentEvent.getAmount()));
         balanceRepository.save(balance);
         existingRequest.setStatus(RequestStatus.CANCELLED);
+        return requestRepository.save(existingRequest);
+    }
+
+    private Request clearRequest(Request existingRequest, PaymentEvent paymentEvent) {
+        Map<String, Object> inputData = existingRequest.getInputData();
+        inputData.put("clearSentDateTime", paymentEvent.getSentDateTime());
+        existingRequest.setInputData(inputData);
+
+        Account senderAccount = existingRequest.getSenderAccount();
+        Balance senderBalance = senderAccount.getBalance();
+        Account receiverAccount = existingRequest.getRecipientAccount();
+        Balance receiverBalance = receiverAccount.getBalance();
+        receiverBalance.setActualBalance(receiverBalance.getActualBalance().add(senderBalance.getAuthorizedBalance()));
+        balanceRepository.save(receiverBalance);
+        senderBalance.setAuthorizedBalance(BigDecimal.ZERO);
+        balanceRepository.save(senderBalance);
+        existingRequest.setStatus(RequestStatus.COMPLETED);
         return requestRepository.save(existingRequest);
     }
 
@@ -276,7 +350,6 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 paymentEvent.getRequestType(),
                 paymentEvent.getOperationType());
     }
-
 
     private boolean checkEventMessageRepeated(PaymentEvent paymentEvent) {
         ValueOperations<String, PaymentEvent> valueOps = redisTemplate.opsForValue();
