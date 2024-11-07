@@ -21,7 +21,7 @@ import lombok.ToString;
 @Table(name = "free_account_numbers")
 public class FreeAccountNumber {
     @Id
-    @Column(name = "account_number", nullable = false, unique = true, updatable = false, length = 20)
+    @Column(name = "account_number", nullable = false, length = 20)
     private String accountNumber;
 
     @Column(name = "account_type", nullable = false, updatable = false, length = 8)

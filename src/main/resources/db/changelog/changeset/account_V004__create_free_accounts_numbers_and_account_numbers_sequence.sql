@@ -1,14 +1,16 @@
-create table free_account_numbers (
-    account_number varchar(20) not null primary key,
-    account_type varchar(8) not null
+CREATE TABLE free_account_numbers
+(
+    account_number VARCHAR(20) NOT NULL PRIMARY KEY,
+    account_type   VARCHAR(8)  NOT NULL
 );
 
-create table account_numbers_sequence (
-    account_type varchar(8) not null primary key,
-    current_number bigint not null default 0
+CREATE TABLE account_numbers_sequence
+(
+    account_type   VARCHAR(8) NOT NULL PRIMARY KEY,
+    current_number BIGINT     NOT NULL DEFAULT 0
 );
 
-insert into account_numbers_sequence (account_type)
-values ('5536'),
+INSERT INTO account_numbers_sequence (account_type)
+VALUES ('5536'),
        ('4276'),
        ('5200');

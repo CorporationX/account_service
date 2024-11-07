@@ -78,11 +78,11 @@ class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
 
     @Test
     void testGetFreeAccountNumberWhenFreeAccountNumberNotExists() {
-        String result = freeAccountNumberService.getFreeAccountNumber(SAVINGS);
         List<FreeAccountNumber> list = freeAccountNumbersRepository.findAll();
+        String result = freeAccountNumberService.getFreeAccountNumber(SAVINGS);
 
-        assertEquals(number, result);
         assertEquals(0, list.size());
+        assertEquals(number, result);
     }
 
     @Test
@@ -106,21 +106,7 @@ class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
     }
 
     @Test
-    void testGenerateAccountNumbersWithoutSaving() {
-        int batchSize = 1;
-
-        List<FreeAccountNumber> generatedNumbers = freeAccountNumberService
-                .generateAccountNumbers(SAVINGS, batchSize, false);
-        List<FreeAccountNumber> savedNumbers = freeAccountNumbersRepository.findAll();
-        AccountNumbersSequence sequence = findSequence(SAVINGS);
-
-        assertEquals(batchSize, sequence.getCurrentNumber());
-        assertEquals(batchSize, generatedNumbers.size());
-        assertTrue(savedNumbers.isEmpty());
-    }
-
-    @Test
-    void testGenerateAccountNumbersWithSaving() {
+    void testGenerateAccountNumbers() {
         long oldNumbersSize = 10;
         List<FreeAccountNumber> numbers = createFreeAccountNumbers(SAVINGS, oldNumbersSize);
         freeAccountNumbersRepository.saveAll(numbers);
@@ -129,7 +115,7 @@ class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
         accountNumbersSequenceRepository.save(accountNumbersSequence);
 
         List<FreeAccountNumber> generatedNumbers = freeAccountNumberService
-                .generateAccountNumbers(SAVINGS, batchSize, true);
+                .generateAccountNumbers(SAVINGS, batchSize);
         List<FreeAccountNumber> numbersAtRepo = freeAccountNumbersRepository.findAll();
         AccountNumbersSequence sequence = findSequence(SAVINGS);
 
@@ -145,7 +131,7 @@ class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
         accountNumbersSequenceRepository.delete(savings);
         assertFalse(accountNumbersSequenceRepository.existsById(SAVINGS.getCode()));
         List<FreeAccountNumber> generatedNumbers = freeAccountNumberService
-                .generateAccountNumbers(SAVINGS, batchSize, true);
+                .generateAccountNumbers(SAVINGS, batchSize);
         List<FreeAccountNumber> numbersAtRepo = freeAccountNumbersRepository.findAll();
 
         assertTrue(accountNumbersSequenceRepository.existsById(SAVINGS.getCode()));

@@ -32,7 +32,7 @@ public class FreeAccountNumberService {
     public String getFreeAccountNumber(AccountType accountType) {
         return freeAccountNumbersRepository
                 .getFreeAccountNumber(accountType.getCode())
-                .orElseGet(() -> generateAccountNumbers(accountType, 1, false).get(0).getAccountNumber());
+                .orElse(generateSingleFreeAccountNumber(accountType));
     }
 
     @Transactional
@@ -41,24 +41,40 @@ public class FreeAccountNumberService {
     }
 
     @Transactional
-    public List<FreeAccountNumber> generateAccountNumbers(AccountType accountType, int batchSize, boolean isSave) {
-        if (!accountNumbersSequenceRepository.existsById(accountType.getCode())) {
-            saveSequenceWithNewType(accountType);
-        }
-        AccountNumbersSequence sequence = accountNumbersSequenceRepository
-                .incrementCounter(accountType.getCode(), batchSize);
-        long currentNumber = sequence.getCurrentNumber();
+    public List<FreeAccountNumber> generateAccountNumbers(AccountType accountType, int batchSize) {
+        checkAccountTypeExist(accountType);
+        long currentNumber = incrementAndGetSequenceNumber(accountType, batchSize);
         long initial = currentNumber - batchSize;
         List<FreeAccountNumber> freeAccountNumbers = LongStream
                 .range(initial, currentNumber)
                 .mapToObj(number -> freeAccountNumberMapper
                         .toFreeAccountNumber(accountType, number, accountNumberLength - typeCodeLength))
                 .toList();
-        if (isSave) {
-            freeAccountNumbersRepository.saveAll(freeAccountNumbers);
-        }
+        freeAccountNumbersRepository.saveAll(freeAccountNumbers);
         log.info("Generated free account numbers: {}", freeAccountNumbers.size());
         return freeAccountNumbers;
+    }
+
+    private long incrementAndGetSequenceNumber(AccountType accountType, int batchSize) {
+        AccountNumbersSequence sequence = accountNumbersSequenceRepository
+                .incrementCounter(accountType.getCode(), batchSize);
+        return sequence.getCurrentNumber();
+    }
+
+    private String generateSingleFreeAccountNumber(AccountType accountType) {
+        checkAccountTypeExist(accountType);
+        long currentNumber = incrementAndGetSequenceNumber(accountType, 1);
+        long initial = currentNumber - 1;
+        FreeAccountNumber freeAccountNumber = freeAccountNumberMapper
+                .toFreeAccountNumber(accountType, initial, accountNumberLength - typeCodeLength);
+        return freeAccountNumber.getAccountNumber();
+    }
+
+    private void checkAccountTypeExist(AccountType accountType) {
+        if (!accountNumbersSequenceRepository.existsById(accountType.getCode())) {
+            saveSequenceWithNewType(accountType);
+            log.info("New sequence created for account type: {}", accountType.name());
+        }
     }
 
     private void saveSequenceWithNewType(AccountType accountType) {
