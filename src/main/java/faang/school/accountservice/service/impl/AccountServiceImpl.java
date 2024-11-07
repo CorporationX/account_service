@@ -57,10 +57,9 @@ public class AccountServiceImpl implements AccountService {
         Balance balance = new Balance();
         balance.setAccount(account);
         account.setBalance(balance);
-        balanceAuditRepository.save(balanceAuditMapper.toAuditEntity(balance));
         freeAccountNumbersService.getFreeAccountNumber(account.getType(), consumer);
         AccountDto createdAccountDto = accountMapper.accountToAccountDto(accountRepository.save(account));
-
+        balanceAuditRepository.save(balanceAuditMapper.toAuditEntity(balance));
         validator.validate(createdAccountDto, AccountDto.Created.class);
 
         return createdAccountDto;
