@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface RequestRepository extends JpaRepository<Request, Long> {
     Optional<Request> findByIdempotencyToken(UUID idempotencyToken);
 
-    boolean existsByAccountIdAndStatus(Long accountId, RequestStatus status);
+    boolean existsBySenderAccountIdAndStatus(Long senderAccountId, RequestStatus status);
 }

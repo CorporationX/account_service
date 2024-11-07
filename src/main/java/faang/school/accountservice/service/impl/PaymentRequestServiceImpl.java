@@ -41,7 +41,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     private static final int SENT_TIME_PERIOD_IN_MINUTES = 15;
     private static final long CACHE_EXPIRATION_TIME_IN_MINUTES = 5;
 
-    private final RedisTemplate<String, PaymentEvent> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final AccountRepository accountRepository;
     private final BalanceRepository balanceRepository;
     private final RequestRepository requestRepository;
@@ -62,7 +62,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             return;
         }
 
-        boolean inProgressRequestExists = requestRepository.existsByAccountIdAndStatus(paymentEvent.getSenderAccountId(), RequestStatus.IN_PROGRESS);
+        boolean inProgressRequestExists = requestRepository.existsBySenderAccountIdAndStatus(paymentEvent.getSenderAccountId(), RequestStatus.IN_PROGRESS);
         if (inProgressRequestExists) {
             log.debug(String.format("An active payment request already exists for senderAccountId = %d; ignoring duplicate request", paymentEvent.getSenderAccountId()));
             return;
@@ -352,7 +352,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     }
 
     private boolean checkEventMessageRepeated(PaymentEvent paymentEvent) {
-        ValueOperations<String, PaymentEvent> valueOps = redisTemplate.opsForValue();
+        ValueOperations<String, Object> valueOps = redisTemplate.opsForValue();
         String cacheKey = generateCacheKey(paymentEvent);
 
         if (valueOps.get(cacheKey) != null) {

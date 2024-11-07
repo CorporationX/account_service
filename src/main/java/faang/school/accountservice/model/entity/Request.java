@@ -3,7 +3,9 @@ package faang.school.accountservice.model.entity;
 import faang.school.accountservice.model.enums.OperationType;
 import faang.school.accountservice.model.enums.RequestStatus;
 import faang.school.accountservice.model.enums.RequestType;
+import faang.school.accountservice.util.MapJsonConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,6 +19,7 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -52,6 +55,7 @@ public class Request {
     @Column(name = "operation_type")
     private OperationType operationType;
 
+    @Convert(converter = MapJsonConverter.class)
     @Column(name = "input_data", columnDefinition = "jsonb")
     private Map<String, Object> inputData;
 

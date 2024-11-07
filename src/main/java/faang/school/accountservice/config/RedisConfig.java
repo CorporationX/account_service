@@ -1,6 +1,7 @@
 package faang.school.accountservice.config;
 
 import faang.school.accountservice.listener.PaymentEventListener;
+import faang.school.accountservice.model.event.PaymentEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

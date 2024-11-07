@@ -21,10 +21,9 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
-  data:
-    redis:
-      port: 6379
-      host: localhost
+  redis:
+    port: 6379
+    host: localhost
 
 server:
   port: 8090
@@ -57,5 +56,5 @@ scheduler:
 
 redis:
   channels:
-    payment-request: payment_channel
-    payment-response: payment_status_channel
+    payment: payment_channel
+    payment-status: payment_status_channel
