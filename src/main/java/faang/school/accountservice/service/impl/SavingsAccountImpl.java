@@ -43,8 +43,8 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
     @Override
     public SavingsAccountDto getSavingsAccountByUserId(Long userId) {
-        return toSavingsAccountDto(accountRepository.findById(userId).orElseThrow(
-                () -> new EntityNotFoundException("Savings account with id %s not found".formatted(userId))).getSavingsAccount());
+        return toSavingsAccountDto(savingsAccountRepository.findByUserId(userId).orElseThrow(
+                () -> new EntityNotFoundException("Savings account with id %s not found".formatted(userId))));
     }
 
     private SavingsAccountDto toSavingsAccountDto(SavingsAccount savingsAccount) {

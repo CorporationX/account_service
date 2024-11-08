@@ -2,7 +2,8 @@ CREATE TABLE tariff
 (
     id           BIGSERIAL PRIMARY KEY,
     type         SMALLINT       NOT NULL,
-    current_rate DECIMAL(19, 4) NOT NULL
+    current_rate DECIMAL(19, 4) NOT NULL,
+    betting_history NUMERIC(19, 4)[]
 );
 
 CREATE TABLE savings_accounts

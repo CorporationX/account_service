@@ -31,7 +31,7 @@ public class Tariff {
     @Column(name = "betting_value")
     private List<BigDecimal> bettingHistory;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "savings_account_id", nullable = false)
     private SavingsAccount savingsAccount;
 
