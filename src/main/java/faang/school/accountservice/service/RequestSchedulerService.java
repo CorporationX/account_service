@@ -2,15 +2,18 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.executor.ExecutorProperties;
 import faang.school.accountservice.entity.Request;
+import faang.school.accountservice.entity.RequestTask;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.repository.RequestRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+
 @Service
 @RequiredArgsConstructor
 public class RequestSchedulerService {
@@ -19,6 +22,7 @@ public class RequestSchedulerService {
     private final RequestRepository requestRepository;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private Map<Long, ThreadPoolExecutor> threadPoolExecutors;
+
     @PostConstruct
     public void init() {
         threadPoolExecutors = Map.of(
@@ -31,6 +35,7 @@ public class RequestSchedulerService {
         );
         scheduledExecutorService.scheduleAtFixedRate(this::processScheduledRequests, 0, 500, TimeUnit.MILLISECONDS);
     }
+
     private ThreadPoolExecutor createThreadPoolExecutor() {
         return new ThreadPoolExecutor(
                 executorProperties.getCorePoolSize(),
@@ -40,18 +45,22 @@ public class RequestSchedulerService {
                 new ArrayBlockingQueue<>(executorProperties.getQueueCapacity())
         );
     }
+
     private void processScheduledRequests() {
         LocalDateTime now = LocalDateTime.now();
-        List<Request> requests = requestRepository.findAllByStatus(RequestStatus.IN_PROGRESS);
+        List<Request> requests = requestRepository.findAllByStatus(RequestStatus.PENDING);
         for (Request request : requests) {
             if (request.getScheduledAt().isBefore(now)) {
-                // Получаем соответствующий ThreadPoolExecutor по ID запроса
-                Long handlerId = request.getHandlerId(); // Предполагается, что Request имеет метод getHandlerId()
-                ThreadPoolExecutor executor = threadPoolExecutors.get(handlerId);
-                if (executor != null) {
-                    executor.execute(() -> requestExecutorService.executeRequest(request.getId()));
+                List<RequestTask> tasks = request.getRequestTasks();
+                for (RequestTask task : tasks) {
+                    Long handlerId = task.getCurrentHandlerStep();
+                    ThreadPoolExecutor executor = threadPoolExecutors.get(handlerId);
+                    if (executor != null) {
+                        executor.execute(() -> requestExecutorService.executeRequest(request.getId()));
+                    }
                 }
             }
         }
     }
 }
+

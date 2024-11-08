@@ -11,5 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface RequestRepository extends CrudRepository<Request, UUID> {
+    List<Request> findAllByStatus(RequestStatus status);
     List<Request> findAllByStatusAndScheduledAtBefore(RequestStatus status, LocalDateTime scheduledAt);
 }
