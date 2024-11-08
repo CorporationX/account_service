@@ -26,11 +26,11 @@ public class BalanceFabric {
                 .build();
     }
 
-    public static Balance buildBalance(UUID id, double currentBalance, double authBalance) {
+    public static Balance buildBalance(UUID id, double authBalance, double currentBalance) {
         return Balance.builder()
                 .id(id)
-                .currentBalance(BigDecimal.valueOf(currentBalance))
                 .authBalance(BigDecimal.valueOf(authBalance))
+                .currentBalance(BigDecimal.valueOf(currentBalance))
                 .build();
     }
 }

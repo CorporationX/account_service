@@ -1,7 +1,7 @@
 package faang.school.accountservice.entity.auth.payment;
 
 import faang.school.accountservice.entity.balance.Balance;
-import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.payment.Category;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;

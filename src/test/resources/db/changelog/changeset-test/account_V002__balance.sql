@@ -1,7 +1,7 @@
 CREATE TABLE balance
 (
-    id              UUID PRIMARY KEY NOT NULL,
-    account_id      UUID             NOT NULL,
+    id              UUID PRIMARY KEY,
+    account_id      UUID UNIQUE,
     auth_balance    bigint      DEFAULT 0,
     current_balance bigint      DEFAULT 0,
     created_at      timestamptz DEFAULT current_timestamp,
@@ -13,10 +13,10 @@ CREATE TABLE balance
 
 CREATE TABLE auth_payment
 (
-    id                UUID PRIMARY KEY NOT NULL,
-    source_balance_id UUID             NOT NULL,
-    target_balance_id UUID             NOT NULL,
-    amount            bigint           NOT NULL,
+    id                UUID PRIMARY KEY,
+    source_balance_id UUID UNIQUE,
+    target_balance_id UUID UNIQUE,
+    amount            bigint NOT NULL,
     status            varchar(31) DEFAULT 'ACTIVE',
     category          varchar(31) DEFAULT 'OTHER',
     created_at        timestamptz DEFAULT current_timestamp,

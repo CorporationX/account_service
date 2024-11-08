@@ -2,7 +2,7 @@ package faang.school.accountservice.entity.auth.payment;
 
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
-import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.payment.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

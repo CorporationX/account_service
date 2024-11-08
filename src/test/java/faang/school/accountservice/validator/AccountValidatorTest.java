@@ -5,7 +5,7 @@ import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.project.ProjectDto;
 import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.exception.ValidationException;

@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.UUID;
 
-import static faang.school.accountservice.enums.Currency.USD;
+import static faang.school.accountservice.enums.payment.Currency.USD;
 import static faang.school.accountservice.enums.account.AccountStatus.ACTIVE;
 import static faang.school.accountservice.enums.account.AccountStatus.BLOCKED;
 import static faang.school.accountservice.enums.account.AccountStatus.CLOSED;

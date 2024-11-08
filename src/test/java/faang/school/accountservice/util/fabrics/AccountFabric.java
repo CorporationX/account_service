@@ -2,12 +2,12 @@ package faang.school.accountservice.util.fabrics;
 
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.balance.Balance;
-import faang.school.accountservice.enums.account.AccountType;
 import lombok.experimental.UtilityClass;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static faang.school.accountservice.enums.Currency.USD;
+import static faang.school.accountservice.enums.payment.Currency.USD;
 import static faang.school.accountservice.enums.account.AccountStatus.ACTIVE;
 import static faang.school.accountservice.enums.account.AccountType.PERSONAL;
 
@@ -22,6 +22,8 @@ public class AccountFabric {
                 .type(PERSONAL)
                 .currency(USD)
                 .status(ACTIVE)
+                .closedAt(LocalDateTime.now())
+                .version(0)
                 .build();
     }
 

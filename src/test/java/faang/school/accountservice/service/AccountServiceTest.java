@@ -1,7 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.exception.ResourceNotFoundException;

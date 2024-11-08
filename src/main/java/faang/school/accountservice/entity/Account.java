@@ -1,7 +1,7 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.entity.balance.Balance;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import jakarta.persistence.Column;
