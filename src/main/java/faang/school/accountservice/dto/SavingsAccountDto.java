@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 public class SavingsAccountDto {
 
-    private List<BigDecimal> bettingHistory;
     private String number;
 
     @NotNull
@@ -35,4 +34,6 @@ public class SavingsAccountDto {
     @NotNull
     @Positive
     private Long holderUserProjectId;
+
+    private List<BigDecimal> bettingHistory;
 }

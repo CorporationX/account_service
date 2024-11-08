@@ -4,6 +4,7 @@ import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import faang.school.accountservice.service.impl.FreeAccountNumbersServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,6 +6,7 @@ import faang.school.accountservice.entity.SavingsAccount;
 import faang.school.accountservice.entity.Tariff;
 import faang.school.accountservice.repository.BalanceJpaRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
+import faang.school.accountservice.service.impl.SavingsAccountInterest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

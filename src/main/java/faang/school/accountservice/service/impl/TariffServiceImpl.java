@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.dto.TariffDto;
@@ -8,6 +8,7 @@ import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.mapper.TariffMapper;
 import faang.school.accountservice.repository.TariffRepository;
+import faang.school.accountservice.service.TariffService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class TariffServiceImpl implements TariffService {
     @Override
     public TariffDto changeRateTariff(Long id, BigDecimal newRate) {
         Tariff tariff = tariffRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Tariff not found with id " + id));
+                () -> new EntityNotFoundException("Tariff with id %s not found".formatted(id)));
 
         saveToRateHistory(tariff);
         tariff.setCurrentRate(newRate);

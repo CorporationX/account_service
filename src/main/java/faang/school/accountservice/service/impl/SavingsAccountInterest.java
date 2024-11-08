@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.SavingsAccount;

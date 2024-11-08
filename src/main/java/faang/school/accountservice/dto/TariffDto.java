@@ -13,8 +13,6 @@ import java.util.List;
 @Builder
 public class TariffDto {
 
-    private List<Double> bettingHistory;
-
     @NotNull
     @Positive
     private Long accountId;
@@ -25,4 +23,6 @@ public class TariffDto {
 
     @NotNull
     private TariffType type;
+
+    private List<Double> bettingHistory;
 }

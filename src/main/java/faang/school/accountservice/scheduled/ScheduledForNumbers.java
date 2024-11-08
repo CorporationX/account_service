@@ -1,9 +1,7 @@
-package faang.school.accountservice.service;
-
+package faang.school.accountservice.scheduled;
 
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.persistence.EntityNotFoundException;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,24 +12,17 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class GenerateNumbersImpl implements GenerateNumbers {
+public class ScheduledForNumbers {
 
     private final FreeAccountNumbersService freeAccountNumbersService;
-    private final FreeAccountNumbersRepository freeAccountNumbersRepository;
 
     @Value(value = "${scheduled.task.amountGenerateNumbers}")
-    private int amountGenerateNumbers;
-
-    @Override
-    public String prepareNumberForAccount() {
-        return freeAccountNumbersRepository.getFreeAccountNumberByType(AccountType.SAVINGS_ACCOUNT.name()).orElseThrow(
-                () -> new EntityNotFoundException("Number not found"));
-    }
+    private int amountOfNumbersGenerated;
 
     @Scheduled(cron = "${scheduled.task.cronForGenerateNumbers}")
-    private void generateNumbers() {
+    private void getNumbers() {
         List<String> numbers = new ArrayList<>();
-        for (int i = 0; i < amountGenerateNumbers; i++) {
+        for (int i = 0; i < amountOfNumbersGenerated; i++) {
             numbers.add(freeAccountNumbersService.generateNumberByType(AccountType.SAVINGS_ACCOUNT));
         }
 

@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-public interface GenerateNumbers {
+public interface NumberGenerator {
 
     String prepareNumberForAccount();
 }

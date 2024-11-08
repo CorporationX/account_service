@@ -11,6 +11,7 @@ import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
+import faang.school.accountservice.service.impl.SavingsAccountImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +41,7 @@ public class SavingsAccountImplTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private GenerateNumbers generateNumbers;
+    private NumberGenerator numberGenerator;
 
     @Spy
     private SavingsAccountMapper savingsAccountMapper;
@@ -84,12 +85,12 @@ public class SavingsAccountImplTest {
     }
 
     @Test
-    public void openSavingsAccount() {
+    public void createSavingsAccount() {
         SavingsAccountDto savingsAccountDto = new SavingsAccountDto();
 
         when(savingsAccountMapper.toEntity(savingsAccountDto)).thenReturn(savingsAccount);
-        when(generateNumbers.prepareNumberForAccount()).thenReturn("12345678910112");
-        SavingsAccountDto result = savingsAccountService.openSavingsAccount(savingsAccountDto);
+        when(numberGenerator.prepareNumberForAccount()).thenReturn("12345678910112");
+        SavingsAccountDto result = savingsAccountService.createSavingsAccount(savingsAccountDto);
 
         assertEquals(savingsAccountDto, result);
         assertNotNull(savingsAccount.getAccount().getNumber());

@@ -3,7 +3,6 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,8 +17,8 @@ public class SavingsAccountController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SavingsAccountDto openSavingsAccount(@RequestBody @Valid @NotNull SavingsAccountDto savingsAccountDto) {
-        return savingsAccountService.openSavingsAccount(savingsAccountDto);
+    public SavingsAccountDto createSavingsAccount(@RequestBody @Valid SavingsAccountDto savingsAccountDto) {
+        return savingsAccountService.createSavingsAccount(savingsAccountDto);
     }
 
     @GetMapping("/{id}")

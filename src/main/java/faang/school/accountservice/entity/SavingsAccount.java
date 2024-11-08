@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "savings_account")
+@Table(name = "savings_accounts")
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,21 +29,21 @@ public class SavingsAccount {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @OneToOne(mappedBy = "savingsAccount")
+    @OneToOne(mappedBy = "savingAccount")
     private Tariff tariff;
 
     @Column(name = "last_date_before_interest", nullable = false)
     private LocalDateTime lastDateBeforeInterest;
 
-    @Version
-    @Column(name = "version", nullable = false)
-    private Long version;
-
     @CreationTimestamp
     @Column(name = "date_of_creation", nullable = false)
-    private LocalDateTime dateOfCreation;
+    private LocalDateTime createAt;
 
     @UpdateTimestamp
     @Column(name = "date_of_update")
-    private LocalDateTime dateOfUpdate;
+    private LocalDateTime updateAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 }

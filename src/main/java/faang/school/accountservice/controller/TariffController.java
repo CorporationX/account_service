@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller;
 
 
-import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.dto.TariffRequestDto;
 import faang.school.accountservice.enums.TariffType;
@@ -19,18 +18,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/tariff")
 @RequiredArgsConstructor
-public class TariffServiceController {
+public class TariffController {
 
     private final TariffService tariffService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TariffDto addTariff(@RequestBody @Valid @NotNull TariffRequestDto requestDto) {
+    public TariffDto addTariff(@RequestBody @Valid TariffRequestDto requestDto) {
         return tariffService.addTariff(requestDto.getTariffDto(), requestDto.getSavingsAccountDto());
     }
 
     @PatchMapping("/{id}/{newRate}")
-    public TariffDto changeRateTariff(@PathVariable @Positive Long id,@PathVariable @NotNull @Positive BigDecimal newRate) {
+    public TariffDto changeTariffRate(@PathVariable @Positive Long id, @PathVariable @NotNull @Positive BigDecimal newRate) {
         return tariffService.changeRateTariff(id, newRate);
     }
 
