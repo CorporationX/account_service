@@ -1,11 +1,12 @@
 package faang.school.accountservice.config.account;
 
+import faang.school.accountservice.enums.account.AccountEnum;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -19,6 +20,7 @@ public class AccountProperties {
     @Getter
     @Setter
     public static class NameLength {
+
         private int min;
         private int max;
     }
@@ -26,8 +28,8 @@ public class AccountProperties {
     @Getter
     @Setter
     public static class AccountNumbers {
-        private List<Integer> needsOfFreeAccountNumbers;
+
+        private Map<AccountEnum, Integer> needsOfFreeAccountNumbers;
         private String numberFormatter;
-        private String batchSaveSQL;
     }
 }

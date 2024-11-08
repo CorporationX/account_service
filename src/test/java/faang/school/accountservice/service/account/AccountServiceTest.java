@@ -30,10 +30,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +81,7 @@ class AccountServiceTest {
     private List<AccountStatus> availableAccountStatuses;
     private FreeAccountId freeAccountId;
     private FreeAccountNumber freeAccountNumber;
+    private AccountEnum accountType;
 
     @BeforeEach
     void init() {
@@ -99,6 +103,7 @@ class AccountServiceTest {
         freeAccountNumber = FreeAccountNumber.builder()
                 .id(freeAccountId)
                 .build();
+        accountType = AccountEnum.DEBIT;
     }
 
     @Test
@@ -165,8 +170,11 @@ class AccountServiceTest {
                 .thenReturn(type);
         when(ownerService.getOwnerByName(accountCreateDto.getOwner().getName()))
                 .thenReturn(owner);
-        when(freeAccountNumbersService
-                .generateFreeAccountNumber(AccountEnum.valueOf(TEST))).thenReturn(freeAccountNumber);
+        doAnswer(invocation -> {
+            Consumer<FreeAccountNumber> consumer = invocation.getArgument(1);
+            consumer.accept(freeAccountNumber);
+            return null;
+        }).when(freeAccountNumbersService).retrieveAccountNumber(eq(accountType), any(Consumer.class));
         when(accountMapper.toAccountDto(any()))
                 .thenReturn(accountDto);
         when(accountRepository.save(any(Account.class)))

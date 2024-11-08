@@ -9,12 +9,9 @@ import faang.school.accountservice.repository.account.AccountNumbersSequenceRepo
 import faang.school.accountservice.repository.account.FreeAccountNumbersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -27,21 +24,21 @@ public class FreeAccountNumbersService {
     private final AccountProperties properties;
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
-    private final JdbcTemplate template;
 
     @Transactional
     public void generateAccountNumbers(AccountEnum type, int batchSize) {
         AccountNumbersSequence ans = accountNumbersSequenceRepository.findCounterByType(type.name())
                 .orElseGet(() -> generateFirstAccountNumberSequenceForType(type));
-
+        long initialValue = ans.getCounter();
         List<FreeAccountNumber> numberList = new ArrayList<>();
-        for (long i = ans.getCounter(); i <= batchSize; i++) {
+
+        for (long i = initialValue; i < batchSize + initialValue; i++) {
             FreeAccountId freeAccountId = new FreeAccountId(type, type.getPrefix() +
                     String.format(properties.getAccountNumbers().getNumberFormatter(), i));
             FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
             numberList.add(freeAccountNumber);
         }
-        freeAccountNumbersBatchSave(numberList);
+        freeAccountNumbersRepository.saveAllFreeAccountNumbersBatched(numberList);
         accountNumbersSequenceRepository.updateCounterForType(type.name(), batchSize);
     }
 
@@ -68,6 +65,7 @@ public class FreeAccountNumbersService {
                 String.format(properties.getAccountNumbers().getNumberFormatter(), initialValue));
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
         freeAccountNumbersRepository.save(freeAccountNumber);
+        accountNumbersSequenceRepository.updateCounterForType(type.name(), 1);
         return freeAccountNumber;
     }
 
@@ -81,21 +79,6 @@ public class FreeAccountNumbersService {
     }
 
     public int countAllFreeAccountNumbersByType(AccountEnum accountType) {
-        return freeAccountNumbersRepository.countAllFreeAccountNumbersByType(accountType);
-    }
-
-    public void freeAccountNumbersBatchSave(List<FreeAccountNumber> freeAccountNumbers) {
-        String sql = properties.getAccountNumbers().getBatchSaveSQL();
-        log.debug("Starting batch save counting {} entities.", freeAccountNumbers.size());
-        try {
-            template.batchUpdate(sql, freeAccountNumbers, freeAccountNumbers.size(),
-                    (PreparedStatement ps, FreeAccountNumber accountNumber) -> {
-                        ps.setString(1, String.valueOf(accountNumber.getId().getType()));
-                        ps.setString(2, accountNumber.getId().getAccountNumber());
-                    });
-        } catch (DataAccessException dae) {
-            log.error("Error occurred while batch save! {}", dae.getMessage());
-            throw new RuntimeException();
-        }
+        return freeAccountNumbersRepository.countById_Type(accountType);
     }
 }

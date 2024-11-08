@@ -3,7 +3,6 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.account.FreeAccountNumber;
 import faang.school.accountservice.entity.owner.Owner;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
@@ -111,12 +110,13 @@ public class AccountService {
         AccountType type = typeService.getTypeByName(accountCreateDto.getType().getName());
         Owner owner = ownerService.getOwnerByName(accountCreateDto.getOwner().getName());
 
-        FreeAccountNumber freeAccountNumber =
-                freeAccountNumbersService.generateFreeAccountNumber(AccountEnum.valueOf(type.getName()));
-        String accountNumber = freeAccountNumber.getId().getAccountNumber();
+        final String[] accountNumber = {""};
+
+        freeAccountNumbersService.retrieveAccountNumber(AccountEnum.valueOf(type.getName()),
+                freeAccountNumber -> accountNumber[0] = freeAccountNumber.getId().getAccountNumber());
 
         Account account = Account.builder()
-                .number(accountNumber)
+                .number(accountNumber[0])
                 .accountType(type)
                 .owner(owner)
                 .currency(accountCreateDto.getCurrency())
