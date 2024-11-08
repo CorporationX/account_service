@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "achievement-service", url = "${achievement-service.host}:${achievement-service.port}")
 public interface AchievementServiceClient {
 
-    @GetMapping("/achievement/{achievementId}")
+    @GetMapping("/achievements/{achievementId}")
     AchievementDto getAchievement(@PathVariable long achievementId);
 }

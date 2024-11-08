@@ -37,9 +37,16 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
 
     @Override
     @Transactional
-    public void adjustRate(long userId, double rateChange) {
+    public boolean adjustRate(long userId, double rateChange) {
+        log.info("Starting rate adjustment for user ID {} with rate change: {}", userId, rateChange);
+
         List<String> accountNumbers = accountRepository.findNumbersByUserId(userId);
         List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaByAccountNumbers(accountNumbers);
+
+        if (savingsAccounts.isEmpty()) {
+            log.info("No SavingsAccount found for user ID {}. Rate adjustment aborted.", userId);
+            return false;
+        }
 
         List<SavingsAccountRate> newRateEntries = new ArrayList<>();
         List<TariffHistory> newTariffHistories = new ArrayList<>();
@@ -48,9 +55,13 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
             validateLastBonusUpdate(savingsAccount);
 
             Tariff tariff = getLatestTariffForSavingsAccount(savingsAccount);
+            log.debug("Latest tariff found for savings account {}: {}", savingsAccount.getAccountNumber(), tariff);
+
             SavingsAccountRate currentRate = getCurrentRateForTariff(tariff);
+            log.debug("Current rate for tariff ID {}: {}", tariff.getId(), currentRate.getRate());
 
             double newRate = calculateAdjustedRate(currentRate.getRate(), rateChange);
+            log.info("Calculated new rate for account {}: {}", savingsAccount.getAccountNumber(), newRate);
 
             updateSavingsAccountLastBonus(savingsAccount);
             newRateEntries.add(createNewRateEntry(tariff, newRate, rateChange));
@@ -58,6 +69,8 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
         }
 
         saveAllEntities(savingsAccounts, newRateEntries, newTariffHistories);
+        log.info("Rate adjustment completed for user ID {}", userId);
+        return true;
     }
 
     private void validateLastBonusUpdate(SavingsAccount savingsAccount) {

@@ -3,9 +3,7 @@ package faang.school.accountservice.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.ratechange.RateChangeRulesConfig;
 import faang.school.accountservice.exception.EventProcessingException;
-import faang.school.accountservice.feign.AchievementServiceClient;
-import faang.school.accountservice.model.dto.AchievementDto;
-import faang.school.accountservice.model.event.AchievementEvent;
+import faang.school.accountservice.model.event.BanedUserEvent;
 import faang.school.accountservice.model.event.RateChangeEvent;
 import faang.school.accountservice.publisher.RateChangeEventPublisher;
 import faang.school.accountservice.service.RateAdjustmentService;
@@ -32,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AchievementEventListenerTest {
+class BanedUserEventListenerTest {
 
     @Mock
     private RateAdjustmentService rateAdjustmentService;
@@ -41,37 +39,28 @@ class AchievementEventListenerTest {
     private RateChangeRulesConfig rateChangeRulesConfig;
 
     @Mock
-    private AchievementServiceClient achievementServiceClient;
-
-    @Mock
     private Message message;
 
     @Mock
     private RateChangeEventPublisher rateChangeEventPublisher;
 
     @InjectMocks
-    private AchievementEventListener achievementEventListener;
+    private BanedUserEventListener banedUserEventListener;
 
     private ObjectMapper objectMapper;
-    private AchievementEvent event;
-    private AchievementDto achievementDto;
+    private BanedUserEvent event;
 
     @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
 
-        event = new AchievementEvent();
+        event = new BanedUserEvent();
         event.setUserId(1L);
-        event.setAchievementId(123L);
 
-        achievementDto = new AchievementDto();
-        achievementDto.setTitle("writer");
-
-        achievementEventListener = new AchievementEventListener(
+        banedUserEventListener = new BanedUserEventListener(
                 objectMapper,
                 rateAdjustmentService,
                 rateChangeRulesConfig,
-                achievementServiceClient,
                 rateChangeEventPublisher
         );
     }
@@ -82,14 +71,13 @@ class AchievementEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(achievementServiceClient.getAchievement(event.getAchievementId())).thenReturn(achievementDto);
-        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(0.1);
-        when(rateChangeRulesConfig.getPartialText(achievementDto.getTitle())).thenReturn("Sample text");
+        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(0.1);
+        when(rateChangeRulesConfig.getPartialText("ban")).thenReturn("User banned");
         when(rateAdjustmentService.adjustRate(event.getUserId(), 0.1)).thenReturn(true);
 
         ArgumentCaptor<RateChangeEvent> captor = ArgumentCaptor.forClass(RateChangeEvent.class);
 
-        achievementEventListener.onMessage(message, null);
+        banedUserEventListener.onMessage(message, null);
 
         verify(rateAdjustmentService).adjustRate(event.getUserId(), 0.1);
         verify(rateChangeEventPublisher).publish(captor.capture());
@@ -97,7 +85,7 @@ class AchievementEventListenerTest {
         RateChangeEvent capturedEvent = captor.getValue();
         assertEquals(event.getUserId(), capturedEvent.getUserId());
         assertEquals(0.1, capturedEvent.getRateChangeValue(), 0.01);
-        assertEquals("Sample text", capturedEvent.getRateChangeReason() );
+        assertEquals("User banned", capturedEvent.getRateChangeReason());
     }
 
     @Test
@@ -106,11 +94,10 @@ class AchievementEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(achievementServiceClient.getAchievement(event.getAchievementId())).thenReturn(achievementDto);
-        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(0.1);
+        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(0.1);
         when(rateAdjustmentService.adjustRate(event.getUserId(), 0.1)).thenReturn(false);
 
-        achievementEventListener.onMessage(message, null);
+        banedUserEventListener.onMessage(message, null);
 
         verify(rateAdjustmentService).adjustRate(event.getUserId(), 0.1);
         verify(rateChangeEventPublisher, never()).publish(any());
@@ -122,10 +109,9 @@ class AchievementEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(achievementServiceClient.getAchievement(event.getAchievementId())).thenReturn(achievementDto);
-        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(0.0);
+        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(0.0);
 
-        achievementEventListener.onMessage(message, null);
+        banedUserEventListener.onMessage(message, null);
 
         verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
         verify(rateChangeEventPublisher, never()).publish(any());
@@ -137,7 +123,7 @@ class AchievementEventListenerTest {
         when(message.getBody()).thenReturn("invalid json".getBytes(StandardCharsets.UTF_8));
 
         assertThrows(EventProcessingException.class, () -> {
-            achievementEventListener.onMessage(message, null);
+            banedUserEventListener.onMessage(message, null);
         });
 
         verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());

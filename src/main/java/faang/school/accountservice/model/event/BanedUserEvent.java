@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AchievementEvent {
-    private long achievementId;
-    private long userId;
+public class BanedUserEvent {
+    private Long userId;
 }

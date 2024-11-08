@@ -59,12 +59,23 @@ achievement-service:
 
 rate-change-rules:
   events:
-    writer: 0.1
-    expert: 0.2
-    expletives: -0.05
-    inactivity: -0.01
+    WRITER:
+      targetRateChange: 0.25
+      partialText: 'for getting WRITER achievement'
+    EXPERT:
+      targetRateChange: 0.35
+      partialText: 'for getting EXPERT achievement'
+    expletives:
+      targetRateChange: -0.05
+      partialText: 'for using expletives in posts'
+    ban:
+      targetRateChange: -0.1
+      partialText: 'for being banned'
   max-rate: 10.0
 
 redis:
   channels:
     achievement: achievement_channel
+    rate-change: rate_change_channel
+    user-ban: user_ban_channel
+    rate-decrease: rate_decrease_channel

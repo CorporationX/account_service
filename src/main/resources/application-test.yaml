@@ -19,4 +19,6 @@ free-account-numbers:
 
 rate-change-rules:
   events:
-    writer: 100500
+    WRITER:
+      targetRateChange: 42
+      partialText: 'for getting WRITER achievement'

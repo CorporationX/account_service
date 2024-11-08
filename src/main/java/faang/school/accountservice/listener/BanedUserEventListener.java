@@ -2,9 +2,7 @@ package faang.school.accountservice.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.ratechange.RateChangeRulesConfig;
-import faang.school.accountservice.feign.AchievementServiceClient;
-import faang.school.accountservice.model.dto.AchievementDto;
-import faang.school.accountservice.model.event.AchievementEvent;
+import faang.school.accountservice.model.event.BanedUserEvent;
 import faang.school.accountservice.model.event.RateChangeEvent;
 import faang.school.accountservice.publisher.RateChangeEventPublisher;
 import faang.school.accountservice.service.RateAdjustmentService;
@@ -15,35 +13,31 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class AchievementEventListener extends AbstractEventListener<AchievementEvent> implements MessageListener {
+public class BanedUserEventListener extends AbstractEventListener<BanedUserEvent> implements MessageListener {
 
     private final RateAdjustmentService rateAdjustmentService;
     private final RateChangeRulesConfig rateChangeRulesConfig;
-    private final AchievementServiceClient achievementServiceClient;
     private final RateChangeEventPublisher rateChangeEventPublisher;
 
-    public AchievementEventListener(ObjectMapper objectMapper,
+    public BanedUserEventListener(ObjectMapper objectMapper,
                                     RateAdjustmentService rateAdjustmentService,
                                     RateChangeRulesConfig rateChangeRulesConfig,
-                                    AchievementServiceClient achievementServiceClient,
                                     RateChangeEventPublisher rateChangeEventPublisher) {
         super(objectMapper);
         this.rateAdjustmentService = rateAdjustmentService;
         this.rateChangeRulesConfig = rateChangeRulesConfig;
-        this.achievementServiceClient = achievementServiceClient;
         this.rateChangeEventPublisher = rateChangeEventPublisher;
     }
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        handleEvent(message, AchievementEvent.class, event -> {
-            AchievementDto achievementDto = achievementServiceClient.getAchievement(event.getAchievementId());
-            Double rateChange = rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle());
-            String partialText = rateChangeRulesConfig.getPartialText(achievementDto.getTitle());
+        handleEvent(message, BanedUserEvent.class, event -> {
+            Double rateChange = rateChangeRulesConfig.getTargetRateChange("ban");
+            String partialText = rateChangeRulesConfig.getPartialText("ban");
             if (rateChange != 0.0) {
                 boolean success = rateAdjustmentService.adjustRate(event.getUserId(), rateChange);
                 if (success) {
-                   rateChangeEventPublisher.publish(new RateChangeEvent(event.getUserId(), rateChange, partialText));
+                    rateChangeEventPublisher.publish(new RateChangeEvent(event.getUserId(), rateChange, partialText));
                     log.info("Publishing RateChangeEvent for user ID {} and rate change of {} {}.",
                             event.getUserId(), rateChange, partialText);
                 }

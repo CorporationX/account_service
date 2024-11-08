@@ -85,7 +85,9 @@ class RateAdjustmentServiceImplTest {
         when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
         when(savingsAccountRateRepository.findByTariff(tariff)).thenReturn(List.of(currentRate));
 
-        rateAdjustmentService.adjustRate(1L, 1.0);
+        boolean result = rateAdjustmentService.adjustRate(1L, 1.0);
+
+        assertTrue(result, "Rate adjustment should be successful");
 
         ArgumentCaptor<List<SavingsAccount>> savingsAccountCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<SavingsAccountRate>> rateCaptor = ArgumentCaptor.forClass(List.class);

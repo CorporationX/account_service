@@ -2,10 +2,9 @@ package faang.school.accountservice.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.ratechange.RateChangeRulesConfig;
-import faang.school.accountservice.feign.AchievementServiceClient;
-import faang.school.accountservice.model.dto.AchievementDto;
-import faang.school.accountservice.model.event.AchievementEvent;
+import faang.school.accountservice.model.event.RateChangeEvent;
 import faang.school.accountservice.model.event.RateDecreaseEvent;
+import faang.school.accountservice.publisher.RateChangeEventPublisher;
 import faang.school.accountservice.service.RateAdjustmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,25 +18,33 @@ public class RateDecreaseEventListener extends AbstractEventListener<RateDecreas
 
     private final RateAdjustmentService rateAdjustmentService;
     private final RateChangeRulesConfig rateChangeRulesConfig;
-    private final AchievementServiceClient achievementServiceClient;
+    private final RateChangeEventPublisher rateChangeEventPublisher;
 
     @Autowired
     public RateDecreaseEventListener(ObjectMapper objectMapper,
-                                    RateAdjustmentService rateAdjustmentService,
-                                    RateChangeRulesConfig rateChangeRulesConfig,
-                                    AchievementServiceClient achievementServiceClient) {
+                                     RateAdjustmentService rateAdjustmentService,
+                                     RateChangeRulesConfig rateChangeRulesConfig,
+                                     RateChangeEventPublisher rateChangeEventPublisher) {
         super(objectMapper);
         this.rateAdjustmentService = rateAdjustmentService;
         this.rateChangeRulesConfig = rateChangeRulesConfig;
-        this.achievementServiceClient = achievementServiceClient;
+        this.rateChangeEventPublisher = rateChangeEventPublisher;
     }
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         handleEvent(message, RateDecreaseEvent.class, event -> {
-            Double rateChange = rateChangeRulesConfig.getRateChange(event.getTitle());
+            Double rateChange = rateChangeRulesConfig.getTargetRateChange(event.getTitle());
+            String partialText = rateChangeRulesConfig.getPartialText(event.getTitle());
             if (rateChange != 0.0) {
-                event.getUserIds().forEach(userId -> rateAdjustmentService.adjustRate(userId, rateChange));
+                event.getUserIds().forEach(userId -> {
+                    boolean success = rateAdjustmentService.adjustRate(userId, rateChange);
+                    if (success) {
+                        rateChangeEventPublisher.publish(new RateChangeEvent(userId, rateChange, partialText));
+                        log.info("Publishing RateChangeEvent for user ID {} and rate change of {} {}.",
+                                userId, rateChange, partialText);
+                    }
+                });
             }
         });
     }

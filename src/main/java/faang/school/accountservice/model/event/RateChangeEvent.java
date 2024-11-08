@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AchievementEvent {
-    private long achievementId;
-    private long userId;
+public class RateChangeEvent {
+    long userId;
+    double rateChangeValue;
+    String rateChangeReason;
 }
