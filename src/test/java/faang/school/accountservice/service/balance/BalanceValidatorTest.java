@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
-import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.CLOSED;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.CLOSED;
 import static faang.school.accountservice.util.fabrics.AuthPaymentFabric.buildAuthPayment;
 import static faang.school.accountservice.util.fabrics.BalanceFabric.buildBalance;
 import static faang.school.accountservice.util.fabrics.MoneyFabric.buildMoney;

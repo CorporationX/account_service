@@ -31,7 +31,7 @@ public class AccountValidator {
 
     public void validateNotActiveAccount(Account account) {
         if (account.getStatus() != ACTIVE) {
-            throw new ValidationException("Only active accounts can be closed/blocked");
+            throw new ValidationException("Action is allowed only for active account");
         }
     }
 

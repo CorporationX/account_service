@@ -3,8 +3,9 @@ package faang.school.accountservice.service.balance;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
-import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.enums.pending.Category;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.exception.auth.payment.AuthPaymentHasBeenUpdatedException;
 import faang.school.accountservice.exception.balance.BalanceHasBeenUpdatedException;
@@ -13,10 +14,12 @@ import faang.school.accountservice.repository.balance.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static faang.school.accountservice.entity.auth.payment.AuthPaymentBuilder.build;
@@ -41,7 +44,9 @@ public class BalanceService {
     public AuthPayment authorizePayment(UUID balanceId, Money money) {
         Balance balance = findById(balanceId);
         balanceValidator.checkFreeAmount(balance, money);
-        AuthPayment payment = build(balance, money);
+//        AuthPayment payment = build(balance, money);
+        AuthPayment payment = build(balanceId, balance, balance, money.amount(), Category.OTHER);
+
         balance.setAuthBalance(balance.getAuthBalance().add(money.amount()));
 
         saveBalance(balance);
@@ -111,6 +116,16 @@ public class BalanceService {
     public Balance findById(UUID id) {
         return balanceRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(Balance.class, id));
+    }
+
+    @Transactional
+    @Retryable(retryFor = {BalanceHasBeenUpdatedException.class})
+    public void saveCashback(Balance balance, BigDecimal cashback) {
+        BigDecimal currentBalance = balance.getCurrentBalance();
+        balance.setCurrentBalance(currentBalance.add(cashback));
+        balance.setUpdatedAt(LocalDateTime.now());
+
+        saveBalance(balance);
     }
 
     private Balance saveBalance(Balance balance) {

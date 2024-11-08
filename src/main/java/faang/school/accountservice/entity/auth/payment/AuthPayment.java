@@ -1,16 +1,17 @@
 package faang.school.accountservice.entity.auth.payment;
 
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.enums.pending.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.ACTIVE;
 
 @EqualsAndHashCode
 @Builder
@@ -36,12 +37,18 @@ import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.
 @Entity
 public class AuthPayment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "balance_id", nullable = false)
+    @JoinColumn(name = "source_balance_id", nullable = false)
+    private Balance sourceBalance;
+
+    @Transient
     private Balance balance;
+
+    @ManyToOne
+    @JoinColumn(name = "target_balance_id")
+    private Balance targetBalance;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -50,6 +57,11 @@ public class AuthPayment {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private AuthPaymentStatus status = ACTIVE;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private Category category = Category.OTHER;
 
     @Builder.Default
     @Column(name = "created_at", updatable = false)

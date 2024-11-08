@@ -1,7 +1,7 @@
 package faang.school.accountservice.util.fabrics;
 
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
-import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
 import faang.school.accountservice.entity.balance.Balance;
 import lombok.experimental.UtilityClass;
 

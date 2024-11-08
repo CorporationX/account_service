@@ -1,5 +1,7 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.entity.cacheback.CashbackTariff;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
@@ -7,9 +9,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,6 +63,10 @@ public class Account {
     @Column(name = "status", length = 16, nullable = false)
     private AccountStatus status;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cashback_tariff_id", nullable = false)
+    private CashbackTariff cashbackTariff;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -69,4 +79,7 @@ public class Account {
     @Version
     @Column(name = "version", nullable = false)
     private int version;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 }

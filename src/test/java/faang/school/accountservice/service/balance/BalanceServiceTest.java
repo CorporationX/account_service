@@ -3,7 +3,7 @@ package faang.school.accountservice.service.balance;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
-import faang.school.accountservice.entity.auth.payment.AuthPaymentStatus;
+import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;

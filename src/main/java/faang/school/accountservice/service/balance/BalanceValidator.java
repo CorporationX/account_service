@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
-import static faang.school.accountservice.entity.auth.payment.AuthPaymentStatus.ACTIVE;
+import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.ACTIVE;
 
 @Slf4j
 @RequiredArgsConstructor
