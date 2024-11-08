@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MerchantCashbackId {
+public class CashbackId {
     private Long tariffId;
-    private Long merchantId;
+    private Long typeId;
 }

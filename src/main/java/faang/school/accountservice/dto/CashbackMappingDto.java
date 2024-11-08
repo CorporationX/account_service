@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TypeMappingDto {
+public class CashbackMappingDto {
     private Long tariffId;
     private Long typeId;
     private MappingType mappingType;

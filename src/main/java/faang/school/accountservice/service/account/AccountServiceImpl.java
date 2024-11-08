@@ -1,7 +1,7 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.PaymentAccountDto;
-import faang.school.accountservice.entity.PaymentAccount;
+import faang.school.accountservice.entity.account.PaymentAccount;
 import faang.school.accountservice.mapper.PaymentAccountMapper;
 import faang.school.accountservice.repository.PaymentAccountRepository;
 import jakarta.persistence.EntityNotFoundException;

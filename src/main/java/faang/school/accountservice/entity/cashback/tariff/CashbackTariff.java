@@ -1,5 +1,9 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.entity.cashback.tariff;
 
+import faang.school.accountservice.entity.cashback.MerchantCashback;
+import faang.school.accountservice.entity.cashback.OperationCashback;
+import faang.school.accountservice.entity.type.Merchant;
+import faang.school.accountservice.entity.type.OperationType;
 import jakarta.persistence.*;
 import lombok.Data;
 

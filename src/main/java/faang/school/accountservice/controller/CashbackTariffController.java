@@ -1,8 +1,8 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.TariffDto;
-import faang.school.accountservice.dto.TypeMappingDto;
-import faang.school.accountservice.service.CashbackTariffService;
+import faang.school.accountservice.dto.CashbackTariffDto;
+import faang.school.accountservice.dto.CashbackMappingDto;
+import faang.school.accountservice.service.cashback.CashbackTariffService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,18 +14,18 @@ public class CashbackTariffController {
     private final CashbackTariffService cashbackTariffService;
 
     @GetMapping("/tariff/{id}")
-    public TariffDto getTariffById(@PathVariable Long id) {
+    public CashbackTariffDto getTariffById(@PathVariable Long id) {
         return cashbackTariffService.getTariff(id);
     }
 
     @PostMapping("/tariff/create")
-    public TariffDto createTariff(@RequestBody TariffDto tariffDto) {
-        return cashbackTariffService.createTariff(tariffDto);
+    public CashbackTariffDto createTariff(@RequestBody CashbackTariffDto cashbackTariffDto) {
+        return cashbackTariffService.createTariff(cashbackTariffDto);
     }
 
     @PutMapping("/tariff/{id}")
-    public TariffDto updateTariff(@RequestBody TariffDto tariffDto, @PathVariable Long id) {
-        return cashbackTariffService.updateTariff(tariffDto, id);
+    public CashbackTariffDto updateTariff(@RequestBody CashbackTariffDto cashbackTariffDto, @PathVariable Long id) {
+        return cashbackTariffService.updateTariff(cashbackTariffDto, id);
     }
 
     @DeleteMapping("/tariff/{id}")
@@ -34,22 +34,22 @@ public class CashbackTariffController {
     }
 
     @GetMapping("/cashback_mapping")
-    public TypeMappingDto getCashbackMapping(@RequestBody TypeMappingDto typeMappingDto) {
-        return cashbackTariffService.getCashbackMapping(typeMappingDto);
+    public CashbackMappingDto getCashbackMapping(@RequestBody CashbackMappingDto cashbackMappingDto) {
+        return cashbackTariffService.getCashbackMapping(cashbackMappingDto);
     }
 
     @PostMapping("/cashback_mapping")
-    public TypeMappingDto createCashbackMapping(@Valid @RequestBody TypeMappingDto typeMappingDto) {
-        return cashbackTariffService.createCashbackMapping(typeMappingDto);
+    public CashbackMappingDto createCashbackMapping(@Valid @RequestBody CashbackMappingDto cashbackMappingDto) {
+        return cashbackTariffService.createCashbackMapping(cashbackMappingDto);
     }
 
     @PutMapping("/cashback_mapping")
-    public void updateCashbackMapping(@Valid @RequestBody TypeMappingDto typeMappingDto) {
-        cashbackTariffService.updateCashbackMapping(typeMappingDto);
+    public void updateCashbackMapping(@Valid @RequestBody CashbackMappingDto cashbackMappingDto) {
+        cashbackTariffService.updateCashbackMapping(cashbackMappingDto);
     }
 
     @DeleteMapping("/cashback_mapping")
-    public void deleteCashbackMapping(@RequestBody TypeMappingDto typeMappingDto) {
-        cashbackTariffService.deleteCashbackMapping(typeMappingDto);
+    public void deleteCashbackMapping(@RequestBody CashbackMappingDto cashbackMappingDto) {
+        cashbackTariffService.deleteCashbackMapping(cashbackMappingDto);
     }
 }

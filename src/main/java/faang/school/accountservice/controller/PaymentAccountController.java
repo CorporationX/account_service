@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.PaymentAccountDto;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
