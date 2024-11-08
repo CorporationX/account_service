@@ -48,7 +48,7 @@ public class AccountValidatorTest {
         openAccount = Account.builder()
                 .userId(1L)
                 .projectId(1L)
-                .type(AccountType.BUSINESS)
+                .type(AccountType.DEBIT)
                 .currency(Currency.RUB)
                 .build();
 

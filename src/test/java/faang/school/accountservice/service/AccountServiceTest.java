@@ -37,6 +37,8 @@ public class AccountServiceTest {
     private AccountRepository accountRepository;
     @Mock
     private AccountValidator validator;
+    @Mock
+    private FreeAccountNumberService freeAccountNumberService;
     @InjectMocks
     private AccountService accountService;
 
@@ -47,13 +49,15 @@ public class AccountServiceTest {
         account = Account.builder()
                 .userId(1L)
                 .projectId(1L)
-                .type(AccountType.BUSINESS)
+                .type(AccountType.DEBIT)
                 .currency(Currency.RUB)
                 .build();
     }
 
     @Test
     public void testOpenBusinessAccount() {
+        when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
+
         Account result = accountService.openAccount(account);
 
         assertEquals(result.getStatus(), AccountStatus.ACTIVE);
@@ -62,7 +66,8 @@ public class AccountServiceTest {
 
     @Test
     public void testOpenPersonalAccount() {
-        account.setType(AccountType.PERSONAL);
+        when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
+
         Account result = accountService.openAccount(account);
 
         assertEquals(result.getStatus(), AccountStatus.ACTIVE);
@@ -73,6 +78,7 @@ public class AccountServiceTest {
     public void testAccountVersionException() {
         when(accountRepository.save(any(Account.class)))
                 .thenThrow(new OptimisticLockingFailureException(""));
+        when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
 
         assertThrows(AccountHasBeenUpdateException.class, () -> accountService.openAccount(account));
 
