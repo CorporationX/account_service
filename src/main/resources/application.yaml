@@ -5,20 +5,6 @@ spring:
     username: user
     password: password
 
-account:
-  numbers:
-    generation:
-      cron-for-type-individual: "0 0 2 * * ?"
-      cron-for-type-savings: "0 0 0 * * ?"
-      cron-for-type-investment: "0 0 3 * * ?"
-      # ...
-    batch-size:
-      checking-individual: 1000
-      checking-corporate: 500
-      currency_account: 300
-      savings_account: 400
-      investment_account: 100
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -58,3 +44,17 @@ scheduled:
 
 poolThreads:
   poolForAccrual: 10
+
+account:
+  numbers:
+    generation:
+      cron-for-type-individual: "0 0 2 * * ?"
+      cron-for-type-savings: "0 0 0 * * ?"
+      cron-for-type-investment: "0 0 3 * * ?"
+      # ...
+    batch-size:
+      checking-individual: 1000
+      checking-corporate: 500
+      currency_account: 300
+      savings_account: 400
+      investment_account: 100

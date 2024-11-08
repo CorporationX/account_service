@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.config.account.AccountNumberConfig;
 import faang.school.accountservice.dto.account.FreeAccountNumberDto;
@@ -8,7 +8,6 @@ import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import faang.school.accountservice.service.impl.FreeAccountNumbersServiceImpl;
 import faang.school.accountservice.util.AccountNumberGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

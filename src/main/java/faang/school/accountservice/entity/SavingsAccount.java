@@ -29,7 +29,8 @@ public class SavingsAccount {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @OneToOne(mappedBy = "savingAccount")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tariff_id", nullable = false)
     private Tariff tariff;
 
     @Column(name = "last_date_before_interest", nullable = false)

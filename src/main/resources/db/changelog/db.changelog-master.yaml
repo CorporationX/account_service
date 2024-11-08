@@ -10,4 +10,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V005__account-service_savings_account.sql
   - include:
-      file: db/changelog/changeset/V005__account_request.sql
+      file: db/changelog/changeset/V006__account_request.sql

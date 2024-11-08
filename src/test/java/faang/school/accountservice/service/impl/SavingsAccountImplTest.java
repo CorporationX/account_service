@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 
 import faang.school.accountservice.dto.SavingsAccountDto;
@@ -11,7 +11,7 @@ import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
-import faang.school.accountservice.service.impl.SavingsAccountImpl;
+import faang.school.accountservice.service.NumberGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,7 +109,7 @@ public class SavingsAccountImplTest {
 
     @Test
     public void getSavingsAccountByUserUdTest() {
-        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(savingsAccountRepository.findByUserId(1L)).thenReturn(Optional.of(savingsAccount));
 
         SavingsAccountDto accountDto = prepareSavingsAccountDto();
         SavingsAccountDto result = savingsAccountService.getSavingsAccountByUserId(1L);

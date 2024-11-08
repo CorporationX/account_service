@@ -1,6 +1,5 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.Account;
@@ -12,6 +11,7 @@ import org.mapstruct.ReportingPolicy;
 public interface AccountMapper {
 
     AccountDto toDto(Account account);
+
 
     Account toEntity(AccountDto accountDto);
 

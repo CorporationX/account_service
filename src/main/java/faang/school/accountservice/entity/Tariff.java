@@ -31,8 +31,7 @@ public class Tariff {
     @Column(name = "betting_value")
     private List<BigDecimal> bettingHistory;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "savings_account_id", nullable = false)
+    @OneToOne(mappedBy = "tariff", fetch = FetchType.LAZY)
     private SavingsAccount savingsAccount;
 
     @Column(name = "current_rate", nullable = false)
