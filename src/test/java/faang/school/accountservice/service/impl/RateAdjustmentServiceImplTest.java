@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,9 +80,9 @@ class RateAdjustmentServiceImplTest {
 
         when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
         when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
-        when(tariffHistoryRepository.findBySavingsAccountId(1L)).thenReturn(List.of(tariffHistory));
         when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
-        when(savingsAccountRateRepository.findByTariff(tariff)).thenReturn(List.of(currentRate));
+        when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(1L));
+        when(savingsAccountRateRepository.findLatestRateIdByTariffId(1L)).thenReturn(Optional.of(currentRate.getRate()));
 
         boolean result = rateAdjustmentService.adjustRate(1L, 1.0);
 
@@ -156,12 +155,16 @@ class RateAdjustmentServiceImplTest {
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
+
         when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
         when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
-        when(tariffHistoryRepository.findBySavingsAccountId(1L)).thenReturn(Collections.emptyList());
+        when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> rateAdjustmentService.adjustRate(1L, 1.0),
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> rateAdjustmentService.adjustRate(1L, 1.0),
                 "No tariff history found for savings account: 12345");
+
+        assertEquals("No tariff history found for savings account: 12345", exception.getMessage());
     }
 
     @Test
@@ -179,13 +182,17 @@ class RateAdjustmentServiceImplTest {
         tariffHistory.setTariff(tariff);
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
+
         when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
         when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
-        when(tariffHistoryRepository.findBySavingsAccountId(1L)).thenReturn(List.of(tariffHistory));
+        when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(1L));
         when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
-        when(savingsAccountRateRepository.findByTariff(tariff)).thenReturn(Collections.emptyList());
+        when(savingsAccountRateRepository.findLatestRateIdByTariffId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> rateAdjustmentService.adjustRate(1L, 1.0),
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> rateAdjustmentService.adjustRate(1L, 1.0),
                 "No rate found for tariff ID: 1");
+
+        assertEquals("No rate found for tariff ID: 1", exception.getMessage());
     }
 }

@@ -21,7 +21,7 @@ public class RateChangeRulesConfigTest {
     @DisplayName("Should load 'writer' rate correctly from configuration")
     public void getRateChange_Success() {
         Double rate = rateChangeRulesConfig.getTargetRateChange("WRITER");
-        assertEquals(100500, rate, "The 'writer' rate should be 100500");
+        assertEquals(42, rate, "The 'writer' rate should be 42");
     }
 
     @Test

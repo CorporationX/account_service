@@ -57,10 +57,10 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
             Tariff tariff = getLatestTariffForSavingsAccount(savingsAccount);
             log.debug("Latest tariff found for savings account {}: {}", savingsAccount.getAccountNumber(), tariff);
 
-            SavingsAccountRate currentRate = getCurrentRateForTariff(tariff);
-            log.debug("Current rate for tariff ID {}: {}", tariff.getId(), currentRate.getRate());
+            double currentRate = getCurrentRateForTariff(tariff);
+            log.debug("Current rate for tariff ID {}: {}", tariff.getId(), currentRate);
 
-            double newRate = calculateAdjustedRate(currentRate.getRate(), rateChange);
+            double newRate = calculateAdjustedRate(currentRate, rateChange);
             log.info("Calculated new rate for account {}: {}", savingsAccount.getAccountNumber(), newRate);
 
             updateSavingsAccountLastBonus(savingsAccount);
@@ -81,19 +81,16 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
     }
 
     private Tariff getLatestTariffForSavingsAccount(SavingsAccount savingsAccount) {
-        List<TariffHistory> tariffHistories = tariffHistoryRepository.findBySavingsAccountId(savingsAccount.getId());
-        TariffHistory latestHistory = tariffHistories.stream()
-                .max(Comparator.comparing(TariffHistory::getCreatedAt))
-                .orElseThrow(() -> new IllegalStateException("No tariff history found for savings account: " + savingsAccount.getAccountNumber()));
+        Long latestTariffId = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(savingsAccount.getId())
+                .orElseThrow(() -> new IllegalStateException("No tariff history found for savings account: "
+                        + savingsAccount.getAccountNumber()));
 
-        return tariffRepository.findById(latestHistory.getTariff().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Tariff not found for ID: " + latestHistory.getTariff().getId()));
+        return tariffRepository.findById(latestTariffId)
+                .orElseThrow(() -> new EntityNotFoundException("Tariff not found for ID: " + latestTariffId));
     }
 
-    private SavingsAccountRate getCurrentRateForTariff(Tariff tariff) {
-        return savingsAccountRateRepository.findByTariff(tariff)
-                .stream()
-                .max(Comparator.comparing(SavingsAccountRate::getCreatedAt))
+    private Double getCurrentRateForTariff(Tariff tariff) {
+        return savingsAccountRateRepository.findLatestRateIdByTariffId(tariff.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No rate found for tariff ID: " + tariff.getId()));
     }
 
