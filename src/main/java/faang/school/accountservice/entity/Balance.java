@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -15,13 +16,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.*;
-import lombok.Data;
-
-import java.time.LocalDateTime;
-import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -53,7 +50,7 @@ public class Balance {
     @OneToMany(mappedBy = "balance", cascade = CascadeType.ALL)
     private List<BalanceAudit> audits;
 
-    @Column(name = "version", nullable = false)
     @Version
+    @Column(name = "version", nullable = false)
     private int version;
 }

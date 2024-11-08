@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
@@ -21,15 +21,19 @@ import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceImplTest {
+
     @InjectMocks
     private BalanceServiceImpl service;
 
     @Mock
     private BalanceAuditRepository balanceAuditRepository;
+
     @Mock
     private BalanceJpaRepository balanceJpaRepository;
+
     @Mock
     private BalanceAuditMapper auditMapper;
+
     @Mock
     private BalanceMapper mapper;
 
@@ -52,7 +56,7 @@ class BalanceServiceImplTest {
                 .thenReturn(balanceDto);
         Mockito.lenient().when(mapper.toEntity(balanceDto))
                 .thenReturn(balance);
-        Mockito.lenient().when(balanceJpaRepository.findById(accountId))
+        Mockito.lenient().when(balanceJpaRepository.findByAccountId(accountId))
                 .thenReturn(Optional.of(balance));
     }
 
@@ -88,22 +92,16 @@ class BalanceServiceImplTest {
     void getBalance_whenOk() {
         service.getBalance(accountId);
 
-        Mockito.verify(mapper, Mockito.times(1))
-                .toDto(balance);
-        Mockito.verify(balanceJpaRepository, Mockito.times(1))
-                .findById(accountId);
-
+        Mockito.verify(mapper, Mockito.times(1)).toDto(balance);
+        Mockito.verify(balanceJpaRepository, Mockito.times(1)).findByAccountId(accountId);
     }
 
     @Test
     void getBalance_whenAccountNotExist() {
-        Mockito.lenient().when(balanceJpaRepository.findById(accountId))
-                .thenReturn(Optional.ofNullable(null));
+        Mockito.lenient().when(balanceJpaRepository.findByAccountId(accountId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(EntityNotFoundException.class, () -> service.getBalance(accountId));
 
-        Mockito.verify(mapper, Mockito.never())
-                .toDto(balance);
-
+        Mockito.verify(mapper, Mockito.never()).toDto(balance);
     }
 }

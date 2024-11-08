@@ -1,10 +1,11 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.dto.account.FreeAccountNumberDto;
 import faang.school.accountservice.entity.AccountNumbersSequence;
@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.util.AccountNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,17 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                 .id(new FreeAccountNumberId(type, accountNumber))
                 .build();
         freeAccountNumbersRepository.save(freeAccountNumber);
+    }
+
+    @Override
+    public void saveNumbers(AccountType type, List<String> numbers) {
+        freeAccountNumbersRepository.saveAll(
+                numbers.stream()
+                        .map(number -> FreeAccountNumber.builder()
+                                .id(new FreeAccountNumberId(type, number))
+                                .build())
+                        .collect(Collectors.toList())
+        );
     }
 
     @Override

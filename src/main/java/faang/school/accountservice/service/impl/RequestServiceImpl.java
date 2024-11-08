@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.dto.RequestDto;
 import faang.school.accountservice.entity.Request;
@@ -6,6 +6,7 @@ import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.publisher.RequestStatusPublisher;
 import faang.school.accountservice.repository.RequestRepository;
+import faang.school.accountservice.service.RequestService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

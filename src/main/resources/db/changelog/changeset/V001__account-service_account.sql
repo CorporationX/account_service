@@ -14,8 +14,7 @@ CREATE TABLE account
 
     CONSTRAINT chk_one_owner CHECK (
         (holder_user_id IS NOT NULL AND holder_project_id IS NULL) OR
-        (holder_user_id IS NULL AND holder_project_id IS NOT NULL)
-        )
+        (holder_user_id IS NULL AND holder_project_id IS NOT NULL))
 );
 
 CREATE INDEX ON account (holder_user_id);

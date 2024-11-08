@@ -1,4 +1,3 @@
--- Расширение для генерации UUID
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE request

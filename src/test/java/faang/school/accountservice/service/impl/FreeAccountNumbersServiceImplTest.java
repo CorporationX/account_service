@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.config.account.AccountNumberConfig;
 import faang.school.accountservice.dto.account.FreeAccountNumberDto;

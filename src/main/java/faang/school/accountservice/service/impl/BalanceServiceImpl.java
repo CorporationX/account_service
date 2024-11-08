@@ -1,14 +1,12 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.entity.BalanceAudit;
-import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceJpaRepository;
+import faang.school.accountservice.service.BalanceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,9 +16,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class BalanceServiceImpl implements BalanceService {
+
     private final BalanceJpaRepository balanceRepository;
     private final BalanceAuditRepository balanceAuditRepository;
-    private final AccountRepository accountRepository;
     private final BalanceMapper mapper;
     private final BalanceAuditMapper auditMapper;
 
@@ -41,7 +39,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     public BalanceDto getBalance(long accountId) {
-        return mapper.toDto(balanceRepository.findById(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Not found account with id = " + accountId)));
+        Balance balance = balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Balance not found"));
+        return mapper.toDto(balance);
     }
 }
