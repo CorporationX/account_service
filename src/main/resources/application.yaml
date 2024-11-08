@@ -1,4 +1,12 @@
 spring:
+  data:
+    kafka:
+      capacity: 10000
+      corePoolSize: 1
+      maxPoolSize: 10000
+      keepAliveTime: 60
+      accountOpeningTopic: accountOpeningTopic
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres

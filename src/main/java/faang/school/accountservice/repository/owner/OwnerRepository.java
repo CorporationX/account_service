@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface OwnerRepository extends JpaRepository<Owner, Integer> {
 
     Optional<Owner> findByName(String name);
+
+    int countAccounts();
 }

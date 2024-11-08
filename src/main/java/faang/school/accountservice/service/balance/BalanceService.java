@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,7 +29,7 @@ public class BalanceService {
         log.info("Create method started for accountId: {}", account.getId());
 
         Balance balance = Balance.builder()
-                .actualBalance(0)
+                .actualBalance(BigDecimal.ZERO)
                 .account(account)
                 .build();
 

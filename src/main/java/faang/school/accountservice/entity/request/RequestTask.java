@@ -1,15 +1,15 @@
-package faang.school.accountservice.entity.balance;
+package faang.school.accountservice.entity.request;
 
-import faang.school.accountservice.entity.account.Account;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,30 +18,27 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
-@Entity
 @Builder
-@Table(name = "balance")
+@Entity
+@Table(name = "request_task")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Balance {
-
+public class RequestTask {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private UUID id;
 
-    @Column(name = "authorization_balance")
-    private BigDecimal authorizationBalance;
-
-    @Column(name = "actual_balance", nullable = false)
-    private BigDecimal actualBalance;
+    @Size(max = 1024)
+    private String handler;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
@@ -49,10 +46,15 @@ public class Balance {
     private LocalDateTime updatedAt;
 
     @Version
-    private int version;
+    private long version;
 
     @OneToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    private Request request;
 
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+    }
 }

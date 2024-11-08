@@ -2,6 +2,7 @@ package faang.school.accountservice.entity.account;
 
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.entity.owner.Owner;
+import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
@@ -14,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -79,6 +81,9 @@ public class Account {
 
     @OneToOne(mappedBy = "account")
     private Balance balance;
+
+    @OneToMany(mappedBy = "balance")
+    private Request request;
 
     @Version
     private int version;

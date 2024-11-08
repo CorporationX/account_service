@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountDto {
+    private Long id;
     private String number;
     private OwnerDto owner;
     private TypeDto type;

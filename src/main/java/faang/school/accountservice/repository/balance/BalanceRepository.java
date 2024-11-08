@@ -2,6 +2,9 @@ package faang.school.accountservice.repository.balance;
 
 import faang.school.accountservice.entity.balance.Balance;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface BalanceRepository extends JpaRepository<Balance, Long> {
+@Repository
+public interface BalanceRepository extends JpaRepository<Balance, Integer> {
+
 }

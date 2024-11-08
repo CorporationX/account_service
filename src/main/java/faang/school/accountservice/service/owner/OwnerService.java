@@ -7,8 +7,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class OwnerService {
@@ -19,5 +17,9 @@ public class OwnerService {
     public Owner getOwnerByName(String ownerName) {
         return ownerRepository.findByName(ownerName)
                 .orElseThrow(() -> new EntityNotFoundException("Owner with name " + ownerName + " not found"));
+    }
+
+    public int getCountOwnerAccounts() {
+        return ownerRepository.countAccounts();
     }
 }

@@ -19,6 +19,8 @@ import lombok.ToString;
 @NoArgsConstructor
 public class AccountCreateDto {
 
+    private long id;
+
     @NotNull
     private OwnerDto owner;
 

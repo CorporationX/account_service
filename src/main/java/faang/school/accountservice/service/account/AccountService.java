@@ -58,6 +58,16 @@ public class AccountService {
         return accountDto;
     }
 
+    @Transactional(readOnly = true)
+    public Account getAccountForAsync(long accountId) {
+        log.info("getAccountForAsync() - start, accountId - {}", accountId);
+
+        Account account = getAccount(accountId);
+
+        log.info("getAccountForAsync() - finish, accountId - {}", account);
+        return account;
+    }
+
     @Transactional
     public AccountDto createAccount(AccountCreateDto accountCreateDto) {
         log.info("createAccount() - start, accountCreateDto - {}", accountCreateDto);
@@ -99,6 +109,8 @@ public class AccountService {
         log.info("closeAccount() - finish, account - {}", account);
     }
 
+
+
     public Account getAccount(long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account with id " + accountId + " not found"));
@@ -130,4 +142,9 @@ public class AccountService {
         log.debug("generateNewAccount - finish, account - {}", account);
         return account;
     }
+
+    public void deleteAccount(Account account) {
+        accountRepository.delete(account);
+    }
+
 }
