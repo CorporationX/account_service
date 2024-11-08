@@ -31,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -114,6 +115,7 @@ public class BalanceServiceIntegrationTest extends RedisPostgresTestContainers {
     private ObjectMapper objectMapper;
 
     @Test
+    @Transactional
     void testCreateBalance_successful() {
         Account account = accountRepository.save(buildAccountDefault(5L));
         Balance balance = balanceService.createBalance(account);

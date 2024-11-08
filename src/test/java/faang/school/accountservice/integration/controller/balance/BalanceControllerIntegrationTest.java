@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ public class BalanceControllerIntegrationTest extends RedisPostgresTestContainer
     private BalanceRepository balanceRepository;
 
     @Test
+    @Transactional
     void testFindBalanceByAccountId_successful() throws Exception {
         Account account = buildAccountDefault(USER_ID);
         accountRepository.save(account);

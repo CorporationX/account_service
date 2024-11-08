@@ -5,6 +5,8 @@ CREATE TABLE cashback_tariff (
     updated_at  TIMESTAMP
 );
 
+CREATE UNIQUE INDEX uniq_cashback_tariff_name ON cashback_tariff (name);
+
 CREATE TABLE merchant (
     id          UUID PRIMARY KEY,
     user_id     BIGINT,
