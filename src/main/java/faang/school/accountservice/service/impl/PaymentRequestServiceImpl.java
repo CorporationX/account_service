@@ -23,11 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +62,8 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         ValidationResult commonResult = validateAuthorizePaymentEvent(paymentEvent);
         if (!commonResult.isValid()) {
             Request request = createRequest(paymentEvent, commonResult);
-            requestRepository.save(request);
-            //TODO тут публикуем FAILED сообщение?
+            Request savedRequest = requestRepository.save(request);
+            publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
             return;
         }
 
@@ -87,11 +90,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                     Request savedRequest = retryFailedRequest(existingRequest, paymentEvent);
                     Account senderAccount = savedRequest.getSenderAccount();
                     balanceAuditService.save(senderAccount.getBalance(), savedRequest);
-                    applicationEventPublisher.publishEvent(new PaymentStatusEvent(
-                            savedRequest.getId(),
-                            savedRequest.getIdempotencyToken(),
-                            savedRequest.getStatus(),
-                            paymentEvent.getSentDateTime()));
+                    publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
                     return;
 
                 case COMPLETED:
@@ -109,11 +108,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         Request savedRequest = requestRepository.save(request);
         Account senderAccount = savedRequest.getSenderAccount();
         balanceAuditService.save(senderAccount.getBalance(), savedRequest);
-        applicationEventPublisher.publishEvent(new PaymentStatusEvent(
-                savedRequest.getId(),
-                savedRequest.getIdempotencyToken(),
-                savedRequest.getStatus(),
-                paymentEvent.getSentDateTime()));
+        publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
     }
 
     @Override
@@ -126,8 +121,8 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                     new IllegalStateException(String.format("Expected request with id = %d to be present because there " +
                             "was payment event from redis, but it was not found", paymentEvent.getRequestId())));
             request.setStatusDetails(commonResult.getErrorMessage());
-            requestRepository.save(request);
-            //TODO будем публиковать что произошла ошибка при попытке отмены?
+            Request savedRequest = requestRepository.save(request);
+            publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
             return;
         }
 
@@ -143,16 +138,12 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 Request savedRequest = cancelRequest(existingRequest, paymentEvent);
                 Account senderAccount = savedRequest.getSenderAccount();
                 balanceAuditService.save(senderAccount.getBalance(), savedRequest);
-                applicationEventPublisher.publishEvent(new PaymentStatusEvent(
-                        savedRequest.getId(),
-                        savedRequest.getIdempotencyToken(),
-                        savedRequest.getStatus(),
-                        paymentEvent.getSentDateTime()));
+                publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
                 return;
             case COMPLETED:
                 existingRequest.setStatusDetails("Attempt to cancel COMPLETED request");
                 requestRepository.save(existingRequest);
-                //TODO тут тоже можно отправить event c непустым StatusDetails, чтобы payment-service понял, что не получилось
+                publishPaymentStatusEvent(existingRequest, paymentEvent.getSentDateTime());
                 return;
             default:
                 throw new DataValidationException(String.format("Unexpected request status: %s", existingRequest.getStatus()));
@@ -169,8 +160,8 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                     new IllegalStateException(String.format("Expected request with id = %d to be present because there " +
                             "was payment event from redis, but it was not found", paymentEvent.getRequestId())));
             request.setStatusDetails(commonResult.getErrorMessage());
-            requestRepository.save(request);
-            //TODO будем отправлять что произошла ошибка отмены при попытке клиринга?
+            Request savedRequest = requestRepository.save(request);
+            publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
             return;
         }
 
@@ -191,27 +182,18 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 balanceAuditService.save(senderAccount.getBalance(), savedRequest);
                 Account recipientAccount = savedRequest.getRecipientAccount();
                 balanceAuditService.save(recipientAccount.getBalance(), savedRequest);
-                applicationEventPublisher.publishEvent(new PaymentStatusEvent(
-                        savedRequest.getId(),
-                        savedRequest.getIdempotencyToken(),
-                        savedRequest.getStatus(),
-                        paymentEvent.getSentDateTime()));
+                publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
                 return;
             case FAILED:
                 existingRequest.setStatusDetails("Attempt to clearing FAILED request");
-                //TODO тут тоже можно отправить event c непустым StatusDetails, чтобы payment-service понял, что не получилось
                 requestRepository.save(existingRequest);
+                publishPaymentStatusEvent(existingRequest, paymentEvent.getSentDateTime());
                 return;
             case COMPLETED:
                 return;
             default:
                 throw new DataValidationException(String.format("Unexpected request status: %s", existingRequest.getStatus()));
         }
-    }
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onRequestCompleted(PaymentStatusEvent event) {
-        paymentStatusEventPublisher.publish(event);
     }
 
     private Request retryFailedRequest(Request existingRequest, PaymentEvent paymentEvent) {
@@ -378,5 +360,22 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
         valueOps.set(cacheKey, paymentEvent, CACHE_EXPIRATION_TIME_IN_MINUTES, TimeUnit.MINUTES);
         return false;
+    }
+
+    @Retryable(
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    private void publishPaymentStatusEvent(Request request, LocalDateTime eventSentDateTime) {
+        applicationEventPublisher.publishEvent(new PaymentStatusEvent(
+                request.getId(),
+                request.getIdempotencyToken(),
+                request.getStatus(),
+                request.getStatusDetails(),
+                eventSentDateTime));
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onRequestCompleted(PaymentStatusEvent event) {
+        paymentStatusEventPublisher.publish(event);
     }
 }

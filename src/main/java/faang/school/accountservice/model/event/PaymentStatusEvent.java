@@ -17,5 +17,6 @@ public class PaymentStatusEvent {
     private Long requestId;
     private UUID idempotencyToken;
     private RequestStatus status;
+    private String statusDetails;
     private LocalDateTime paymentEventSentDateTime;
 }
