@@ -1,5 +1,6 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.entity.account;
 
+import faang.school.accountservice.entity.cashback.tariff.CashbackTariff;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.PaymentAccountStatus;
 import faang.school.accountservice.enums.PaymentAccountType;

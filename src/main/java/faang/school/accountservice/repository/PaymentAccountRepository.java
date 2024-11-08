@@ -1,7 +1,6 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.entity.PaymentAccount;
-import org.springframework.data.domain.Page;
+import faang.school.accountservice.entity.account.PaymentAccount;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
