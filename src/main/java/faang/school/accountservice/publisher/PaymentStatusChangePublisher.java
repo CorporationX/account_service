@@ -22,13 +22,17 @@ public class PaymentStatusChangePublisher implements EventPublisher<PendingDto> 
 
     @Override
     public void publish(PendingDto event) {
-        try {
-            String jsonEvent = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(topicName, jsonEvent);
-        } catch (JsonProcessingException exception) {
-            log.error(exception.getMessage(), exception);
-            throw new RuntimeException(exception);
-        }
+        kafkaTemplate.executeInTransaction(kafkaOperations -> {
+            try {
+                String jsonEvent = objectMapper.writeValueAsString(event);
+                kafkaOperations.send(topicName, jsonEvent);
+                log.info("Published payment status change event: {}", event);
+            } catch (JsonProcessingException exception) {
+                log.error(exception.getMessage(), exception);
+                throw new RuntimeException(exception);
+            }
+            return true;
+        });
     }
 }
 

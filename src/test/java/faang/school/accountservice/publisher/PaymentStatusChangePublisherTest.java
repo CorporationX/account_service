@@ -9,13 +9,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.math.BigDecimal;
-import java.util.Map;
-
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,25 +30,45 @@ class PaymentStatusChangePublisherTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private PaymentStatusChangePublisher paymentStatusChangePublisher;
+    private PaymentStatusChangePublisher publisher;
 
     private String topicName;
+    private PendingDto testEvent;
 
     @BeforeEach
     void setUp() {
-        topicName = "paymentStatusChangePublisherTest";
-        ReflectionTestUtils.setField(paymentStatusChangePublisher, "topicName", topicName);
+        topicName = "test-topic";
+        testEvent = new PendingDto();
+        ReflectionTestUtils.setField(publisher, "topicName", topicName);
     }
 
     @Test
-    void testPublishEvent() throws JsonProcessingException {
-        String json = "json";
-        PendingDto pendingDto = new PendingDto();
-        pendingDto.setAmount(BigDecimal.valueOf(100.0));
-        when(objectMapper.writeValueAsString(pendingDto)).thenReturn(json);
+    void publish_shouldSendEventToKafka() throws JsonProcessingException {
+        String jsonEvent = "{\"status\":\"SUCCESS\"}";
+        when(objectMapper.writeValueAsString(testEvent)).thenReturn(jsonEvent);
+        when(kafkaTemplate.executeInTransaction(any())).thenAnswer(invocation -> {
+            KafkaOperations.OperationsCallback<String, String, Boolean> callback = invocation.getArgument(0);
+            return callback.doInOperations(kafkaTemplate);
+        });
 
-        paymentStatusChangePublisher.publish(pendingDto);
+        publisher.publish(testEvent);
 
-        verify(kafkaTemplate).send(topicName, json);
+        verify(kafkaTemplate).executeInTransaction(any());
+        verify(kafkaTemplate).send(topicName, jsonEvent);
+    }
+
+    @Test
+    void publish_shouldThrowExceptionWhenJsonProcessingFails() {
+        when(kafkaTemplate.executeInTransaction(any())).thenAnswer(invocation -> {
+            KafkaOperations.OperationsCallback<String, String, Boolean> callback = invocation.getArgument(0);
+            when(objectMapper.writeValueAsString(testEvent)).thenThrow(new JsonProcessingException("Ошибка JSON") {});
+            return callback.doInOperations(kafkaTemplate);
+        });
+
+        assertThrows(RuntimeException.class, () -> publisher.publish(testEvent));
+
+        verify(kafkaTemplate).executeInTransaction(any());
+        verify(kafkaTemplate, never()).send(topicName, anyString());
     }
 }
+
