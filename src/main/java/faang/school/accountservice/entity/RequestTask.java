@@ -1,5 +1,7 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.dto.account.AccountDto;
+import faang.school.accountservice.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,16 +27,20 @@ public class RequestTask {
     private UUID requestId;
 
     @Column(name = "current_step")
-    private Long currentStep;
+    private Long currentHandlerStep;
 
     @Column(name = "request_task_status")
-    private String requestTaskStatus; //вроде должен быть лонг
+    private RequestStatus requestTaskStatus;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "account")
+    private Account account;
 
     @Version
     @Column(name = "version", nullable = false)

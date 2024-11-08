@@ -2,7 +2,9 @@ package faang.school.accountservice.service;
 
 import jakarta.transaction.Transactional;
 
-public interface RequestExecutorService {
+import java.util.UUID;
+
+public interface RequestExecutorService  {
     @Transactional
-    void executeRequest(Long requestId);
+    void executeRequest(UUID requestId);
 }

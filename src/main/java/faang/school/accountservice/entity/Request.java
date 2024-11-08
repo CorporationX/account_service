@@ -54,6 +54,7 @@ public class Request {
     @Column(name = "version", nullable = false)
     private Integer version;
 
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -61,4 +62,10 @@ public class Request {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "context", columnDefinition = "text")
+    private String context;
+
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
 }

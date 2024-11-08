@@ -1,24 +1,24 @@
 package faang.school.accountservice.handler;
 
-import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.mapper.AccountMapper;
-import faang.school.accountservice.mapper.RequestMapper;
+import faang.school.accountservice.entity.Request;
+import faang.school.accountservice.entity.RequestTask;
+import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.RequestTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AccountRecordHandler implements RequestTaskHandler<AccountDto> {
+public class AccountRecordHandler implements RequestTaskHandler {
     private final AccountRepository accountRepository;
-    private final AccountMapper accountMapper;
-    //private final RequestJpaRepository requestRepository;
-    //private final RequestMapper requestMapper;
+    private final RequestTaskRepository requestTaskRepository;
 
     @Override
-    public void execute(AccountDto accountDto) {
-        accountRepository.save(accountMapper.toEntity(accountDto));
-        //requestRepository.save(requestMapper.accountToRequest(accountMapper.toEntity(accountDto)));
+    public void execute(Request request, RequestTask task) {
+        accountRepository.save(task.getAccount());
+        task.setRequestTaskStatus(RequestStatus.COMPLETED);
+        requestTaskRepository.save(task);
     }
 
     @Override
