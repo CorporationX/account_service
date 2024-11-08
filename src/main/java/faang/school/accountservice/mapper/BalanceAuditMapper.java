@@ -13,8 +13,6 @@ import java.util.List;
 public interface BalanceAuditMapper {
 
     @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "account", ignore = true)
-//    @Mapping(target = "request", ignore = true)
     @Mapping(target = "balanceVersion", source = "version")
     BalanceAudit toAuditEntity(Balance balance);
 
