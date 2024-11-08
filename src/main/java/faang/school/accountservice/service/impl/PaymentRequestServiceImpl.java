@@ -87,7 +87,11 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                     Request savedRequest = retryFailedRequest(existingRequest, paymentEvent);
                     Account senderAccount = savedRequest.getSenderAccount();
                     balanceAuditService.save(senderAccount.getBalance(), savedRequest);
-                    applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
+                    applicationEventPublisher.publishEvent(new PaymentStatusEvent(
+                            savedRequest.getId(),
+                            savedRequest.getIdempotencyToken(),
+                            savedRequest.getStatus(),
+                            paymentEvent.getSentDateTime()));
                     return;
 
                 case COMPLETED:
@@ -105,7 +109,11 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         Request savedRequest = requestRepository.save(request);
         Account senderAccount = savedRequest.getSenderAccount();
         balanceAuditService.save(senderAccount.getBalance(), savedRequest);
-        applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
+        applicationEventPublisher.publishEvent(new PaymentStatusEvent(
+                savedRequest.getId(),
+                savedRequest.getIdempotencyToken(),
+                savedRequest.getStatus(),
+                paymentEvent.getSentDateTime()));
     }
 
     @Override
@@ -135,7 +143,11 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 Request savedRequest = cancelRequest(existingRequest, paymentEvent);
                 Account senderAccount = savedRequest.getSenderAccount();
                 balanceAuditService.save(senderAccount.getBalance(), savedRequest);
-                applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
+                applicationEventPublisher.publishEvent(new PaymentStatusEvent(
+                        savedRequest.getId(),
+                        savedRequest.getIdempotencyToken(),
+                        savedRequest.getStatus(),
+                        paymentEvent.getSentDateTime()));
                 return;
             case COMPLETED:
                 existingRequest.setStatusDetails("Attempt to cancel COMPLETED request");
@@ -179,7 +191,11 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 balanceAuditService.save(senderAccount.getBalance(), savedRequest);
                 Account recipientAccount = savedRequest.getRecipientAccount();
                 balanceAuditService.save(recipientAccount.getBalance(), savedRequest);
-                applicationEventPublisher.publishEvent(new PaymentStatusEvent(savedRequest.getId(), savedRequest.getIdempotencyToken(), savedRequest.getStatus()));
+                applicationEventPublisher.publishEvent(new PaymentStatusEvent(
+                        savedRequest.getId(),
+                        savedRequest.getIdempotencyToken(),
+                        savedRequest.getStatus(),
+                        paymentEvent.getSentDateTime()));
                 return;
             case FAILED:
                 existingRequest.setStatusDetails("Attempt to clearing FAILED request");
