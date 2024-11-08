@@ -9,7 +9,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -21,8 +21,8 @@ server:
 
 account-service:
   account-numbers:
-    max-free-accounts: 10
-    min-free-accounts: 1
+    batch-size: 1000
+    pool-draw-failure-exhaustion-warning-upper-limit: 100
     max-length-sequence: 20
 
 

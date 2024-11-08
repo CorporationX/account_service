@@ -11,9 +11,9 @@ public class AccountNumberConfig {
     @Value("${account-service.account-numbers.max-length-sequence}")
     private int maxlengthOfDigitSequence;
 
-    @Value("${account-service.account-numbers.min-free-accounts}")
-    private int minNumberOfFreeAccounts;
+    @Value("${account-service.account-numbers.pool-draw-failure-exhaustion-warning-upper-limit}")
+    private int poolDrawFailureExhaustionWarningUpperLimit;
 
-    @Value("${account-service.account-numbers.max-free-accounts}")
-    private int maxNumberOfFreeAccounts;
+    @Value("${account-service.account-numbers.batch-size}")
+    private int batchSize;
 }

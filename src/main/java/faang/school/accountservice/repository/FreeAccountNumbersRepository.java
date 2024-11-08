@@ -3,7 +3,6 @@ package faang.school.accountservice.repository;
 import faang.school.accountservice.enums.AccountNumberType;
 import faang.school.accountservice.model.number.FreeAccountNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, AccountNumberType> {
 
-    long countFreeAccountNumberById_Type(AccountNumberType accountNumberType);
+    long countFreeAccountNumberByIdType(AccountNumberType accountNumberType);
 
 
     @Query(nativeQuery = true,

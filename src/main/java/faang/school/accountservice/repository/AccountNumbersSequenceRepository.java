@@ -36,6 +36,7 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountU
             """)
     long incrementAndGet(String type);
 
+
     @Query(nativeQuery = true, value = """
             UPDATE account_unique_number_counter
             SET counter = counter + :increment

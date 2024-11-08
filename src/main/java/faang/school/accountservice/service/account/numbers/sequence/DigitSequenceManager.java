@@ -15,12 +15,16 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class DigitSequenceManager {
-    private final DigitSequenceGenerator digitSequenceGenerator;
+    private final IDigitSequenceGenerator digitSequenceGenerator;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
     @Async
     @Transactional
     public void tryStartGenerationNumberForPool(AccountNumberType type) {
+        if (!isGenerationNeeded(type)) {
+            log.warn("No generation needed for type {}.", type);
+            return;
+        }
         if (!permissionToStartGeneration(type)) {
             log.warn("Generation for type {} will be skipped because another thread is already generating.", type);
             return;
@@ -29,8 +33,8 @@ public class DigitSequenceManager {
             log.warn("No locked counter found for type {}. Generation will be skipped.", type);
             return;
         }
+        log.info("Start async generation for type {}.", type);
         startGeneration(type);
-
     }
 
     public Optional<String> getAndRemoveFreeAccountNumberByType(AccountNumberType type) {
@@ -45,6 +49,11 @@ public class DigitSequenceManager {
     private void startGeneration(AccountNumberType type) {
         accountNumbersSequenceRepository.setActiveGenerationState(type.toString());
         digitSequenceGenerator.generationSequencesAsync(type);
+    }
+
+
+    private boolean isGenerationNeeded(AccountNumberType type) {
+        return digitSequenceGenerator.isGenerationNeeded(type);
     }
 
     private boolean permissionToStartGeneration(AccountNumberType type) {

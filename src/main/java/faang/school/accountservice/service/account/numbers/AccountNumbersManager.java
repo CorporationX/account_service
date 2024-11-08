@@ -14,7 +14,6 @@ public class AccountNumbersManager {
     private final DigitSequenceManager digitSequenceManager;
 
     public void getAccountNumberAndApply(AccountNumberType type, Consumer<FreeAccountNumber> action) {
-
         String digitSequence = digitSequenceManager.getAndRemoveFreeAccountNumberByType(type)
                 .orElseGet(() -> (createNewAccountNumber(type)));
         FreeAccountNumber accountNumberEntity = new FreeAccountNumber(type, digitSequence);
@@ -25,4 +24,7 @@ public class AccountNumbersManager {
         digitSequenceManager.tryStartGenerationNumberForPool(type);
         return digitSequenceManager.generateNewAccountNumberWithoutPool(type);
     }
+
+
+
 }

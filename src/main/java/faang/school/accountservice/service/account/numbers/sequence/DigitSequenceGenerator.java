@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-class DigitSequenceGenerator {
+class DigitSequenceGenerator implements IDigitSequenceGenerator{
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumberConfig accountNumberConfig;
@@ -36,6 +37,7 @@ class DigitSequenceGenerator {
 
     @Transactional
     public String generateNewAccountNumberWithoutPool(AccountNumberType type) {
+        accountNumbersSequenceRepository.tryLockCounterByTypeForUpdate(type.toString());
         long incrementKey = accountNumbersSequenceRepository.incrementAndGet(type.toString());
         String prefixCode = type.getCode();
         String accountNumber = concatenate(incrementKey, prefixCode);
@@ -44,30 +46,30 @@ class DigitSequenceGenerator {
     }
 
     @Async
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void generationSequencesAsync(AccountNumberType type) {
-
         generateAndSaveAccountNumbers(type);
         accountNumbersSequenceRepository.setNonActiveGenerationState(type.toString());
     }
 
+    public boolean isGenerationNeeded(AccountNumberType type) {
+        long amountSequences = countExistingFreeAccountNumbers(type);
+        return amountSequences < accountNumberConfig.getPoolDrawFailureExhaustionWarningUpperLimit();
+
+    }
+
 
     private void generateAndSaveAccountNumbers(AccountNumberType type) {
-        long amountSequences = countExistingFreeAccountNumbers(type);
-        if (isGenerationNeeded(amountSequences)) {
-            List<FreeAccountNumber> accountNumbers = generateAccountNumbers(type);
-            List<String> saved = saveGeneratedAccountNumbers(accountNumbers);
-            updateAccountNumberCounter(type);
-            log.info("Generated {} account numbers for type {} -> {}", saved.size(), type, saved);
-        }
+        List<FreeAccountNumber> accountNumbers = generateAccountNumbers(type);
+        List<String> saved = saveGeneratedAccountNumbers(accountNumbers);
+        updateAccountNumberCounter(type);
+        log.info("Generated {} account numbers for type {} -> {}", saved.size(), type, saved);
+
     }
+
 
     private long countExistingFreeAccountNumbers(AccountNumberType type) {
-        return freeAccountNumbersRepository.countFreeAccountNumberById_Type(type);
-    }
-
-    private boolean isGenerationNeeded(long amountSequences) {
-        return amountSequences < accountNumberConfig.getMinNumberOfFreeAccounts();
+        return freeAccountNumbersRepository.countFreeAccountNumberByIdType(type);
     }
 
     private List<FreeAccountNumber> generateAccountNumbers(AccountNumberType type) {
@@ -82,14 +84,14 @@ class DigitSequenceGenerator {
     }
 
     private void updateAccountNumberCounter(AccountNumberType type) {
-        accountNumbersSequenceRepository.upCounterAndGet(type.toString(), accountNumberConfig.getMaxNumberOfFreeAccounts() - 1);
+        accountNumbersSequenceRepository.upCounterAndGet(type.toString(), accountNumberConfig.getBatchSize() - 1);
     }
 
     private List<FreeAccountNumber> generationSequencesByNumberConfig(AccountNumberType type) {
         long incrementKey = accountNumbersSequenceRepository.incrementAndGet(type.toString());
         String prefixCode = type.getCode();
         return IntStream
-                .range(0, accountNumberConfig.getMaxNumberOfFreeAccounts())
+                .range(0, accountNumberConfig.getBatchSize())
                 .mapToObj(i -> concatenate(incrementKey + i, prefixCode))
                 .map(accountNumber -> new FreeAccountNumber(type, accountNumber))
                 .toList();
