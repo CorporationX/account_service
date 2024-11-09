@@ -8,10 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -24,16 +23,22 @@ public class AccountNumberScheduler {
 
     @Scheduled(cron = "${account.number.cron_to_create_new_numbers}")
     public void generateAccountNumbers() {
-        List<CompletableFuture<Void>> futures = Arrays.stream(accountTypes)
-                .map(accountType -> CompletableFuture.runAsync(() -> {
-                    int freeNumbers = freeAccountNumberService.getQuantityFreeAccountNumbersByType(accountType);
-                    int neededNumbers = batchSize - freeNumbers;
-                    if (neededNumbers > 0) {
-                        freeAccountNumberService
-                                .generateAccountNumbers(accountType, batchSize - freeNumbers, true);
-                    }
-                }, executorService))
-                .toList();
-        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        Arrays.stream(accountTypes).forEach(accountType -> executorService.execute(() -> {
+            int freeNumbers = freeAccountNumberService.getQuantityFreeAccountNumbersByType(accountType);
+            int neededNumbers = batchSize - freeNumbers;
+            if (neededNumbers > 0) {
+                freeAccountNumberService
+                        .generateAccountNumbers(accountType, neededNumbers);
+            }
+        }));
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 }

@@ -53,8 +53,8 @@ public class AccountNumberSchedulerTest extends TestContainersConfig {
 
     @Test
     public void testGenerateAccountNumbers() {
-        freeAccountNumberService.generateAccountNumbers(SAVINGS, 2, true);
-        freeAccountNumberService.generateAccountNumbers(DEBIT, 1, true);
+        freeAccountNumberService.generateAccountNumbers(SAVINGS, 2);
+        freeAccountNumberService.generateAccountNumbers(DEBIT, 1);
 
         accountNumberScheduler.generateAccountNumbers();
 
