@@ -11,5 +11,5 @@ public interface BalanceService {
 
     BalanceDto createBalance(Long accountId);
 
-    BalanceDto changeBalance(Long balanceId, AmountChangeRequest amount);
+    BalanceDto changeBalance(Long balanceId, AmountChangeRequest request);
 }

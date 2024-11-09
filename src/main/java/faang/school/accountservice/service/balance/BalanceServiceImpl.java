@@ -81,11 +81,11 @@ public class BalanceServiceImpl implements BalanceService {
     @Retryable(retryFor = OptimisticLockException.class,
             maxAttemptsExpression = "${retryable.max-attempts}",
             backoff = @Backoff(delayExpression = "${retryable.delay}"))
-    public BalanceDto changeBalance(Long balanceId, AmountChangeRequest amount) {
+    public BalanceDto changeBalance(Long balanceId, AmountChangeRequest request) {
         Balance balance = getBalance(balanceId);
-        Operation operation = operationRegistry.getOperation(amount.operationType());
-        BalanceChanger balanceChanger = balanceChangeRegistry.getBalanceChange(amount.changeBalanceType());
-        balance = balanceChanger.processBalance(balance, amount.amount(), operation);
+        Operation operation = operationRegistry.getOperation(request.operationType());
+        BalanceChanger balanceChanger = balanceChangeRegistry.getBalanceChange(request.changeBalanceType());
+        balance = balanceChanger.processBalance(balance, request.amount(), operation);
         balanceRepository.save(balance);
         log.debug("balance changed: {}", balance);
         return balanceMapper.toBalanceDto(balance);
