@@ -19,7 +19,7 @@ public class BalanceAudit {
     private String number;
 
     @Column(name = "balance_version", nullable = false)
-    private Long version;
+    private Integer version;
 
     @Column(name = "cur_auth_balance")
     private double curAuthBalance;

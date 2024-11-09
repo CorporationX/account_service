@@ -45,4 +45,8 @@ public class RequestTask {
     @Version
     @Column(name = "version", nullable = false)
     private Integer version;
+
+    @ManyToOne
+    @JoinColumn(name = "request", nullable = false)
+    private Request request;
 }
