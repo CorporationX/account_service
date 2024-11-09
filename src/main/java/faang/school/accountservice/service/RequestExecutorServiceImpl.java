@@ -6,6 +6,7 @@ import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.handler.RequestTaskHandler;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.repository.RequestTaskRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,8 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
 
     @Override
     public RequestStatus getStatus(UUID requestId) {
-        return requestRepository.findById(requestId).get().getStatus();
+        return requestRepository.findById(requestId)
+                .map(Request::getStatus)
+                .orElseThrow(() -> new EntityNotFoundException("Request not found with id: " + requestId));
     }
 }
