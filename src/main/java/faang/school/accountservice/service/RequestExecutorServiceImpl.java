@@ -27,9 +27,12 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
     public void executeRequest(UUID requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
-
         List<RequestTask> requestTasks = requestTaskRepository.findByRequestId(requestId);
-
+        processTasks(request, requestTasks);
+        request.setStatus(RequestStatus.COMPLETED);
+        requestRepository.save(request);
+    }
+    private void processTasks(Request request, List<RequestTask> requestTasks) {
         for (RequestTask task : requestTasks) {
             RequestTaskHandler handler = handlers.stream()
                     .filter(h -> h.getHandlerId().equals(task.getCurrentHandlerStep()))
@@ -37,8 +40,6 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
                     .orElseThrow(() -> new RuntimeException("Handler not found for task: " + task.getId()));
             handler.execute(request, task);
         }
-        request.setStatus(RequestStatus.COMPLETED);
-        requestRepository.save(request);
     }
 
     @Override
