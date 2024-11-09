@@ -2,10 +2,11 @@ package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.account.AccountStatus;
-import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.exception.ResourceNotFoundException;
+import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.balance.BalanceService;
+import faang.school.accountservice.service.FreeAccountNumberService;
 import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -21,6 +22,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountValidator validator;
     private final BalanceService balanceService;
+    private final FreeAccountNumberService freeAccountNumberService;
 
     @Transactional
     public Account openAccount(Account account) {
@@ -28,7 +30,7 @@ public class AccountService {
 
         Account finalAccount = account;
 
-        String accountNumber = "408124878517";
+        String accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType());
         account.setStatus(AccountStatus.ACTIVE);
         account.setNumber(accountNumber);
         account.setCreatedAt(LocalDateTime.now());
