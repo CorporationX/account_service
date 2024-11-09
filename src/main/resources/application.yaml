@@ -29,6 +29,19 @@ account:
   nameLength:
     min: 12
     max: 20
+  accountNumbers:
+    needsOfFreeAccountNumbers:
+      DEBIT: 400
+      SAVINGS: 200
+      CREDIT: 200
+      DEPOSIT: 200
+      SETTLEMENT: 100
+      SUBSETTLEMENT: 100
+      LETTER_OF_CREDIT: 100
+      BUDGET: 100
+    numberFormatter: "%012d"
+    scheduler:
+      cron: "0 */10 * * * *" #every 10 minutes checks
 
 openapi:
   uris: /swagger-ui, /v3/api-docs, /swagger-resources

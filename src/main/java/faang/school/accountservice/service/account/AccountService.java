@@ -1,12 +1,12 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.config.generator.AccountNumberGenerator;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.owner.Owner;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.account.AccountEnum;
 import faang.school.accountservice.exception.IllegalStatusException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountService {
 
-    private final AccountNumberGenerator accountNumberGenerator;
+    private final FreeAccountNumbersService freeAccountNumbersService;
     private final AccountStatusManager accountStatusManager;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
@@ -110,10 +110,13 @@ public class AccountService {
         AccountType type = typeService.getTypeByName(accountCreateDto.getType().getName());
         Owner owner = ownerService.getOwnerByName(accountCreateDto.getOwner().getName());
 
-        String accountNumber = accountNumberGenerator.generateRandomAccountNumberInRange();
+        final String[] accountNumber = {""};
+
+        freeAccountNumbersService.retrieveAccountNumber(AccountEnum.valueOf(type.getName()),
+                freeAccountNumber -> accountNumber[0] = freeAccountNumber.getId().getAccountNumber());
 
         Account account = Account.builder()
-                .number(accountNumber)
+                .number(accountNumber[0])
                 .accountType(type)
                 .owner(owner)
                 .currency(accountCreateDto.getCurrency())
