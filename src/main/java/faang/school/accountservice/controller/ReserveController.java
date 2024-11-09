@@ -20,9 +20,4 @@ public class ReserveController {
     public Reserve getReserve(@Positive @PathVariable("id") long id) {
         return reserveService.getReserve(id);
     }
-
-    @Scheduled(cron = "${reserve-service.canceling-out-of-date-reserves.cron}")
-    public void cancelOutOfDateReserves() {
-        reserveService.cancelOutOfDateReserves();
-    }
 }

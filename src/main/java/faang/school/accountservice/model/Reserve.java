@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Digits;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,10 +49,11 @@ public class Reserve {
     Account receiverAccount;
 
     @Column(name = "amount", nullable = false)
+    @Digits(integer = 16, fraction = 2)
     BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 64)
     DmsTypeOperation status;
 
     @Temporal(TemporalType.TIMESTAMP)

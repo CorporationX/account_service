@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class AuthorizationDmsEventHandler implements DmsEventHandler {
     private final ReserveService reserveService;
 

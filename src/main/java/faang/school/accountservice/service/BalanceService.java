@@ -21,36 +21,32 @@ public class BalanceService {
     }
 
     @Transactional
-    public Balance increaseAuthBalance(long id, BigDecimal amount) {
+    public void increaseAuthBalance(long id, BigDecimal amount) {
         Balance balance = getBalance(id);
         balance.setAuthBalance(balance.getAuthBalance().add(amount));
-        return balance;
     }
 
     @Transactional
-    public Balance decreaseAuthBalance(long id, BigDecimal amount) {
+    public void decreaseAuthBalance(long id, BigDecimal amount) {
         Balance balance = getBalance(id);
         BigDecimal authBalance = balance.getAuthBalance();
         checkWithdrawMoney(id, authBalance, amount);
         balance.setAuthBalance(authBalance.subtract(amount));
-        return balance;
     }
 
     @Transactional
-    public Balance decreaseActualBalance(long id, BigDecimal amount) {
+    public void decreaseActualBalance(long id, BigDecimal amount) {
         Balance balance = getBalance(id);
         BigDecimal actualBalance = balance.getActualBalance();
         checkWithdrawMoney(id, actualBalance, amount);
         balance.setActualBalance(actualBalance.subtract(amount));
-        return balance;
     }
 
     @Transactional
-    public Balance increaseAllBalances(long id, BigDecimal amount) {
+    public void increaseAllBalances(long id, BigDecimal amount) {
         Balance balance = getBalance(id);
         balance.setActualBalance(balance.getActualBalance().add(amount));
         balance.setAuthBalance(balance.getAuthBalance().add(amount));
-        return balance;
     }
 
     private Balance getBalance(long id) {

@@ -34,5 +34,5 @@ logging:
 
 reserve-service:
   canceling-out-of-date-reserves:
-    cron: 0/5 * * * * *
+    cron: 0/5 * * * * * # каждые 5 секунд
     waiting-time: 30 # время ожидания в секундах
