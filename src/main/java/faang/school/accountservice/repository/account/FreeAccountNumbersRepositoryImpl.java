@@ -26,7 +26,7 @@ public class FreeAccountNumbersRepositoryImpl implements FreeAccountNumbersCusto
                         ps.setString(2, accountNumber.getId().getAccountNumber());
                     });
         } catch (DataAccessException dae) {
-            log.error("Error occurred while batch save! {}", (Object) dae.getStackTrace());
+            log.error("Error occurred while batch save!", dae);
             throw new RuntimeException("Error! " + dae.getMessage() + " ", dae);
         }
     }
