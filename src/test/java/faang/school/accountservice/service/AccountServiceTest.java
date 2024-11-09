@@ -1,7 +1,6 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.exception.ResourceNotFoundException;
@@ -21,6 +20,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static faang.school.accountservice.enums.payment.Currency.RUB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -56,7 +56,7 @@ public class AccountServiceTest {
                 .userId(1L)
                 .projectId(1L)
                 .type(AccountType.DEBIT)
-                .currency(Currency.RUB)
+                .currency(RUB)
                 .build();
     }
 

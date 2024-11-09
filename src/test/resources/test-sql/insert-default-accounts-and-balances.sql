@@ -1,6 +1,6 @@
 INSERT INTO account (id, number, user_id, type, currency, status, version)
-VALUES ('065977b1-2f8d-47d5-a2a7-c88671a3c5a3', '408124878517', 1, 'PERSONAL', 'USD', 'ACTIVE', 0),
-       ('f6309d7b-22bd-4b18-a4fa-29a6bdd502e8', '408124878517', 2, 'PERSONAL', 'USD', 'ACTIVE', 0);
+VALUES ('065977b1-2f8d-47d5-a2a7-c88671a3c5a3', '408124878517', 1, 'DEBIT', 'USD', 'ACTIVE', 0),
+       ('f6309d7b-22bd-4b18-a4fa-29a6bdd502e8', '408124878517', 2, 'DEBIT', 'USD', 'ACTIVE', 0);
 
 INSERT INTO balance (id, account_id, auth_balance, current_balance)
 VALUES ('4cc8cd27-9c53-4e4c-8f44-de6a6d7182c0', '065977b1-2f8d-47d5-a2a7-c88671a3c5a3', 0, 1000),

@@ -17,10 +17,5 @@ spring:
           request: error-payment-request
           response: error-payment-response
 
-#redis:
-#  topic:
-#    pending_operation: pending_operation
-#    checking_balance: checking_balance
-
 app:
   messaging: redis

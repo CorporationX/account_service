@@ -7,9 +7,9 @@ import lombok.experimental.UtilityClass;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static faang.school.accountservice.enums.account.AccountType.DEBIT;
 import static faang.school.accountservice.enums.payment.Currency.USD;
 import static faang.school.accountservice.enums.account.AccountStatus.ACTIVE;
-import static faang.school.accountservice.enums.account.AccountType.PERSONAL;
 
 @UtilityClass
 public class AccountFabric {
@@ -19,7 +19,7 @@ public class AccountFabric {
         return Account.builder()
                 .number(ACCOUNT_NUMBER)
                 .userId(userId)
-                .type(PERSONAL)
+                .type(DEBIT)
                 .currency(USD)
                 .status(ACTIVE)
                 .closedAt(LocalDateTime.now())

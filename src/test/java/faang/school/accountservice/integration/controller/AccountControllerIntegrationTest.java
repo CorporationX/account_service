@@ -25,7 +25,7 @@ import static faang.school.accountservice.enums.payment.Currency.USD;
 import static faang.school.accountservice.enums.account.AccountStatus.ACTIVE;
 import static faang.school.accountservice.enums.account.AccountStatus.BLOCKED;
 import static faang.school.accountservice.enums.account.AccountStatus.CLOSED;
-import static faang.school.accountservice.enums.account.AccountType.PERSONAL;
+import static faang.school.accountservice.enums.account.AccountType.DEBIT;
 import static faang.school.accountservice.util.fabrics.AccountFabric.buildAccountDefault;
 import static faang.school.accountservice.util.fabrics.UserDtoFabric.buildUserDtoDefault;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
 
     @Test
     void testOpenAccount_forUser_successful() throws Exception {
-        OpenAccountDto openAccountDto = new OpenAccountDto(USER_ID, null, PERSONAL, USD);
+        OpenAccountDto openAccountDto = new OpenAccountDto(USER_ID, null, DEBIT, USD);
         UserDto userDto = buildUserDtoDefault(USER_ID);
         when(userServiceClient.getUser(USER_ID)).thenReturn(userDto);
 
@@ -75,7 +75,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
                 .andExpect(jsonPath("$.number").isNotEmpty())
                 .andExpect(jsonPath("$.userId").value(USER_ID))
                 .andExpect(jsonPath("$.projectId").isEmpty())
-                .andExpect(jsonPath("$.type").value(PERSONAL.toString()))
+                .andExpect(jsonPath("$.type").value(DEBIT.toString()))
                 .andExpect(jsonPath("$.currency").value(USD.toString()))
                 .andExpect(jsonPath("$.status").value(ACTIVE.toString()))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
@@ -88,7 +88,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
 
     @Test
     void testOpenAccount_forObject_successful() throws Exception {
-        OpenAccountDto openAccountDto = new OpenAccountDto(null, PROJECT_ID, PERSONAL, USD);
+        OpenAccountDto openAccountDto = new OpenAccountDto(null, PROJECT_ID, DEBIT, USD);
         ProjectDto projectDto = new ProjectDto(PROJECT_ID, PROJECT_NAME);
         when(projectServiceClient.getProject(PROJECT_ID)).thenReturn(projectDto);
 
@@ -101,7 +101,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
                 .andExpect(jsonPath("$.number").isNotEmpty())
                 .andExpect(jsonPath("$.userId").isEmpty())
                 .andExpect(jsonPath("$.projectId").value(PROJECT_ID))
-                .andExpect(jsonPath("$.type").value(PERSONAL.toString()))
+                .andExpect(jsonPath("$.type").value(DEBIT.toString()))
                 .andExpect(jsonPath("$.currency").value(USD.toString()))
                 .andExpect(jsonPath("$.status").value(ACTIVE.toString()))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
