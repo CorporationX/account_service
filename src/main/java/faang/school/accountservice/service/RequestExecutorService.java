@@ -1,10 +1,12 @@
 package faang.school.accountservice.service;
 
-import jakarta.transaction.Transactional;
+import faang.school.accountservice.enums.RequestStatus;
 
 import java.util.UUID;
 
-public interface RequestExecutorService  {
-    @Transactional
+public interface RequestExecutorService {
+
     void executeRequest(UUID requestId);
+
+    RequestStatus getStatus(UUID requestId);
 }

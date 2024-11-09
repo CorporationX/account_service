@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class OpenAccountEvent {
-    private final Long Id;
-    private final String number;
+    private Long Id;
+    private String number;
 }

@@ -7,6 +7,7 @@ import faang.school.accountservice.handler.RequestTaskHandler;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.repository.RequestTaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
     private final RequestRepository requestRepository;
     private final RequestTaskRepository requestTaskRepository;
 
+    @Async
     @Transactional
     public void executeRequest(UUID requestId) {
         Request request = requestRepository.findById(requestId)
@@ -36,5 +38,10 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
         }
         request.setStatus(RequestStatus.COMPLETED);
         requestRepository.save(request);
+    }
+
+    @Override
+    public RequestStatus getStatus(UUID requestId) {
+        return requestRepository.findById(requestId).get().getStatus();
     }
 }
