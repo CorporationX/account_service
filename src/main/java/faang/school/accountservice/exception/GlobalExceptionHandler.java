@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +22,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             EntityExistsException.class,
             InsufficientFundsException.class,
-            IllegalArgumentException.class
+            IllegalArgumentException.class,
+            IllegalAccountTypeForOwner.class,
+            NotUniqueAccountNumberException.class,
+            IllegalAccountStatus.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleExceptionWithBadRequest(RuntimeException ex) {
@@ -67,17 +71,6 @@ public class GlobalExceptionHandler {
                 .toList());
         log.error(ex.getMessage(), ex);
         return new ConstraintErrorResponse(violations);
-    }
-
-    @ExceptionHandler({
-            IllegalAccountTypeForOwner.class,
-            NotUniqueAccountNumberException.class,
-            IllegalAccountStatus.class
-    })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalAccountTypeForOwner(RuntimeException ex) {
-        log.error(ex.getMessage());
-        return new ErrorResponse(ex.getMessage());
     }
 
     @ExceptionHandler(Throwable.class)
