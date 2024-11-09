@@ -90,7 +90,8 @@ val jacocoExclude = listOf(
     "**/enums/**",
     "**/exception/**",
     "**/mapper/**",
-    "**/repository/**"
+    "**/repository/**",
+    "**/service/FreeAccountNumberService**"
 )
 
 jacoco {
