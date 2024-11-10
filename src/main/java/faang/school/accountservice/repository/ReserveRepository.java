@@ -18,7 +18,7 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long> {
     Optional<Reserve> findReserveByRequest(long requestId);
 
     @Query(nativeQuery = true, value = """
-        select * from reserve where clear_scheduled_at <= ?1 and status = 'AUTHORIZATION'
+        select * from reserve where clear_scheduled_at <= ?1 and status = ?2
         """)
-    List<Reserve> findOutOfDateReserves(LocalDateTime dateTime);
+    List<Reserve> findOutOfDateReserves(LocalDateTime dateTime, String status);
 }

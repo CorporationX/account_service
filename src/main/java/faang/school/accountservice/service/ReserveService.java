@@ -112,7 +112,7 @@ public class ReserveService {
     @Transactional
     public void cancelOutOfDateReserves() {
         LocalDateTime dateTime = LocalDateTime.now().minusSeconds(waitingTime);
-        List<Reserve> reserves = reserveRepository.findOutOfDateReserves(dateTime);
+        List<Reserve> reserves = reserveRepository.findOutOfDateReserves(dateTime, DmsTypeOperation.AUTHORIZATION.name());
 
         reserves.forEach(
             reserve -> cancelReserve(reserve.getRequestId())

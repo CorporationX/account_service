@@ -50,14 +50,11 @@ public class BalanceService {
     }
 
     private Balance getBalance(long id) {
-        Optional<Balance> balanceOpt = balanceRepository.findById(id);
-        if (balanceOpt.isEmpty()) {
-            String message = "Balance with id = %d does not exist".formatted(id);
-            log.error(message);
-            throw new RuntimeException(message);
-        }
-
-        return balanceOpt.get();
+        return balanceRepository.findById(id).orElseThrow(() -> {
+                String message = "Balance with id = %d does not exist".formatted(id);
+                return new RuntimeException(message);
+            }
+        );
     }
 
     private void checkWithdrawMoney(long balanceId, BigDecimal balanceAmount, BigDecimal amount) {
