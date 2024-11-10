@@ -1,4 +1,4 @@
-package faang.school.accountservice.entity.id;
+package faang.school.accountservice.entity.cashback.id;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

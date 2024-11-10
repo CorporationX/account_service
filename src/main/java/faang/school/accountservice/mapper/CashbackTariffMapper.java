@@ -8,5 +8,6 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CashbackTariffMapper {
     CashbackTariffDto toDto(CashbackTariff cashbackTariff);
+
     CashbackTariff toEntity(CashbackTariffDto cashbackTariffDto);
 }

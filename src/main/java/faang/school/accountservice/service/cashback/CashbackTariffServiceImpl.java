@@ -6,7 +6,7 @@ import faang.school.accountservice.entity.cashback.tariff.CashbackTariff;
 import faang.school.accountservice.entity.cashback.AbstractCashback;
 import faang.school.accountservice.entity.cashback.MerchantCashback;
 import faang.school.accountservice.entity.cashback.OperationCashback;
-import faang.school.accountservice.entity.id.CashbackId;
+import faang.school.accountservice.entity.cashback.id.CashbackId;
 import faang.school.accountservice.entity.type.CashbackMapping;
 import faang.school.accountservice.enums.MappingType;
 import faang.school.accountservice.mapper.CashbackTariffMapper;
@@ -95,11 +95,12 @@ public class CashbackTariffServiceImpl implements CashbackTariffService {
     @Override
     public void deleteCashbackMapping(CashbackMappingDto cashbackMappingDto) {
         AbstractCashback<?> cashback = findCashback(cashbackMappingDto);
+        CashbackId cashbackId = new CashbackId(cashback.getTariffId(), cashback.getTypeId());
 
         if (cashbackMappingDto.getMappingType().equals(MappingType.OPERATION)) {
-            operationCashbackRepository.delete((OperationCashback) cashback);
+            operationCashbackRepository.deleteById(cashbackId);
         } else {
-            merchantCashbackRepository.delete((MerchantCashback) cashback);
+            merchantCashbackRepository.deleteById(cashbackId);
         }
     }
 

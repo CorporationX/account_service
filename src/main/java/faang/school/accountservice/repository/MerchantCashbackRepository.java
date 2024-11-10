@@ -1,8 +1,9 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.entity.cashback.MerchantCashback;
-import faang.school.accountservice.entity.id.CashbackId;
+import faang.school.accountservice.entity.cashback.id.CashbackId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,5 +18,6 @@ public interface MerchantCashbackRepository extends JpaRepository<MerchantCashba
     MerchantCashback save(MerchantCashback merchantCashback);
 
     @Transactional
+    @Modifying
     void deleteById(CashbackId id);
 }

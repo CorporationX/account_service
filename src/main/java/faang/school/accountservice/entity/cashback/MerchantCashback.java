@@ -2,7 +2,7 @@ package faang.school.accountservice.entity.cashback;
 
 import faang.school.accountservice.entity.cashback.tariff.CashbackTariff;
 import faang.school.accountservice.entity.type.Merchant;
-import faang.school.accountservice.entity.id.CashbackId;
+import faang.school.accountservice.entity.cashback.id.CashbackId;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,11 +20,11 @@ public class MerchantCashback extends AbstractCashback<Merchant> {
     private Long tariffId;
 
     @JoinColumn(name = "cashback_tariff_id", nullable = false, updatable = false, insertable = false)
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private CashbackTariff cashbackTariff;
 
     @JoinColumn(name = "merchant_id", nullable = false, updatable = false, insertable = false)
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Merchant merchant;
 
     @Column(name = "cashback_percentage", nullable = false)
