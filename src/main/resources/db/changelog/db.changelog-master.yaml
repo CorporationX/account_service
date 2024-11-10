@@ -1,3 +1,15 @@
 databaseChangeLog:
+
+  - include:
+      file: db/changelog/changeset/V001__account-service_create_payment_account.sql
+  - include:
+      file: db/changelog/changeset/V001__account-service_create_balance_and_change_account.sql
+  - include:
+      file: db/changelog/changeset/V001__account-service_create_balance_auth_payment.sql
+  - include:
+      file: db/changelog/changeset/V001__account-service_balance_auth_payment_drop_owner.sql
+  - include:
+      file: db/changelog/changeset/V001__account-service_balance_auth_payment_add_status.sql
   - include:
       file: db/changelog/changeset/V005__account-number.sql
+

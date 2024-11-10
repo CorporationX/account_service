@@ -28,6 +28,8 @@ public class AccountService {
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
     private final AccountNumbersManager accountNumbersManager;
+    private final BalanceService balanceService;
+
 
     @Transactional
     public Account createAccount(Account account) {
@@ -37,13 +39,14 @@ public class AccountService {
 
         Owner exsistOwner = ownerRepository.findOwner(externalId, ownerType)
                 .orElse(createOwner(externalId, ownerType));
-
+  
         accountNumbersManager.getAccountNumberAndApply(account.getType(), accountNumber -> {
             account.setAccountNumber(accountNumber.getDigitSequence());
             account.setStatus(AccountStatus.ACTIVE);
             account.setOwner(exsistOwner);
+            account.setBalance(balanceService.createBalance());
         });
-
+  
         return accountRepository.save(account);
     }
 
@@ -109,11 +112,6 @@ public class AccountService {
                 .externalId(externalId)
                 .type(type)
                 .build());
-    }
-
-    private String generateAccountNumber() {
-        //TODO: реализовать логику генерации УНИКАЛЬНОГО номера счета
-        return "00000000000000000000";
     }
 
     private void validateAccountNumber(String accountNumber) {

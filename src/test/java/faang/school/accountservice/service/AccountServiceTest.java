@@ -5,6 +5,7 @@ import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.client.UserDto;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.account.AccountStatus;
+import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.model.owner.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
@@ -17,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,6 +45,9 @@ class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
+    @Mock
+    BalanceService balanceService;
+
     private Account account;
     private final String accountNumber = "00000000000000000000";
 
@@ -53,8 +58,14 @@ class AccountServiceTest {
                 .type(OwnerType.USER)
                 .build();
 
+        Balance balance = Balance.builder()
+                .authorization(BigDecimal.valueOf(0))
+                .actual(BigDecimal.valueOf(100))
+                .build();
+
         account = Account.builder()
                 .owner(owner)
+                .balance(balance)
                 .accountNumber(accountNumber)
                 .build();
     }
