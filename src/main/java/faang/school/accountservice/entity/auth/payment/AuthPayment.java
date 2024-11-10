@@ -2,7 +2,7 @@ package faang.school.accountservice.entity.auth.payment;
 
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
-import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.payment.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,9 +41,6 @@ public class AuthPayment {
     @ManyToOne
     @JoinColumn(name = "source_balance_id", nullable = false)
     private Balance sourceBalance;
-
-    @Transient
-    private Balance balance;
 
     @ManyToOne
     @JoinColumn(name = "target_balance_id")

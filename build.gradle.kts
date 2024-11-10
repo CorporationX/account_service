@@ -25,6 +25,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     implementation("org.springframework.retry:spring-retry:2.0.3")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework.retry:spring-retry:2.0.6")
 
     /**
      * Database
@@ -32,6 +33,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    implementation("org.springframework.kafka:spring-kafka")
 
     /**
      * Utils & Logging
@@ -58,6 +60,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.projectlombok:lombok:1.18.26")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.26")
 }
 
 tasks.withType<Test> {
@@ -75,7 +79,8 @@ tasks.bootJar {
  */
 val jacocoInclude = listOf(
     "**/service/**",
-    "**/validator/**"
+    "**/validator/**",
+    "**/listener/**"
 )
 val jacocoExclude = listOf(
     "**/client/**",
@@ -86,7 +91,8 @@ val jacocoExclude = listOf(
     "**/enums/**",
     "**/exception/**",
     "**/mapper/**",
-    "**/repository/**"
+    "**/repository/**",
+    "**/service/FreeAccountNumberService**"
 )
 
 jacoco {
@@ -94,7 +100,12 @@ jacoco {
     reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
 }
 tasks.test {
+    exclude("**/faang/school/accountservice/integration/**")
     finalizedBy(tasks.jacocoTestReport)
+}
+tasks.register<Test>("integrationTest") {
+    group = "verification"
+    include("**/faang/school/accountservice/integration/**")
 }
 tasks.jacocoTestReport {
     reports {

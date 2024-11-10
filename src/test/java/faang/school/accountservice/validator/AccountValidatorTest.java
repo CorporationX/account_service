@@ -5,26 +5,19 @@ import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.project.ProjectDto;
 import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.exception.ValidationException;
-import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.account.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,18 +37,19 @@ public class AccountValidatorTest {
     private ProjectDto projectDto;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         openAccount = Account.builder()
                 .userId(1L)
                 .projectId(1L)
-                .type(AccountType.BUSINESS)
+                .type(AccountType.DEBIT)
                 .currency(Currency.RUB)
                 .build();
 
-        userDto = new UserDto(
-                openAccount.getUserId(),
-                "Mike",
-                "test@email.com");
+        userDto = UserDto.builder()
+                .id(openAccount.getUserId())
+                .username("Mike")
+                .email("email.com")
+                .build();
 
         projectDto = new ProjectDto(
                 openAccount.getProjectId(),

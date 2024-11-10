@@ -2,7 +2,7 @@ package faang.school.accountservice.entity;
 
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.entity.cacheback.CashbackTariff;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import jakarta.persistence.Column;
@@ -15,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

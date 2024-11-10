@@ -1,0 +1,4 @@
+spring:
+  liquibase:
+    change-log: db/changelog/db.changelog-test.yaml
+    enabled: true

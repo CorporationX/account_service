@@ -19,9 +19,9 @@ public class BalanceController {
     private final BalanceService balanceService;
     private final BalanceMapper balanceMapper;
 
-    @GetMapping("/{balanceId}")
-    public BalanceResponseDto findBalanceByAccountNumber(@PathVariable UUID balanceId) {
-        Balance balance = balanceService.findById(balanceId);
+    @GetMapping("/{accountId}")
+    public BalanceResponseDto findBalanceByAccountId(@PathVariable UUID accountId) {
+        Balance balance = balanceService.findByAccountId(accountId);
         return balanceMapper.toBalanceResponseDto(balance);
     }
 }

@@ -42,11 +42,20 @@ public class AuthPaymentFabric {
                 .build();
     }
 
-    public static AuthPayment buildAuthPayment(UUID id, double amount, Balance balance) {
+    public static AuthPayment buildAuthPayment(UUID id, Balance sourceBalance, double amount) {
         return AuthPayment.builder()
                 .id(id)
+                .sourceBalance(sourceBalance)
                 .amount(BigDecimal.valueOf(amount))
-                .balance(balance)
+                .build();
+    }
+
+    public static AuthPayment buildAuthPayment(UUID id, Balance sourceBalance, Balance targetBalance, double amount) {
+        return AuthPayment.builder()
+                .id(id)
+                .sourceBalance(sourceBalance)
+                .targetBalance(targetBalance)
+                .amount(BigDecimal.valueOf(amount))
                 .build();
     }
 }

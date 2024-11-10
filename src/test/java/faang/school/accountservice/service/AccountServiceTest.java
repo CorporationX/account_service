@@ -1,13 +1,13 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
-import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.exception.ResourceNotFoundException;
+import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.account.AccountService;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static faang.school.accountservice.enums.payment.Currency.RUB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -35,8 +36,15 @@ import static org.mockito.Mockito.when;
 public class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
+
     @Mock
     private AccountValidator validator;
+    @Mock
+    private FreeAccountNumberService freeAccountNumberService;
+
+    @Mock
+    private BalanceService balanceService;
+
     @InjectMocks
     private AccountService accountService;
 
@@ -47,13 +55,15 @@ public class AccountServiceTest {
         account = Account.builder()
                 .userId(1L)
                 .projectId(1L)
-                .type(AccountType.BUSINESS)
-                .currency(Currency.RUB)
+                .type(AccountType.DEBIT)
+                .currency(RUB)
                 .build();
     }
 
     @Test
     public void testOpenBusinessAccount() {
+        when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
+
         Account result = accountService.openAccount(account);
 
         assertEquals(result.getStatus(), AccountStatus.ACTIVE);
@@ -62,7 +72,8 @@ public class AccountServiceTest {
 
     @Test
     public void testOpenPersonalAccount() {
-        account.setType(AccountType.PERSONAL);
+        when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
+
         Account result = accountService.openAccount(account);
 
         assertEquals(result.getStatus(), AccountStatus.ACTIVE);
@@ -73,6 +84,7 @@ public class AccountServiceTest {
     public void testAccountVersionException() {
         when(accountRepository.save(any(Account.class)))
                 .thenThrow(new OptimisticLockingFailureException(""));
+        when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
 
         assertThrows(AccountHasBeenUpdateException.class, () -> accountService.openAccount(account));
 

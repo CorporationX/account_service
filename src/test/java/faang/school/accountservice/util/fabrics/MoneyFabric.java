@@ -1,7 +1,7 @@
 package faang.school.accountservice.util.fabrics;
 
 import faang.school.accountservice.dto.Money;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.payment.Currency;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
