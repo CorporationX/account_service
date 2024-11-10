@@ -52,11 +52,12 @@ public class AccountNumberSchedulerTest extends TestContainersConfig {
     }
 
     @Test
-    public void testGenerateAccountNumbers() {
+    public void testGenerateAccountNumbers() throws InterruptedException {
         freeAccountNumberService.generateAccountNumbers(SAVINGS, 2);
         freeAccountNumberService.generateAccountNumbers(DEBIT, 1);
 
         accountNumberScheduler.generateAccountNumbers();
+        Thread.sleep(1000);
 
         int savingsCount = freeAccountNumberService.getQuantityFreeAccountNumbersByType(SAVINGS);
         int debitCount = freeAccountNumberService.getQuantityFreeAccountNumbersByType(DEBIT);

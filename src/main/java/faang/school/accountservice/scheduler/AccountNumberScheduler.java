@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -31,14 +30,5 @@ public class AccountNumberScheduler {
                         .generateAccountNumbers(accountType, neededNumbers);
             }
         }));
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
     }
 }
