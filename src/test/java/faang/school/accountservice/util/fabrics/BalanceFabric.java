@@ -1,5 +1,6 @@
 package faang.school.accountservice.util.fabrics;
 
+import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.balance.Balance;
 import lombok.experimental.UtilityClass;
 
@@ -13,17 +14,23 @@ public class BalanceFabric {
                 .build();
     }
 
+    public static Balance buildBalance(Account account) {
+        return Balance.builder()
+                .account(account)
+                .build();
+    }
+
     public static Balance buildBalance(UUID id) {
         return Balance.builder()
                 .id(id)
                 .build();
     }
 
-    public static Balance buildBalance(UUID id, double currentBalance, double authBalance) {
+    public static Balance buildBalance(UUID id, double authBalance, double currentBalance) {
         return Balance.builder()
                 .id(id)
-                .currentBalance(BigDecimal.valueOf(currentBalance))
                 .authBalance(BigDecimal.valueOf(authBalance))
+                .currentBalance(BigDecimal.valueOf(currentBalance))
                 .build();
     }
 }

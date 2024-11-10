@@ -1,4 +1,4 @@
-package faang.school.accountservice.entity.auth.payment;
+package faang.school.accountservice.enums.auth.payment;
 
 public enum AuthPaymentStatus {
     ACTIVE,

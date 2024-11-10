@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@EqualsAndHashCode
 @Builder
 @Getter
 @Setter
@@ -63,6 +62,6 @@ public class Balance {
     @Column(name = "version")
     private long version;
 
-    @OneToMany(mappedBy = "balance")
+    @OneToMany(mappedBy = "sourceBalance")
     private List<AuthPayment> authorizationPayments;
 }

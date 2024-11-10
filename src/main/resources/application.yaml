@@ -12,7 +12,59 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      channel:
+        auth-payment:
+          request: auth-payment-request
+          response: auth-payment-response
+        cancel-payment:
+          request: cancel-payment-request
+          response: cancel-payment-response
+        clearing-payment:
+          request: clearing-payment-request
+          response: clearing-payment-response
+        error-payment:
+          request: error-payment-request
+          response: error-payment-response
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: pending-operation-group
+      auto-offset-reset: earliest
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    template:
+      default-topic: pending_operation
+    topic:
+      auth-payment:
+        request: auth-payment-request
+        response: auth-payment-response
+      cancel-payment:
+        request: cancel-payment-request
+        response: cancel-payment-response
+      clearing-payment:
+        request: clearing-payment-request
+        response: clearing-payment-response
+      error-payment:
+        request: error-payment-request
+        response: error-payment-response
+
+app:
+  messaging: redis
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
