@@ -10,6 +10,7 @@ import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.model.owner.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import faang.school.accountservice.service.account.numbers.AccountNumbersManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,9 @@ class AccountServiceTest {
 
     @Mock
     private UserServiceClient userServiceClient;
+
+    @Mock
+    private AccountNumbersManager accountNumbersManager;
 
     @InjectMocks
     private AccountService accountService;
