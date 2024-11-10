@@ -34,10 +34,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     public BalanceDto getBalance(Long balanceId, Long userId) {
         Balance balance = balanceRepository.findById(balanceId).orElseThrow(
-                () -> {
-                    log.error("Balance with id: {} not found", balanceId);
-                    return new EntityNotFoundException(String.format("Balance with id: %d not found", balanceId));
-                });
+                () -> new EntityNotFoundException(String.format("Balance with id: %d not found", balanceId)));
         checkPermissions(balance, userId);
         log.info("Successfully retrieved balance with id: {}", balanceId);
 
@@ -59,10 +56,7 @@ public class BalanceServiceImpl implements BalanceService {
     public BalanceDto updateBalance(Long balanceId, BalanceDto balanceDto, PendingOperation operation) {
         try {
             Balance balance = balanceRepository.findById(balanceId).orElseThrow(
-                    () -> {
-                        log.error("Balance with id: {} not found", balanceId);
-                        return new EntityNotFoundException(String.format("Balance with id: %d not found", balanceId));
-                    });
+                    () -> new EntityNotFoundException(String.format("Balance with id: %d not found", balanceId)));
             balance.setAuthorizedBalance(balanceDto.getAuthorizedBalance());
             balance.setActualBalance(balanceDto.getActualBalance());
             log.info("Successfully updated balance for account with id: {}", balanceId);
@@ -73,19 +67,15 @@ public class BalanceServiceImpl implements BalanceService {
 
             return balanceMapper.toDto(updatedBalance);
         } catch (OptimisticLockException ex) {
-            log.error("Optimistic lock exception occurred for balance with id: {}", balanceId, ex);
-            throw new ConcurrentModificationException("The balance was modified by another transaction", ex);
+            throw new ConcurrentModificationException(
+                    String.format("The balance with id %d was modified by another transaction", balanceId));
         }
     }
 
     private Balance initializeBalance(Long accountId) {
         Balance balance = new Balance();
         PaymentAccount account = accountRepository.findById(accountId).orElseThrow(
-                () -> {
-                    log.error("Account with id: {} not found", accountId);
-                    return new EntityNotFoundException(String.format("Account with id: %d not found", accountId));
-                }
-        );
+                () -> new EntityNotFoundException(String.format("Account with id: %d not found", accountId)));
         balance.setAccount(account);
         balance.setAuthorizedBalance(INITIAL_BALANCE);
         balance.setActualBalance(INITIAL_BALANCE);

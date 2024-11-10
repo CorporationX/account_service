@@ -18,7 +18,8 @@ import java.util.Map;
 @Slf4j
 public class GlobalServiceExceptionAspect {
 
-    @Pointcut("execution(* faang.school.accountservice.service.operation.OperationService.*(..))")
+    @Pointcut("execution(* faang.school.accountservice.service.operation.OperationService.*(..)) || "
+            + "execution(* faang.school.accountservice.service.balance.BalanceService.*(..))")
     public void serviceLayerMethods() {}
 
     @AfterThrowing(pointcut = "serviceLayerMethods()", throwing = "ex")
