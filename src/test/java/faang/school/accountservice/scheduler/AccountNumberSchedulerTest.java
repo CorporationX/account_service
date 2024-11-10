@@ -1,6 +1,6 @@
 package faang.school.accountservice.scheduler;
 
-import faang.school.accountservice.config.TestContainersConfig;
+import faang.school.accountservice.integration.config.RedisPostgresTestContainers;
 import faang.school.accountservice.model.AccountNumbersSequence;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
@@ -24,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
-@ContextConfiguration(classes = TestContainersConfig.class)
-public class AccountNumberSchedulerTest extends TestContainersConfig {
+public class AccountNumberSchedulerTest extends RedisPostgresTestContainers {
 
     @Autowired
     private FreeAccountNumberService freeAccountNumberService;
