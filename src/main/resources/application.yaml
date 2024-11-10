@@ -33,7 +33,10 @@ account:
       port: 6379
       host: localhost
       channels:
-        request_status_notification: request_status_notification_channel
+        calculations-channel: calculations_channel
+        user-service: ban_user_channel
+        like-service: like-event-channel
+        notification-channel: notification_channel
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -44,3 +47,9 @@ server:
 logging:
   level:
     root: info
+
+executor:
+  core-pool-size: 5
+  max-pool-size: 10
+  queue-capacity: 50
+  keep-alive-time: 60

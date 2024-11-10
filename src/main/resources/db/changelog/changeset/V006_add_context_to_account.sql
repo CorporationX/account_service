@@ -1,0 +1,9 @@
+
+BEGIN;
+
+
+ALTER TABLE account
+    ADD COLUMN context VARCHAR(255);
+    ADD COLUMN scheduled_at TIMESTAMP;
+
+COMMIT;
