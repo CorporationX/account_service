@@ -2,6 +2,7 @@ package faang.school.accountservice.integration;
 
 import faang.school.accountservice.config.TestContainersConfig;
 import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.integration.config.RedisPostgresTestContainers;
 import faang.school.accountservice.mapper.FreeAccountNumberMapper;
 import faang.school.accountservice.model.AccountNumbersSequence;
 import faang.school.accountservice.model.FreeAccountNumber;
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = TestContainersConfig.class)
 @EnableRetry
-class FreeAccountNumberServiceIntegrationTest extends TestContainersConfig {
+class FreeAccountNumberServiceIntegrationTest extends RedisPostgresTestContainers {
     @Autowired
     private FreeAccountNumberService freeAccountNumberService;
 

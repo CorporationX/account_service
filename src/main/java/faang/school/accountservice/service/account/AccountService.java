@@ -5,6 +5,7 @@ import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.FreeAccountNumberService;
 import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountValidator validator;
+    private final BalanceService balanceService;
     private final FreeAccountNumberService freeAccountNumberService;
 
     @Transactional
@@ -34,6 +36,7 @@ public class AccountService {
         account.setCreatedAt(LocalDateTime.now());
 
         saveAccount(account);
+        balanceService.createBalance(account);
 
         return account;
     }

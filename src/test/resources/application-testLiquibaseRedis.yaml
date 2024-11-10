@@ -1,0 +1,21 @@
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/testLiquibase.yaml
+  data:
+    redis:
+      channel:
+        auth-payment:
+          request: auth-payment-request
+          response: auth-payment-response
+        cancel-payment:
+          request: cancel-payment-request
+          response: cancel-payment-response
+        clearing-payment:
+          request: clearing-payment-request
+          response: clearing-payment-response
+        error-payment:
+          request: error-payment-request
+          response: error-payment-response
+
+app:
+  messaging: redis
