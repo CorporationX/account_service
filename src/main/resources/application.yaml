@@ -24,6 +24,9 @@ logging:
   level:
     root: info
 
+retryable:
+  max-attempts: 5
+  delay: 5000
 user-service:
   host: localhost
   port: 8080
