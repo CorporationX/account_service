@@ -32,59 +32,23 @@ public class OperationServiceImpl implements OperationService {
     private final PaymentResponseEventPublisher publisher;
 
     public void handlePaymentRequest(PaymentRequestEvent paymentRequest) {
-
-        PaymentAccount paymentAccount = paymentAccountRepository.findByUserId(paymentRequest.getUserId())
-                .orElseThrow(() -> {
-                    log.error("Account not found for user with id {}", paymentRequest.getUserId());
-                    return new EntityNotFoundException(
-                            String.format("Account not found for user with id %s", paymentRequest.getUserId()));
-                });
+        PaymentAccount paymentAccount = findPaymentAccount(paymentRequest.getUserId());
         PendingOperation operation = createOperation(paymentAccount, paymentRequest);
         Balance balance = paymentAccount.getBalance();
         if (hasSufficientBalance(balance, paymentRequest.getAmount())) {
-            operation.setState(OperationState.PENDING);
-            operation = operationRepository.save(operation);
-            reserveFunds(paymentAccount.getBalance(), paymentRequest.getAmount(), operation);
-
-            publisher.publish(
-                    RedisTopics.PAYMENT_APPROVE.getTopic(),
-                    new PaymentApproveEvent(
-                            paymentRequest.getUserId(),
-                            paymentRequest.getAmount(),
-                            paymentRequest.getOperationKey()
-                    ));
-
-            log.info("Operation confirmed for account ID: {}", balance.getId());
+           confirmOperation(operation, paymentRequest, balance);
         } else {
-            operation.setState(OperationState.CANCELED);
-            operationRepository.save(operation);
-
-            publisher.publish(
-                    RedisTopics.PAYMENT_CANCEL.getTopic(),
-                    new PaymentCancelEvent(
-                            paymentRequest.getUserId(),
-                            paymentRequest.getAmount(),
-                            paymentRequest.getOperationKey()
-                    ));
-
-            log.info("Operation canceled due to insufficient funds for account ID: {}", balance.getId());
+           cancelOperation(operation, paymentRequest, balance);
         }
-
     }
 
     public void clearPayment(PaymentClearEvent event) {
         PaymentAccount paymentAccount = paymentAccountRepository.findByUserId(event.getUserId()).orElseThrow(
-                () -> {
-                    log.error("Account not found for user with id {}", event.getUserId());
-                    return new EntityNotFoundException(
-                            String.format("Account not found for user with id %s", event.getUserId()));
-                });
+                () -> new EntityNotFoundException(
+                        String.format("Account not found for user with id %s", event.getUserId())));
         PendingOperation operation = operationRepository.findByOperationKey(event.getOperationKey())
-                .orElseThrow( () -> {
-                    log.error("Operation not found for user with key {}", event.getOperationKey());
-                    return new EntityNotFoundException(
-                            String.format("Operation not found for user with key %s", event.getOperationKey()));
-                });
+                .orElseThrow( () -> new EntityNotFoundException(
+                        String.format("Operation not found for user with key %s", event.getOperationKey())));
         Balance balance = paymentAccount.getBalance();
         clearBalance(balance, event.getAmount(), operation);
         operation.setState(OperationState.CLEARED);
@@ -119,5 +83,43 @@ public class OperationServiceImpl implements OperationService {
         );
         balanceService.updateBalance(balance.getId(), balanceDto, operation);
         log.info("Payment successfully cleared for account ID: {}", balance.getId());
+    }
+
+    private PaymentAccount findPaymentAccount(Long userId) {
+        return paymentAccountRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Account not found for user with id %s", userId)));
+    }
+
+    private void confirmOperation(PendingOperation operation,
+                                  PaymentRequestEvent paymentRequest,
+                                  Balance balance) {
+        operation.setState(OperationState.PENDING);
+        operation = operationRepository.save(operation);
+        reserveFunds(balance, paymentRequest.getAmount(), operation);
+
+        publisher.publish(
+                RedisTopics.PAYMENT_APPROVE.getTopic(),
+                new PaymentApproveEvent(
+                        paymentRequest.getUserId(),
+                        paymentRequest.getAmount(),
+                        paymentRequest.getOperationKey()
+                ));
+        log.info("Operation confirmed for account ID: {}", balance.getId());
+    }
+
+    private void cancelOperation(PendingOperation operation, PaymentRequestEvent paymentRequest, Balance balance) {
+        operation.setState(OperationState.CANCELED);
+        operationRepository.save(operation);
+
+        publisher.publish(
+                RedisTopics.PAYMENT_CANCEL.getTopic(),
+                new PaymentCancelEvent(
+                        paymentRequest.getUserId(),
+                        paymentRequest.getAmount(),
+                        paymentRequest.getOperationKey()
+                ));
+
+        log.info("Operation canceled due to insufficient funds for account ID: {}", balance.getId());
     }
 }
