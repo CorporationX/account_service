@@ -82,7 +82,7 @@ public class AccountServiceTest {
 
     @Test
     public void testAccountVersionException() {
-        when(accountRepository.save(any(Account.class)))
+        when(accountRepository.saveAndFlush(any(Account.class)))
                 .thenThrow(new OptimisticLockingFailureException(""));
         when(freeAccountNumberService.getFreeAccountNumber(account.getType())).thenReturn(any(String.class));
 

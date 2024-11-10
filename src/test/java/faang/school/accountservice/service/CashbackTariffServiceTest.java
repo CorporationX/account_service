@@ -8,7 +8,7 @@ import faang.school.accountservice.entity.cacheback.CashbackMerchant;
 import faang.school.accountservice.entity.cacheback.CashbackOperationType;
 import faang.school.accountservice.entity.cacheback.CashbackTariff;
 import faang.school.accountservice.enums.auth.payment.AuthPaymentStatus;
-import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.payment.Category;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.repository.CashbackMerchantRepository;
 import faang.school.accountservice.repository.CashbackOperationTypeRepository;
@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static faang.school.accountservice.enums.payment.Category.CHARITY;
+import static faang.school.accountservice.enums.payment.Category.OTHER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -409,12 +411,12 @@ public class CashbackTariffServiceTest {
                 AuthPayment.builder()
                         .amount(BigDecimal.valueOf(1000L))
                         .targetBalance(Balance.builder().account(Account.builder().userId(1L).build()).build())
-                        .category(Category.OTHER)
+                        .category(OTHER)
                         .build(),
                 AuthPayment.builder()
                         .amount(BigDecimal.valueOf(100L))
                         .targetBalance(Balance.builder().account(Account.builder().userId(1L).build()).build())
-                        .category(Category.CHARITY)
+                        .category(CHARITY)
                         .build()
         );
     }

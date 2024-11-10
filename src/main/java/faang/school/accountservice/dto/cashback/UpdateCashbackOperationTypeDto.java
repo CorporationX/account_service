@@ -1,6 +1,6 @@
 package faang.school.accountservice.dto.cashback;
 
-import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.payment.Category;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;

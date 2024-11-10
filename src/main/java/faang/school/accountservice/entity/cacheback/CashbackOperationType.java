@@ -1,6 +1,6 @@
 package faang.school.accountservice.entity.cacheback;
 
-import faang.school.accountservice.enums.pending.Category;
+import faang.school.accountservice.enums.payment.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
