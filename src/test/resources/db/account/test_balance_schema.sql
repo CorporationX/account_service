@@ -12,3 +12,8 @@ ALTER SEQUENCE balance_id_seq RESTART WITH 1;
 INSERT INTO balance(account_id, auth_balance, actual_balance)
 VALUES (1, 50.00, 100.00)
 ON CONFLICT DO NOTHING;
+
+UPDATE balance
+SET auth_balance   = 50.00,
+    actual_balance = 100.00
+WHERE id = 1;

@@ -8,8 +8,8 @@ import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.BalanceService;
-import faang.school.accountservice.service.balance.changebalance.BalanceChanger;
 import faang.school.accountservice.service.balance.changebalance.BalanceChangeRegistry;
+import faang.school.accountservice.service.balance.changebalance.BalanceChanger;
 import faang.school.accountservice.service.balance.operation.Operation;
 import faang.school.accountservice.service.balance.operation.OperationRegistry;
 import jakarta.persistence.EntityExistsException;
@@ -69,9 +69,8 @@ public class BalanceServiceImpl implements BalanceService {
                 .actualBalance(BigDecimal.ZERO)
                 .authBalance(BigDecimal.ZERO)
                 .build();
-        account.setCurrentBalance(balance);
-        accountRepository.save(account);
         balanceRepository.save(balance);
+        account.setCurrentBalance(balance);
         log.info("Created new balance: {}", balance);
         return balanceMapper.toBalanceDto(balance);
     }

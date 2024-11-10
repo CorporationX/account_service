@@ -5,10 +5,7 @@ import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.enums.ChangeBalanceType;
 import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.util.BaseContextTest;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
@@ -20,12 +17,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Sql(value = "/db/account/test_balance_schema.sql")
 public class BalanceControllerIT extends BaseContextTest {
 
     @Test
-    @Order(1)
     public void testGetBalanceSuccess() throws Exception {
         String response = mockMvc.perform(get("/api/v1/balance/1").header("x-user-id", 1))
                 .andExpect(status().isOk())
@@ -42,7 +37,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(2)
     public void testGetBalanceFailWithNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/balance/2").header("x-user-id", 1))
                 .andExpect(status().isNotFound())
@@ -51,7 +45,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(3)
     public void testGetBalanceByAccountIdSuccess() throws Exception {
         String response = mockMvc.perform(get("/api/v1/balance").header("x-user-id", 1)
                         .param("accountId", String.valueOf(1)))
@@ -116,7 +109,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(4)
     public void testUpdateBalanceFailWhenWithdrawActualMoreThanAuth() throws Exception {
         AmountChangeRequest request = AmountChangeRequest.builder()
                 .changeBalanceType(ChangeBalanceType.ACTUAL)
@@ -134,7 +126,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(5)
     public void testUpdateBalanceFailWithdrawWithNotEnoughMoney() throws Exception {
         AmountChangeRequest request = AmountChangeRequest.builder()
                 .changeBalanceType(ChangeBalanceType.AUTHORIZATION)
@@ -151,7 +142,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(6)
     public void testUpdateBalanceActualReplenishmentSuccess() throws Exception {
         AmountChangeRequest request = AmountChangeRequest.builder()
                 .changeBalanceType(ChangeBalanceType.ACTUAL)
@@ -174,7 +164,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(7)
     public void testUpdateBalanceAuthReplenishmentSuccess() throws Exception {
         AmountChangeRequest request = AmountChangeRequest.builder()
                 .changeBalanceType(ChangeBalanceType.AUTHORIZATION)
@@ -197,7 +186,6 @@ public class BalanceControllerIT extends BaseContextTest {
     }
 
     @Test
-    @Order(8)
     public void testUpdateBalanceActualWithdrawSuccess() throws Exception {
         AmountChangeRequest request = AmountChangeRequest.builder()
                 .changeBalanceType(ChangeBalanceType.ACTUAL)
@@ -216,16 +204,15 @@ public class BalanceControllerIT extends BaseContextTest {
 
         BalanceDto balanceDto = objectMapper.readValue(response, BalanceDto.class);
 
-        assertEquals(0, balanceDto.actualBalance().compareTo(BigDecimal.valueOf(1090)));
+        assertEquals(0, balanceDto.actualBalance().compareTo(BigDecimal.valueOf(90)));
     }
 
     @Test
-    @Order(9)
     public void testUpdateBalanceAuthWithdrawSuccess() throws Exception {
         AmountChangeRequest request = AmountChangeRequest.builder()
                 .changeBalanceType(ChangeBalanceType.AUTHORIZATION)
                 .operationType(OperationType.WITHDRAWAL)
-                .amount(BigDecimal.valueOf(60))
+                .amount(BigDecimal.valueOf(50))
                 .build();
 
         String response = mockMvc.perform(put("/api/v1/balance/1").header("x-user-id", 1)
