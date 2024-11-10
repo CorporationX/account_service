@@ -14,7 +14,7 @@ CREATE TABLE cashback_tariff
 (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(128) NOT NULL,
-    created_at  TIMESTAMP NOT NULL
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE operation_cashback

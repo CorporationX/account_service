@@ -34,8 +34,9 @@ public class CashbackTariffServiceImpl implements CashbackTariffService {
 
     @Override
     public CashbackTariffDto createTariff(CashbackTariffDto cashbackTariffDto) {
-        cashbackTariffDto.setCreatedAt(LocalDateTime.now());
-        return cashbackTariffMapper.toDto(cashbackTariffRepository.save(cashbackTariffMapper.toEntity(cashbackTariffDto)));
+        CashbackTariff cashbackTariff = cashbackTariffRepository
+                .save(cashbackTariffMapper.toEntity(cashbackTariffDto));
+        return cashbackTariffMapper.toDto(cashbackTariff);
     }
 
     @Override
