@@ -1,12 +1,12 @@
 CREATE TABLE cashback_tariff (
-    id          UUID NOT NULL PRIMARY KEY,
+    id          UUID PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP
 );
 
 CREATE TABLE merchant (
-    id          UUID NOT NULL PRIMARY KEY,
+    id          UUID PRIMARY KEY,
     user_id     BIGINT,
     project_id  BIGINT,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -19,7 +19,7 @@ CREATE INDEX idx_cashback_tariff_name ON cashback_tariff (name);
 CREATE INDEX idx_cashback_tariff_created_at ON cashback_tariff (created_at);
 
 CREATE TABLE cashback_operation_type (
-    id                  UUID NOT NULL PRIMARY KEY,
+    id                  UUID PRIMARY KEY,
     cashback_tariff_id  UUID NOT NULL,
     operation_type      VARCHAR(64) NOT NULL,
     cashback_percentage DECIMAL(10,2) NOT NULL,
@@ -33,7 +33,7 @@ CREATE INDEX idx_cashback_operation_type_operation_type ON cashback_operation_ty
 CREATE INDEX idx_cashback_operation_type_cashback_tariff_id_operation_type ON cashback_operation_type(cashback_tariff_id, operation_type);
 
 CREATE TABLE cashback_merchant (
-    id                  UUID NOT NULL PRIMARY KEY,
+    id                  UUID PRIMARY KEY,
     cashback_tariff_id  UUID NOT NULL,
     merchant_id         UUID NOT NULL,
     cashback_percentage DECIMAL(10,2) NOT NULL,
