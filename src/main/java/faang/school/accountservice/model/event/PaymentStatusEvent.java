@@ -14,7 +14,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentStatusEvent {
-    private Long requestId;
     private UUID idempotencyToken;
     private RequestStatus status;
     private String statusDetails;

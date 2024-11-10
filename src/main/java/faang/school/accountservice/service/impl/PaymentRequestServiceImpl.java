@@ -117,9 +117,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         if (checkEventMessageRepeated(paymentEvent)) return;
         ValidationResult commonResult = validateCancelPaymentEvent(paymentEvent);
         if (!commonResult.isValid()) {
-            Request request = requestRepository.findById(paymentEvent.getRequestId()).orElseThrow(() ->
-                    new IllegalStateException(String.format("Expected request with id = %d to be present because there " +
-                            "was payment event from redis, but it was not found", paymentEvent.getRequestId())));
+            Request request = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken()).orElseThrow(() ->
+                    new IllegalStateException(String.format("Expected request with idempotencyToken = %s to be present because there " +
+                            "was payment event from redis, but it was not found", paymentEvent.getIdempotencyToken())));
             request.setStatusDetails(commonResult.getErrorMessage());
             Request savedRequest = requestRepository.save(request);
             publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
@@ -156,9 +156,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         if (checkEventMessageRepeated(paymentEvent)) return;
         ValidationResult commonResult = validateClearingPaymentEvent(paymentEvent);
         if (!commonResult.isValid()) {
-            Request request = requestRepository.findById(paymentEvent.getRequestId()).orElseThrow(() ->
-                    new IllegalStateException(String.format("Expected request with id = %d to be present because there " +
-                            "was payment event from redis, but it was not found", paymentEvent.getRequestId())));
+            Request request = requestRepository.findByIdempotencyToken(paymentEvent.getIdempotencyToken()).orElseThrow(() ->
+                    new IllegalStateException(String.format("Expected request with idempotencyToken = %s to be present because there " +
+                            "was payment event from redis, but it was not found", paymentEvent.getIdempotencyToken())));
             request.setStatusDetails(commonResult.getErrorMessage());
             Request savedRequest = requestRepository.save(request);
             publishPaymentStatusEvent(savedRequest, paymentEvent.getSentDateTime());
@@ -233,7 +233,6 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
         Request request = new Request();
         request.setIdempotencyToken(paymentEvent.getIdempotencyToken());
-        request.setRequestType(paymentEvent.getRequestType());
         request.setOperationType(paymentEvent.getOperationType());
         request.setInputData(inputData);
 
@@ -261,7 +260,6 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     private ValidationResult validateAuthorizePaymentEvent(PaymentEvent paymentEvent) {
         List<ValidationResult> validationResults = new ArrayList<>();
         validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.AuthorizePaymentEventMarker.class));
-        validationResults.add(validator.validateRequestTypeTransferTo(paymentEvent.getRequestType()));
         validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.AUTHORIZATION));
 
         Optional<Account> senderAccountOpt = accountRepository.findById(paymentEvent.getSenderAccountId());
@@ -270,13 +268,14 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         } else {
             Account senderAccount = senderAccountOpt.get();
             validationResults.add(validator.validateIfAccountActive(senderAccount));
+            validationResults.add(validator.validateAccountUserIdAndContextTheSame(senderAccount.getUserId(), paymentEvent.getSenderContextUserId()));
 
             Balance balance = senderAccount.getBalance();
             validationResults.add(validator.validateSufficientActualBalance(
                     balance.getActualBalance(), paymentEvent.getAmount(), paymentEvent.getSenderAccountId()));
         }
 
-        addAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
+        addRecipientAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
         return ValidationResult.getCommonResult(validationResults);
     }
 
@@ -284,8 +283,8 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         List<ValidationResult> validationResults = new ArrayList<>();
         validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.CancelPaymentEventMarker.class));
         validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.CANCEL));
-        addAccountValidations(validationResults, paymentEvent.getSenderAccountId());
-        addAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
+        addSenderAccountValidations(paymentEvent, validationResults);
+        addRecipientAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
         return ValidationResult.getCommonResult(validationResults);
     }
 
@@ -293,19 +292,9 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         List<ValidationResult> validationResults = new ArrayList<>();
         validationResults.add(jakartaValidator.validate(paymentEvent, PaymentEvent.ClearingPaymentEventMarker.class));
         validationResults.add(validator.validateOperationType(paymentEvent.getOperationType(), OperationType.CLEARING));
-        addAccountValidations(validationResults, paymentEvent.getSenderAccountId());
-        addAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
+        addSenderAccountValidations(paymentEvent, validationResults);
+        addRecipientAccountValidations(validationResults, paymentEvent.getRecipientAccountId());
         return ValidationResult.getCommonResult(validationResults);
-    }
-
-    private void addAccountValidations(List<ValidationResult> validationResults, Long accountId) {
-        Optional<Account> accountOpt = accountRepository.findById(accountId);
-        if (accountOpt.isEmpty()) {
-            validationResults.add(ValidationResult.failure(String.format("Account with id = %d not found", accountId)));
-        } else {
-            Account account = accountOpt.get();
-            validationResults.add(validator.validateIfAccountActive(account));
-        }
     }
 
     private Request cancelRequest(Request existingRequest, PaymentEvent paymentEvent) {
@@ -339,17 +328,18 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         existingRequest.setStatus(RequestStatus.COMPLETED);
         return requestRepository.save(existingRequest);
     }
-
+//TODO может имеет смысл проверять по senderAmount, и присылать вообще senderAmount, receiverAmount
     private String generateCacheKey(PaymentEvent paymentEvent) {
-        return String.format("paymentEvent: %s:%s:%s:%s:%s",
+        return String.format("paymentEvent: %s:%s:%s:%s",
                 paymentEvent.getIdempotencyToken(),
                 paymentEvent.getSenderAccountId(),
                 paymentEvent.getRecipientAccountId(),
-                paymentEvent.getRequestType(),
                 paymentEvent.getOperationType());
     }
 
     private boolean checkEventMessageRepeated(PaymentEvent paymentEvent) {
+        //FIXME: это защищает от состояния гонки за ресурсами? Может лучше сделаем ArrayBlockingQueue
+        // или что-то типа этого вместо redis
         ValueOperations<String, Object> valueOps = redisTemplate.opsForValue();
         String cacheKey = generateCacheKey(paymentEvent);
 
@@ -367,7 +357,6 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     )
     private void publishPaymentStatusEvent(Request request, LocalDateTime eventSentDateTime) {
         applicationEventPublisher.publishEvent(new PaymentStatusEvent(
-                request.getId(),
                 request.getIdempotencyToken(),
                 request.getStatus(),
                 request.getStatusDetails(),
@@ -377,5 +366,26 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onRequestCompleted(PaymentStatusEvent event) {
         paymentStatusEventPublisher.publish(event);
+    }
+
+    private void addSenderAccountValidations(PaymentEvent paymentEvent, List<ValidationResult> validationResults) {
+        Optional<Account> senderAccountOpt = accountRepository.findById(paymentEvent.getSenderAccountId());
+        if (senderAccountOpt.isEmpty()) {
+            validationResults.add(ValidationResult.failure(String.format("Sender account with id = %d not found", paymentEvent.getSenderAccountId())));
+        } else {
+            Account senderAccount = senderAccountOpt.get();
+            validationResults.add(validator.validateIfAccountActive(senderAccount));
+            validationResults.add(validator.validateAccountUserIdAndContextTheSame(senderAccount.getUserId(), paymentEvent.getSenderContextUserId()));
+        }
+    }
+
+    private void addRecipientAccountValidations(List<ValidationResult> validationResults, Long accountId) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            validationResults.add(ValidationResult.failure(String.format("Recipient account with id = %d not found", accountId)));
+        } else {
+            Account account = accountOpt.get();
+            validationResults.add(validator.validateIfAccountActive(account));
+        }
     }
 }

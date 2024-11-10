@@ -2,7 +2,6 @@ package faang.school.accountservice.model.entity;
 
 import faang.school.accountservice.model.enums.OperationType;
 import faang.school.accountservice.model.enums.RequestStatus;
-import faang.school.accountservice.model.enums.RequestType;
 import faang.school.accountservice.util.MapJsonConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -19,7 +18,6 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -46,10 +44,6 @@ public class Request {
     @ManyToOne
     @JoinColumn(name = "recipient_account_id", nullable = false)
     private Account recipientAccount;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "request_type", nullable = false)
-    private RequestType requestType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "operation_type")

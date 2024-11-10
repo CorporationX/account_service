@@ -3,7 +3,6 @@ package faang.school.accountservice.validator;
 import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.enums.AccountStatus;
 import faang.school.accountservice.model.enums.OperationType;
-import faang.school.accountservice.model.enums.RequestType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -27,17 +26,18 @@ public class PaymentEventValidator {
         return ValidationResult.success();
     }
 
-    public ValidationResult validateRequestTypeTransferTo(RequestType requestType) {
-        if (requestType != RequestType.TRANSFER_TO_USER && requestType != RequestType.TRANSFER_TO_PROJECT) {
-            return ValidationResult.failure("In authorize RequestType should be TRANSFER_TO_USER or TRANSFER_TO_PROJECT");
+    public ValidationResult validateOperationType(OperationType operationType, OperationType expectedOperationType) {
+        if (operationType != expectedOperationType) {
+            return ValidationResult.failure(String.format("In authorize OperationType should be %s", expectedOperationType));
         }
 
         return ValidationResult.success();
     }
 
-    public ValidationResult validateOperationType(OperationType operationType, OperationType expectedOperationType) {
-        if (operationType != expectedOperationType) {
-            return ValidationResult.failure(String.format("In authorize OperationType should be %s", expectedOperationType));
+    public ValidationResult validateAccountUserIdAndContextTheSame(Long accountUserId, Long senderContextUserId) {
+        if (!senderContextUserId.equals(accountUserId)) {
+            return ValidationResult.failure(String.format("The User ID = %d from the context does not match the user ID = %d from the account",
+                    senderContextUserId, accountUserId));
         }
 
         return ValidationResult.success();

@@ -7,7 +7,6 @@ CREATE TABLE request (
     idempotency_token UUID,
     sender_account_id BIGINT NOT NULL REFERENCES account(id),
     recipient_account_id BIGINT NOT NULL REFERENCES account(id),
-    request_type VARCHAR(50) NOT NULL,
     operation_type VARCHAR(50),
     input_data JSONB,
     status VARCHAR(50) NOT NULL,
@@ -15,16 +14,6 @@ CREATE TABLE request (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Убираем ON UPDATE CURRENT_TIMESTAMP
     version INTEGER NOT NULL DEFAULT 1,
-
-    -- Constraint для idempotency_token и operation_type
-    CONSTRAINT idempotency_token_required CHECK (
-        (request_type IN ('TRANSFER_TO_USER', 'TRANSFER_TO_PROJECT') AND idempotency_token IS NOT NULL)
-        OR (request_type = 'ACCOUNT_CREATION' AND idempotency_token IS NULL)
-    ),
-    CONSTRAINT operation_type_required CHECK (
-        (request_type IN ('TRANSFER_TO_USER', 'TRANSFER_TO_PROJECT') AND operation_type IS NOT NULL)
-        OR (request_type = 'ACCOUNT_CREATION' AND operation_type IS NULL)
-    )
 );
 
 -- Создаем индексы отдельно
