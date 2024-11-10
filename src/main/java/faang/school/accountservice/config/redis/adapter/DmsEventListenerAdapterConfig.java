@@ -1,16 +1,15 @@
 package faang.school.accountservice.config.redis.adapter;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import faang.school.accountservice.listener.DmsEventListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
-@Component
-public class DmsEventListenerAdapterParam extends AbstractEventListenerAdapterParam {
-    public DmsEventListenerAdapterParam(
+@Configuration
+public class DmsEventListenerAdapterConfig extends AbstractEventListenerAdapterConfig {
+    public DmsEventListenerAdapterConfig(
         @Value("${spring.data.redis.channels.dms-channel.name}") String topicName,
-        @Qualifier("dmsEventListener") MessageListener listener
+        DmsEventListener listener
     ) {
         super(topicName, listener);
     }

@@ -1,6 +1,6 @@
 package faang.school.accountservice.config.redis;
 
-import faang.school.accountservice.config.redis.adapter.EventListenerAdapterParam;
+import faang.school.accountservice.config.redis.adapter.EventListenerAdapterConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
-    private final List<EventListenerAdapterParam> adapters;
+    private final List<EventListenerAdapterConfig> adapters;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
