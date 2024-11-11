@@ -13,7 +13,7 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class DmsEventHandlerConfig {
-    private List<DmsEventHandler> handlers;
+    private final List<DmsEventHandler> handlers;
 
     @Bean
     public Map<DmsTypeOperation, DmsEventHandler> dmsEventHandlers() {

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long>, JpaSpecificationExecutor<Account> {
     boolean existsAccountByAccountNumber(String accountNumber);
-public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query(nativeQuery = true, value = """
             select

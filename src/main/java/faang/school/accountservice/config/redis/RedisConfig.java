@@ -1,9 +1,13 @@
 package faang.school.accountservice.config.redis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import faang.school.accountservice.config.redis.adapter.EventListenerAdapterConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 
@@ -15,14 +19,21 @@ public class RedisConfig {
     private final List<EventListenerAdapterConfig> adapters;
 
     @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
-        return new JedisConnectionFactory();
+    public JedisConnectionFactory jedisConnectionFactory(
+        @Value("${spring.data.redis.host}") String host,
+        @Value("${spring.data.redis.port}") Integer port
+    ) {
+        return new JedisConnectionFactory(
+            new RedisStandaloneConfiguration(host, port)
+        );
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer() {
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+        JedisConnectionFactory jedisConnectionFactory
+    ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(jedisConnectionFactory());
+        container.setConnectionFactory(jedisConnectionFactory);
         adapters.forEach(
             adapter -> container.addMessageListener(adapter.getAdapter(), adapter.getChannelTopic())
         );
