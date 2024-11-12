@@ -250,7 +250,7 @@ class BalanceServiceImplTest {
     }
 
     @Test
-    void testGetBalanceByAccountId() {
+    void testGetBalanceDtoByAccountId() {
         when(balanceJpaRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         BalanceDto balanceDto = service.getBalanceByAccountId(accountId);

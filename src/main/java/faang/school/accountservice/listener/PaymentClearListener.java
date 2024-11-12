@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.PendingDto;
-import faang.school.accountservice.service.BalanceService;
+import faang.school.accountservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,7 +19,7 @@ import java.util.List;
 public class PaymentClearListener implements KafkaEventListener<String> {
 
     private final ObjectMapper objectMapper;
-    private final BalanceService balanceService;
+    private final PaymentService paymentService;
 
     @Override
     @KafkaListener(topics = "${spring.kafka.topics.payment-clear.name}", groupId = "${spring.kafka.consumer.group-id}")
@@ -27,8 +27,8 @@ public class PaymentClearListener implements KafkaEventListener<String> {
         try {
             log.info("Received event: {}", jsonEvent);
             List<PendingDto> pendingDto = objectMapper.readValue(jsonEvent, new TypeReference<>() {});
-            balanceService.clearPayment(pendingDto);
-           acknowledgment.acknowledge();
+            pendingDto.forEach(paymentService::clearPayment);
+            acknowledgment.acknowledge();
         } catch (JsonProcessingException exception) {
             log.error(exception.getMessage());
             throw new RuntimeException(exception);

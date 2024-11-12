@@ -3,7 +3,7 @@ package faang.school.accountservice.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.PendingDto;
-import faang.school.accountservice.service.BalanceService;
+import faang.school.accountservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PaymentAuthorizationListener implements KafkaEventListener<String> {
 
-    private final BalanceService balanceService;
+    private final PaymentService paymentService;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -24,7 +24,7 @@ public class PaymentAuthorizationListener implements KafkaEventListener<String> 
         try {
             log.info("Received event {}", jsonEvent);
             PendingDto event = objectMapper.readValue(jsonEvent, PendingDto.class);
-            balanceService.paymentAuthorization(event);
+            paymentService.paymentAuthorization(event);
             acknowledgment.acknowledge();
         } catch (JsonProcessingException exception) {
             log.error(exception.getMessage(), exception);
