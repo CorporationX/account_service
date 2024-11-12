@@ -1,6 +1,5 @@
 package faang.school.accountservice.integration;
 
-import faang.school.accountservice.config.TestContainersConfig;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.integration.config.RedisPostgresTestContainers;
 import faang.school.accountservice.mapper.FreeAccountNumberMapper;
@@ -13,9 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
@@ -32,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
-@ContextConfiguration(classes = TestContainersConfig.class)
-@EnableRetry
 class FreeAccountNumberServiceIntegrationTest extends RedisPostgresTestContainers {
     @Autowired
     private FreeAccountNumberService freeAccountNumberService;
