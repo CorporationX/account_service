@@ -44,6 +44,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
     private static final long USER_ID = 1L;
     private static final long PROJECT_ID = 1L;
     private static final String PROJECT_NAME = "Project name";
+    private static final String URL = "/accounts";
 
     @Autowired
     private MockMvc mockMvc;
@@ -66,7 +67,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
         UserDto userDto = buildUserDtoDefault(USER_ID);
         when(userServiceClient.getUser(USER_ID)).thenReturn(userDto);
 
-        ResultActions result = mockMvc.perform(post("/account")
+        ResultActions result = mockMvc.perform(post(URL)
                         .header("x-user-id", 1L)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(openAccountDto)))
@@ -92,7 +93,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
         ProjectDto projectDto = new ProjectDto(PROJECT_ID, PROJECT_NAME);
         when(projectServiceClient.getProject(PROJECT_ID)).thenReturn(projectDto);
 
-        ResultActions result = mockMvc.perform(post("/account")
+        ResultActions result = mockMvc.perform(post(URL)
                         .header("x-user-id", 1L)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(openAccountDto)))
@@ -118,7 +119,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
         accountRepository.save(account);
         UUID accountId = accountRepository.findAll().get(0).getId();
 
-        mockMvc.perform(get("/account/" + accountId)
+        mockMvc.perform(get(URL + "/" + accountId)
                         .header("x-user-id", 1L))
                 .andExpect(jsonPath("$.id").value(accountId.toString()));
     }
@@ -129,7 +130,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
         accountRepository.save(account);
         UUID accountId = accountRepository.findAll().get(0).getId();
 
-        mockMvc.perform(put("/account/" + accountId + "/close")
+        mockMvc.perform(put(URL + "/" + accountId + "/close")
                         .header("x-user-id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(accountId.toString()))
@@ -142,7 +143,7 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
         accountRepository.save(account);
         UUID accountId = accountRepository.findAll().get(0).getId();
 
-        mockMvc.perform(put("/account/" + accountId + "/block")
+        mockMvc.perform(put(URL + "/" + accountId + "/block")
                         .header("x-user-id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(accountId.toString()))

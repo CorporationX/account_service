@@ -271,13 +271,13 @@ class BalanceServiceTest {
         double authBalance = 5.0;
         double currentBalance = 5.0;
         Balance balance = buildBalance(BALANCE_ID, authBalance, currentBalance);
-        when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccount_IdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(balance));
 
-        balanceService.multiplyCurrentBalance(BALANCE_ID, value);
+        balanceService.multiplyCurrentBalance(ACCOUNT_ID, value);
 
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        verify(balanceRepository).saveAndFlush(balanceCaptor.capture());
+        verify(balanceRepository).save(balanceCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getCurrentBalance().doubleValue())
@@ -326,7 +326,7 @@ class BalanceServiceTest {
 
         assertThatThrownBy(() -> balanceService.findByAccountId(ACCOUNT_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("%s id=%s not found", Account.class.getName(), ACCOUNT_ID);
+                .hasMessageContaining("%s id=%s not found", Balance.class.getName(), ACCOUNT_ID);
     }
 
     @Test

@@ -10,4 +10,8 @@ public class ResourceNotFoundException extends ApiException {
     public ResourceNotFoundException(Class<?> resource, UUID id) {
         super(MESSAGE, HttpStatus.NOT_FOUND, resource.getName(), id);
     }
+
+    public ResourceNotFoundException(Class<?> resource, Long id) {
+        super(MESSAGE, HttpStatus.NOT_FOUND, resource.getName(), id);
+    }
 }
