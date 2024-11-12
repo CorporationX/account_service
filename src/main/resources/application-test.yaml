@@ -1,0 +1,14 @@
+account:
+  accountNumbers:
+    needsOfFreeAccountNumbers:
+      DEBIT: 10
+      SAVINGS: 5
+      CREDIT: 5
+      DEPOSIT: 5
+      SETTLEMENT: 2
+      SUBSETTLEMENT: 2
+      LETTER_OF_CREDIT: 2
+      BUDGET: 2
+    numberFormatter: "%012d"
+    scheduler:
+      cron: "* */10 * * * *"
