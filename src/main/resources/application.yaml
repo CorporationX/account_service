@@ -28,7 +28,7 @@ spring:
       transactional-id: "payment-service-transaction-id"
       acks: all
       enable-idempotence: true
-      retries: 2147483647 # Integer.MAX_VALUE
+      retries: 20
       max-in-flight-requests-per-connection: 1
     consumer:
       group-id: "group"

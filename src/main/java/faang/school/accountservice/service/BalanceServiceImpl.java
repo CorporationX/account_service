@@ -49,7 +49,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public Balance getBalanceWithAccountByAccountId(long accountId) {
-        return balanceRepository.findByWithAccountAccountId(accountId)
+        return balanceRepository.findByAccountIdWithAccount(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with account id %s not found".formatted(accountId)));
     }
 }

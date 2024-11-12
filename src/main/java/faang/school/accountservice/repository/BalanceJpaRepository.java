@@ -15,7 +15,7 @@ public interface BalanceJpaRepository extends JpaRepository<Balance, Long> {
 
     @EntityGraph(attributePaths = {"account"})
     @Query("SELECT b FROM Balance b WHERE b.account.id = :accountId")
-    Optional<Balance> findByWithAccountAccountId(Long accountId);
+    Optional<Balance> findByAccountIdWithAccount(Long accountId);
 
     @Query("SELECT b FROM Balance b WHERE b.account.id = :accountId")
     Optional<Balance> findByAccountId(Long accountId);
