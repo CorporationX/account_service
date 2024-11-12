@@ -28,24 +28,22 @@ public class BalanceService {
 
     @Transactional
     public void create(Account account) {
-        String methodName = getMethodName();
-        log.info("method {} started for accountId: {}", methodName, account.getId());
+        log.info("method create started for accountId: {}", account.getId());
 
         Balance balance = Balance.builder()
                 .actualBalance(BigDecimal.ZERO)
                 .account(account)
                 .build();
+        log.debug("balance is created, balance: {}", balance);
 
         balance = balanceRepository.save(balance);
-        log.info("method {} finished,  balance created: {}", methodName, balance);
+        log.info("method create finished,  balance created: {}", balance);
     }
 
     @Transactional
-    public BalanceDto update(TransactionDto dto) {
+    public BalanceDto update(long accountId, TransactionDto dto) {
 
-        long accountId = dto.getAccount();
-        String methodName = getMethodName();
-        log.info("method {} started for accountId: {}", methodName, dto.getAccount());
+        log.info("method update started for accountId: {}", accountId);
 
         Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Account not found with id: %d", accountId))
@@ -61,14 +59,13 @@ public class BalanceService {
 
         newBalance = balanceRepository.save(newBalance);
         BalanceDto balanceDto = balanceMapper.toBalanceDto(newBalance);
-        log.info("method {} finished, balance has been updated, balance: {}", methodName, balanceDto);
+        log.info("method update finished, balance has been updated, balance: {}", balanceDto);
 
         return balanceDto;
     }
 
     public BalanceDto getBalance(long accountId) {
-        String methodName = getMethodName();
-        log.info("method {} started for account: {}", methodName, accountId);
+        log.info("method getBalance started for account: {}", accountId);
 
         Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Account not found with id: %d", accountId))
@@ -77,12 +74,8 @@ public class BalanceService {
 
         Balance balance = account.getBalance();
         BalanceDto balanceDto = balanceMapper.toBalanceDto(balance);
-        balanceDto.setAccountId(balance.getAccount().getId());
-        log.info("method {} finished, balanceDto {}", methodName, balanceDto);
+        balanceDto.setAccountId(accountId);
+        log.info("method getBalance finished, balanceDto {}", balanceDto);
         return balanceDto;
-    }
-
-    private String getMethodName() {
-        return Thread.currentThread().getStackTrace()[2].getMethodName();
     }
 }

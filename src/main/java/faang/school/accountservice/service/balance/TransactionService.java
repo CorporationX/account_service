@@ -22,11 +22,12 @@ public class TransactionService {
                 .collect(Collectors.toMap(TransactionHandler::getType, handler -> handler));
     }
 
-    public Balance processTransaction(TransactionDto transaction, Account account) {
-        TransactionHandler handler = handlers.get(transaction.getTransactionType());
+    public Balance processTransaction(TransactionDto transactionDto, Account account) {
+        TransactionHandler handler = handlers.get(transactionDto.getTransactionType());
         if (handler == null) {
-            throw new IllegalArgumentException("Invalid transaction type");
+            throw new IllegalArgumentException(
+                    String.format("Invalid transaction type, type: %s", transactionDto.getTransactionType()));
         }
-        return handler.handle(transaction, account);
+        return handler.handle(transactionDto, account);
     }
 }

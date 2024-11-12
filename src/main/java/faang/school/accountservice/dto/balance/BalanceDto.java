@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,8 +17,8 @@ import java.time.LocalDateTime;
 public class BalanceDto {
 
     private long id;
-    private double authorizationBalance;
-    private double actualBalance;
+    private BigDecimal authorizationBalance;
+    private BigDecimal actualBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private int version;

@@ -28,6 +28,7 @@ public class DebitingHandler implements TransactionHandler {
 
             BigDecimal newAuthorizationBalance = balance.getAuthorizationBalance().subtract(amount);
             balance.setAuthorizationBalance(newAuthorizationBalance);
+            balance.setPaymentNumber(transaction.getPaymentNumber());
             return balance;
         }
 
@@ -37,6 +38,7 @@ public class DebitingHandler implements TransactionHandler {
 
         BigDecimal newActualBalance = balance.getActualBalance().subtract(amount);
         balance.setActualBalance(newActualBalance);
+        balance.setPaymentNumber(transaction.getPaymentNumber());
         return balance;
     }
 }

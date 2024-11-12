@@ -5,9 +5,11 @@ import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.enums.TransactionType;
 import faang.school.accountservice.exception.BalanceException;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+@Component
 public class RetentionHandler implements TransactionHandler {
 
     @Override

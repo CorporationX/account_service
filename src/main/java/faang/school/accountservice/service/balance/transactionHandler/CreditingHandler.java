@@ -16,6 +16,7 @@ public class CreditingHandler implements TransactionHandler {
     public Balance handle(TransactionDto transaction, Account account) {
         Balance balance = account.getBalance();
         balance.setActualBalance(balance.getActualBalance().add(transaction.getAmount()));
+        balance.setPaymentNumber(transaction.getPaymentNumber());
         return balance;
     }
 }

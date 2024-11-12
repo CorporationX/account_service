@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.TransactionDto;
 import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ public class BalanceController {
 
     @PutMapping
     public BalanceDto update(@PathVariable @Positive long accountId,
-                             @RequestBody @Valid TransactionDto transactionDto) {
-        return balanceService.update(transactionDto);
+                             @RequestBody @Valid @NotNull TransactionDto transactionDto) {
+        return balanceService.update(accountId, transactionDto);
     }
 }
