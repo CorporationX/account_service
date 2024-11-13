@@ -9,9 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
-    @Query("SELECT m FROM Merchant m WHERE m.userId = :userId")
     Merchant findByUserId(long userId);
 
-    @Query("SELECT m FROM Merchant m WHERE m.projectId = :projectId")
     Merchant findByProjectId(long projectId);
 }

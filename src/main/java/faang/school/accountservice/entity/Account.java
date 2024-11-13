@@ -62,7 +62,7 @@ public class Account {
     @Column(name = "status", length = 16, nullable = false)
     private AccountStatus status;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "cashback_tariff_id", nullable = false)
     private CashbackTariff cashbackTariff;
 

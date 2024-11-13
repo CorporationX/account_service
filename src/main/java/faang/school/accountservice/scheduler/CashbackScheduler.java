@@ -3,6 +3,7 @@ package faang.school.accountservice.scheduler;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.cashback.CashbackTariffService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,11 +33,17 @@ public class CashbackScheduler {
     @Value("${cashback.thread-pool}")
     private int threadPool;
 
+    private Executor executor;
+
+    @PostConstruct
+    public void init() {
+        executor = Executors.newFixedThreadPool(threadPool);
+    }
+
     @Scheduled(cron = "${cashback.scheduler.cron}")
     public void calculateCashback() {
         int offset = 0;
         List<Account> accounts;
-        Executor executor = Executors.newFixedThreadPool(threadPool);
         YearMonth lastMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);

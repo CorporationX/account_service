@@ -42,9 +42,6 @@ public class CashbackTariff {
     @OneToMany(mappedBy = "cashbackTariff", fetch = FetchType.LAZY)
     private Set<CashbackMerchant> cashbackMerchants;
 
-    @OneToMany(mappedBy = "cashbackTariff", fetch = FetchType.LAZY)
-    private Set<Account> accounts;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

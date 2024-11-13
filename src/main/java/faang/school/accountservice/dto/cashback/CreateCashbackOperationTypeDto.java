@@ -22,7 +22,7 @@ public class CreateCashbackOperationTypeDto {
     private Category operationType;
     @NotNull(message = "Cashback Percentage must not be null")
     @Digits(integer = 8, fraction = 2, message = "Cashback Percentage must be a decimal with up to 10 digits and 2 decimal places")
-    @DecimalMin(value = "0.01", message = "Cashback Percentage must be at least 0.01")
-    @DecimalMax(value = "99.99", message = "Cashback Percentage must be less than or equal to 99.99")
+    @DecimalMin(value = "0.01")
+    @DecimalMax(value = "99.99")
     private BigDecimal cashbackPercentage;
 }

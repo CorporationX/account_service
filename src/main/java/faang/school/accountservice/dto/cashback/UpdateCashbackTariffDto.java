@@ -13,6 +13,6 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 public class UpdateCashbackTariffDto {
     @NotNull(message = "Name can't be blank or empty")
-    @Length(max = 255, message = "Maximum number of characters 255 chairs")
+    @Length(max = 255, message = "Maximum number of characters 255 chars")
     private String name;
 }

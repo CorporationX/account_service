@@ -169,11 +169,13 @@ public class BalanceService {
     @Transactional
     @Retryable(retryFor = {BalanceHasBeenUpdatedException.class})
     public void saveCashback(Balance balance, BigDecimal cashback) {
-        BigDecimal currentBalance = balance.getCurrentBalance();
-        balance.setCurrentBalance(currentBalance.add(cashback));
-        balance.setUpdatedAt(LocalDateTime.now());
+        Balance balanceDB = findById(balance.getId());
 
-        saveBalance(balance);
+        BigDecimal currentBalance = balanceDB.getCurrentBalance();
+        balanceDB.setCurrentBalance(currentBalance.add(cashback));
+        balanceDB.setUpdatedAt(LocalDateTime.now());
+
+        saveBalance(balanceDB);
     }
 
     private Balance saveBalance(Balance balance) {

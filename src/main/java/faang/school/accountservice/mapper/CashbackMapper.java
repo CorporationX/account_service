@@ -6,8 +6,10 @@ import faang.school.accountservice.dto.cashback.CashbackTariffResponseDto;
 import faang.school.accountservice.dto.cashback.CashbackTariffShortResponseDto;
 import faang.school.accountservice.dto.cashback.CreateCashbackMerchantDto;
 import faang.school.accountservice.dto.cashback.CreateCashbackOperationTypeDto;
+import faang.school.accountservice.dto.cashback.CreateCashbackTariffDto;
 import faang.school.accountservice.dto.cashback.UpdateCashbackMerchantDto;
 import faang.school.accountservice.dto.cashback.UpdateCashbackOperationTypeDto;
+import faang.school.accountservice.dto.cashback.UpdateCashbackTariffDto;
 import faang.school.accountservice.entity.cacheback.CashbackMerchant;
 import faang.school.accountservice.entity.cacheback.CashbackOperationType;
 import faang.school.accountservice.entity.cacheback.CashbackTariff;
@@ -24,6 +26,10 @@ public interface CashbackMapper {
     @Mapping(target = "cashbackOperationTypes", source = "cashbackOperationTypes", qualifiedByName = "mapTypes")
     @Mapping(target = "cashbackMerchants", source = "cashbackMerchants", qualifiedByName = "mapMerchants")
     CashbackTariffResponseDto toResponseDto(CashbackTariff cashbackTariff);
+
+    CashbackTariff toCashbackTariffEntity(CreateCashbackTariffDto cashbackTariff);
+
+    CashbackTariff toCashbackTariffEntity(UpdateCashbackTariffDto cashbackTariff);
 
     CashbackTariffShortResponseDto toShortResponseDto(CashbackTariff cashbackTariff);
 

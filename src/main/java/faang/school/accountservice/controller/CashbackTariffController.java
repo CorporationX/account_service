@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,7 +41,7 @@ public class CashbackTariffController {
 
     @PostMapping("/tariff")
     public CashbackTariffShortResponseDto createTariff(@RequestBody @Valid CreateCashbackTariffDto dto) {
-        CashbackTariff cashbackTariff = CashbackTariff.builder().name(dto.getName()).build();
+        CashbackTariff cashbackTariff = mapper.toCashbackTariffEntity(dto);
         CashbackTariff result = cashbackTariffService.createTariff(cashbackTariff);
 
         return mapper.toShortResponseDto(result);
@@ -53,10 +54,10 @@ public class CashbackTariffController {
         return mapper.toResponseDto(result);
     }
 
-    @PutMapping("/{id}/tariff")
+    @PatchMapping("/{id}/tariff")
     public CashbackTariffResponseDto updateTariff(@PathVariable UUID id,
                                                   @RequestBody @Valid UpdateCashbackTariffDto dto) {
-        CashbackTariff cashbackTariff = CashbackTariff.builder().name(dto.getName()).build();
+        CashbackTariff cashbackTariff = mapper.toCashbackTariffEntity(dto);
         CashbackTariff result = cashbackTariffService.updateTariff(id, cashbackTariff);
 
         return mapper.toResponseDto(result);

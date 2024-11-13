@@ -13,7 +13,8 @@ import java.util.UUID;
 @Repository
 public interface AuthPaymentRepository extends JpaRepository<AuthPayment, UUID> {
     @Query("""
-                SELECT a FROM AuthPayment a WHERE a.sourceBalance.id = :balanceId
+                SELECT a FROM AuthPayment a
+                WHERE a.sourceBalance.id = :balanceId
                 AND a.status = :status
                 AND (a.createdAt >= :startPeriod AND a.createdAt < :endPeriod)
             """)

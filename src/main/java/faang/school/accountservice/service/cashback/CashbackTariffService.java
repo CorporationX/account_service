@@ -49,14 +49,14 @@ public class CashbackTariffService {
     }
 
     @Transactional
-    public CashbackTariff updateTariff(UUID id, CashbackTariff tariff) {
-        CashbackTariff cashbackTariff = findCashbackTariffById(id);
+    public CashbackTariff updateTariff(UUID cashbackTariffId, CashbackTariff cashbackTariff) {
+        CashbackTariff cashbackTariffDB = findCashbackTariffById(cashbackTariffId);
 
-        cashbackTariff.setName(tariff.getName());
-        cashbackTariff.setUpdatedAt(LocalDateTime.now());
-        cashbackTariffRepository.save(cashbackTariff);
+        cashbackTariffDB.setName(cashbackTariff.getName());
+        cashbackTariffDB.setUpdatedAt(LocalDateTime.now());
+        cashbackTariffRepository.save(cashbackTariffDB);
 
-        return cashbackTariff;
+        return cashbackTariffDB;
     }
 
     @Transactional
@@ -145,7 +145,6 @@ public class CashbackTariffService {
     }
 
     public void calculateCashback(Account account, LocalDateTime startOfLastMonth, LocalDateTime endOfLastMonth) {
-        BigDecimal totalCashback = BigDecimal.ZERO;
         Balance balance = account.getBalance();
         CashbackTariff cashbackTariff;
         UUID tariffId = account.getCashbackTariff().getId();
@@ -157,10 +156,9 @@ public class CashbackTariffService {
                 AuthPaymentStatus.CLOSED, balance.getId(), startOfLastMonth, endOfLastMonth
         );
 
-        for (AuthPayment payment : payments) {
-            BigDecimal result = calculateOperationCashback(payment, cashbackTariff);
-            totalCashback = totalCashback.add(result);
-        }
+        BigDecimal totalCashback = payments.stream()
+                .map(payment -> calculateOperationCashback(payment, cashbackTariff))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         log.info("[%s] результат расчёта кешбека для accountId=%s [%s]".formatted(
                 Thread.currentThread().getName(),
