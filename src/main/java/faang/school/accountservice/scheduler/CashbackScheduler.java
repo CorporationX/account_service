@@ -35,15 +35,11 @@ public class CashbackScheduler {
 
     private Executor executor;
 
-    @PostConstruct
-    public void init() {
-        executor = Executors.newFixedThreadPool(threadPool);
-    }
-
     @Scheduled(cron = "${cashback.scheduler.cron}")
     public void calculateCashback() {
         int offset = 0;
         List<Account> accounts;
+        executor = Executors.newFixedThreadPool(threadPool);
         YearMonth lastMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);
