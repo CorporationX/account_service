@@ -141,7 +141,7 @@ public class CashbackTariffService {
         cashbackTariff.getCashbackMerchants()
                 .forEach(cashbackMerchant -> removeMerchantCashback(cashbackMerchant.getId()));
 
-        cashbackMerchantRepository.deleteById(id);
+        cashbackTariffRepository.deleteById(id);
     }
 
     public void calculateCashback(Account account, LocalDateTime startOfLastMonth, LocalDateTime endOfLastMonth) {

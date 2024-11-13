@@ -77,12 +77,14 @@ public class CashbackTariffServiceTest {
                 .build();
 
         cashbackMerchant = CashbackMerchant.builder()
+                .id(UUID.randomUUID())
                 .cashbackTariff(CashbackTariff.builder().id(UUID.randomUUID()).build())
                 .cashbackPercentage(BigDecimal.valueOf(15))
                 .merchant(merchant)
                 .build();
 
         cashbackOperationType = CashbackOperationType.builder()
+                .id(UUID.randomUUID())
                 .cashbackTariff(CashbackTariff.builder().id(UUID.randomUUID()).build())
                 .cashbackPercentage(BigDecimal.valueOf(10.05))
                 .operationType(Category.OTHER)
@@ -404,6 +406,19 @@ public class CashbackTariffServiceTest {
         cashbackTariffService.calculateCashback(account, startOfLastMonth, endOfLastMonth);
 
         verify(balanceService, times(0)).saveCashback(any(Balance.class), any(BigDecimal.class));
+    }
+
+    @Test
+    public void testRemoveOperationType() {
+        UUID tariffId = cashbackTariff.getId();
+        when(cashbackTariffRepository.findByIdWithRelations(tariffId))
+                .thenReturn(Optional.ofNullable(cashbackTariff));
+
+        cashbackTariffService.removeCashbackTariff(tariffId);
+
+        verify(cashbackOperationTypeRepository).deleteById(any(UUID.class));
+        verify(cashbackMerchantRepository).deleteById(any(UUID.class));
+        verify(cashbackTariffRepository).deleteById(tariffId);
     }
 
     private List<AuthPayment> makeAuthPayment() {
