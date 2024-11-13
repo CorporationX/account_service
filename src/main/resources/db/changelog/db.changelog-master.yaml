@@ -1,9 +1,11 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
+      file: db/changelog/changeset/account_V001__create_account.sql
   - include:
-      file: db/changelog/changeset/account_V002__balance.sql
+      file: db/changelog/changeset/account_V002__create_balance.sql
   - include:
-      file: db/changelog/changeset/account_V004__create_free_accounts_numbers_and_account_numbers_sequence.sql
+      file: db/changelog/changeset/account_V003__create_free_accounts_numbers_and_account_numbers_sequence.sql
+  - include:
+      file: db/changelog/changeset/account_V004__create_savings_account.sql
   - include:
       file: db/changelog/changeset/V006__account-service_cashback.sql

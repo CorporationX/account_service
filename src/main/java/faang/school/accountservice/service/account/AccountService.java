@@ -31,8 +31,6 @@ public class AccountService {
     public Account openAccount(Account account) {
         validator.validateOpenAccount(account);
 
-        Account finalAccount = account;
-
         String accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType());
         account.setStatus(AccountStatus.ACTIVE);
         account.setNumber(accountNumber);
