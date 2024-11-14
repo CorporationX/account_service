@@ -14,14 +14,14 @@ import java.util.concurrent.ExecutorService;
 @Service
 public class SavingsAccountAccrualService {
     private final SavingsAccountService savingsAccountService;
-    private final ExecutorService calculateAccrualsThreadPool;
+    private final ExecutorService calculateAccrualsExecutorService;
 
     public void makeAccruals() {
         LocalDate now = LocalDate.now();
 
         List<SavingsAccount> savingsAccounts = savingsAccountService.getAllActive();
 
-        savingsAccounts.forEach(savingsAccount -> calculateAccrualsThreadPool.submit(() -> {
+        savingsAccounts.forEach(savingsAccount -> calculateAccrualsExecutorService.execute(() -> {
             try {
                 savingsAccountService.accrueBalanceForSavingsAccount(savingsAccount, now);
             } catch (Exception e) {
