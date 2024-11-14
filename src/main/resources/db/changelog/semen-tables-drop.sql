@@ -9,3 +9,9 @@ drop INDEX uniq_merchant_project_id;
 drop TABLE merchant;
 drop INDEX uniq_cashback_tariff_name;
 drop TABLE cashback_tariff;
+--
+
+drop table tariff_to_savings_account_binding;
+drop table savings_account;
+drop table tariff_rate;
+drop table tariff;
