@@ -328,6 +328,8 @@ public class CashbackTariffServiceTest {
 
     @Test
     public void testCalculateCashbackTariffNotFound() {
+        when(accountService.getAccountById(account.getId())).thenReturn(account);
+
         assertThrows(ResourceNotFoundException.class, () -> cashbackTariffService
                 .calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth));
 
