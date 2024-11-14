@@ -2,6 +2,7 @@ package faang.school.accountservice.util.fabrics;
 
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.entity.cacheback.CashbackTariff;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,19 @@ public class AccountFabric {
                 .status(ACTIVE)
                 .closedAt(LocalDateTime.now())
                 .version(0)
+                .build();
+    }
+
+    public static Account buildAccountDefault(Long userId, CashbackTariff cashbackTariff) {
+        return Account.builder()
+                .number(ACCOUNT_NUMBER)
+                .userId(userId)
+                .type(DEBIT)
+                .currency(USD)
+                .status(ACTIVE)
+                .closedAt(LocalDateTime.now())
+                .version(0)
+                .cashbackTariff(cashbackTariff)
                 .build();
     }
 

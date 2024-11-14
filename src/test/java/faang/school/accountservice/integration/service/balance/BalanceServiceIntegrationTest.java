@@ -13,14 +13,16 @@ import faang.school.accountservice.dto.payment.response.ErrorPaymentResponse;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.auth.payment.AuthPayment;
 import faang.school.accountservice.entity.balance.Balance;
-import faang.school.accountservice.enums.payment.Currency;
+import faang.school.accountservice.entity.cacheback.CashbackTariff;
 import faang.school.accountservice.enums.payment.Category;
+import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.integration.config.RedisPostgresTestContainers;
 import faang.school.accountservice.integration.config.listener.redis.listeners.AuthPaymentResponseTestRedisListener;
 import faang.school.accountservice.integration.config.listener.redis.listeners.CancelPaymentResponseTestRedisListener;
 import faang.school.accountservice.integration.config.listener.redis.listeners.ClearingPaymentResponseTestRedisListener;
 import faang.school.accountservice.integration.config.listener.redis.listeners.ErrorPaymentResponseTestRedisListener;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.CashbackTariffRepository;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.service.balance.BalanceService;
@@ -31,14 +33,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-import static faang.school.accountservice.enums.payment.Currency.USD;
 import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.ACTIVE;
 import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.CLOSED;
 import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.REJECTED;
@@ -46,6 +46,7 @@ import static faang.school.accountservice.enums.payment.AccountBalanceStatus.BAL
 import static faang.school.accountservice.enums.payment.AccountBalanceStatus.INSUFFICIENT_FUNDS;
 import static faang.school.accountservice.enums.payment.AccountBalanceStatus.SUFFICIENT_FUNDS;
 import static faang.school.accountservice.enums.payment.Category.OTHER;
+import static faang.school.accountservice.enums.payment.Currency.USD;
 import static faang.school.accountservice.enums.payment.PaymentStatus.FAILED;
 import static faang.school.accountservice.enums.payment.PaymentStatus.SUCCESS;
 import static faang.school.accountservice.util.fabrics.AccountFabric.buildAccountDefault;
@@ -59,6 +60,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 @ActiveProfiles("testLiquibaseRedis")
 @SpringBootTest
 public class BalanceServiceIntegrationTest extends RedisPostgresTestContainers {
+    private static final UUID GOOD_TARIFF_ID = UUID.fromString("9c500958-a278-11ef-b864-0242ac120002");
     private static final UUID SOURCE_ACCOUNT_ID = UUID.fromString("065977b1-2f8d-47d5-a2a7-c88671a3c5a3");
     private static final UUID TARGET_ACCOUNT_ID = UUID.fromString("f6309d7b-22bd-4b18-a4fa-29a6bdd502e8");
     private static final UUID SOURCE_BALANCE_ID = UUID.fromString("4cc8cd27-9c53-4e4c-8f44-de6a6d7182c0");
@@ -114,10 +116,13 @@ public class BalanceServiceIntegrationTest extends RedisPostgresTestContainers {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private CashbackTariffRepository cashbackTariffRepository;
+
     @Test
-    @Transactional
     void testCreateBalance_successful() {
-        Account account = accountRepository.save(buildAccountDefault(5L));
+        CashbackTariff cashbackTariff = cashbackTariffRepository.findById(GOOD_TARIFF_ID).orElseThrow();
+        Account account = accountRepository.save(buildAccountDefault(5L, cashbackTariff));
         Balance balance = balanceService.createBalance(account);
         assertThat(balanceRepository.findById(balance.getId()).orElseThrow()).isNotNull();
     }
