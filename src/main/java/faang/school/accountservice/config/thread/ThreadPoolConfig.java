@@ -11,7 +11,7 @@ public class ThreadPoolConfig {
     private static final int THREAD_POOL_SIZE = 10;
 
     @Bean
-    public ExecutorService calculateAccrualsThreadPool() {
+    public ExecutorService calculateAccrualsExecutorService() {
         return Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 }

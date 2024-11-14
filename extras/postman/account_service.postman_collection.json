@@ -1,0 +1,301 @@
+{
+	"info": {
+		"_postman_id": "418ce55e-7118-4eda-abb3-f355c3a04fab",
+		"name": "account_service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3997404"
+	},
+	"item": [
+		{
+			"name": "tariff",
+			"item": [
+				{
+					"name": "Create Tariff",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tariffType\": \"MIDDLE\",\r\n    \"rate\": 0.01\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/tariffs",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tariffs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Tariff Rate",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tariffId\": \"b8edf497-dffa-4642-9f6e-d1af45b99a00\",\r\n    \"newRate\": 0.085\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/tariffs",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tariffs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tariff by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/tariffs/b8edf497-dffa-4642-9f6e-d1af45b99a00",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tariffs",
+								"b8edf497-dffa-4642-9f6e-d1af45b99a00"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Tariffs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/tariffs",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tariffs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "savings_account",
+			"item": [
+				{
+					"name": "Create Savings Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accountId\": \"2389c3af-dd10-4d6f-9871-b51f0fc8e305\",\r\n    \"tariffId\": 1,\r\n    \"amount\": 1000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/savings-accounts",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"savings-accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Savings Account by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/savings-accounts/5f8d49cc-f790-4400-b298-43630f846815",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"savings-accounts",
+								"5f8d49cc-f790-4400-b298-43630f846815"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Tariff for Savings Acount",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"savingsAccountId\": \"6a1ad398-e575-4410-ac01-ed1241ef36cf\",\r\n    \"tariffId\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/savings-accounts",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"savings-accounts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "balance",
+			"item": [
+				{
+					"name": "{{host}}/balances/",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"amount\": 100,\r\n    \"currency\": \"USD\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/balances/4ce7a34f-66b2-4808-b190-4d93d690012e",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"balances",
+								"4ce7a34f-66b2-4808-b190-4d93d690012e"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "account",
+			"item": [
+				{
+					"name": "Create Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": 1,\r\n    \"type\": \"SAVINGS\",\r\n    \"currency\": \"USD\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

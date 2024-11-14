@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import static faang.school.accountservice.entity.savings_account.SavingsAccountTariffBuilder.build;
 import static faang.school.accountservice.enums.account.AccountStatus.ACTIVE;
 
 @Slf4j
@@ -105,16 +104,27 @@ public class SavingsAccountService {
         List<TariffRate> tariffRates = tariff.getTariffRates().stream()
                 .sorted(Comparator.comparing(TariffRate::getCreatedAt).reversed())
                 .toList();
+        double currentRate = tariffRates.get(0).getRate();
 
-        savingsAccount.setCurrentRate(tariffRates.get(0).getRate());
-        savingsAccount.setAmount(balance.getCurrentBalance());
+        setCurrentRateAndAmount(savingsAccount, currentRate, balance.getCurrentBalance());
     }
 
     private void setAdditionalData(SavingsAccount savingsAccount) {
         double currentRate = getCurrentRate(savingsAccount.getId());
         Balance balance = balanceService.findByAccountId(savingsAccount.getAccount().getId());
 
+        setCurrentRateAndAmount(savingsAccount, currentRate, balance.getCurrentBalance());
+    }
+
+    private void setCurrentRateAndAmount(SavingsAccount savingsAccount, double currentRate, BigDecimal amount) {
         savingsAccount.setCurrentRate(currentRate);
-        savingsAccount.setAmount(balance.getCurrentBalance());
+        savingsAccount.setAmount(amount);
+    }
+
+    private TariffToSavingAccountBinding build(Tariff tariff, SavingsAccount savingsAccount) {
+        return TariffToSavingAccountBinding.builder()
+                .tariff(tariff)
+                .savingsAccount(savingsAccount)
+                .build();
     }
 }
