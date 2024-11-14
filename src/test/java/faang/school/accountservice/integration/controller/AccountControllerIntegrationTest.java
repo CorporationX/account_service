@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -31,16 +32,24 @@ import static faang.school.accountservice.util.fabrics.UserDtoFabric.buildUserDt
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Sql(scripts = "/test-sql/insert-default-accounts-and-balances.sql", executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = "/test-sql/truncate-balance-account.sql", executionPhase = AFTER_TEST_METHOD)
 @AutoConfigureMockMvc
 @ActiveProfiles("testLiquibaseRedis")
 @SpringBootTest
 public class AccountControllerIntegrationTest extends RedisPostgresTestContainers {
+    private static final UUID SOURCE_ACCOUNT_ID = UUID.fromString("065977b1-2f8d-47d5-a2a7-c88671a3c5a3");
+    private static final UUID TARGET_ACCOUNT_ID = UUID.fromString("f6309d7b-22bd-4b18-a4fa-29a6bdd502e8");
+    private static final UUID SOURCE_BALANCE_ID = UUID.fromString("4cc8cd27-9c53-4e4c-8f44-de6a6d7182c0");
+    private static final UUID TARGET_BALANCE_ID = UUID.fromString("bd4a870b-8ffa-4919-a1a4-57c0cb1138a3");
     private static final long USER_ID = 1L;
     private static final long PROJECT_ID = 1L;
     private static final String PROJECT_NAME = "Project name";
@@ -115,13 +124,13 @@ public class AccountControllerIntegrationTest extends RedisPostgresTestContainer
 
     @Test
     void testGetAccountById_successful() throws Exception {
-        Account account = buildAccountDefault(USER_ID);
-        accountRepository.save(account);
-        UUID accountId = accountRepository.findAll().get(0).getId();
+//        Account account = buildAccountDefault(USER_ID);
+//        accountRepository.save(account);
+//        UUID accountId = accountRepository.findAll().get(0).getId();
 
-        mockMvc.perform(get(URL + "/" + accountId)
+        mockMvc.perform(get(URL + "/" + SOURCE_ACCOUNT_ID)
                         .header("x-user-id", 1L))
-                .andExpect(jsonPath("$.id").value(accountId.toString()));
+                .andExpect(jsonPath("$.id").value(SOURCE_ACCOUNT_ID.toString()));
     }
 
     @Test
