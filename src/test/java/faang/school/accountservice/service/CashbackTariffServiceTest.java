@@ -15,6 +15,7 @@ import faang.school.accountservice.repository.CashbackOperationTypeRepository;
 import faang.school.accountservice.repository.CashbackTariffRepository;
 import faang.school.accountservice.repository.MerchantRepository;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
+import faang.school.accountservice.service.account.AccountService;
 import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.cashback.CashbackTariffService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CashbackTariffServiceTest {
+    @Mock
+    private AccountService accountService;
     @Mock
     private AuthPaymentRepository authPaymentRepository;
     @Mock
@@ -316,8 +319,9 @@ public class CashbackTariffServiceTest {
                 .thenReturn(makeAuthPayment());
 
         when(merchantRepository.findByUserId(1L)).thenReturn(merchant);
+        when(accountService.getAccountById(account.getId())).thenReturn(account);
 
-        cashbackTariffService.calculateCashback(account, startOfLastMonth, endOfLastMonth);
+        cashbackTariffService.calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth);
 
         verify(balanceService).saveCashback(account.getBalance(), new BigDecimal("165.00"));
     }
@@ -325,7 +329,7 @@ public class CashbackTariffServiceTest {
     @Test
     public void testCalculateCashbackTariffNotFound() {
         assertThrows(ResourceNotFoundException.class, () -> cashbackTariffService
-                .calculateCashback(account, startOfLastMonth, endOfLastMonth));
+                .calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth));
 
         verify(balanceService, times(0)).saveCashback(any(Balance.class), any(BigDecimal.class));
     }
@@ -341,8 +345,9 @@ public class CashbackTariffServiceTest {
         when(authPaymentRepository.findBySourceBalanceStatusAndPeriod(
                 AuthPaymentStatus.CLOSED, balanceId, startOfLastMonth, endOfLastMonth))
                 .thenReturn(new ArrayList<>());
+        when(accountService.getAccountById(account.getId())).thenReturn(account);
 
-        cashbackTariffService.calculateCashback(account, startOfLastMonth, endOfLastMonth);
+        cashbackTariffService.calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth);
 
         verify(balanceService, times(0)).saveCashback(any(Balance.class), any(BigDecimal.class));
     }
@@ -361,8 +366,9 @@ public class CashbackTariffServiceTest {
                 .thenReturn(makeAuthPayment());
 
         when(merchantRepository.findByUserId(1L)).thenReturn(merchant);
+        when(accountService.getAccountById(account.getId())).thenReturn(account);
 
-        cashbackTariffService.calculateCashback(account, startOfLastMonth, endOfLastMonth);
+        cashbackTariffService.calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth);
 
         verify(balanceService).saveCashback(account.getBalance(), new BigDecimal("100.5000"));
     }
@@ -381,8 +387,9 @@ public class CashbackTariffServiceTest {
                 .thenReturn(makeAuthPayment());
 
         when(merchantRepository.findByUserId(1L)).thenReturn(merchant);
+        when(accountService.getAccountById(account.getId())).thenReturn(account);
 
-        cashbackTariffService.calculateCashback(account, startOfLastMonth, endOfLastMonth);
+        cashbackTariffService.calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth);
 
         verify(balanceService).saveCashback(account.getBalance(), new BigDecimal("165.00"));
     }
@@ -402,8 +409,9 @@ public class CashbackTariffServiceTest {
                 .thenReturn(makeAuthPayment());
 
         when(merchantRepository.findByUserId(1L)).thenReturn(merchant);
+        when(accountService.getAccountById(account.getId())).thenReturn(account);
 
-        cashbackTariffService.calculateCashback(account, startOfLastMonth, endOfLastMonth);
+        cashbackTariffService.calculateCashback(account.getId(), startOfLastMonth, endOfLastMonth);
 
         verify(balanceService, times(0)).saveCashback(any(Balance.class), any(BigDecimal.class));
     }

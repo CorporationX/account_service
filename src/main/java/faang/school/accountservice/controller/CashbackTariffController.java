@@ -47,14 +47,14 @@ public class CashbackTariffController {
         return mapper.toShortResponseDto(result);
     }
 
-    @GetMapping("/{id}/tariff")
+    @GetMapping("/tariff/{id}")
     public CashbackTariffResponseDto getTariff(@PathVariable UUID id) {
         CashbackTariff result = cashbackTariffService.getTariff(id);
 
         return mapper.toResponseDto(result);
     }
 
-    @PatchMapping("/{id}/tariff")
+    @PatchMapping("/tariff/{id}")
     public CashbackTariffResponseDto updateTariff(@PathVariable UUID id,
                                                   @RequestBody @Valid UpdateCashbackTariffDto dto) {
         CashbackTariff cashbackTariff = mapper.toCashbackTariffEntity(dto);
@@ -63,7 +63,7 @@ public class CashbackTariffController {
         return mapper.toResponseDto(result);
     }
 
-    @DeleteMapping("/{id}/tariff")
+    @DeleteMapping("/tariff/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCashbackTariff(@PathVariable UUID id) {
         cashbackTariffService.removeCashbackTariff(id);
@@ -76,7 +76,7 @@ public class CashbackTariffController {
         return result.stream().map(mapper::toShortResponseDto).toList();
     }
 
-    @PostMapping("/{tariffId}/tariff/attach-operation")
+    @PostMapping("/tariff/{tariffId}/attach-operation")
     public CashbackOperationTypeDto addOperationCashback(@PathVariable UUID tariffId,
                                                          @RequestBody @Valid CreateCashbackOperationTypeDto dto) {
         CashbackOperationType cashbackOperationType = mapper.toCashbackOperationType(dto);
@@ -85,7 +85,7 @@ public class CashbackTariffController {
         return mapper.toCashbackOperationTypeDto(result);
     }
 
-    @PutMapping("/{id}/operation-type")
+    @PutMapping("/operation-type/{id}")
     public CashbackOperationTypeDto updateOperationCashback(@PathVariable UUID id,
                                                             @RequestBody @Valid UpdateCashbackOperationTypeDto dto) {
         CashbackOperationType cashbackOperationType = mapper.toCashbackOperationType(dto);
@@ -94,13 +94,13 @@ public class CashbackTariffController {
         return mapper.toCashbackOperationTypeDto(result);
     }
 
-    @DeleteMapping("/{operationTypeId}/operation")
+    @DeleteMapping("/operation/{operationTypeId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOperationCashback(@PathVariable UUID operationTypeId) {
         cashbackTariffService.removeOperationType(operationTypeId);
     }
 
-    @PostMapping("/{tariffId}/tariff/attach-merchant")
+    @PostMapping("/tariff/{tariffId}/attach-merchant")
     public CashbackMerchantDto addMerchantCashback(@PathVariable UUID tariffId,
                                                    @RequestBody @Valid CreateCashbackMerchantDto dto) {
         CashbackMerchant cashbackMerchant = mapper.toCashbackMerchantEntity(dto);
@@ -109,7 +109,7 @@ public class CashbackTariffController {
         return mapper.toCashbackMerchantDto(result);
     }
 
-    @PutMapping("/{id}/merchant")
+    @PutMapping("/merchant/{id}")
     public CashbackMerchantDto updateMerchantCashback(@PathVariable UUID id,
                                                       @RequestBody @Valid UpdateCashbackMerchantDto dto) {
         CashbackMerchant cashbackMerchant = mapper.toCashbackMerchantEntity(dto);
@@ -118,7 +118,7 @@ public class CashbackTariffController {
         return mapper.toCashbackMerchantDto(result);
     }
 
-    @DeleteMapping("/{id}/merchant")
+    @DeleteMapping("/merchant/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMerchantCashback(@PathVariable UUID id) {
         cashbackTariffService.removeMerchantCashback(id);

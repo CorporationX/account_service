@@ -14,6 +14,7 @@ import faang.school.accountservice.repository.CashbackOperationTypeRepository;
 import faang.school.accountservice.repository.CashbackTariffRepository;
 import faang.school.accountservice.repository.MerchantRepository;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
+import faang.school.accountservice.service.account.AccountService;
 import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor
 public class CashbackTariffService {
+    private final AccountService accountService;
     private final AuthPaymentRepository authPaymentRepository;
     private final BalanceService balanceService;
     private final CashbackTariffRepository cashbackTariffRepository;
@@ -144,7 +146,8 @@ public class CashbackTariffService {
         cashbackTariffRepository.deleteById(id);
     }
 
-    public void calculateCashback(Account account, LocalDateTime startOfLastMonth, LocalDateTime endOfLastMonth) {
+    public void calculateCashback(UUID accountId, LocalDateTime startOfLastMonth, LocalDateTime endOfLastMonth) {
+        Account account = accountService.getAccountById(accountId);
         Balance balance = account.getBalance();
         CashbackTariff cashbackTariff;
         UUID tariffId = account.getCashbackTariff().getId();

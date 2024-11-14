@@ -9,9 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -20,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,17 +57,14 @@ public class CashbackSchedulerTest {
         YearMonth lastMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);
-        Pageable pageable = PageRequest.of(0, BATCH_SIZE, Sort.by("id").ascending());
 
-        when(accountRepository.findActiveAccountsWithCashbackTariff(pageable)).thenReturn(accounts);
-        when(accountRepository.findActiveAccountsWithCashbackTariff(
-                PageRequest.of(1, BATCH_SIZE, Sort.by("id").ascending())))
-                .thenReturn(new ArrayList<>());
+        List<UUID> accountIds = accounts.stream().map((Account::getId)).toList();
+
+        when(accountRepository.findActiveAccountsWithCashbackTariffIds()).thenReturn(accountIds);
 
         cashbackScheduler.calculateCashback();
 
-        verify(accountRepository, times(2)).findActiveAccountsWithCashbackTariff(any());
-        verify(cashbackTariffService).calculateCashback(accounts.get(0), startOfLastMonth, endOfLastMonth);
-        verify(cashbackTariffService).calculateCashback(accounts.get(1), startOfLastMonth, endOfLastMonth);
+        verify(cashbackTariffService).calculateCashback(accounts.get(0).getId(), startOfLastMonth, endOfLastMonth);
+        verify(cashbackTariffService).calculateCashback(accounts.get(1).getId(), startOfLastMonth, endOfLastMonth);
     }
 }
