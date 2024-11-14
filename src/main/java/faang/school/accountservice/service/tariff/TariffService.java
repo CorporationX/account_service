@@ -10,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static faang.school.accountservice.entity.tariff.TariffRateBuilder.build;
-
 @RequiredArgsConstructor
 @Service
 public class TariffService {
@@ -41,5 +39,12 @@ public class TariffService {
     @Transactional(readOnly = true)
     public List<Tariff> findAll() {
         return tariffRepository.findAll();
+    }
+
+    private TariffRate build(Tariff tariff, Double rate) {
+        return TariffRate.builder()
+                .tariff(tariff)
+                .rate(rate)
+                .build();
     }
 }

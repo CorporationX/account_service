@@ -9,14 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static faang.school.accountservice.util.fabrics.SavingsAccountFabric.buildSavingsAccount;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,8 +26,8 @@ public class SavingsAccountAccrualServiceTest {
 
     @BeforeEach
     void setUpEach() {
-        ExecutorService calculateAccrualsThreadPool = Executors.newSingleThreadExecutor();
-        ReflectionTestUtils.setField(savingsAccountAccrualService, "calculateAccrualsThreadPool", calculateAccrualsThreadPool);
+        ExecutorService calculateAccrualsExecutorService = Executors.newSingleThreadExecutor();
+        ReflectionTestUtils.setField(savingsAccountAccrualService, "calculateAccrualsExecutorService", calculateAccrualsExecutorService);
     }
 
     @Test
