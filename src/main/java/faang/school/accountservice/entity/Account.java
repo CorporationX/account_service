@@ -1,6 +1,7 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.entity.cacheback.CashbackTariff;
 import faang.school.accountservice.enums.payment.Currency;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
@@ -11,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -19,9 +21,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+//    @NotFound(action = NotFoundAction.IGNORE)
+
 
 @Data
 @AllArgsConstructor
@@ -58,6 +65,10 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 16, nullable = false)
     private AccountStatus status;
+
+    @OneToOne
+    @JoinColumn(name = "cashback_tariff_id", nullable = false)
+    private CashbackTariff cashbackTariff;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
