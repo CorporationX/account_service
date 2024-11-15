@@ -60,4 +60,8 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             nativeQuery = true)
     List<Object[]> getSavingsAccountsWithLastTariffRate(@Param("numbers") List<String> numbers);
 
+    @Query(value = "SELECT sa.* FROM savings_account sa " +
+            "JOIN account a ON sa.account_number = a.number " +
+            "WHERE a.user_id = :userId", nativeQuery = true)
+    List<SavingsAccount> findSavingsAccountsByUserId(@Param("userId") Long userId);
 }

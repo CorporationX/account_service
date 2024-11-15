@@ -16,3 +16,13 @@ free-account-numbers:
       targetAmount: 0
     PREPAID:
       targetAmount: 0
+
+rate-change-rules:
+  events:
+    WRITER:
+      targetRateChange: 42
+      partialText: 'for getting WRITER achievement'
+
+spring:
+  liquibase:
+    enabled: false

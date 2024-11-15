@@ -31,4 +31,6 @@ public class SavingsAccountRate {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "rate_bonus_added")
+    private BigDecimal rateBonusAdded;
 }
