@@ -1,13 +1,13 @@
 package faang.school.accountservice.config;
 
 import faang.school.accountservice.config.ratechange.RateChangeRulesConfig;
-import jakarta.activation.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.math.BigDecimal;
 
@@ -21,8 +21,11 @@ public class RateChangeRulesConfigTest {
     @Autowired
     private RateChangeRulesConfig rateChangeRulesConfig;
 
-    @MockBean
-    private DataSource dataSource;
+    @DynamicPropertySource
+    static void overrideSourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.redis.host", () -> "localhost");
+        registry.add("spring.redis.port", () -> "0");
+    }
 
     @Test
     @DisplayName("Should load 'writer' rate correctly from configuration")
