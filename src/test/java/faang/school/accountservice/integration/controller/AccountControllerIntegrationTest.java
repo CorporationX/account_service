@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -41,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("testLiquibaseRedis")
 @SpringBootTest
-@Transactional
 public class AccountControllerIntegrationTest extends RedisPostgresTestContainers {
     private static final long USER_ID = 1L;
     private static final long PROJECT_ID = 1L;
