@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -75,16 +76,16 @@ class RateDecreaseEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(rateChangeRulesConfig.getTargetRateChange(event.getTitle())).thenReturn(0.2);
+        when(rateChangeRulesConfig.getTargetRateChange(event.getTitle())).thenReturn(BigDecimal.valueOf(0.2));
         when(rateChangeRulesConfig.getPartialText(event.getTitle())).thenReturn("Sample text");
 
-        when(rateAdjustmentService.adjustRate(1L, 0.2)).thenReturn(true);
-        when(rateAdjustmentService.adjustRate(2L, 0.2)).thenReturn(true);
+        when(rateAdjustmentService.adjustRate(1L, BigDecimal.valueOf(0.2))).thenReturn(true);
+        when(rateAdjustmentService.adjustRate(2L, BigDecimal.valueOf(0.2))).thenReturn(true);
 
         rateDecreaseEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService).adjustRate(1L, 0.2);
-        verify(rateAdjustmentService).adjustRate(2L, 0.2);
+        verify(rateAdjustmentService).adjustRate(1L, BigDecimal.valueOf(0.2));
+        verify(rateAdjustmentService).adjustRate(2L, BigDecimal.valueOf(0.2));
 
         ArgumentCaptor<RateChangeEvent> captor = ArgumentCaptor.forClass(RateChangeEvent.class);
         verify(rateChangeEventPublisher, times(2)).publish(captor.capture());
@@ -92,11 +93,11 @@ class RateDecreaseEventListenerTest {
         List<RateChangeEvent> publishedEvents = captor.getAllValues();
 
         assertEquals(1L, publishedEvents.get(0).getUserId());
-        assertEquals(0.2, publishedEvents.get(0).getRateChangeValue(), 0.01);
+        assertEquals(BigDecimal.valueOf(0.2), publishedEvents.get(0).getRateChangeValue());
         assertEquals("Sample text", publishedEvents.get(0).getRateChangeReason());
 
         assertEquals(2L, publishedEvents.get(1).getUserId());
-        assertEquals(0.2, publishedEvents.get(1).getRateChangeValue(), 0.01);
+        assertEquals(BigDecimal.valueOf(0.2), publishedEvents.get(1).getRateChangeValue());
         assertEquals("Sample text", publishedEvents.get(1).getRateChangeReason());
     }
 
@@ -106,11 +107,11 @@ class RateDecreaseEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(rateChangeRulesConfig.getTargetRateChange(event.getTitle())).thenReturn(0.0);
+        when(rateChangeRulesConfig.getTargetRateChange(event.getTitle())).thenReturn(BigDecimal.valueOf(0.0));
 
         rateDecreaseEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
+        verify(rateAdjustmentService, never()).adjustRate(anyLong(), BigDecimal.valueOf(anyDouble()));
         verify(rateChangeEventPublisher, never()).publish(any(RateChangeEvent.class));
     }
 
@@ -122,7 +123,7 @@ class RateDecreaseEventListenerTest {
         try {
             rateDecreaseEventListener.onMessage(message, null);
         } catch (EventProcessingException e) {
-            verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
+            verify(rateAdjustmentService, never()).adjustRate(anyLong(), BigDecimal.valueOf(anyDouble()));
             verify(rateChangeEventPublisher, never()).publish(any(RateChangeEvent.class));
         }
     }

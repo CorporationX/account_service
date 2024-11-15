@@ -2,11 +2,7 @@ package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.mapper.SavingsAccountMapperImpl;
 import faang.school.accountservice.model.dto.SavingsAccountDto;
-import faang.school.accountservice.model.entity.Account;
-import faang.school.accountservice.model.entity.Balance;
-import faang.school.accountservice.model.entity.SavingsAccount;
-import faang.school.accountservice.model.entity.Tariff;
-import faang.school.accountservice.model.entity.TariffHistory;
+import faang.school.accountservice.model.entity.*;
 import faang.school.accountservice.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -15,10 +11,12 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -39,9 +37,6 @@ class SavingsAccountServiceImplTest {
 
     @Mock
     private TariffHistoryRepository tariffHistoryRepository;
-
-    @Mock
-    private SavingsAccountRateRepository savingsAccountRateRepository;
 
     @Mock
     private BalanceRepository balanceRepository;
@@ -92,7 +87,7 @@ class SavingsAccountServiceImplTest {
     @Test
     public void testGetSavingsAccount() {
         Long savingsAccountId = 1L;
-        when(savingsAccountRepository.findSavingsAccountWithDetails(savingsAccountId)).thenReturn(new SavingsAccountDto());
+        when(savingsAccountRepository.findSavingsAccountWithDetails(savingsAccountId)).thenReturn(Optional.of(new SavingsAccountDto()));
 
         savingsAccountService.getSavingsAccount(savingsAccountId);
 
@@ -105,30 +100,27 @@ class SavingsAccountServiceImplTest {
     }
 
     @Test
-    public void testGetSavingsAccountByUserId() {
+    public void testGetSavingsAccountByUserId_Success() {
         Long userId = 1L;
-        Long savingsAccount1Id = 1L;
-        Long savingsAccount2Id = 2L;
+        BigDecimal rate = BigDecimal.valueOf(5.5);
         List<String> numbers = List.of("429346812734628", "38642897364528736");
-        SavingsAccount savingsAccount1 = SavingsAccount.builder().id(savingsAccount1Id).build();
-        SavingsAccount savingsAccount2 = SavingsAccount.builder().id(savingsAccount2Id).build();
-        List<SavingsAccount> savingsAccounts = List.of(savingsAccount1, savingsAccount2);
-
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        List<Object[]> savingsAccounts = new ArrayList<>();
+        savingsAccounts.add(new Object[]{userId, 1L, rate, timestamp, timestamp, timestamp});
+        savingsAccounts.add(new Object[]{userId, 2L, rate, timestamp, timestamp, timestamp});
         when(accountRepository.findNumbersByUserId(userId)).thenReturn(numbers);
-        when(savingsAccountRepository.findSaByAccountNumbers(numbers)).thenReturn(savingsAccounts);
-        when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(savingsAccount1Id));
-        when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(2L)).thenReturn(Optional.of(savingsAccount2Id));
-        when(savingsAccountRateRepository.findLatestRateIdByTariffId(anyLong())).thenReturn(Optional.of(5.0));
+        when(savingsAccountRepository.getSavingsAccountsWithLastTariffRate(numbers)).thenReturn(savingsAccounts);
 
-        List<SavingsAccountDto> result = savingsAccountService.getSavingsAccountByUserId(userId);
+        List<SavingsAccountDto> results = savingsAccountService.getSavingsAccountByUserId(userId);
 
-        assertThat(result).isNotEmpty();
-        assertThat(result).hasSize(2);
-        verify(accountRepository).findNumbersByUserId(userId);
-        verify(savingsAccountRepository).findSaByAccountNumbers(numbers);
-        verify(savingsAccountMapper).toDtos(savingsAccounts);
-        verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccount1Id);
-        verify(tariffHistoryRepository, times(1)).findLatestTariffIdBySavingsAccountId(savingsAccount2Id);
+        verify(accountRepository, times(1)).findNumbersByUserId(userId);
+        verify(savingsAccountRepository, times(1)).getSavingsAccountsWithLastTariffRate(numbers);
+        assertAll(
+                () -> assertNotNull(results),
+                () -> assertEquals(2, results.size()),
+                () -> assertEquals(userId, results.get(0).getId()),
+                () -> assertEquals(userId, results.get(1).getId())
+        );
     }
 
     @Test

@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,20 +84,20 @@ class AchievementEventListenerTest {
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
         when(achievementServiceClient.getAchievement(event.getAchievementId())).thenReturn(achievementDto);
-        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(0.1);
+        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(BigDecimal.valueOf(0.1));
         when(rateChangeRulesConfig.getPartialText(achievementDto.getTitle())).thenReturn("Sample text");
-        when(rateAdjustmentService.adjustRate(event.getUserId(), 0.1)).thenReturn(true);
+        when(rateAdjustmentService.adjustRate(event.getUserId(), new BigDecimal("0.1"))).thenReturn(true);
 
         ArgumentCaptor<RateChangeEvent> captor = ArgumentCaptor.forClass(RateChangeEvent.class);
 
         achievementEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService).adjustRate(event.getUserId(), 0.1);
+        verify(rateAdjustmentService).adjustRate(event.getUserId(),new BigDecimal("0.1"));
         verify(rateChangeEventPublisher).publish(captor.capture());
 
         RateChangeEvent capturedEvent = captor.getValue();
         assertEquals(event.getUserId(), capturedEvent.getUserId());
-        assertEquals(0.1, capturedEvent.getRateChangeValue(), 0.01);
+        assertEquals(BigDecimal.valueOf(0.1), capturedEvent.getRateChangeValue());
         assertEquals("Sample text", capturedEvent.getRateChangeReason() );
     }
 
@@ -107,12 +108,12 @@ class AchievementEventListenerTest {
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
         when(achievementServiceClient.getAchievement(event.getAchievementId())).thenReturn(achievementDto);
-        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(0.1);
-        when(rateAdjustmentService.adjustRate(event.getUserId(), 0.1)).thenReturn(false);
+        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(BigDecimal.valueOf(0.1));
+        when(rateAdjustmentService.adjustRate(event.getUserId(),new BigDecimal("0.1"))).thenReturn(false);
 
         achievementEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService).adjustRate(event.getUserId(), 0.1);
+        verify(rateAdjustmentService).adjustRate(event.getUserId(), new BigDecimal("0.1"));
         verify(rateChangeEventPublisher, never()).publish(any());
     }
 
@@ -123,11 +124,11 @@ class AchievementEventListenerTest {
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
         when(achievementServiceClient.getAchievement(event.getAchievementId())).thenReturn(achievementDto);
-        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(0.0);
+        when(rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle())).thenReturn(BigDecimal.valueOf(0.0));
 
         achievementEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
+        verify(rateAdjustmentService, never()).adjustRate(anyLong(), BigDecimal.valueOf(anyDouble()));
         verify(rateChangeEventPublisher, never()).publish(any());
     }
 
@@ -140,7 +141,7 @@ class AchievementEventListenerTest {
             achievementEventListener.onMessage(message, null);
         });
 
-        verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
+        verify(rateAdjustmentService, never()).adjustRate(anyLong(), BigDecimal.valueOf(anyDouble()));
         verify(rateChangeEventPublisher, never()).publish(any());
     }
 }

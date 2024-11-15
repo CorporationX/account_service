@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,11 +34,11 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
     private final AccountRepository accountRepository;
 
     @Value("${rate-change-rules.max-rate}")
-    private double maxRate;
+    private BigDecimal maxRate;
 
     @Override
     @Transactional
-    public boolean adjustRate(long userId, double rateChange) {
+    public boolean adjustRate(long userId, BigDecimal rateChange) {
         log.info("Starting rate adjustment for user ID {} with rate change: {}", userId, rateChange);
 
         List<String> accountNumbers = accountRepository.findNumbersByUserId(userId);
@@ -55,13 +56,13 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
             validateLastBonusUpdate(savingsAccount);
 
             Tariff tariff = getLatestTariffForSavingsAccount(savingsAccount);
-            log.debug("Latest tariff found for savings account {}: {}", savingsAccount.getAccountNumber(), tariff);
+            log.debug("Latest tariff found for savings account {}: {}", savingsAccount.getAccount(), tariff);
 
-            double currentRate = getCurrentRateForTariff(tariff);
+            BigDecimal currentRate = getCurrentRateForTariff(tariff);
             log.debug("Current rate for tariff ID {}: {}", tariff.getId(), currentRate);
 
-            double newRate = calculateAdjustedRate(currentRate, rateChange);
-            log.info("Calculated new rate for account {}: {}", savingsAccount.getAccountNumber(), newRate);
+            BigDecimal newRate = calculateAdjustedRate(currentRate, rateChange);
+            log.info("Calculated new rate for account {}: {}", savingsAccount.getAccount(), newRate);
 
             updateSavingsAccountLastBonus(savingsAccount);
             newRateEntries.add(createNewRateEntry(tariff, newRate, rateChange));
@@ -83,27 +84,29 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
     private Tariff getLatestTariffForSavingsAccount(SavingsAccount savingsAccount) {
         Long latestTariffId = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(savingsAccount.getId())
                 .orElseThrow(() -> new IllegalStateException("No tariff history found for savings account: "
-                        + savingsAccount.getAccountNumber()));
+                        + savingsAccount.getAccount()));
 
         return tariffRepository.findById(latestTariffId)
                 .orElseThrow(() -> new EntityNotFoundException("Tariff not found for ID: " + latestTariffId));
     }
 
-    private Double getCurrentRateForTariff(Tariff tariff) {
+    private BigDecimal getCurrentRateForTariff(Tariff tariff) {
         return savingsAccountRateRepository.findLatestRateIdByTariffId(tariff.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No rate found for tariff ID: " + tariff.getId()));
     }
 
-    private double calculateAdjustedRate(double currentRate, double rateChange) {
-        double newRate = currentRate + rateChange;
-        return Math.min(maxRate, Math.max(newRate, 0));
+    private BigDecimal calculateAdjustedRate(BigDecimal currentRate, BigDecimal rateChange) {
+        BigDecimal newRate = currentRate.add(rateChange);
+        BigDecimal adjustedRate = newRate.max(BigDecimal.ZERO);
+
+        return adjustedRate.min(maxRate);
     }
 
     private void updateSavingsAccountLastBonus(SavingsAccount savingsAccount) {
         savingsAccount.setLastBonusUpdate(LocalDateTime.now());
     }
 
-    private SavingsAccountRate createNewRateEntry(Tariff tariff, double newRate, double rateChange) {
+    private SavingsAccountRate createNewRateEntry(Tariff tariff, BigDecimal newRate, BigDecimal rateChange) {
         SavingsAccountRate newRateEntry = new SavingsAccountRate();
         newRateEntry.setTariff(tariff);
         newRateEntry.setRate(newRate);

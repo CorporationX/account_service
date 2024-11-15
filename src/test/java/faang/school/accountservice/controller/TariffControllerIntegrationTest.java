@@ -16,6 +16,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.math.BigDecimal;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -59,7 +61,7 @@ public class TariffControllerIntegrationTest {
     @Test
     void testCreateTariff() throws Exception {
         String name = "NewTariff";
-        double rate = 8.1;
+        BigDecimal rate = BigDecimal.valueOf(8.1);
         TariffDto tariffDto = new TariffDto();
         tariffDto.setName(name);
         tariffDto.setRate(rate);

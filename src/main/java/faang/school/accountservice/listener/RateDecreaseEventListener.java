@@ -12,6 +12,8 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 @Slf4j
 public class RateDecreaseEventListener extends AbstractEventListener<RateDecreaseEvent> implements MessageListener {
@@ -34,9 +36,9 @@ public class RateDecreaseEventListener extends AbstractEventListener<RateDecreas
     @Override
     public void onMessage(Message message, byte[] pattern) {
         handleEvent(message, RateDecreaseEvent.class, event -> {
-            Double rateChange = rateChangeRulesConfig.getTargetRateChange(event.getTitle());
+            BigDecimal rateChange = rateChangeRulesConfig.getTargetRateChange(event.getTitle());
             String partialText = rateChangeRulesConfig.getPartialText(event.getTitle());
-            if (rateChange != 0.0) {
+            if (rateChange != BigDecimal.ZERO) {
                 event.getUserIds().forEach(userId -> {
                     boolean success = rateAdjustmentService.adjustRate(userId, rateChange);
                     if (success) {

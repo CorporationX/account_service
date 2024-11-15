@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -20,15 +22,15 @@ public class RateChangeRulesConfigTest {
     @Test
     @DisplayName("Should load 'writer' rate correctly from configuration")
     public void getRateChange_Success() {
-        Double rate = rateChangeRulesConfig.getTargetRateChange("WRITER");
-        assertEquals(42, rate, "The 'writer' rate should be 42");
+        BigDecimal rate = rateChangeRulesConfig.getTargetRateChange("WRITER");
+        assertEquals(BigDecimal.valueOf(42), rate, "The 'writer' rate should be 42");
     }
 
     @Test
     @DisplayName("Should return 0.0 for an unknown title")
     public void getRateChange_UnknownTitle() {
-        Double rate = rateChangeRulesConfig.getTargetRateChange("unknown");
-        assertEquals(0.0, rate, "The rate for an unknown title should be 0.0");
+        BigDecimal rate = rateChangeRulesConfig.getTargetRateChange("unknown");
+        assertEquals(BigDecimal.ZERO, rate, "The rate for an unknown title should be 0.0");
     }
 
     @Test

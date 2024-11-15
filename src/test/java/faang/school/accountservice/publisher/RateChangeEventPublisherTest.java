@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +46,7 @@ class RateChangeEventPublisherTest {
 
     @BeforeEach
     public void setUp() {
-        event = new RateChangeEvent(1L, 0.5, "Promotion Applied");
+        event = new RateChangeEvent(1L, new BigDecimal(0.5), "Promotion Applied");
     }
 
     @Test

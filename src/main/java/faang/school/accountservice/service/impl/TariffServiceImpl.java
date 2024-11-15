@@ -13,14 +13,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TariffServiceImpl implements TariffService {
+    private static final String TARIFF_ID = "Tariff with id ";
+    private static final String NOT_FOUND = " not found";
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
     private final SavingsAccountRateRepository savingsAccountRateRepository;
-    private final String TARIFF_NOT_FOUND = "Tariff with id {} not found";
 
     @Transactional
     @Override
@@ -40,11 +44,9 @@ public class TariffServiceImpl implements TariffService {
 
     @Transactional
     @Override
-    public TariffDto updateTariff(Long id, Double rate) {
-        Tariff tariff = tariffRepository.findById(id).orElseGet(() -> {
-            log.info(TARIFF_NOT_FOUND, id);
-            throw new EntityNotFoundException("Tariff with id " + id + " not found");
-        });
+    public TariffDto updateTariff(Long id, BigDecimal rate) {
+        Tariff tariff = tariffRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(TARIFF_ID + id + NOT_FOUND));
 
         SavingsAccountRate savingsAccountRate = SavingsAccountRate.builder()
                 .rate(rate)
@@ -59,11 +61,7 @@ public class TariffServiceImpl implements TariffService {
 
     @Override
     public TariffDto getTariff(Long id) {
-        TariffDto tariffDto = tariffRepository.findTariffDtoWithDetails(id);
-        if (tariffDto == null) {
-            log.info(TARIFF_NOT_FOUND, id);
-            throw new EntityNotFoundException("Tariff with id " + id + " not found");
-        }
-        return tariffDto;
+        Optional<TariffDto> tariffDto = tariffRepository.findTariffDtoWithDetails(id);
+        return tariffDto.orElseThrow(() -> new EntityNotFoundException(TARIFF_ID + id + NOT_FOUND));
     }
 }

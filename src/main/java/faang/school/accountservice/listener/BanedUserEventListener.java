@@ -11,6 +11,8 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 @Slf4j
 public class BanedUserEventListener extends AbstractEventListener<BanedUserEvent> implements MessageListener {
@@ -32,9 +34,9 @@ public class BanedUserEventListener extends AbstractEventListener<BanedUserEvent
     @Override
     public void onMessage(Message message, byte[] pattern) {
         handleEvent(message, BanedUserEvent.class, event -> {
-            Double rateChange = rateChangeRulesConfig.getTargetRateChange("ban");
+            BigDecimal rateChange = rateChangeRulesConfig.getTargetRateChange("ban");
             String partialText = rateChangeRulesConfig.getPartialText("ban");
-            if (rateChange != 0.0) {
+            if (rateChange != BigDecimal.ZERO) {
                 boolean success = rateAdjustmentService.adjustRate(event.getUserId(), rateChange);
                 if (success) {
                     rateChangeEventPublisher.publish(new RateChangeEvent(event.getUserId(), rateChange, partialText));

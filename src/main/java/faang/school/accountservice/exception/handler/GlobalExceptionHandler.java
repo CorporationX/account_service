@@ -55,6 +55,13 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Entity Not Found Exception", ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("Unsupported data type", ex);
+        return new ErrorResponse("Unsupported data type:", ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,7 @@ class RateAdjustmentServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        ReflectionTestUtils.setField(rateAdjustmentService, "maxRate", 10.0);
+        ReflectionTestUtils.setField(rateAdjustmentService, "maxRate", BigDecimal.valueOf(10.0));
     }
 
     @Test
@@ -64,7 +65,7 @@ class RateAdjustmentServiceImplTest {
     public void testAdjustRate_Success() {
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(1L);
-        savingsAccount.setAccountNumber("12345");
+        //savingsAccount.setAccountNumber("12345");
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
 
         Tariff tariff = new Tariff();
@@ -74,7 +75,7 @@ class RateAdjustmentServiceImplTest {
         tariffHistory.setTariff(tariff);
 
         SavingsAccountRate currentRate = new SavingsAccountRate();
-        currentRate.setRate(5.0);
+        currentRate.setRate(BigDecimal.valueOf(5.0));
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
 
@@ -84,7 +85,7 @@ class RateAdjustmentServiceImplTest {
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(1L));
         when(savingsAccountRateRepository.findLatestRateIdByTariffId(1L)).thenReturn(Optional.of(currentRate.getRate()));
 
-        boolean result = rateAdjustmentService.adjustRate(1L, 1.0);
+        boolean result = rateAdjustmentService.adjustRate(1L, new BigDecimal("1.0"));
 
         assertTrue(result, "Rate adjustment should be successful");
 
@@ -112,8 +113,8 @@ class RateAdjustmentServiceImplTest {
 
         assertAll(
                 () -> assertEquals(tariff, savedRate.getTariff()),
-                () -> assertEquals(6.0, savedRate.getRate()),
-                () -> assertEquals(1.0, savedRate.getRateBonusAdded()),
+                () -> assertEquals(BigDecimal.valueOf(6.0), savedRate.getRate()),
+                () -> assertEquals(BigDecimal.valueOf(1.0), savedRate.getRateBonusAdded()),
                 () -> assertNotNull(savedRate.getCreatedAt()),
                 () -> assertTrue(savedRate.getCreatedAt().isBefore(LocalDateTime.now().plusMinutes(1)))
         );
@@ -142,7 +143,7 @@ class RateAdjustmentServiceImplTest {
         when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
         when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
 
-        assertThrows(IllegalStateException.class, () -> rateAdjustmentService.adjustRate(1L, 1.0),
+        assertThrows(IllegalStateException.class, () -> rateAdjustmentService.adjustRate(1L, new BigDecimal("1.0")),
                 "Rate can only be adjusted once per 24 hours.");
     }
 
@@ -151,7 +152,7 @@ class RateAdjustmentServiceImplTest {
     public void testAdjustRate_NoHistoryFound() {
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(1L);
-        savingsAccount.setAccountNumber("12345");
+        //savingsAccount.setAccountNumber("12345");
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
@@ -161,7 +162,7 @@ class RateAdjustmentServiceImplTest {
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.empty());
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> rateAdjustmentService.adjustRate(1L, 1.0),
+                () -> rateAdjustmentService.adjustRate(1L, BigDecimal.valueOf(1.0)),
                 "No tariff history found for savings account: 12345");
 
         assertEquals("No tariff history found for savings account: 12345", exception.getMessage());
@@ -172,7 +173,6 @@ class RateAdjustmentServiceImplTest {
     public void testAdjustRate_NoRateFound() {
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(1L);
-        savingsAccount.setAccountNumber("12345");
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
 
         Tariff tariff = new Tariff();
@@ -190,7 +190,7 @@ class RateAdjustmentServiceImplTest {
         when(savingsAccountRateRepository.findLatestRateIdByTariffId(1L)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> rateAdjustmentService.adjustRate(1L, 1.0),
+                () -> rateAdjustmentService.adjustRate(1L, new BigDecimal("1.0")),
                 "No rate found for tariff ID: 1");
 
         assertEquals("No rate found for tariff ID: 1", exception.getMessage());

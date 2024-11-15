@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Component
@@ -12,8 +13,8 @@ import java.util.Map;
 public class RateChangeRulesConfig {
     private Map<String, RateChangeProperties> events;
 
-    public Double getTargetRateChange(String title) {
-        return events.containsKey(title) ? events.get(title).getTargetRateChange() : 0.0;
+    public BigDecimal getTargetRateChange(String title) {
+        return events.containsKey(title) ? events.get(title).getTargetRateChange() : BigDecimal.ZERO;
     }
 
     public String getPartialText(String title) {
@@ -22,7 +23,7 @@ public class RateChangeRulesConfig {
 
     @Data
     public static class RateChangeProperties {
-        private double targetRateChange;
+        private BigDecimal targetRateChange;
         private String partialText;
     }
 }

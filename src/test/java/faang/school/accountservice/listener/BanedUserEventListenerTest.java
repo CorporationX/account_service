@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,20 +72,20 @@ class BanedUserEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(0.1);
+        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(BigDecimal.valueOf(0.1));
         when(rateChangeRulesConfig.getPartialText("ban")).thenReturn("User banned");
-        when(rateAdjustmentService.adjustRate(event.getUserId(), 0.1)).thenReturn(true);
+        when(rateAdjustmentService.adjustRate(event.getUserId(), BigDecimal.valueOf(0.1))).thenReturn(true);
 
         ArgumentCaptor<RateChangeEvent> captor = ArgumentCaptor.forClass(RateChangeEvent.class);
 
         banedUserEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService).adjustRate(event.getUserId(), 0.1);
+        verify(rateAdjustmentService).adjustRate(event.getUserId(), BigDecimal.valueOf(0.1));
         verify(rateChangeEventPublisher).publish(captor.capture());
 
         RateChangeEvent capturedEvent = captor.getValue();
         assertEquals(event.getUserId(), capturedEvent.getUserId());
-        assertEquals(0.1, capturedEvent.getRateChangeValue(), 0.01);
+        assertEquals(BigDecimal.valueOf(0.1), capturedEvent.getRateChangeValue());
         assertEquals("User banned", capturedEvent.getRateChangeReason());
     }
 
@@ -94,12 +95,12 @@ class BanedUserEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(0.1);
-        when(rateAdjustmentService.adjustRate(event.getUserId(), 0.1)).thenReturn(false);
+        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(BigDecimal.valueOf(0.1));
+        when(rateAdjustmentService.adjustRate(event.getUserId(), BigDecimal.valueOf(0.1))).thenReturn(false);
 
         banedUserEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService).adjustRate(event.getUserId(), 0.1);
+        verify(rateAdjustmentService).adjustRate(event.getUserId(), BigDecimal.valueOf(0.1));
         verify(rateChangeEventPublisher, never()).publish(any());
     }
 
@@ -109,11 +110,11 @@ class BanedUserEventListenerTest {
         String eventJson = objectMapper.writeValueAsString(event);
 
         when(message.getBody()).thenReturn(eventJson.getBytes(StandardCharsets.UTF_8));
-        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(0.0);
+        when(rateChangeRulesConfig.getTargetRateChange("ban")).thenReturn(BigDecimal.valueOf(0.0));
 
         banedUserEventListener.onMessage(message, null);
 
-        verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
+        verify(rateAdjustmentService, never()).adjustRate(anyLong(), BigDecimal.valueOf(anyDouble()));
         verify(rateChangeEventPublisher, never()).publish(any());
     }
 
@@ -126,7 +127,7 @@ class BanedUserEventListenerTest {
             banedUserEventListener.onMessage(message, null);
         });
 
-        verify(rateAdjustmentService, never()).adjustRate(anyLong(), anyDouble());
+        verify(rateAdjustmentService, never()).adjustRate(anyLong(), BigDecimal.valueOf(anyDouble()));
         verify(rateChangeEventPublisher, never()).publish(any());
     }
 }

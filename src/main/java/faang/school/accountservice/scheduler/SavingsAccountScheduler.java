@@ -3,8 +3,8 @@ package faang.school.accountservice.scheduler;
 import faang.school.accountservice.model.dto.BalanceRateDto;
 import faang.school.accountservice.model.enums.AccountType;
 import faang.school.accountservice.repository.SavingsAccountRepository;
-import faang.school.accountservice.service.impl.FreeAccountNumbersServiceImpl;
-import faang.school.accountservice.service.impl.SavingsAccountServiceImpl;
+import faang.school.accountservice.service.FreeAccountNumbersService;
+import faang.school.accountservice.service.SavingsAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class SavingsAccountScheduler {
-    private final FreeAccountNumbersServiceImpl freeAccountNumbersServiceImpl;
-    private final SavingsAccountServiceImpl savingsAccountService;
+    private final FreeAccountNumbersService freeAccountNumbersServiceImpl;
+    private final SavingsAccountService savingsAccountService;
     private final SavingsAccountRepository savingsAccountRepository;
 
     @Scheduled(cron = "0 0 1 * * *")

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,15 +22,15 @@ public class SavingsAccountRate {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name = "tariff_id")
+    @JoinColumn(name = "tariff_id", nullable = false)
     private Tariff tariff;
 
     @Column(name = "rate")
-    private double rate;
+    private BigDecimal rate;
 
-    @Column(name = "created_at", insertable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "rate_bonus_added")
-    private double rateBonusAdded;
+    private BigDecimal rateBonusAdded;
 }

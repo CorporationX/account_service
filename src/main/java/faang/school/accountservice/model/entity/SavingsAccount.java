@@ -24,11 +24,9 @@ public class SavingsAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", unique = true, nullable = false)
-    private String accountNumber;
 
     @OneToOne
-    @JoinColumn(name = "account_number", referencedColumnName = "number", insertable = false, updatable = false)
+    @JoinColumn(name = "account_number", referencedColumnName = "number", nullable = false)
     @JsonIgnore
     private Account account;
 

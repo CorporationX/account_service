@@ -13,3 +13,8 @@ databaseChangeLog:
       file: db/changelog/changeset/V004_BJS2-27337_saving-account-create.sql
   - include:
       file: db/changelog/changeset/V005_BJS2-27342_add_rate_bonus.xml
+
+  - include:
+      file: db/changelog/changeset/V005_BJS2-27340_balance_audit.sql
+  - include:
+      file: db/changelog/changeset/V006__modify_balance_audit_table.sql

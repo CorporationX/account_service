@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS tariff (
 
 CREATE TABLE IF NOT EXISTS savings_account_rate (
     id          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    tariff_id   bigint,
-    rate        decimal NOT NULL,
+    tariff_id   bigint NOT NULL,
+    rate        numeric NOT NULL,
     created_at  timestamptz DEFAULT current_timestamp,
 
     CONSTRAINT  fk_tariff_id FOREIGN KEY (tariff_id) REFERENCES tariff (id)
@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS savings_account_rate (
 
 CREATE TABLE IF NOT EXISTS savings_account (
     id                          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    account_number              varchar(64) UNIQUE NOT NULL,
+    account_number              varchar(64) UNIQUE,
+--     account_number              varchar(64) UNIQUE NOT NULL,
     last_date_percent           timestamptz,
     version                     bigint DEFAULT 1,
     created_at                  timestamptz DEFAULT current_timestamp,
@@ -22,6 +23,19 @@ CREATE TABLE IF NOT EXISTS savings_account (
 
     CONSTRAINT fk_account_number FOREIGN KEY (account_number) REFERENCES account (number)
 );
+
+CREATE OR REPLACE FUNCTION update_timestamp()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = current_timestamp;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_updated_at
+    BEFORE UPDATE ON savings_account
+    FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
 
 CREATE TABLE IF NOT EXISTS tariff_history (
     id                          bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,

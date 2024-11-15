@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/tariff")
@@ -26,7 +28,7 @@ public class TariffController {
     @Operation(summary = "Update tariff by id", description = "Update tariff by id in DB")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{id}")
-    public TariffDto updateTariffById(@Positive @PathVariable Long id, @RequestParam Double rate) {
+    public TariffDto updateTariffById(@Positive @PathVariable Long id, @RequestParam BigDecimal rate) {
         return tariffService.updateTariff(id, rate);
     }
 

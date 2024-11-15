@@ -13,6 +13,8 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 @Slf4j
 public class AchievementEventListener extends AbstractEventListener<AchievementEvent> implements MessageListener {
@@ -38,9 +40,9 @@ public class AchievementEventListener extends AbstractEventListener<AchievementE
     public void onMessage(Message message, byte[] pattern) {
         handleEvent(message, AchievementEvent.class, event -> {
             AchievementDto achievementDto = achievementServiceClient.getAchievement(event.getAchievementId());
-            Double rateChange = rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle());
+            BigDecimal rateChange = rateChangeRulesConfig.getTargetRateChange(achievementDto.getTitle());
             String partialText = rateChangeRulesConfig.getPartialText(achievementDto.getTitle());
-            if (rateChange != 0.0) {
+            if (rateChange != BigDecimal.ZERO) {
                 boolean success = rateAdjustmentService.adjustRate(event.getUserId(), rateChange);
                 if (success) {
                    rateChangeEventPublisher.publish(new RateChangeEvent(event.getUserId(), rateChange, partialText));
