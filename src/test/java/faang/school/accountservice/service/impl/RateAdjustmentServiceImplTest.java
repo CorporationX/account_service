@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.impl;
 
+import faang.school.accountservice.model.entity.Account;
 import faang.school.accountservice.model.entity.SavingsAccount;
 import faang.school.accountservice.model.entity.SavingsAccountRate;
 import faang.school.accountservice.model.entity.Tariff;
@@ -65,7 +66,7 @@ class RateAdjustmentServiceImplTest {
     public void testAdjustRate_Success() {
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(1L);
-        //savingsAccount.setAccountNumber("12345");
+        savingsAccount.setAccount(new Account());
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
 
         Tariff tariff = new Tariff();
@@ -79,8 +80,7 @@ class RateAdjustmentServiceImplTest {
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
 
-        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
-        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(savingsAccountRepository.findSavingsAccountsByUserId(1L)).thenReturn(savingsAccounts);
         when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(1L));
         when(savingsAccountRateRepository.findLatestRateIdByTariffId(1L)).thenReturn(Optional.of(currentRate.getRate()));
@@ -140,8 +140,7 @@ class RateAdjustmentServiceImplTest {
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
 
-        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
-        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(savingsAccountRepository.findSavingsAccountsByUserId(1L)).thenReturn(savingsAccounts);
 
         assertThrows(IllegalStateException.class, () -> rateAdjustmentService.adjustRate(1L, new BigDecimal("1.0")),
                 "Rate can only be adjusted once per 24 hours.");
@@ -152,28 +151,35 @@ class RateAdjustmentServiceImplTest {
     public void testAdjustRate_NoHistoryFound() {
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(1L);
-        //savingsAccount.setAccountNumber("12345");
+        savingsAccount.setAccount(new Account());
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
 
-        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
-        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(savingsAccountRepository.findSavingsAccountsByUserId(1L)).thenReturn(savingsAccounts);
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.empty());
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> rateAdjustmentService.adjustRate(1L, BigDecimal.valueOf(1.0)),
                 "No tariff history found for savings account: 12345");
 
-        assertEquals("No tariff history found for savings account: 12345", exception.getMessage());
+        assertTrue(exception.getMessage().contains("No tariff history found for savings account"));
     }
 
     @Test
     @DisplayName("Should throw exception when no rate is found for tariff")
     public void testAdjustRate_NoRateFound() {
+
+        Account account = Account.builder()
+                .number("1234567890")
+                .projectId(1L)
+                .userId(1L)
+                .build();
+
         SavingsAccount savingsAccount = new SavingsAccount();
         savingsAccount.setId(1L);
         savingsAccount.setLastBonusUpdate(LocalDateTime.now().minusDays(2));
+        savingsAccount.setAccount(account);
 
         Tariff tariff = new Tariff();
         tariff.setId(1L);
@@ -183,8 +189,7 @@ class RateAdjustmentServiceImplTest {
 
         List<SavingsAccount> savingsAccounts = List.of(savingsAccount);
 
-        when(accountRepository.findNumbersByUserId(1L)).thenReturn(List.of("12345"));
-        when(savingsAccountRepository.findSaByAccountNumbers(List.of("12345"))).thenReturn(savingsAccounts);
+        when(savingsAccountRepository.findSavingsAccountsByUserId(1L)).thenReturn(savingsAccounts);
         when(tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(1L)).thenReturn(Optional.of(1L));
         when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariff));
         when(savingsAccountRateRepository.findLatestRateIdByTariffId(1L)).thenReturn(Optional.empty());

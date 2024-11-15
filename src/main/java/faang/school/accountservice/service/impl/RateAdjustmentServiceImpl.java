@@ -41,8 +41,7 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
     public boolean adjustRate(long userId, BigDecimal rateChange) {
         log.info("Starting rate adjustment for user ID {} with rate change: {}", userId, rateChange);
 
-        List<String> accountNumbers = accountRepository.findNumbersByUserId(userId);
-        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSaByAccountNumbers(accountNumbers);
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findSavingsAccountsByUserId(userId);
 
         if (savingsAccounts.isEmpty()) {
             log.info("No SavingsAccount found for user ID {}. Rate adjustment aborted.", userId);
@@ -56,13 +55,13 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
             validateLastBonusUpdate(savingsAccount);
 
             Tariff tariff = getLatestTariffForSavingsAccount(savingsAccount);
-            log.debug("Latest tariff found for savings account {}: {}", savingsAccount.getAccount(), tariff);
+            log.debug("Latest tariff found for savings account {}: {}", savingsAccount.getAccount().getNumber(), tariff);
 
             BigDecimal currentRate = getCurrentRateForTariff(tariff);
             log.debug("Current rate for tariff ID {}: {}", tariff.getId(), currentRate);
 
             BigDecimal newRate = calculateAdjustedRate(currentRate, rateChange);
-            log.info("Calculated new rate for account {}: {}", savingsAccount.getAccount(), newRate);
+            log.info("Calculated new rate for account {}: {}", savingsAccount.getAccount().getNumber(), newRate);
 
             updateSavingsAccountLastBonus(savingsAccount);
             newRateEntries.add(createNewRateEntry(tariff, newRate, rateChange));
@@ -84,7 +83,7 @@ public class RateAdjustmentServiceImpl implements RateAdjustmentService {
     private Tariff getLatestTariffForSavingsAccount(SavingsAccount savingsAccount) {
         Long latestTariffId = tariffHistoryRepository.findLatestTariffIdBySavingsAccountId(savingsAccount.getId())
                 .orElseThrow(() -> new IllegalStateException("No tariff history found for savings account: "
-                        + savingsAccount.getAccount()));
+                        + savingsAccount.getAccount().getNumber()));
 
         return tariffRepository.findById(latestTariffId)
                 .orElseThrow(() -> new EntityNotFoundException("Tariff not found for ID: " + latestTariffId));

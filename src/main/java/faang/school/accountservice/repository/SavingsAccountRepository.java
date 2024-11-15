@@ -13,9 +13,6 @@ import java.util.Optional;
 @Repository
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
 
-    @Query(value = "SELECT * FROM savings_account sa WHERE sa.account_number IN :accountNumbers", nativeQuery = true)
-    List<SavingsAccount> findSaByAccountNumbers(@Param("accountNumbers") List<String> accountNumbers);
-
     @Query(value = "SELECT new faang.school.accountservice.model.dto.SavingsAccountDto(sa.id, sa.account.id, " +
             "sar.tariff.id, sar.rate, sa.lastDatePercent, sa.createdAt, sa.updatedAt) " +
             "FROM SavingsAccount sa " +
@@ -63,4 +60,8 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             nativeQuery = true)
     List<Object[]> getSavingsAccountsWithLastTariffRate(@Param("numbers") List<String> numbers);
 
+    @Query(value = "SELECT sa.* FROM savings_account sa " +
+            "JOIN account a ON sa.account_number = a.number " +
+            "WHERE a.user_id = :userId", nativeQuery = true)
+    List<SavingsAccount> findSavingsAccountsByUserId(@Param("userId") Long userId);
 }
