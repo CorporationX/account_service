@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +64,8 @@ public class CashbackSchedulerTest {
         when(accountRepository.findActiveAccountsWithCashbackTariffIds()).thenReturn(accountIds);
 
         cashbackScheduler.calculateCashback();
+
+        timeout(500);
 
         verify(cashbackTariffService).calculateCashback(accounts.get(0).getId(), startOfLastMonth, endOfLastMonth);
         verify(cashbackTariffService).calculateCashback(accounts.get(1).getId(), startOfLastMonth, endOfLastMonth);
