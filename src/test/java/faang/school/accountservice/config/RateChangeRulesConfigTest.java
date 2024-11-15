@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 
@@ -15,17 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
+@TestPropertySource(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration")
 @ActiveProfiles("test")
 public class RateChangeRulesConfigTest {
 
     @Autowired
     private RateChangeRulesConfig rateChangeRulesConfig;
-
-    @DynamicPropertySource
-    static void overrideSourceProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.redis.host", () -> "localhost");
-        registry.add("spring.redis.port", () -> "0");
-    }
 
     @Test
     @DisplayName("Should load 'writer' rate correctly from configuration")
