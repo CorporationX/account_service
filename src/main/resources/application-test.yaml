@@ -22,3 +22,7 @@ rate-change-rules:
     WRITER:
       targetRateChange: 42
       partialText: 'for getting WRITER achievement'
+
+spring:
+  liquibase:
+    enabled: false
