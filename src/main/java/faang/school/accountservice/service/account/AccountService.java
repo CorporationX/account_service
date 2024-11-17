@@ -1,10 +1,12 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.cacheback.CashbackTariff;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.exception.account.AccountHasBeenUpdateException;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.CashbackTariffRepository;
 import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.FreeAccountNumberService;
 import faang.school.accountservice.validator.AccountValidator;
@@ -23,6 +25,7 @@ public class AccountService {
     private final AccountValidator validator;
     private final BalanceService balanceService;
     private final FreeAccountNumberService freeAccountNumberService;
+    private final CashbackTariffRepository cashbackTariffRepository;
 
     @Transactional
     public Account openAccount(Account account) {
@@ -72,6 +75,29 @@ public class AccountService {
         return account;
     }
 
+    @Transactional
+    public void setCashbackTariff(UUID id, UUID tariffId) {
+        Account account = findAccountById(id);
+        validator.validateNotActiveAccount(account);
+
+        CashbackTariff cashbackTariff = cashbackTariffRepository.findById(tariffId)
+                .orElseThrow(() -> new ResourceNotFoundException(CashbackTariff.class, id));
+
+        account.setCashbackTariff(cashbackTariff);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        saveAccount(account);
+    }
+
+    @Transactional
+    public void removeCashbackTariff(UUID id) {
+        Account account = findAccountById(id);
+        account.setCashbackTariff(null);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        saveAccount(account);
+    }
+
     private Account findAccountById(UUID id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Account.class, id));
@@ -79,8 +105,7 @@ public class AccountService {
 
     private Account saveAccount(Account account) {
         try {
-            account = accountRepository.save(account);
-            accountRepository.flush();
+            account = accountRepository.saveAndFlush(account);
         } catch (OptimisticLockingFailureException exception) {
             throw new AccountHasBeenUpdateException(account.getId());
         }

@@ -23,11 +23,14 @@ import faang.school.accountservice.repository.balance.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static faang.school.accountservice.enums.auth.payment.AuthPaymentStatus.CLOSED;
@@ -166,6 +169,18 @@ public class BalanceService {
     @Transactional(readOnly = true)
     public Balance findByAccountId(UUID accountId) {
         return balanceRepository.findBalanceByAccountId(accountId).orElseThrow(() -> new ResourceNotFoundException(Balance.class, accountId));
+    }
+
+    @Transactional
+    @Retryable(retryFor = {BalanceHasBeenUpdatedException.class})
+    public void saveCashback(Balance balance, BigDecimal cashback) {
+        Balance balanceDB = findById(balance.getId());
+
+        BigDecimal currentBalance = balanceDB.getCurrentBalance();
+        balanceDB.setCurrentBalance(currentBalance.add(cashback));
+        balanceDB.setUpdatedAt(LocalDateTime.now());
+
+        saveBalance(balanceDB);
     }
 
     private Balance saveBalance(Balance balance) {

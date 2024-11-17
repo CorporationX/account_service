@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changeset-test/test_insert_country_users_projects.sql
   - include:
       file: db/changelog/changeset-test/account_V003__create_free_accounts_numbers_and_account_numbers_sequence.sql
+  - include:
+      file: db/changelog/changeset-test/account_V006_create_service_cashback.sql

@@ -73,6 +73,12 @@ app:
     savings_account:
       accrual: "0 0 0 1 * *" # every month on 1st day
 
+cashback:
+  batch-size: 10
+  thread-pool: 10
+  scheduler:
+    cron: "0 0 0 1 * ?" # каждый месяц 1 числа в 00:00
+
 server:
   port: 8090
 

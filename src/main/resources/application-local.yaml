@@ -1,4 +1,0 @@
-app:
-  scheduler:
-    savings_account:
-      accrual: "0 * * * * *" # every minutes
