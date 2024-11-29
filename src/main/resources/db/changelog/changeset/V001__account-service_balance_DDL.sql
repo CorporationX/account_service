@@ -1,11 +1,11 @@
-CREATE TABLE balance(
-    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    authorization_balance DOUBLE,
-    actual_balance DOUBLE NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT current_timestamp NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT current_timestamp,
-    version NUMERIC,
-    account_id BIGINT NOT NULL,
+create table balance (
+   id bigint primary key GENERATED ALWAYS AS IDENTITY UNIQUE,
+   authorization_balance DECIMAL,
+   actual_balance DECIMAL,
+   created_at timestamptz DEFAULT current_timestamp,
+   updated_at timestamptz DEFAULT current_timestamp,
+   version INTEGER,
+   account_id INT NOT NULL,
 
-    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES  account (id)
+   CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id)
 );

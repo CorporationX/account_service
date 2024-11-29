@@ -52,7 +52,6 @@ public class Balance {
     private int version;
 
     @OneToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
-
 }

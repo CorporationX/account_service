@@ -2,10 +2,10 @@ package faang.school.accountservice.entity.account;
 
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.entity.owner.Owner;
-import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -49,11 +48,11 @@ public class Account {
     @Column(name = "number")
     private String number;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "type_id", nullable = false)
     private AccountType accountType;
 
@@ -79,11 +78,12 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    @OneToOne(mappedBy = "account")
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST)
     private Balance balance;
 
-    @OneToMany(mappedBy = "balance")
-    private Request request;
+//    @OneToMany(mappedBy = "balance")
+//    private Request request;
 
     @Version
     private int version;

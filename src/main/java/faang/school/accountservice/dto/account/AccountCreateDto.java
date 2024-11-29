@@ -1,9 +1,7 @@
 package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.dto.owner.OwnerDto;
-import faang.school.accountservice.dto.type.TypeDto;
 import faang.school.accountservice.enums.Currency;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,14 +17,15 @@ import lombok.ToString;
 @NoArgsConstructor
 public class AccountCreateDto {
 
-    private long id;
+    //@NotNull
+    private Long id;
 
-    @NotNull
-    private OwnerDto owner;
+    //@NotNull
+    private OwnerDto ownerName;
 
-    @NotNull
-    private TypeDto type;
+    //@NotNull
+    private AccountTypeDto accountType;
 
-    @NotNull
+    //@NotNull
     private Currency currency;
 }

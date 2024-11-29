@@ -19,8 +19,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class RequestExecutorService {
 
-    private int maxAmountBalance;
-
     private final ExecutorServiceConfig executorConfig;
     private final KafkaProperties kafkaProperties;
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -30,7 +28,8 @@ public class RequestExecutorService {
     public void openingAccount(AccountCreateDto accountCreateDto) {
         try {
             CompletableFuture
-                    .supplyAsync(this::checkMaxAmountAccounts, executorConfig.executorServiceAsync())
+                    .supplyAsync(()-> checkMaxAmountAccounts(accountCreateDto)
+                                    , executorConfig.executorServiceAsync())
                     .thenComposeAsync(maxAccountsReached -> {
                         if (!maxAccountsReached) {
                             return CompletableFuture.supplyAsync(
@@ -61,9 +60,11 @@ public class RequestExecutorService {
         }
     }
 
-    private boolean checkMaxAmountAccounts() {
+    private boolean checkMaxAmountAccounts(AccountCreateDto accountCreateDto) {
         try {
-            return ownerService.getCountOwnerAccounts() < maxAmountBalance;
+            int maxAmountBalance = 10;
+            return ownerService.getCountOwnerAccounts(
+                    ownerService.getOwnerIdByName(accountCreateDto.getOwnerName().getName())) < maxAmountBalance;
         } catch (Exception e) {
             log.error("Error checking max account limit: ", e);
             throw new RuntimeException("Error checking max account limit", e);

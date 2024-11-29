@@ -110,7 +110,6 @@ public class AccountService {
     }
 
 
-
     public Account getAccount(long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account with id " + accountId + " not found"));
@@ -126,8 +125,14 @@ public class AccountService {
 
     private Account generateNewAccount(AccountCreateDto accountCreateDto) {
         log.debug("generateNewAccount - start, accountDto - {}", accountCreateDto);
-        AccountType type = typeService.getTypeByName(accountCreateDto.getType().getName());
-        Owner owner = ownerService.getOwnerByName(accountCreateDto.getOwner().getName());
+
+        AccountType type = AccountType.builder()
+                .name(accountCreateDto.getAccountType().getType())
+                .build();
+
+        Owner owner = Owner.builder()
+                .name(accountCreateDto.getOwnerName().getName())
+                .build();
 
         String accountNumber = accountNumberGenerator.generateRandomAccountNumberInRange();
 

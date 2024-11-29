@@ -5,7 +5,18 @@ spring:
       corePoolSize: 1
       maxPoolSize: 10000
       keepAliveTime: 60
-      accountOpeningTopic: accountOpeningTopic
+      accountOpeningTopic: accountOpening
+
+      bootstrapServers: localhost:9092
+      partitionsCount: 1
+      replicaCount: 1
+      idempotence: true
+
+      Producer:
+        acks: all
+        retries: 2
+        keySerializer: "org.apache.kafka.common.serialization.StringSerializer"
+        valueSerializer: "org.apache.kafka.common.serialization.StringSerializer"
 
   datasource:
     driver-class-name: org.postgresql.Driver

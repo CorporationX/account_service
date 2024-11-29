@@ -2,6 +2,7 @@ package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.dto.owner.OwnerDto;
 import faang.school.accountservice.dto.type.TypeDto;
+import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class AccountDto {
     private Long id;
     private String number;
     private OwnerDto owner;
-    private TypeDto type;
+    private AccountTypeDto type;
     private Currency currency;
     private AccountStatus status;
     private LocalDateTime createdAt;

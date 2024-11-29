@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.request;
+/*package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.repository.request.RequestRepository;
@@ -16,12 +16,12 @@ public class RequestSchedulerService {
 
     private final RequestRepository requestRepository;
 
-    /**
+    *//**
      * В процессе разработки.
-     */
+     *//*
     @Scheduled(fixedRate = 3000)
     public void scheduled() {
         List<Request> scheduledAt = requestRepository.findScheduledAt();
     }
-}
+}*/
 

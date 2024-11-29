@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -19,8 +21,8 @@ public class UpdateBalanceRequest {
     private long id;
 
     @PositiveOrZero
-    private double authorizationBalance;
+    private BigDecimal authorizationBalance;
 
     @PositiveOrZero
-    private double actualBalance;
+    private BigDecimal actualBalance;
 }

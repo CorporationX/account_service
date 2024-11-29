@@ -38,7 +38,7 @@ public class AccountController {
     }
 
     @PostMapping("/open")
-    public AccountDto createAccount(@RequestBody @Valid AccountCreateDto accountCreateDto) {
+    public AccountDto createAccount(@RequestBody AccountCreateDto accountCreateDto) {
         return accountService.createAccount(accountCreateDto);
     }
 

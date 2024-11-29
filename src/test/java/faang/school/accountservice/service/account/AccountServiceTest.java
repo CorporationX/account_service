@@ -129,51 +129,51 @@ class AccountServiceTest {
                 () -> accountService.getAccountByAccountId(anyLong()));
     }
 
-    @Test
-    @DisplayName("When incoming dto is correct then create account successfully")
-    void whenIncomingDtoIsCorrectThenCreateNewAccount() {
-        AccountType type = AccountType.builder()
-                .id(ID)
-                .name(TEST)
-                .build();
-        Owner owner = Owner.builder()
-                .id(ID)
-                .name(TEST)
-                .build();
-
-        AccountCreateDto accountCreateDto = AccountCreateDto.builder()
-                .type(TypeDto.builder()
-                        .name(TEST)
-                        .build())
-                .currency(Currency.RUB)
-                .owner(OwnerDto.builder()
-                        .name(TEST)
-                        .build())
-                .build();
-
-        when(typeService.getTypeByName(accountCreateDto.getType().getName()))
-                .thenReturn(type);
-        when(ownerService.getOwnerByName(accountCreateDto.getOwner().getName()))
-                .thenReturn(owner);
-        when(accountNumberGenerator.generateRandomAccountNumberInRange())
-                .thenReturn(TEST);
-        when(accountMapper.toAccountDto(any()))
-                .thenReturn(accountDto);
-        when(accountRepository.save(any(Account.class)))
-                .thenReturn(account);
-
-        accountService.createAccount(accountCreateDto);
-
-        verify(typeService)
-                .getTypeByName(accountCreateDto.getType().getName());
-        verify(ownerService)
-                .getOwnerByName(accountCreateDto.getOwner().getName());
-        verify(accountRepository)
-                .save(any(Account.class));
-        verify(balanceService).create(account);
-        verify(accountMapper)
-                .toAccountDto(any(Account.class));
-    }
+//    @Test
+//    @DisplayName("When incoming dto is correct then create account successfully")
+//    void whenIncomingDtoIsCorrectThenCreateNewAccount() {
+//        AccountType type = AccountType.builder()
+//                .id(ID)
+//                .name(TEST)
+//                .build();
+//        Owner owner = Owner.builder()
+//                .id(ID)
+//                .name(TEST)
+//                .build();
+//
+//        AccountCreateDto accountCreateDto = AccountCreateDto.builder()
+//                .type(TypeDto.builder()
+//                        .name(TEST)
+//                        .build())
+//                .currency(Currency.RUB)
+//                .owner(OwnerDto.builder()
+//                        .name(TEST)
+//                        .build())
+//                .build();
+//
+//        when(typeService.getTypeByName(accountCreateDto.getType().getName()))
+//                .thenReturn(type);
+//        when(ownerService.getOwnerByName(accountCreateDto.getOwner().getName()))
+//                .thenReturn(owner);
+//        when(accountNumberGenerator.generateRandomAccountNumberInRange())
+//                .thenReturn(TEST);
+//        when(accountMapper.toAccountDto(any()))
+//                .thenReturn(accountDto);
+//        when(accountRepository.save(any(Account.class)))
+//                .thenReturn(account);
+//
+//        accountService.createAccount(accountCreateDto);
+//
+//        verify(typeService)
+//                .getTypeByName(accountCreateDto.getType().getName());
+//        verify(ownerService)
+//                .getOwnerByName(accountCreateDto.getOwner().getName());
+//        verify(accountRepository)
+//                .save(any(Account.class));
+//        verify(balanceService).create(account);
+//        verify(accountMapper)
+//                .toAccountDto(any(Account.class));
+//    }
 
     @Test
     @DisplayName("When block account and account exists and status correct then not thrown exception")

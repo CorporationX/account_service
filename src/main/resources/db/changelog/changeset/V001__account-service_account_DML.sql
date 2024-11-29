@@ -1,13 +1,14 @@
-INSERT INTO owner("name")
-VALUES ('TEST');
+insert into owner("name")
+values ('TEST');
 
-INSERT INTO type("name")
-VALUES ('settlement'),
+insert into type("name")
+values ('settlement'),
        ('subsettlement'),
        ('letter of credit'),
        ('budget'),
        ('credit'),
        ('deposit');
-
-INSERT INTO account("number", "owner_id", "type_id", "currency", "status", "version")
-VALUES ('test_account', 1, 1, 'USD', 'ACTIVE', 0);
+--
+--insert into account(
+--number,owner_id, type_id, balance_id, currency_id, status, created_at,updated_at,closed_at,  version)
+--values ('test_account', 1, 1, 1, 'RUB', 'ACTIVE', 0);

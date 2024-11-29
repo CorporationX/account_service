@@ -29,7 +29,7 @@ public class AccountType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name", length = 24, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "accountType")

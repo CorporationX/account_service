@@ -1,3 +1,4 @@
+/*
 package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.account.SavingsAccountCreatedDto;
@@ -35,3 +36,4 @@ public class SavingsAccountController {
         return savingsAccountService.getSavingsAccountByOwnerId(ownerId);
     }
 }
+*/

@@ -1,6 +1,5 @@
 package faang.school.accountservice.config.kafka;
 
-import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +24,10 @@ public class KafkaProducerConfiguration {
     @Bean
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         properties.put(ProducerConfig.ACKS_CONFIG, kafkaProperties.getProducer().getAcks());
         properties.put(ProducerConfig.RETRIES_CONFIG, kafkaProperties.getProducer().getRetries());
-        properties.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, kafkaProperties.isIdempotence());
+       properties.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, kafkaProperties.isIdempotence());
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getKeySerializer());
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getValueSerializer());
 
