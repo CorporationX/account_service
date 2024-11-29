@@ -43,7 +43,7 @@ public class BalanceService {
         Balance balance = balanceMapper.toBalance(updateBalanceRequest);
         Account account = findAccountById(accountId);
         balance.setAccount(account);
-        balance.setCreatedAt(account.getBalance().getCreatedAt());
+        balance.setCreatedAt(account.getCreatedAt());
         balance = balanceRepository.save(balance);
         log.debug("balance has been updated, balance: {}", balance);
 
