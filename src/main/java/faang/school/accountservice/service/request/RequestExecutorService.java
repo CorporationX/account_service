@@ -31,7 +31,7 @@ public class RequestExecutorService {
                     .supplyAsync(()-> checkMaxAmountAccounts(accountCreateDto)
                                     , executorConfig.executorServiceAsync())
                     .thenComposeAsync(maxAccountsReached -> {
-                        if (!maxAccountsReached) {
+                        if (checkMaxAmountAccounts(accountCreateDto)) {
                             return CompletableFuture.supplyAsync(
                                     () -> createAccount(accountCreateDto), executorConfig.executorServiceAsync());
                         } else {

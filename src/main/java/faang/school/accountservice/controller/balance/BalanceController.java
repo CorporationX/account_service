@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/accounts/{accountId}/balance")
-@Validated
+//@Validated
 @RequiredArgsConstructor
 public class BalanceController {
 
@@ -23,7 +23,7 @@ public class BalanceController {
 
     @PutMapping
     public BalanceDto update(@PathVariable @Positive long accountId,
-                             @RequestBody @Valid UpdateBalanceRequest updateBalanceRequest) {
+                             @RequestBody  UpdateBalanceRequest updateBalanceRequest) {
         return balanceService.update(accountId, updateBalanceRequest);
     }
 }

@@ -5,7 +5,7 @@ create table balance (
    created_at timestamptz DEFAULT current_timestamp,
    updated_at timestamptz DEFAULT current_timestamp,
    version INTEGER,
-   account_id INT NOT NULL,
+   account_id INT,
 
-   CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id)
+   CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
 );

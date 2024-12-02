@@ -13,7 +13,6 @@ create table account (
     number VARCHAR CHECK (LENGTH(number) BETWEEN 12 AND 20) UNIQUE NOT NULL,
     owner_id INT NOT NULL,
     type_id INT NOT NULL,
-    balance_id INT NOT NULL,
     currency VARCHAR(5) NOT NULL,
     status VARCHAR(24) NOT NULL,
     created_at timestamptz DEFAULT current_timestamp,
