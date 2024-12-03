@@ -30,7 +30,7 @@ public class KafkaProperties {
 
     @Getter
     @Setter
-    public static class Producer {
+    protected static class Producer {
         private String acks;
         private int retries;
         private String keySerializer;

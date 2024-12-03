@@ -43,7 +43,6 @@ public class RequestExecutorService {
                             executorConfig.executorServiceAsync())
                     .exceptionally(ex -> {
                         log.error("Request error {}", ex, ex.getCause());
-                        rollBack(accountCreateDto);
                         return null;
                     });
         } catch (Exception e) {
@@ -64,7 +63,7 @@ public class RequestExecutorService {
         try {
             int maxAmountBalance = 10;
             return ownerService.getCountOwnerAccounts(
-                    ownerService.getOwnerIdByName(accountCreateDto.getOwnerName().getName())) < maxAmountBalance;
+                    ownerService.getCountOwnerAccounts(accountCreateDto.getId())) < maxAmountBalance;
         } catch (Exception e) {
             log.error("Error checking max account limit: ", e);
             throw new RuntimeException("Error checking max account limit", e);
