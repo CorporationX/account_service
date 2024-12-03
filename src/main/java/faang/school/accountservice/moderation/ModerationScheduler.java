@@ -1,4 +1,4 @@
-/*
+
 package faang.school.accountservice.moderation;
 
 import faang.school.accountservice.service.account.SavingsAccountService;
@@ -24,4 +24,4 @@ public class ModerationScheduler {
         savingsAccountService.calculatePercents();
     }
 }
-*/
+

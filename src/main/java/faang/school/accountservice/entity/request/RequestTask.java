@@ -1,4 +1,4 @@
-/*package faang.school.accountservice.entity.request;
+package faang.school.accountservice.entity.request;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,4 +57,4 @@ public class RequestTask {
             id = UUID.randomUUID();
         }
     }
-}*/
+}

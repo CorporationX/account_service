@@ -26,5 +26,5 @@ public class Rate {
     private Long id;
 
     @Column(name = "interest_rate", nullable = false)
-    private Double interestRate;
+    private double interestRate;
 }

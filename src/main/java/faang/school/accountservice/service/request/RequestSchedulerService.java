@@ -1,10 +1,9 @@
-/*package faang.school.accountservice.service.request;
+package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.repository.request.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,12 +15,12 @@ public class RequestSchedulerService {
 
     private final RequestRepository requestRepository;
 
-    *//**
+    /**
      * В процессе разработки.
-     *//*
-    @Scheduled(fixedRate = 3000)
+     **/
+//    @Scheduled(fixedRate = 3000)
     public void scheduled() {
         List<Request> scheduledAt = requestRepository.findScheduledAt();
     }
-}*/
+}
 

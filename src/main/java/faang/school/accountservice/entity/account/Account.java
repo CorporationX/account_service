@@ -82,7 +82,7 @@ public class Account {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Balance> balances;
 
-//    @OneToMany(mappedBy = "balance")
+//    @OneToMany(mappedBy = "")
 //    private Request request;
 
     @Version

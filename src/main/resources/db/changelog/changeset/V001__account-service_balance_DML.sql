@@ -1,16 +1,1 @@
 
---insert into balance(
---    authorization_balance,
---    actual_balance,
---    created_at,
---    updated_at,
---    version,
---    account_id
---) values (
---    '100',
---    '210000000000',
---    default,
---    default,
---    0,
---    0
---);

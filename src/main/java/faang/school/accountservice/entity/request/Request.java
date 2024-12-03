@@ -1,4 +1,4 @@
-/*
+
 package faang.school.accountservice.entity.request;
 
 import faang.school.accountservice.entity.account.Account;
@@ -62,4 +62,4 @@ public class Request {
         }
     }
 }
-*/
+

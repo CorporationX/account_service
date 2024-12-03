@@ -151,5 +151,4 @@ public class AccountService {
     public void deleteAccount(Account account) {
         accountRepository.delete(account);
     }
-
 }

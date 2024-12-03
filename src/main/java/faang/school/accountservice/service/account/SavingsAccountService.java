@@ -1,4 +1,3 @@
-/*
 package faang.school.accountservice.service.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,6 +37,16 @@ public class SavingsAccountService {
     private final AccountService accountService;
     private final TariffService tariffService;
     private final ObjectMapper objectMapper;
+
+    private static void accept(SavingsAccount savingsAccount) {
+        log.info("Thread name: {} take Account id: {}", Thread.currentThread().getName(), savingsAccount.getId());
+        BigDecimal updatedBalance = savingsAccount.getBalance()
+                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(savingsAccount.getTariff().getRate().getInterestRate()));
+
+        log.info("Thread name: {} save Account id: {}", Thread.currentThread().getName(), savingsAccount.getId());
+        savingsAccount.setBalance(updatedBalance);
+    }
 
     @Transactional
     public SavingsAccountDto openSavingsAccount(SavingsAccountCreatedDto savingsAccountCreatedDto) {
@@ -89,15 +98,7 @@ public class SavingsAccountService {
 
     private void calculate(List<SavingsAccount> savingsAccounts) {
         log.info("start calculate, thread name: {}", Thread.currentThread().getName());
-        savingsAccounts.forEach(savingsAccount -> {
-            log.info("Thread name: {} take Account id: {}", Thread.currentThread().getName(), savingsAccount.getId());
-            BigDecimal updatedBalance = savingsAccount.getBalance()
-                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(savingsAccount.getTariff().getRate().getInterestRate()));
-
-            log.info("Thread name: {} save Account id: {}", Thread.currentThread().getName(), savingsAccount.getId());
-            savingsAccount.setBalance(updatedBalance);
-        });
+        savingsAccounts.forEach(SavingsAccountService::accept);
     }
 
     private void updateTariffHistory(Tariff tariff, SavingsAccount savingsAccount) {
@@ -127,4 +128,4 @@ public class SavingsAccountService {
                 .build();
     }
 }
-*/
+
