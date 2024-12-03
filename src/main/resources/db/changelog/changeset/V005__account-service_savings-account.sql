@@ -1,2 +1,2 @@
-ALTER TABLE savings_account
+ALTER TABLE savings_accounts
 ADD COLUMN bonus_rate DECIMAL(10, 2);
