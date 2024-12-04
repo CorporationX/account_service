@@ -1,6 +1,7 @@
 package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.dto.owner.OwnerDto;
+import faang.school.accountservice.entity.request.RequestStatus;
 import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,6 @@ public class AccountCreateDto {
 
     @NotNull
     private Currency currency;
+
+    private RequestStatus status;
 }

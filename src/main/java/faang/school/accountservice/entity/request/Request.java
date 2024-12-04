@@ -2,7 +2,6 @@
 package faang.school.accountservice.entity.request;
 
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.balance.Balance;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,6 +35,9 @@ public class Request {
 
     private String context;
 
+    @Column(name = "request_status")
+    private RequestStatus requestStatus;
+
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
@@ -47,9 +49,9 @@ public class Request {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @ManyToOne
-    @JoinColumn(name = "balance_id", nullable = false)
-    private Balance balance;
+    //@ManyToOne
+//    @JoinColumn(name = "balance_id", nullable = false)
+//    private Balance balance;
 
 //    @ManyToOne
 //    @JoinColumn(name = "balance_audit_id", nullable = false)

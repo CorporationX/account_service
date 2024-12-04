@@ -18,7 +18,13 @@ public class KafkaProperties {
     private int maxPoolSize;
     private long keepAliveTime;
 
+    private Consumer consumer;
+    private int interval;
+    private int maxAttempts;
+    private String isolationLevel;
+
     private String bootstrapServers;
+
     private Producer producer;
     private Map<String, String> properties;
 
@@ -35,5 +41,13 @@ public class KafkaProperties {
         private int retries;
         private String keySerializer;
         private String valueSerializer;
+    }
+
+    @Getter
+    @Setter
+    public static class Consumer {
+        private String groupId;
+        private String autoOffsetReset;
+        private boolean enableAutoCommit;
     }
 }

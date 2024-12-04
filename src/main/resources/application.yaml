@@ -56,3 +56,5 @@ executor:
 scheduler:
   calculatePercents:
     cron: "0 0 * * * ?" # every day at 00:00
+  requestJob:
+    cron: "0 0/1 * 1/1 * ?" # every minute
