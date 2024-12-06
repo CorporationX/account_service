@@ -4,6 +4,7 @@ import faang.school.accountservice.config.executor.ExecutorServiceConfig;
 import faang.school.accountservice.config.kafka.KafkaProperties;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountDto;
+import faang.school.accountservice.dto.account.RequestDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.service.account.AccountService;
 import faang.school.accountservice.service.owner.OwnerService;
@@ -24,8 +25,10 @@ public class RequestExecutorService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final AccountService accountService;
     private final OwnerService ownerService;
+    private final RequestService requestService;
 
-    public void openingAccount(AccountCreateDto accountCreateDto) {
+    public void openingAccount(RequestDto requestDto) {
+        AccountCreateDto accountCreateDto = requestDto.getAccountCreateDto();
         try {
             CompletableFuture
                     .supplyAsync(()-> checkMaxAmountAccounts(accountCreateDto)
@@ -47,6 +50,8 @@ public class RequestExecutorService {
                     });
         } catch (Exception e) {
             rollBack(accountCreateDto);
+        } finally {
+            requestService.saveRequest(requestDto);
         }
     }
 
@@ -62,8 +67,7 @@ public class RequestExecutorService {
     private boolean checkMaxAmountAccounts(AccountCreateDto accountCreateDto) {
         try {
             int maxAmountBalance = 10;
-            return ownerService.getCountOwnerAccounts(
-                    ownerService.getCountOwnerAccounts(accountCreateDto.getId())) < maxAmountBalance;
+            return ownerService.getCountOwnerAccounts(accountCreateDto.getId()) < maxAmountBalance;
         } catch (Exception e) {
             log.error("Error checking max account limit: ", e);
             throw new RuntimeException("Error checking max account limit", e);

@@ -1,6 +1,6 @@
 package faang.school.accountservice.controller.request;
 
-import faang.school.accountservice.dto.account.AccountCreateDto;
+import faang.school.accountservice.dto.account.RequestDto;
 import faang.school.accountservice.service.request.RequestExecutorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +16,7 @@ public class RequestAccountController {
     private final RequestExecutorService requestExecutorService;
 
     @PostMapping
-    public void openingAccount(@RequestBody AccountCreateDto accountCreateDto) {
-        requestExecutorService.openingAccount(accountCreateDto);
+    public void openingAccount(@RequestBody RequestDto requestDto) {
+        requestExecutorService.openingAccount(requestDto);
     }
 }

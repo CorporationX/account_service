@@ -127,7 +127,7 @@ public class AccountService {
         log.debug("generateNewAccount - start, accountDto - {}", accountCreateDto);
 
         AccountType type = AccountType.builder()
-                .name(accountCreateDto.getAccountType().getType())
+                .name(accountCreateDto.getAccountType().getName())
                 .build();
 
         Owner owner = Owner.builder()
@@ -138,7 +138,7 @@ public class AccountService {
 
         Account account = Account.builder()
                 .number(accountNumber)
-                .accountType(type)
+                .name(type)
                 .owner(owner)
                 .currency(accountCreateDto.getCurrency())
                 .status(AccountStatus.ACTIVE)

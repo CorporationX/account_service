@@ -5,7 +5,7 @@ spring:
       corePoolSize: 1
       maxPoolSize: 10000
       keepAliveTime: 60
-      accountOpeningTopic: accountOpening
+      accountOpeningTopic: openingAccount
 
       bootstrapServers: localhost:9092
       partitionsCount: 1

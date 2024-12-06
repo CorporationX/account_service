@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AccountTypeDto {
 
-    private String type;
+    private String name;
+
 
 }

@@ -2,6 +2,7 @@ package faang.school.accountservice.entity.account;
 
 import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.entity.owner.Owner;
+import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
@@ -53,10 +54,6 @@ public class Account {
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "type_id", nullable = false)
-    private AccountType accountType;
-
     @JoinColumn(name = "currency_id", nullable = false)
     @Enumerated(EnumType.STRING)
     private Currency currency;
@@ -82,11 +79,15 @@ public class Account {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Balance> balances;
 
-//    @OneToMany(mappedBy = "")
-//    private Request request;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Request> request;
 
     @Version
     private int version;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "type_id", nullable = false)
+    private AccountType name;
 
     @Override
     public String toString() {

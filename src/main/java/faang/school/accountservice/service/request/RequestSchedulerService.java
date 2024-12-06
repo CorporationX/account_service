@@ -1,10 +1,9 @@
 package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.config.executor.ExecutorServiceConfig;
-import faang.school.accountservice.dto.account.AccountCreateDto;
+import faang.school.accountservice.dto.account.RequestDto;
 import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.entity.request.RequestStatus;
-import faang.school.accountservice.service.account.AccountService;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -29,16 +30,25 @@ public class RequestSchedulerService {
 
     private final RequestExecutorService requestExecutorService;
     private final RequestService requestService;
+    private final RequestTaskService requestTaskService;
     private final ExecutorServiceConfig executorConfig;
 
-    /**
-     * В процессе разработки.
-     **/
-    @Retryable(retryFor = {IOException.class, OptimisticLockException.class}, maxAttempts = 5)
+    private final BlockingQueue<RequestDto> queue = new LinkedBlockingQueue<>();
+
+    public void addLastRequestDto(RequestDto requestDto) {
+        queue.offer(requestDto);
+    }
+
+    @Retryable(retryFor = {IOException.class, OptimisticLockException.class}, maxAttempts = 1)
     @Scheduled(cron = "${scheduler.requestJob.cron}")
     public void scheduled() {
+        RequestDto requestDto = queue.poll();
+        if(requestDto == null) {
+            log.warn("Нет данных для обработки. Планировщик пропускает выполнение.");
+            return;
+        }
 
-        AccountCreateDto requestDto = new AccountCreateDto();
+        log.info("DTO получен и обработан в RequestSchedulerService: {}", requestDto);
 
         List<Request> requests = requestService.findRequestScheduled();
         List<List<Request>> subLists = partition(requests, 100);
@@ -48,9 +58,9 @@ public class RequestSchedulerService {
         }
     }
 
-    private void processRequestList(List<Request> requestList, AccountCreateDto requestDto) {
-        if (!checkStatus(requestDto.getStatus())) {
-            log.warn("Invalid status for processing: {}", requestDto.getStatus());
+    private void processRequestList(List<Request> requestList, RequestDto requestDto) {
+        if (!checkStatus(requestDto.getRequestStatus())) {
+            log.warn("Invalid status for processing: {}", requestDto.getAccountCreateDto());
             return;
         }
         List<CompletableFuture<Void>> futures = requestList.stream()
@@ -61,6 +71,8 @@ public class RequestSchedulerService {
                     } catch (Exception e) {
                         log.error("Error processing request {}: {}", request, e.getMessage(), e);
                         throw new RuntimeException(e);
+                    } finally {
+                        saveRequestTaskError(requestDto);
                     }
                 }, executorConfig.executorServiceAsync()))
                 .toList();
@@ -80,7 +92,7 @@ public class RequestSchedulerService {
         return request.equals(RequestStatus.PENDING);
     }
 
-    private void openingAccount(AccountCreateDto accountCreateDto) {
+    private void openingAccount(RequestDto accountCreateDto) {
         try {
             requestExecutorService.openingAccount(accountCreateDto);
         } catch (Exception e) {
@@ -93,6 +105,14 @@ public class RequestSchedulerService {
     private void saveRequest(List<Request> requests) {
         try {
             requestService.startProcessCreateAccount(requests);
+        } catch (Exception e) {
+            log.error("Error saving requests: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to save requests", e);
+        }
+    }
+    private void saveRequestTaskError(RequestDto requestDto) {
+        try {
+            requestTaskService.saveRequestTask(requestDto);
         } catch (Exception e) {
             log.error("Error saving requests: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to save requests", e);

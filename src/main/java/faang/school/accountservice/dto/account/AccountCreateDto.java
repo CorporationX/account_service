@@ -31,5 +31,4 @@ public class AccountCreateDto {
     @NotNull
     private Currency currency;
 
-    private RequestStatus status;
 }
