@@ -97,7 +97,9 @@ public class SavingsAccountService {
     public void accrueBalance(SavingsAccount savingsAccount) {
         UUID accountId = savingsAccount.getAccount().getId();
         double currentRate = getCurrentRate(savingsAccount.getId());
-        balanceService.multiplyCurrentBalance(accountId, currentRate);
+        double rateWithBonus = currentRate + savingsAccount.getBonus();
+        // TODO rateWithBonus > 0 need to check
+        balanceService.multiplyCurrentBalance(accountId, rateWithBonus);
     }
 
     private void setAdditionalData(SavingsAccount savingsAccount, Tariff tariff, Balance balance) {
@@ -126,5 +128,13 @@ public class SavingsAccountService {
                 .tariff(tariff)
                 .savingsAccount(savingsAccount)
                 .build();
+    }
+
+    public void updateBonusAfterAchievementAccepted(long userId, long points) {
+        SavingsAccount savingsAccount = savingsAccountRepository.findByAccountUserId(userId).orElse(null);
+        Double currentBonus = savingsAccount.getBonus();
+        Double newBonus = currentBonus + points / 1000;
+        savingsAccount.setBonus(newBonus);
+        savingsAccountRepository.save(savingsAccount);
     }
 }

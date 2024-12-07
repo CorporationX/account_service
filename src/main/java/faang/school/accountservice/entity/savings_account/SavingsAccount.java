@@ -60,6 +60,10 @@ public class SavingsAccount {
     @OneToMany(mappedBy = "savingsAccount", cascade = {PERSIST, MERGE})
     private List<TariffToSavingAccountBinding> tariffToSavingAccountBindings = new ArrayList<>();
 
+    @Builder.Default
+    @Column(name = "bonus")
+    private Double bonus = 0.0;
+
     @Transient
     private double currentRate;
 

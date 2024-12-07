@@ -29,7 +29,7 @@ public class AccountService {
 
     @Transactional
     public Account openAccount(Account account) {
-        validator.validateOpenAccount(account);
+//        validator.validateOpenAccount(account);
 
         String accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType());
         account.setStatus(AccountStatus.ACTIVE);

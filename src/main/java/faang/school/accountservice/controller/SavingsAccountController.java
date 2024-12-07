@@ -54,4 +54,9 @@ public class SavingsAccountController {
 
         return savingsAccountMapper.toResponseDto(savingsAccount);
     }
+
+    @GetMapping("/check/{id}")
+    public void getSavingsAccountById(@PathVariable Long id) {
+        savingsAccountService.updateBonusAfterAchievementAccepted(id, 1L);
+    }
 }

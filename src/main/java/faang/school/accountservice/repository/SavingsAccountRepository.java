@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -24,4 +25,6 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
     double getCurrentRate(@Param("savingsAccountId") UUID savingsAccountId);
 
     List<SavingsAccount> findByAccount_Status(AccountStatus status);
+
+    Optional<SavingsAccount> findByAccountUserId(Long userId);
 }

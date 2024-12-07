@@ -1,10 +1,10 @@
 CREATE TABLE tariff (
-    id          BIGINT               PRIMARY KEY,
+    id          BIGSERIAL            PRIMARY KEY,
     tariff_type VARCHAR(32) NOT NULL UNIQUE
 );
 
 CREATE TABLE tariff_rate (
-    id         BIGINT                     PRIMARY KEY,
+    id         BIGSERIAL                  PRIMARY KEY,
     tariff_id  BIGINT           NOT NULL,
     rate       DOUBLE PRECISION NOT NULL,
     created_at TIMESTAMP                  DEFAULT CURRENT_TIMESTAMP,

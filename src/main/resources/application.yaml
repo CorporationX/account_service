@@ -62,6 +62,7 @@ spring:
       error-payment:
         request: error-payment-request
         response: error-payment-response
+      achievement-accepted-topic: achievement-accepted-topic
 
 app:
   messaging: redis
