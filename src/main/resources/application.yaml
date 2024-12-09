@@ -16,7 +16,7 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    default-schema: account
+    default-schema: public
 
 server:
   port: 8090

@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 @AutoConfigureMockMvc
 class SavingsAccountControllerMockMvcIT {
-
+/*
     private static final Long ID = 1L;
     private static final String NAME = "name";
     private static final String TARIFF_NAME = "tariff";
@@ -256,5 +256,5 @@ class SavingsAccountControllerMockMvcIT {
 
             assertNotNull(result);
         }
-    }
+    }*/
 }

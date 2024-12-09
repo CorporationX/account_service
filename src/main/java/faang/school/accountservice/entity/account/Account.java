@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity.account;
 
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.entity.owner.Owner;
 import faang.school.accountservice.entity.type.AccountType;
 import faang.school.accountservice.enums.AccountStatus;
@@ -13,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -74,6 +76,9 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Version
     private int version;
