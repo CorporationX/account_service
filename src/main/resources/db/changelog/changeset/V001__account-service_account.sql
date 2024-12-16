@@ -1,18 +1,14 @@
-create table if not exists public.account
+CREATE TABLE IF NOT EXISTS public.account
 (
-    id         bigserial
-    primary key,
-    closed_at  timestamp(6),
-    created_at timestamp(6),
-    currency   smallint,
-    number     varchar(20) not null
-    constraint uk_dbfiubqahb32ns85k023gr6nn
-    unique,
-    status     smallint,
-    updated_at timestamp(6),
-    version    varchar(255)
+    id         BIGSERIAL PRIMARY KEY,
+    closed_at  TIMESTAMP(6),
+    created_at TIMESTAMP(6),
+    currency   VARCHAR(255),
+    number     VARCHAR(20) NOT NULL UNIQUE,
+    status     VARCHAR(255),
+    updated_at TIMESTAMP(6),
+    version    VARCHAR(255)
     );
 
-alter table public.account
-    owner to "user";
-
+ALTER TABLE public.account
+    OWNER TO "user";

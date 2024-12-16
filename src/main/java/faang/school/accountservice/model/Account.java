@@ -20,32 +20,33 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "account")
 public class Account {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number",nullable = false, length = 20, unique = true)
+    @Column(name = "number", nullable = false, length = 20, unique = true)
     @Size(min = 12, max = 20)
     private String number;
 
     @Column(name = "currency")
+    @Enumerated(EnumType.STRING)
     private Currency currency;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Version
     @Column(name = "version")
     private String version;
 }
