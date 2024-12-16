@@ -11,6 +11,9 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.AccountNumberUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +59,11 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(
+            retryFor = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public AccountResponse blockAccount(Long id) {
         log.info("Blocking account with id: {}", id);
         Account account = getAccountEntity(id);
@@ -71,6 +79,11 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(
+            retryFor = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public AccountResponse closeAccount(Long id) {
         log.info("Closing account with id: {}", id);
         Account account = getAccountEntity(id);

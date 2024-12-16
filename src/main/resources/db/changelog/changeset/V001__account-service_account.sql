@@ -1,5 +1,5 @@
-create table account_owner (
-    id bigint primary key generated always as identity,
+create table if not exists account_owner (
+    id bigint primary key generated always as identity unique,
     owner_id bigint not null,
     owner_type varchar(16) not null,
     created_at timestamptz default current_timestamp not null,
@@ -7,8 +7,8 @@ create table account_owner (
     unique (owner_id, owner_type)
 );
 
-create table account (
-    id bigserial primary key,
+create table if not exists account (
+    id bigint primary key generated always as identity unique,
     account_number varchar(20) not null unique,
     type varchar(32) not null,
     currency varchar(3) not null,
