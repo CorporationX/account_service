@@ -1,6 +1,7 @@
 package faang.school.accountservice.model;
 
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -24,6 +25,10 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "accountType")
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
+
     @Column(name = "number", nullable = false, length = 20, unique = true)
     @Size(min = 12, max = 20)
     private String number;
@@ -46,7 +51,6 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    @Version
     @Column(name = "version")
     private String version;
 }
