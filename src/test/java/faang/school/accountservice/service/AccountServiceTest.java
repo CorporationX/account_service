@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.ConflictException;
@@ -178,6 +179,7 @@ public class AccountServiceTest {
         return AccountDto.builder()
                 .id(1L)
                 .number("1234567890")
+                .accountType("PERSONAL")
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
                 .version(1)
@@ -188,6 +190,7 @@ public class AccountServiceTest {
         return Account.builder()
                 .id(1L)
                 .number("1234567890")
+                .accountType(AccountType.PERSONAL)
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
                 .version(1)
