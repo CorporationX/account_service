@@ -20,6 +20,8 @@ public class AccountDto {
     @NotNull
     private String number;
     @NotNull
+    private String accountType;
+    @NotNull
     private Currency currency;
     @NotNull
     private AccountStatus status;
