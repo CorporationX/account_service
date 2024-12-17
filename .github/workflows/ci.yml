@@ -3,7 +3,7 @@ name: CI Pipeline
 on:
   pull_request:
     branches:
-      - Titan-master-stream7
+      - Siarhei-addFixAndCiCD
 
 jobs:
   run-tests:
