@@ -132,7 +132,7 @@ public class AccountControllerTest {
                 .number("1234567890")
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
-                .version("1.0")
+                .version(1)
                 .build();
     }
 }

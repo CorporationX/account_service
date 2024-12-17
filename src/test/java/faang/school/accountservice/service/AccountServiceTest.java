@@ -48,7 +48,7 @@ public class AccountServiceTest {
         assertEquals("1234567890", result.getNumber());
         assertEquals(Currency.USD, result.getCurrency());
         assertEquals(AccountStatus.ACTIVE, result.getStatus());
-        assertEquals("1.0", result.getVersion());
+        assertEquals(1, result.getVersion());
 
         verify(accountRepository, times(1)).findById(1L);
         verify(accountMapper, times(1)).toDto(account);
@@ -180,7 +180,7 @@ public class AccountServiceTest {
                 .number("1234567890")
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
-                .version("1.0")
+                .version(1)
                 .build();
     }
 
@@ -190,7 +190,7 @@ public class AccountServiceTest {
                 .number("1234567890")
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
-                .version("1.0")
+                .version(1)
                 .build();
     }
 }
