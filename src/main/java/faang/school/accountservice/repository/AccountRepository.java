@@ -1,8 +1,7 @@
-package faang.school.accountservice.repository.account;
+package faang.school.accountservice.repository;
 
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.repository.jpa.AccountJpaRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -11,8 +10,11 @@ import org.springframework.stereotype.Repository;
 public class AccountRepository {
     private final AccountJpaRepository accountJpaRepository;
 
-    public Account getAccountById(long id) {
-        return accountJpaRepository.findById(id).orElseThrow(
-                ()-> new EntityNotFoundException("Account not found by id: " + id));
+    public Account save(Account account) {
+        return accountJpaRepository.save(account);
+    }
+
+    public boolean isExistsAccount(String accountNumber) {
+        return accountJpaRepository.existsByAccountNumber(accountNumber);
     }
 }

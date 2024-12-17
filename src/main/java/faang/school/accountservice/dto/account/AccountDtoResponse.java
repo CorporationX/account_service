@@ -1,8 +1,8 @@
 package faang.school.accountservice.dto.account;
 
-import faang.school.accountservice.model.account.AccountStatus;
-import faang.school.accountservice.model.account.AccountType;
-import faang.school.accountservice.model.account.Currency;
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.owner.OwnerType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountResponseDto {
+public class AccountDtoResponse {
     private Long id;
     private String accountNumber;
     private Long ownerId;
