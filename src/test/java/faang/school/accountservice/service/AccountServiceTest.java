@@ -179,6 +179,7 @@ public class AccountServiceTest {
         return AccountDto.builder()
                 .id(1L)
                 .number("1234567890")
+                .accountType("PERSONAL")
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
                 .version("1.0")
