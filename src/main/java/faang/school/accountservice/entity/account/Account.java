@@ -66,5 +66,6 @@ public class Account {
     private LocalDateTime closedAt;
 
     @Version
+    @Column(name = "version")
     private Long version;
 }
