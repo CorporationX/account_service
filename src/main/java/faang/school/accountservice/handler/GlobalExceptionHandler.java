@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -17,19 +18,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({ConstraintViolationException.class,
             IllegalArgumentException.class,
-            EntityNotFoundException.class})
+            EntityNotFoundException.class,
+            HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorResponse> handleExceptions(Exception ex, HttpServletRequest request) {
         String errorMessage = ex.getMessage();
+        if (ex.getMessage().contains("JSON parse error:")){
+            errorMessage = errorMessage.replaceAll("`[^`]*`", "");
+        }
         log.error("{}: {}", ex.getClass(), errorMessage);
-        ErrorResponse errorResponse = getErrorResponse(request, HttpStatus.BAD_REQUEST, errorMessage);
+        ErrorResponse errorResponse = getErrorResponse(request, errorMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    private static ErrorResponse getErrorResponse(HttpServletRequest request, HttpStatus status, String errorMessage) {
+    private static ErrorResponse getErrorResponse(HttpServletRequest request, String errorMessage) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(LocalDateTime.now());
-        errorResponse.setStatus(status.value());
-        errorResponse.setError(status.getReasonPhrase());
+        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
         errorResponse.setMessage(errorMessage);
         errorResponse.setPath(request.getRequestURI());
         return errorResponse;

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
     private final AccountService accountService;
 
-    @PostMapping("/new")
+    @PostMapping("/open")
     public AccountDtoResponse open(@RequestBody AccountDtoOpen dto) {
         return accountService.open(dto);
     }

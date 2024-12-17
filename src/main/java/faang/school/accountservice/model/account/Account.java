@@ -5,6 +5,7 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,7 +46,7 @@ public class Account {
     @Pattern(regexp = "^[0-9]{12,20}$")
     private String accountNumber;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
