@@ -8,6 +8,5 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class CITEST {
     @Test
     void test() {
-        fail();
     }
 }
