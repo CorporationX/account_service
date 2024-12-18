@@ -1,5 +1,6 @@
 package faang.school.accountservice.handler;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -20,7 +21,8 @@ public class GlobalExceptionHandler {
             IllegalArgumentException.class,
             EntityNotFoundException.class,
             HttpMessageNotReadableException.class,
-            EntityNotFoundException.class})
+            EntityNotFoundException.class,
+            EntityExistsException.class})
     public ResponseEntity<ErrorResponse> handleExceptions(Exception ex, HttpServletRequest request) {
         String errorMessage = ex.getMessage();
         if (ex.getMessage().contains("JSON parse error:")) {

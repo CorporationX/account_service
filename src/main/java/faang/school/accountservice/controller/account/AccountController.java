@@ -1,6 +1,6 @@
 package faang.school.accountservice.controller.account;
 
-import faang.school.accountservice.dto.account.AccountDtoClose;
+import faang.school.accountservice.dto.account.AccountDtoCloseBlock;
 import faang.school.accountservice.dto.account.AccountDtoFilter;
 import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
@@ -54,8 +54,13 @@ public class AccountController {
     }
 
     @PostMapping("/close")
-    public AccountDtoResponse close(@RequestBody @Valid AccountDtoClose dtoClose) {
-        return accountService.closeAccount(dtoClose);
+    public AccountDtoResponse close(@RequestBody @Valid AccountDtoCloseBlock dtoCloseBlock) {
+        return accountService.closeAccount(dtoCloseBlock);
+    }
+
+    @PostMapping("/block")
+    public AccountDtoResponse block(@RequestBody @Valid AccountDtoCloseBlock dtoCloseBlock) {
+        return accountService.blockAccount(dtoCloseBlock);
     }
 
 }

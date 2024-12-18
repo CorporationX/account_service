@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountDtoClose {
+public class AccountDtoCloseBlock {
     @Positive(message = "Account Id must be greater than 0")
     private Long id;
 

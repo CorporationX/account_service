@@ -1,6 +1,6 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.account.AccountDtoClose;
+import faang.school.accountservice.dto.account.AccountDtoCloseBlock;
 import faang.school.accountservice.dto.account.AccountDtoFilter;
 import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
@@ -12,6 +12,7 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -108,11 +109,33 @@ public class AccountService {
         return stringNumbers.toString();
     }
 
-    public AccountDtoResponse closeAccount(AccountDtoClose dtoClose) {
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
+    public AccountDtoResponse closeAccount(@Valid AccountDtoCloseBlock dtoClose) {
         Account account = dtoClose.getId() != null
                 ? accountRepository.getAccountById(dtoClose.getId())
                 : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
+        if (account.getStatus().equals(AccountStatus.CLOSED)) {
+            throw new EntityExistsException("Account is already closed by id: " + account.getId());
+        }
         account.setStatus(AccountStatus.CLOSED);
+        account.setClosedAt(LocalDateTime.now());
+        return accountMapper.toDto(accountRepository.save(account));
+    }
+
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
+    public AccountDtoResponse blockAccount(@Valid AccountDtoCloseBlock dtoCloseBlock) {
+        Account account = dtoCloseBlock.getId() != null
+                ? accountRepository.getAccountById(dtoCloseBlock.getId())
+                : accountRepository.getAccountByAccountNumber(dtoCloseBlock.getAccountNumber());
+        if (account.getStatus().equals(AccountStatus.CLOSED)) {
+            throw new EntityExistsException("Account is closed by id: " + account.getId());
+        }
+        if (account.getStatus().equals(AccountStatus.BLOCKED)) {
+            throw new EntityExistsException("Account is already blocked by id: " + account.getId());
+        }
+        account.setStatus(AccountStatus.BLOCKED);
         account.setClosedAt(LocalDateTime.now());
         return accountMapper.toDto(accountRepository.save(account));
     }
