@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.dto.account.AccountDtoClose;
 import faang.school.accountservice.dto.account.AccountDtoFilter;
 import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
@@ -104,5 +105,19 @@ public class AccountService {
             stringNumbers.append(ThreadLocalRandom.current().nextInt(0, 10));
         }
         return stringNumbers.toString();
+    }
+
+    public AccountDtoResponse closeAccount(AccountDtoClose dtoClose) {
+        Account account = dtoClose.getId() != null
+                ? accountRepository.getAccountById(dtoClose.getId())
+                : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
+//        if (dtoClose.getId() != null) {
+//            Account account = accountRepository.getAccountById(dtoClose.getId());
+//        } else {
+//            Account account = accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
+//        }
+        account.setStatus(AccountStatus.CLOSED);
+        account.setClosedAt(dtoClose.getClosedAt());
+        return accountMapper.toDto(accountRepository.save(account));
     }
 }

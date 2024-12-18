@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface AccountJpaRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByIdAndStatus(long id, AccountStatus accountStatus);
+
+    Optional<Account> findByAccountNumber(String accountNumber);
 }

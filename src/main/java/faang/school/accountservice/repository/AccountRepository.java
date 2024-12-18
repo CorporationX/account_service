@@ -33,4 +33,10 @@ public class AccountRepository {
     public List<Account> findAll() {
         return accountJpaRepository.findAll();
     }
+
+    public Account getAccountByAccountNumber(String accountNumber) {
+        return accountJpaRepository.findByAccountNumber(accountNumber).orElseThrow(
+                () -> new EntityNotFoundException("Account not found by number: " + accountNumber)
+        );
+    }
 }

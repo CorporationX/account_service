@@ -1,5 +1,6 @@
 package faang.school.accountservice.controller.account;
 
+import faang.school.accountservice.dto.account.AccountDtoClose;
 import faang.school.accountservice.dto.account.AccountDtoFilter;
 import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
@@ -33,23 +34,28 @@ public class AccountController {
     }
 
     @PostMapping("/open")
-    public AccountDtoResponse open(@RequestBody @Valid AccountDtoOpen dto) {
-        return accountService.open(dto);
+    public AccountDtoResponse open(@RequestBody @Valid AccountDtoOpen dtoOpen) {
+        return accountService.open(dtoOpen);
     }
 
     @PostMapping("/verify")
-    public AccountDtoResponse verify(@RequestBody @Valid AccountDtoVerify dto) {
-        return accountService.verify(dto);
+    public AccountDtoResponse verify(@RequestBody @Valid AccountDtoVerify dtoVerify) {
+        return accountService.verify(dtoVerify);
     }
 
     @GetMapping("/{id}")
-    public AccountDtoResponse getAccount(@PathVariable("id") @NotNull @Positive Long id) {
+    public AccountDtoResponse get(@PathVariable("id") @NotNull @Positive Long id) {
         return accountService.getAccount(id);
     }
 
     @PostMapping("/")
-    public List<AccountDtoResponse> getAccounts(@RequestBody @Valid AccountDtoFilter dto) {
-        return accountService.getAccounts(dto);
+    public List<AccountDtoResponse> get(@RequestBody @Valid AccountDtoFilter dtoFilter) {
+        return accountService.getAccounts(dtoFilter);
+    }
+
+    @PostMapping("/close")
+    public AccountDtoResponse close(@RequestBody @Valid AccountDtoClose dtoClose) {
+        return accountService.closeAccount(dtoClose);
     }
 
 }
