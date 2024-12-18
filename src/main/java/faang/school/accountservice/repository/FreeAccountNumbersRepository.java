@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, Long> {
 
-    FreeAccountNumber getFreeAccountNumbersByAccountType(AccountType accountType);
-    void deleteFreeAccountNumbersByAccountType(AccountType accountType);
+    FreeAccountNumber getFirstByAccountType(AccountType accountType);
+    void deleteById(Long accountId);
 }

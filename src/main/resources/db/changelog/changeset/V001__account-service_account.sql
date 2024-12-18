@@ -11,3 +11,9 @@ CREATE TABLE IF NOT EXISTS account_numbers_sequence
     account_type VARCHAR(32) NOT NULL,
     current_value BIGINT NOT NULL,
 );
+
+INSERT INTO account_numbers_sequence(account_type,current_value)
+VALUES  (INDIVIDUAL,0),
+        (SAVINGS,0),
+        (DEBIT,0),
+        (LEGAL,0)

@@ -31,5 +31,5 @@ public class AccountNumberSequence {
     private AccountType accountType;
 
     @Column(name = "current_value", nullable = false)
-    private Long sequence;
+    private Long currentSequenceValue;
 }

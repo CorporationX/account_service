@@ -1,10 +1,12 @@
 package faang.school.accountservice.repository;
 
+import faang.school.accountservice.entiry.AccountNumberSequence;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountNumbersSequenceRepository {
 
-    void createAccountNumbersSequenceByAccountType(String accountType);
-    boolean incrementAccountNumbersSequenceByAccountType(String accountType); // ????
+    //create increment
+
+    AccountNumberSequence getByAccountType(String accountType);
 }
