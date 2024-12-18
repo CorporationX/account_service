@@ -41,6 +41,9 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Balance balance;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
