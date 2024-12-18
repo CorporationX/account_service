@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -111,13 +112,8 @@ public class AccountService {
         Account account = dtoClose.getId() != null
                 ? accountRepository.getAccountById(dtoClose.getId())
                 : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
-//        if (dtoClose.getId() != null) {
-//            Account account = accountRepository.getAccountById(dtoClose.getId());
-//        } else {
-//            Account account = accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
-//        }
         account.setStatus(AccountStatus.CLOSED);
-        account.setClosedAt(dtoClose.getClosedAt());
+        account.setClosedAt(LocalDateTime.now());
         return accountMapper.toDto(accountRepository.save(account));
     }
 }

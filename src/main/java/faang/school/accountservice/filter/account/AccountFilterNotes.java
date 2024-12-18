@@ -16,6 +16,7 @@ public class AccountFilterNotes implements Filter<Account, AccountDtoFilter> {
 
     @Override
     public Stream<Account> apply(Stream<Account> stream, AccountDtoFilter filter) {
-        return stream.filter(account -> account.getNotes().toLowerCase().contains(filter.getNotes().toLowerCase()));
+        return stream.filter(account -> account.getNotes() != null &&
+                account.getNotes().toLowerCase().contains(filter.getNotes().toLowerCase()));
     }
 }
