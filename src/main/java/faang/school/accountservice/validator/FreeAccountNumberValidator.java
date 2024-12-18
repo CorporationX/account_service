@@ -7,10 +7,12 @@ import org.springframework.stereotype.Component;
 public class FreeAccountNumberValidator {
 
     public void validateNumberSequenceIsNotExceeded(AccountNumberSequence numberSequence,
-                                                    int accountNumberLength, int accountTypeIdentity) {
-        if(numberSequence.getCurrentSequenceValue().toString().length() >
-                Integer.toString(accountNumberLength).length() - Integer.toString(accountTypeIdentity).length()) {
-            throw new InternalError("Size of sequence for accountType: " +
+                                                    int accountNumberLength,
+                                                    int accountTypeIdentity) {
+        if (Long.toString(numberSequence.getCurrentSequenceValue()).length() >
+                Integer.toString(accountNumberLength).length() -
+                        Integer.toString(accountTypeIdentity).length()) {
+            throw new InternalError("Quantity numbers of sequence for accountType: " +
                     numberSequence.getAccountType() + " exceeded");
         }
     }

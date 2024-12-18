@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class AccountNumberSequence {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
+    @Version
     @Column(name = "current_value", nullable = false)
     private Long currentSequenceValue;
 }

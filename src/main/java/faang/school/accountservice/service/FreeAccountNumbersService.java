@@ -3,6 +3,8 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entiry.AccountNumberSequence;
 import faang.school.accountservice.entiry.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.properties.AccountTypeIdentityProperties;
+import faang.school.accountservice.properties.AccountTypeLengthProperties;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.validator.FreeAccountNumberValidator;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FreeAccountNumbersService {
 
+    private final AccountTypeIdentityProperties identityProps;
+    private final AccountTypeLengthProperties lengthProps;
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final FreeAccountNumberValidator freeAccountNumberValidator;
@@ -21,7 +25,7 @@ public class FreeAccountNumbersService {
     @Transactional
     public void generateFreeAccountNumber(AccountType accountType) {
         AccountNumberSequence numberSequence =
-                accountNumbersSequenceRepository.getByAccountType(accountType.toString());
+                accountNumbersSequenceRepository.incrementAndGetByAccountType(accountType.toString());
         int accountNumberLength = getLengthByAccountType(accountType);
         int accountTypeIdentity = getNumberIdentityByAccountType(accountType);
         freeAccountNumberValidator.validateNumberSequenceIsNotExceeded(numberSequence,
@@ -46,23 +50,26 @@ public class FreeAccountNumbersService {
 
     private int getLengthByAccountType(AccountType accountType) {
         return switch (accountType) {
-            case INDIVIDUAL -> 12;
-            case LEGAL -> 20;
-            case SAVINGS, DEBIT -> 16;
+            case INDIVIDUAL -> lengthProps.getIndividual();
+            case LEGAL -> lengthProps.getLegal();
+            case SAVINGS -> lengthProps.getSavings();
+            case DEBIT -> lengthProps.getDebit();
         };
     }
 
     private int getNumberIdentityByAccountType(AccountType accountType) {
         return switch (accountType) {
-            case INDIVIDUAL -> 3222;
-            case LEGAL -> 4333;
-            case SAVINGS -> 5444;
-            case DEBIT -> 6555;
+            case INDIVIDUAL -> identityProps.getIndividual();
+            case LEGAL -> identityProps.getLegal();
+            case SAVINGS -> identityProps.getSavings();
+            case DEBIT -> identityProps.getDebit();
         };
     }
 
     private String buildAccountNumber(long accountTypeIdentity, long uniqueNumber, long numberLength) {
-        long quantityOfZeros = numberLength - accountTypeIdentity - uniqueNumber;
+        long quantityOfZeros = numberLength -
+                Long.toString(accountTypeIdentity).length() -
+                Long.toString(uniqueNumber).length();
         StringBuilder result = new StringBuilder();
         result.append(accountTypeIdentity);
 
