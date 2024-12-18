@@ -22,4 +22,5 @@ public class AccountDtoResponse {
     private Currency currency;
     private AccountStatus status;
     private LocalDateTime createdAt;
+    private String notes;
 }

@@ -3,6 +3,9 @@ databaseChangeLog:
       file: db/changelog/changeset/account_V001__initial.sql
   - include:
       file: db/changelog/changeset/owner_V002__del_unique_owner_id.sql
+  - include:
+      file: db/changelog/changeset/data_test__owner_account_insert.sql
+
 
   - include:
       file: db/changelog/changeset/account_V003__balance.sql

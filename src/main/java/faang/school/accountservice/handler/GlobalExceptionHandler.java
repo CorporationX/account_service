@@ -16,13 +16,14 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ConstraintViolationException.class,
+    @ExceptionHandler(value = {ConstraintViolationException.class,
             IllegalArgumentException.class,
             EntityNotFoundException.class,
-            HttpMessageNotReadableException.class})
+            HttpMessageNotReadableException.class,
+            EntityNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleExceptions(Exception ex, HttpServletRequest request) {
         String errorMessage = ex.getMessage();
-        if (ex.getMessage().contains("JSON parse error:")){
+        if (ex.getMessage().contains("JSON parse error:")) {
             errorMessage = errorMessage.replaceAll("`[^`]*`", "");
         }
         log.error("{}: {}", ex.getClass(), errorMessage);

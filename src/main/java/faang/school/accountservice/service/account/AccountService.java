@@ -1,14 +1,19 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.dto.account.AccountDtoFilter;
 import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
+import faang.school.accountservice.dto.account.AccountDtoVerify;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.filter.Filter;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -20,9 +25,11 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -32,6 +39,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
+    private final List<Filter<Account, AccountDtoFilter>> filters;
+
     private final Set<String> accountNumbers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Transactional
@@ -55,6 +64,29 @@ public class AccountService {
         ownerRepository.save(owner);
         accountNumbers.add(accountNumber);
         return accountMapper.toDto(savedAccount);
+    }
+
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
+    public AccountDtoResponse verify(@Valid AccountDtoVerify dto) {
+        Account account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING);
+        account.setStatus(AccountStatus.ACTIVE);
+        account.setUpdatedAt(dto.getUpdatedAt());
+        return accountMapper.toDto(accountRepository.save(account));
+    }
+
+    public AccountDtoResponse getAccount(@NotNull @Positive Long id) {
+        return accountMapper.toDto(accountRepository.getAccountById(id));
+    }
+
+    public List<AccountDtoResponse> getAccounts(@NotNull AccountDtoFilter filterDto) {
+        List<Account> accounts = accountRepository.findAll();
+        Stream<Account> accountStream = accounts.stream();
+        return filters.stream()
+                .filter(filter -> filter.isApplicable(filterDto))
+                .reduce(accountStream, (stream, filter) -> filter.apply(stream, filterDto), (s1, s2) -> s1)
+                .map(accountMapper::toDto)
+                .toList();
     }
 
     private String getAccountNumber() {
