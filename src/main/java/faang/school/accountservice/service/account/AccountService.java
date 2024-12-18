@@ -48,7 +48,7 @@ public class AccountService {
 
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
-    public AccountDtoResponse open(@Valid AccountDtoOpen dto) {
+    public AccountDtoResponse open(@NotNull @Valid AccountDtoOpen dto) {
         Account account = accountMapper.toAccount(dto);
         String accountNumber = getAccountNumber();
         account.setAccountNumber(accountNumber);
@@ -71,7 +71,7 @@ public class AccountService {
 
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
-    public AccountDtoResponse verify(@Valid AccountDtoVerify dto) {
+    public AccountDtoResponse verify(@NotNull @Valid AccountDtoVerify dto) {
         Account account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING);
         account.setStatus(AccountStatus.ACTIVE);
         account.setUpdatedAt(dto.getUpdatedAt());
@@ -92,6 +92,30 @@ public class AccountService {
                 .toList();
     }
 
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
+    public AccountDtoResponse closeAccount(@NotNull @Valid AccountDtoCloseBlock dtoClose) {
+        Account account = dtoClose.getId() != null
+                ? accountRepository.getAccountById(dtoClose.getId())
+                : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
+        checkAccountClosedBlocked(account);
+        account.setStatus(AccountStatus.CLOSED);
+        account.setClosedAt(LocalDateTime.now());
+        return accountMapper.toDto(accountRepository.save(account));
+    }
+
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
+    public AccountDtoResponse blockAccount(@NotNull @Valid AccountDtoCloseBlock dtoCloseBlock) {
+        Account account = dtoCloseBlock.getId() != null
+                ? accountRepository.getAccountById(dtoCloseBlock.getId())
+                : accountRepository.getAccountByAccountNumber(dtoCloseBlock.getAccountNumber());
+        checkAccountClosedBlocked(account);
+        account.setStatus(AccountStatus.BLOCKED);
+        account.setClosedAt(LocalDateTime.now());
+        return accountMapper.toDto(accountRepository.save(account));
+    }
+
     private String getAccountNumber() {
         String numbers;
         do {
@@ -109,34 +133,12 @@ public class AccountService {
         return stringNumbers.toString();
     }
 
-    @Transactional
-    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
-    public AccountDtoResponse closeAccount(@Valid AccountDtoCloseBlock dtoClose) {
-        Account account = dtoClose.getId() != null
-                ? accountRepository.getAccountById(dtoClose.getId())
-                : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
+    private static void checkAccountClosedBlocked(@NotNull Account account) {
         if (account.getStatus().equals(AccountStatus.CLOSED)) {
             throw new EntityExistsException("Account is already closed by id: " + account.getId());
-        }
-        account.setStatus(AccountStatus.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
-        return accountMapper.toDto(accountRepository.save(account));
-    }
-
-    @Transactional
-    @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
-    public AccountDtoResponse blockAccount(@Valid AccountDtoCloseBlock dtoCloseBlock) {
-        Account account = dtoCloseBlock.getId() != null
-                ? accountRepository.getAccountById(dtoCloseBlock.getId())
-                : accountRepository.getAccountByAccountNumber(dtoCloseBlock.getAccountNumber());
-        if (account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new EntityExistsException("Account is closed by id: " + account.getId());
         }
         if (account.getStatus().equals(AccountStatus.BLOCKED)) {
             throw new EntityExistsException("Account is already blocked by id: " + account.getId());
         }
-        account.setStatus(AccountStatus.BLOCKED);
-        account.setClosedAt(LocalDateTime.now());
-        return accountMapper.toDto(accountRepository.save(account));
     }
 }
