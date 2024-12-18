@@ -25,7 +25,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "accountType")
+    @Column(name = "accounttype")
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
@@ -51,6 +51,7 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Version
     @Column(name = "version")
-    private String version;
+    private Integer version;
 }
