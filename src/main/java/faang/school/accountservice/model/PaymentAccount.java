@@ -85,4 +85,8 @@ public class PaymentAccount {
             paymentAccountStatus = PaymentAccountStatus.ACTIVE;
         }
     }
+
+    public boolean isClosed() {
+        return paymentAccountStatus.equals(PaymentAccountStatus.CLOSED);
+    }
 }

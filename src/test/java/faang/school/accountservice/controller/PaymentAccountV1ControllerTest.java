@@ -50,7 +50,7 @@ public class PaymentAccountV1ControllerTest {
     }
 
     @Test
-    public void testCreatePaymentAccount() throws Exception {
+    public void testOpenPaymentAccount() throws Exception {
         CreatePaymentAccountDto createDto = CreatePaymentAccountDto.builder()
                 .accountType(PaymentAccountType.ACCUMULATIVE_ACCOUNT)
                 .currency(Currency.RUB)
@@ -59,7 +59,7 @@ public class PaymentAccountV1ControllerTest {
         String createDtoJson = objectMapper.writeValueAsString(createDto);
         when(paymentAccountService.openPaymentAccount(createDto)).thenReturn(paymentAccountDto);
 
-        mockMvc.perform(post("/api/v1/payment-accounts")
+        mockMvc.perform(post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(createDtoJson))
                 .andExpect(status().isCreated())
@@ -73,14 +73,14 @@ public class PaymentAccountV1ControllerTest {
     }
 
     @Test
-    public void testCreatePaymentAccountBadRequest() throws Exception {
+    public void testOpenPaymentAccountBadRequest() throws Exception {
         CreatePaymentAccountDto createDto = CreatePaymentAccountDto.builder()
                 .accountType(PaymentAccountType.ACCUMULATIVE_ACCOUNT)
                 .ownerId(1L)
                 .build();
         String createDtoJson = objectMapper.writeValueAsString(createDto);
 
-        mockMvc.perform(post("/api/v1/payment-accounts")
+        mockMvc.perform(post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(createDtoJson))
                 .andExpect(status().isBadRequest());
@@ -91,7 +91,7 @@ public class PaymentAccountV1ControllerTest {
         when(paymentAccountService.closePaymentAccount(paymentAccountDto.accountNumber()))
                 .thenReturn(paymentAccountDto);
 
-        mockMvc.perform(put("/api/v1/payment-accounts/%s/close".formatted(paymentAccountDto.accountNumber())))
+        mockMvc.perform(put("/api/v1/accounts/%s/close".formatted(paymentAccountDto.accountNumber())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountNumber").value(paymentAccountDto.accountNumber()))
                 .andExpect(jsonPath("$.accountType").value(paymentAccountDto.accountType().toString()))
@@ -106,7 +106,7 @@ public class PaymentAccountV1ControllerTest {
         when(paymentAccountService.blockPaymentAccount(paymentAccountDto.accountNumber()))
                 .thenReturn(paymentAccountDto);
 
-        mockMvc.perform(put("/api/v1/payment-accounts/%s/block".formatted(paymentAccountDto.accountNumber())))
+        mockMvc.perform(put("/api/v1/accounts/%s/block".formatted(paymentAccountDto.accountNumber())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountNumber").value(paymentAccountDto.accountNumber()))
                 .andExpect(jsonPath("$.accountType").value(paymentAccountDto.accountType().toString()))
@@ -121,7 +121,7 @@ public class PaymentAccountV1ControllerTest {
         when(paymentAccountService.getPaymentAccountByNumber(paymentAccountDto.accountNumber()))
                 .thenReturn(paymentAccountDto);
 
-        mockMvc.perform(get("/api/v1/payment-accounts/%s".formatted(paymentAccountDto.accountNumber())))
+        mockMvc.perform(get("/api/v1/accounts/%s".formatted(paymentAccountDto.accountNumber())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountNumber").value(paymentAccountDto.accountNumber()))
                 .andExpect(jsonPath("$.accountType").value(paymentAccountDto.accountType().toString()))

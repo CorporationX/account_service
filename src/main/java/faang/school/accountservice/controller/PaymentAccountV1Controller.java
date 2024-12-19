@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/payment-accounts")
+@RequestMapping("/api/v1/accounts")
 @Validated
 public class PaymentAccountV1Controller {
     private final PaymentAccountService paymentAccountService;
@@ -29,7 +29,7 @@ public class PaymentAccountV1Controller {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PaymentAccountDto createPaymentAccount(@Validated @RequestBody CreatePaymentAccountDto createPaymentAccountDto) {
+    public PaymentAccountDto openPaymentAccount(@Validated @RequestBody CreatePaymentAccountDto createPaymentAccountDto) {
         return paymentAccountService.openPaymentAccount(createPaymentAccountDto);
     }
 

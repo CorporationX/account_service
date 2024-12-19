@@ -62,7 +62,7 @@ public class PaymentAccountService {
     }
 
     private void validateThatAccountIsNotClosed(PaymentAccount paymentAccount) {
-        if (paymentAccount.getPaymentAccountStatus().equals(PaymentAccountStatus.CLOSED)) {
+        if (paymentAccount.isClosed()) {
             throw new DataValidationException("Attempt to operate on a closed account");
         }
     }
