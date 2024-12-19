@@ -10,6 +10,3 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
 
     AccountNumberSequence findByAccountType(AccountType accountType);
 }
-
-
-

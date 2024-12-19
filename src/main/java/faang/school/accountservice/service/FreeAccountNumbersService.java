@@ -45,15 +45,14 @@ public class FreeAccountNumbersService {
     }
 
     @Transactional
-    public FreeAccountNumber getFreeAccountNumber(AccountType accountType) {
+    public String getFreeAccountNumber(AccountType accountType) {
         FreeAccountNumber freeAccountNumber =
                 freeAccountNumbersRepository.getFirstByAccountType(accountType);
         freeAccountNumbersRepository.delete(freeAccountNumber);
-        return freeAccountNumber;
+        return freeAccountNumber.getAccountNumber();
     }
 
-    @Transactional
-    public Long incrementSequence(AccountType accountType) {
+    private Long incrementSequence(AccountType accountType) {
         boolean updated = false;
         while (!updated) {
             try {
@@ -71,7 +70,11 @@ public class FreeAccountNumbersService {
                 return newValue;
             } catch (OptimisticLockException e) {
                 log.info("Optimistic lock conflict, retrying...");
-                incrementSequence(accountType);
+                int counter = 0;
+                while (counter < 5) {
+                    counter++;
+                    incrementSequence(accountType);
+                }
             }
         }
         throw new IllegalStateException("Failed to increment sequence after retries");

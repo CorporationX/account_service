@@ -8,7 +8,6 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountOwnerRepository;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.util.AccountNumberUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -27,6 +26,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountOwnerRepository accountOwnerRepository;
     private final AccountMapper accountMapper;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Transactional(readOnly = true)
     public AccountResponse getAccount(Long id) {
@@ -45,7 +45,7 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Owner not found"));
 
         Account account = Account.builder()
-                .accountNumber(AccountNumberUtil.generateAccountNumber(request.getType()))
+                .accountNumber(freeAccountNumbersService.getFreeAccountNumber(request.getType()))
                 .type(request.getType())
                 .currency(request.getCurrency())
                 .status(AccountStatus.ACTIVE)
