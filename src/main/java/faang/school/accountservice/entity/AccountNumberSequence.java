@@ -1,4 +1,4 @@
-package faang.school.accountservice.entiry;
+package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.Column;
@@ -8,29 +8,33 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "free_account_numbers")
-public class FreeAccountNumber {
+@Table(name = "account_numbers_sequence")
+public class AccountNumberSequence {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "account_type",length = 32, nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    @Column(name = "account_number", nullable = false, unique = true, length = 20)
-    private String accountNumber;
+    @Column(name = "current_value", nullable = false)
+    private Long currentSequenceValue;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 }

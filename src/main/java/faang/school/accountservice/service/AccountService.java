@@ -38,7 +38,7 @@ public class AccountService {
 
     @Transactional
     public AccountResponse openAccount(AccountRequest request) {
-        log.info("Opening a new account for ownerId: {}, ownerType: {}",
+        log.info("Start opening a new account for ownerId: {}, ownerType: {}",
                 request.getOwnerId(), request.getOwnerType());
         AccountOwner owner = accountOwnerRepository
                 .findByOwnerIdAndOwnerType(request.getOwnerId(), request.getOwnerType())

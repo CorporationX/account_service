@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalStateException.class)
+    @ExceptionHandler(InternalError.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleIllegalStateException(Exception e) {
+    public ErrorResponse handleInternalError(Exception e) {
         return buildResponse(e);
     }
 

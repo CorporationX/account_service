@@ -1,7 +1,7 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.entiry.AccountNumberSequence;
-import faang.school.accountservice.entiry.FreeAccountNumber;
+import faang.school.accountservice.entity.AccountNumberSequence;
+import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.properties.AccountTypeIdentityProperties;
 import faang.school.accountservice.properties.AccountTypeLengthProperties;
@@ -29,12 +29,11 @@ public class FreeAccountNumbersService {
     @Transactional
     public void generateFreeAccountNumber(AccountType accountType) {
         long numberSequence = incrementSequence(accountType);
-
         int accountNumberLength = getLengthByAccountType(accountType);
         int accountTypeIdentity = getNumberIdentityByAccountType(accountType);
+
         freeAccountNumberValidator.validateNumberSequenceIsNotExceeded(numberSequence,
                 accountNumberLength, accountTypeIdentity);
-
         String accountNumber = buildAccountNumber(accountTypeIdentity,
                 numberSequence, accountNumberLength);
 
@@ -53,31 +52,29 @@ public class FreeAccountNumbersService {
     }
 
     private Long incrementSequence(AccountType accountType) {
-        boolean updated = false;
-        while (!updated) {
-            try {
-                AccountNumberSequence sequence = accountNumbersSequenceRepository.
-                        findByAccountType(accountType);
+        int increment = 1;
+        int numberOfTries = 3;
 
-                if (sequence == null) {
-                    throw new EntityNotFoundException("Sequence not found for account type: " + accountType);
-                }
-                Long newValue = sequence.getCurrentSequenceValue() + 1;
-                sequence.setCurrentSequenceValue(newValue);
-                accountNumbersSequenceRepository.save(sequence);
+        try {
+            AccountNumberSequence sequence = accountNumbersSequenceRepository.
+                    findByAccountType(accountType);
+            if (sequence == null) {
+                throw new EntityNotFoundException("Sequence not found for account type: " + accountType);
+            }
+            Long newValue = sequence.getCurrentSequenceValue() + increment;
+            sequence.setCurrentSequenceValue(newValue);
+            accountNumbersSequenceRepository.save(sequence);
+            return newValue;
 
-                updated = true;
-                return newValue;
-            } catch (OptimisticLockException e) {
-                log.info("Optimistic lock conflict, retrying...");
-                int counter = 0;
-                while (counter < 5) {
-                    counter++;
-                    incrementSequence(accountType);
-                }
+        } catch (OptimisticLockException e) {
+            log.info("Optimistic lock conflict, retrying...",e);
+            int counter = 0;
+            while (counter < numberOfTries) {
+                counter++;
+                incrementSequence(accountType);
             }
         }
-        throw new IllegalStateException("Failed to increment sequence after retries");
+        throw new InternalError("Failed to increment sequence after retries");
     }
 
     private int getLengthByAccountType(AccountType accountType) {
@@ -98,16 +95,16 @@ public class FreeAccountNumbersService {
         };
     }
 
-    private String buildAccountNumber(long accountTypeIdentity, long uniqueNumber, long numberLength) {
-        long quantityOfZeros = numberLength -
-                Long.toString(accountTypeIdentity).length() -
-                Long.toString(uniqueNumber).length();
-        StringBuilder result = new StringBuilder();
-        result.append(accountTypeIdentity);
+    private String buildAccountNumber(int accountTypeIdentity, long uniqueNumber, int numberLength) {
+        char characterForBuilding = '0';
+        StringBuilder accountNumber = new StringBuilder();
+        accountNumber.append(accountTypeIdentity);
 
-        for (int i = 0; i < quantityOfZeros; i++) {
-            result.append("0");
-        }
-        return result.append(uniqueNumber).toString();
+        accountNumber.append(String.valueOf(characterForBuilding).
+                repeat(Math.max(0, (numberLength - String.valueOf(accountTypeIdentity).length()))));
+
+        accountNumber.replace(accountNumber.length() - String.valueOf(uniqueNumber).length(),
+                accountNumber.length(), String.valueOf(uniqueNumber));
+        return accountNumber.toString();
     }
 }

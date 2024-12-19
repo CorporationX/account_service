@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS account_numbers_sequence
     id BIGSERIAL PRIMARY KEY,
     account_type VARCHAR(32) NOT NULL,
     current_value BIGINT NOT NULL,
-    version BIGINT NOT NULL
+    version BIGINT default 1 NOT NULL
 );
 
 INSERT INTO account_numbers_sequence(account_type,current_value)
-VALUES  (INDIVIDUAL,0),
-        (SAVINGS,0),
-        (DEBIT,0),
-        (LEGAL,0)
+VALUES  ('INDIVIDUAL',0),
+        ('SAVINGS',0),
+        ('DEBIT',0),
+        ('LEGAL',0)
