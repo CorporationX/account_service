@@ -8,31 +8,35 @@ import faang.school.accountservice.properties.AccountTypeLengthProperties;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.validator.FreeAccountNumberValidator;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FreeAccountNumbersService {
 
-    private final AccountTypeIdentityProperties identityProps;
-    private final AccountTypeLengthProperties lengthProps;
+    private final AccountTypeIdentityProperties identityProp;
+    private final AccountTypeLengthProperties lengthProp;
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final FreeAccountNumberValidator freeAccountNumberValidator;
 
     @Transactional
     public void generateFreeAccountNumber(AccountType accountType) {
-        AccountNumberSequence numberSequence =
-                accountNumbersSequenceRepository.incrementAndGetByAccountType(accountType.toString());
+        long numberSequence = incrementSequence(accountType);
+
         int accountNumberLength = getLengthByAccountType(accountType);
         int accountTypeIdentity = getNumberIdentityByAccountType(accountType);
         freeAccountNumberValidator.validateNumberSequenceIsNotExceeded(numberSequence,
                 accountNumberLength, accountTypeIdentity);
 
         String accountNumber = buildAccountNumber(accountTypeIdentity,
-                numberSequence.getCurrentSequenceValue(), accountNumberLength);
+                numberSequence, accountNumberLength);
 
         freeAccountNumbersRepository.save(FreeAccountNumber.builder()
                 .accountType(accountType)
@@ -48,21 +52,46 @@ public class FreeAccountNumbersService {
         return freeAccountNumber;
     }
 
+    @Transactional
+    public Long incrementSequence(AccountType accountType) {
+        boolean updated = false;
+        while (!updated) {
+            try {
+                AccountNumberSequence sequence = accountNumbersSequenceRepository.
+                        findByAccountType(accountType);
+
+                if (sequence == null) {
+                    throw new EntityNotFoundException("Sequence not found for account type: " + accountType);
+                }
+                Long newValue = sequence.getCurrentSequenceValue() + 1;
+                sequence.setCurrentSequenceValue(newValue);
+                accountNumbersSequenceRepository.save(sequence);
+
+                updated = true;
+                return newValue;
+            } catch (OptimisticLockException e) {
+                log.info("Optimistic lock conflict, retrying...");
+                incrementSequence(accountType);
+            }
+        }
+        throw new IllegalStateException("Failed to increment sequence after retries");
+    }
+
     private int getLengthByAccountType(AccountType accountType) {
         return switch (accountType) {
-            case INDIVIDUAL -> lengthProps.getIndividual();
-            case LEGAL -> lengthProps.getLegal();
-            case SAVINGS -> lengthProps.getSavings();
-            case DEBIT -> lengthProps.getDebit();
+            case INDIVIDUAL -> lengthProp.getIndividual();
+            case LEGAL -> lengthProp.getLegal();
+            case SAVINGS -> lengthProp.getSavings();
+            case DEBIT -> lengthProp.getDebit();
         };
     }
 
     private int getNumberIdentityByAccountType(AccountType accountType) {
         return switch (accountType) {
-            case INDIVIDUAL -> identityProps.getIndividual();
-            case LEGAL -> identityProps.getLegal();
-            case SAVINGS -> identityProps.getSavings();
-            case DEBIT -> identityProps.getDebit();
+            case INDIVIDUAL -> identityProp.getIndividual();
+            case LEGAL -> identityProp.getLegal();
+            case SAVINGS -> identityProp.getSavings();
+            case DEBIT -> identityProp.getDebit();
         };
     }
 

@@ -31,7 +31,10 @@ public class AccountNumberSequence {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    @Version
     @Column(name = "current_value", nullable = false)
     private Long currentSequenceValue;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 }
