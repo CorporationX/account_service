@@ -1,6 +1,5 @@
 package faang.school.accountservice.handler;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -19,25 +18,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {ConstraintViolationException.class,
             IllegalArgumentException.class,
-            EntityNotFoundException.class,
-            HttpMessageNotReadableException.class,
-            EntityNotFoundException.class,
-            EntityExistsException.class})
+            HttpMessageNotReadableException.class,            })
     public ResponseEntity<ErrorResponse> handleExceptions(Exception ex, HttpServletRequest request) {
         String errorMessage = ex.getMessage();
         if (ex.getMessage().contains("JSON parse error:")) {
             errorMessage = errorMessage.replaceAll("`[^`]*`", "");
         }
         log.error("{}: {}", ex.getClass(), errorMessage);
-        ErrorResponse errorResponse = getErrorResponse(request, errorMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        ErrorResponse errorResponse = getErrorResponse(request, HttpStatus.BAD_REQUEST, errorMessage);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
 
-    private static ErrorResponse getErrorResponse(HttpServletRequest request, String errorMessage) {
+    @ExceptionHandler({EntityNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFoundExceptions(Exception ex, HttpServletRequest request) {
+        String errorMessage = ex.getMessage();
+        log.error("{}: {}", ex.getClass(), errorMessage);
+        ErrorResponse errorResponse = getErrorResponse(request, HttpStatus.NOT_FOUND, errorMessage);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler({IllegalStateException.class})
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(Exception ex, HttpServletRequest request) {
+        String errorMessage = ex.getMessage();
+        log.error("{}: {}", ex.getClass(), errorMessage);
+        ErrorResponse errorResponse = getErrorResponse(request, HttpStatus.CONFLICT, errorMessage);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+    private static ErrorResponse getErrorResponse(HttpServletRequest request,HttpStatus status, String errorMessage) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(LocalDateTime.now());
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+        errorResponse.setStatus(status.value());
+        errorResponse.setError(status.getReasonPhrase());
         errorResponse.setMessage(errorMessage);
         errorResponse.setPath(request.getRequestURI());
         return errorResponse;

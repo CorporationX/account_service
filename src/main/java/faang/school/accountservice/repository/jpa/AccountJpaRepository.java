@@ -5,6 +5,7 @@ import faang.school.accountservice.model.account.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,4 +13,8 @@ public interface AccountJpaRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByIdAndStatus(long id, AccountStatus accountStatus);
 
     Optional<Account> findByAccountNumber(String accountNumber);
+
+    List<Account> findAccountsByOwnerId(long l);
+
+    List<Account> findAccountsByStatus(AccountStatus accountStatus);
 }

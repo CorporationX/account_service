@@ -5,10 +5,11 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.repository.jpa.AccountJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class AccountRepository {

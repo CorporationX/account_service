@@ -20,11 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-
-@RestController
-@RequestMapping("/api/v1/accounts")
-@RequiredArgsConstructor
 @Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
     private final AccountService accountService;
 
@@ -48,8 +47,8 @@ public class AccountController {
         return accountService.getAccount(id);
     }
 
-    @PostMapping("/")
-    public List<AccountDtoResponse> get(@RequestBody @Valid AccountDtoFilter dtoFilter) {
+    @GetMapping
+    public List<AccountDtoResponse> getAccounts(@RequestBody @Valid AccountDtoFilter dtoFilter) {
         return accountService.getAccounts(dtoFilter);
     }
 

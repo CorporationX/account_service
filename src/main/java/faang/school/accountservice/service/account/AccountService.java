@@ -12,7 +12,6 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
-import jakarta.persistence.EntityExistsException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -74,7 +73,6 @@ public class AccountService {
     public AccountDtoResponse verify(@NotNull @Valid AccountDtoVerify dto) {
         Account account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING);
         account.setStatus(AccountStatus.ACTIVE);
-        account.setUpdatedAt(dto.getUpdatedAt());
         return accountMapper.toDto(accountRepository.save(account));
     }
 
@@ -135,10 +133,10 @@ public class AccountService {
 
     private static void checkAccountClosedBlocked(@NotNull Account account) {
         if (account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new EntityExistsException("Account is already closed by id: " + account.getId());
+            throw new IllegalStateException("Account is already closed by id: " + account.getId());
         }
         if (account.getStatus().equals(AccountStatus.BLOCKED)) {
-            throw new EntityExistsException("Account is already blocked by id: " + account.getId());
+            throw new IllegalStateException("Account is already blocked by id: " + account.getId());
         }
     }
 }
