@@ -1,15 +1,18 @@
 package faang.school.accountservice.model.account;
 
+import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Size;
@@ -17,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Bag;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -75,4 +79,7 @@ public class Account {
     @Size(max = 4096, message = "Notes must be less than 4096 characters")
     @Column(name = "notes", length = 4096)
     private String notes;
+
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, optional = false)
+    private Balance balance;
 }
