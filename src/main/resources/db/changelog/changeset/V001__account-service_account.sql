@@ -1,13 +1,15 @@
-CREATE TABLE account
+CREATE SCHEMA IF NOT EXISTS account_schema;
+
+CREATE TABLE account_schema.account
 (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     payment_number VARCHAR(20) CHECK (payment_number ~ '[0-9]{12,20}$'),
     user_id BIGINT,
     project_id BIGINT,
     balance BIGINT DEFAULT 0,
-    type SMALLINT NOT NULL,
-    currency SMALLINT NOT NULL,
-    status SMALLINT NOT NULL,
+    type VARCHAR(40) NOT NULL,
+    currency CHAR(3) NOT NULL,
+    status VARCHAR(15) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     closed_at TIMESTAMP,

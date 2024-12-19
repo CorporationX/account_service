@@ -1,0 +1,1 @@
+CREATE INDEX payment_number_idx ON account (payment_number);
