@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS balance
 (
     id BIGSERIAL PRIMARY KEY,
-    account_id BIGSERIAL NOT NULL UNIQUE,
+    account_id BIGINT NOT NULL,
     authorized_value DECIMAL NOT NULL DEFAULT 0,
     actual_value DECIMAL NOT NULL DEFAULT 0,
     created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
