@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/account_V001__initial.sql
+  - include:
+      file: db/changelog/changeset/account_V004__balance_audit.sql
