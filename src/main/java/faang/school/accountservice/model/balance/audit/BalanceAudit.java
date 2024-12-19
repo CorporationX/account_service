@@ -32,8 +32,8 @@ public class BalanceAudit {
     @Column(name = "actual_amount", nullable = false)
     private Long actualAmount;
 
-    @Column(name = "id_operation", nullable = false)
-    private long id_operation;
+    @Column(name = "operation_id", nullable = false)
+    private long operationId;
 
     @Column(name = "created_at")
     private LocalDateTime created_at;

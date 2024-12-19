@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS balance_audit (
     version INT NOT NULL GENERATED ALWAYS AS IDENTITY UNIQUE,
     authorization_amount BIGINT NOT NULL,
     actual_amount BIGINT NOT NULL,
-    id_operation BIGINT NOT NULL,
+    operation_id BIGINT NOT NULL,
     created_at TIMESTAMPTZ,
 
     CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES account (id)
