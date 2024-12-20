@@ -9,10 +9,8 @@ public class FreeAccountNumberValidator {
                                                     int accountNumberLength,
                                                     int accountTypeIdentity) {
         if (Long.toString(numberSequence).length() >
-                accountNumberLength - Integer.toString(accountTypeIdentity).length()) {
-            throw new InternalError("Quantity numbers of sequence for accountType: " +
-                    numberSequence + " exceeded");
+                (accountNumberLength - Integer.toString(accountTypeIdentity).length())) {
+            throw new InternalError("Quantity numbers of sequence exceeded");
         }
-        System.out.println(Long.toString(numberSequence).length() + " number sequence");
     }
 }

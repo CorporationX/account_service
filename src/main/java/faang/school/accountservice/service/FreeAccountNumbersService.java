@@ -47,7 +47,12 @@ public class FreeAccountNumbersService {
     public String getFreeAccountNumber(AccountType accountType) {
         FreeAccountNumber freeAccountNumber =
                 freeAccountNumbersRepository.getFirstByAccountType(accountType);
-        freeAccountNumbersRepository.delete(freeAccountNumber);
+
+        if (freeAccountNumber == null) {
+            generateFreeAccountNumber(accountType);
+            freeAccountNumber = freeAccountNumbersRepository.getFirstByAccountType(accountType);
+        }
+        freeAccountNumbersRepository.deleteById(freeAccountNumber.getId());
         return freeAccountNumber.getAccountNumber();
     }
 
