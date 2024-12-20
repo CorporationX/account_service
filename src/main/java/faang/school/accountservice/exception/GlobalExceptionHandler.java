@@ -1,5 +1,6 @@
 package faang.school.accountservice.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,28 +35,49 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalAccountOwnerTypeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleIllegalAccountOwnerTyperException(IllegalAccountOwnerTypeException ex) {
-        log.error("Illegal account owner type error occured: {}", ex.getMessage(), ex);
+        log.error("Illegal account owner type error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalAccountStatusException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleIllegalAccountStatusException(IllegalAccountStatusException ex) {
-        log.error("Illegal account status error occured: {}", ex.getMessage(), ex);
+        log.error("Illegal account status error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalAccountTypeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleIllegalAccountTypeException(IllegalAccountTypeException ex) {
-        log.error("Illegal account type error occured: {}", ex.getMessage(), ex);
+        log.error("Illegal account type error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalAccountCurrencyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleIllegalAccountCurrencyException(IllegalAccountCurrencyException ex) {
-        log.error("Illegal account currency error occured: {}", ex.getMessage(), ex);
+        log.error("Illegal account currency error occurred: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalAccountAccessException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleIllegalAccountAccessException(IllegalAccountAccessException ex) {
+        log.error("Illegal account access error occurred: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidAccountStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleInvalidAccountStatusException(InvalidAccountStatusException ex) {
+        log.error("Invalid account status update error occurred: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        log.error("Entity not found error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }
