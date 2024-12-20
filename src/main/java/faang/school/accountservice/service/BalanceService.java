@@ -24,7 +24,7 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
 
     @Transactional
-    public void createBalance(Account account) {
+    public BalanceDto createBalance(Account account) {
         Balance balance = new Balance();
         balance.setActualBalance(BigDecimal.ZERO);
         balance.setAuthorizationBalance(BigDecimal.ZERO);
@@ -32,35 +32,41 @@ public class BalanceService {
         balance.setCreatedAt(LocalDateTime.now());
         balance.setUpdatedAt(LocalDateTime.now());
         log.info("Balance for {} account is created", account.getAccountNumber());
-        balanceRepository.save(balance);
+        return balanceMapper.toDto(balanceRepository.save(balance));
     }
 
     public BalanceDto getBalance(Long accountId) {
         log.info("Balance for {} account is find", accountId);
-        return balanceMapper.toDto(balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Balance not found")));
+        return balanceMapper.toDto(getBalanceFromRepository(accountId));
     }
 
     @Transactional
     public BalanceDto updateBalance(Long accountId, TransactionDto transaction) {
-        Balance balance = balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Balance not found"));
+        Balance balance = getBalanceFromRepository(accountId);
 
         BigDecimal amount = transaction.getAmount();
-        BigDecimal actualBalance = balance.getActualBalance().add(amount);
-        BigDecimal authorizationBalance = balance.getAuthorizationBalance().add(amount);
-        int version = balance.getVersion() + 1;
+        BigDecimal actualBalance = balance.getActualBalance();
+        BigDecimal authorizationBalance = balance.getAuthorizationBalance();
+
+        switch (transaction.getOperationType()) {
+            case CLEARING -> actualBalance = actualBalance.add(amount);
+            case AUTHORIZATION -> authorizationBalance = authorizationBalance.add(amount);
+        }
 
         if (authorizationBalance.compareTo(BigDecimal.ZERO) < 0 ||
                 actualBalance.compareTo(BigDecimal.ZERO) < 0) {
             throw new BalanceBelowZeroException(accountId, amount);
         }
-
         balance.setActualBalance(actualBalance);
         balance.setAuthorizationBalance(authorizationBalance);
-        balance.setVersion(version);
+        balance.setVersion(balance.getVersion() + 1);
         balance.setUpdatedAt(LocalDateTime.now());
         log.info("Balance for {} account is updated", accountId);
         return balanceMapper.toDto(balanceRepository.save(balance));
+    }
+
+    private Balance getBalanceFromRepository(Long accountId) {
+        return balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Balance not found"));
     }
 }
