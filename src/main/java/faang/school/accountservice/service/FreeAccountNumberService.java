@@ -15,7 +15,8 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 public class FreeAccountNumberService {
-    private static final long ACCOUNT_PATTERN = 4200_0000_0000_0000L;
+    private static final long DEBIT_ACCOUNT = 4200_0000_0000_0000L;
+    private static final long CREDIT_ACCOUNT = 5536_0000_0000_0000L;
 
     private final AccountSeqRepository accountSeqRepository;
     private final FreeAccountRepository freeAccountRepository;
@@ -24,7 +25,17 @@ public class FreeAccountNumberService {
     public void generateOneAccountNumber(AccountType type) {
         AccountSeq period = accountSeqRepository.incrementCounter(type.name());
         FreeAccountNumber accountNumber = new FreeAccountNumber();
-        accountNumber.setId(new FreeAccountId(type, ACCOUNT_PATTERN + period.getCounter()));
+        long baseAccountNumber;
+
+        if ("credit".equalsIgnoreCase(type.name())) {
+            baseAccountNumber = CREDIT_ACCOUNT;
+        } else if ("debit".equalsIgnoreCase(type.name())) {
+            baseAccountNumber = DEBIT_ACCOUNT;
+        } else {
+            throw new IllegalArgumentException("Unsupported account type: " + type.name());
+        }
+
+        accountNumber.setId(new FreeAccountId(type, baseAccountNumber + period.getCounter()));
         freeAccountRepository.save(accountNumber);
     }
 
