@@ -19,8 +19,8 @@ public class BalanceController {
   private final BalanceService balanceService;
 
   @PostMapping("/add")
-  public BalanceDto addBalance(@RequestHeader("x-user-id") long userId, BalanceDto dto ) {
-    return null;
+  public BalanceDto addBalance(@RequestHeader("x-user-id") long userId, BalanceDto dto) {
+    return balanceService.create(userId, dto);
   }
 
   @PutMapping("/update")

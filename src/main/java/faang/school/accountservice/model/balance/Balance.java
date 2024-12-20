@@ -13,7 +13,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,11 +46,11 @@ public class Balance {
 
   @CreationTimestamp
   @Column(name = "created_at")
-  private Instant createdAt;
+  private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @Column(name = "updated_at")
-  private Instant updatedAt;
+  private LocalDateTime updatedAt;
 
   @Column(name = "version", nullable = false)
   @Version
