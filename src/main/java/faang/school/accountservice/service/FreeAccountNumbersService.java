@@ -9,10 +9,12 @@ import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.validator.FreeAccountNumberValidator;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -28,6 +30,7 @@ public class FreeAccountNumbersService {
 
     @Transactional
     public void generateFreeAccountNumber(AccountType accountType) {
+        log.info("Start generating free account number for account type: {}", accountType);
         long numberSequence = incrementSequence(accountType);
         int accountNumberLength = getLengthByAccountType(accountType);
         int accountTypeIdentity = getNumberIdentityByAccountType(accountType);
@@ -41,45 +44,44 @@ public class FreeAccountNumbersService {
                 .accountType(accountType)
                 .accountNumber(accountNumber)
                 .build());
+        log.info("Finished generating free account number for account type: {}", accountType);
     }
 
     @Transactional
     public String getFreeAccountNumber(AccountType accountType) {
+        log.info("Start getting free account number for account type: {}", accountType);
         FreeAccountNumber freeAccountNumber =
                 freeAccountNumbersRepository.getFirstByAccountType(accountType);
 
         if (freeAccountNumber == null) {
+            log.info("No free account number found for account type: {}.Generating new...", accountType);
             generateFreeAccountNumber(accountType);
             freeAccountNumber = freeAccountNumbersRepository.getFirstByAccountType(accountType);
         }
         freeAccountNumbersRepository.deleteById(freeAccountNumber.getId());
+        log.info("Finished getting free account number for account type: {}", accountType);
         return freeAccountNumber.getAccountNumber();
     }
 
+    @Retryable(
+            retryFor = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     private Long incrementSequence(AccountType accountType) {
         int increment = 1;
-        int numberOfTries = 3;
 
-        try {
-            AccountNumberSequence sequence = accountNumbersSequenceRepository.
-                    findByAccountType(accountType);
-            if (sequence == null) {
-                throw new EntityNotFoundException("Sequence not found for account type: " + accountType);
-            }
-            Long newValue = sequence.getCurrentSequenceValue() + increment;
-            sequence.setCurrentSequenceValue(newValue);
-            accountNumbersSequenceRepository.save(sequence);
-            return newValue;
-
-        } catch (OptimisticLockException e) {
-            log.info("Optimistic lock conflict, retrying...",e);
-            int counter = 0;
-            while (counter < numberOfTries) {
-                counter++;
-                incrementSequence(accountType);
-            }
+        log.info("Start incrementing sequence for account type: {}", accountType);
+        AccountNumberSequence sequence = accountNumbersSequenceRepository.
+                findByAccountType(accountType);
+        if (sequence == null) {
+            throw new EntityNotFoundException("Sequence not found for account type: " + accountType);
         }
-        throw new InternalError("Failed to increment sequence after retries");
+        Long newValue = sequence.getCurrentSequenceValue() + increment;
+        sequence.setCurrentSequenceValue(newValue);
+        accountNumbersSequenceRepository.save(sequence);
+        log.info("Sequence incremented for account type: {}", accountType);
+        return newValue;
     }
 
     private int getLengthByAccountType(AccountType accountType) {
