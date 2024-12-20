@@ -33,16 +33,20 @@ class BalanceServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private BalanceDto createBalanceDto(Long accountId, BigDecimal authBalance, BigDecimal actualBalance) {
+        return BalanceDto.builder()
+                .id(accountId)
+                .accountId(accountId)
+                .authBalance(authBalance)
+                .actualBalance(actualBalance)
+                .build();
+    }
+
     @Test
     void testGetBalanceByAccountId_Success() {
         Long accountId = 1L;
         Balance balance = new Balance();
-        BalanceDto balanceDto = BalanceDto.builder()
-                .id(1L)
-                .accountId(accountId)
-                .authBalance(new BigDecimal("100.00"))
-                .actualBalance(new BigDecimal("100.00"))
-                .build();
+        BalanceDto balanceDto = createBalanceDto(accountId, new BigDecimal("100.00"), new BigDecimal("100.00"));
 
         when(balanceRepository.findById(accountId)).thenReturn(Optional.of(balance));
         when(balanceMapper.toDto(balance)).thenReturn(balanceDto);
@@ -66,10 +70,7 @@ class BalanceServiceTest {
     @Test
     void testCreateBalance_Success() {
         Balance balance = new Balance();
-        BalanceDto balanceDto = BalanceDto.builder()
-                .authBalance(new BigDecimal("100.00"))
-                .actualBalance(new BigDecimal("100.00"))
-                .build();
+        BalanceDto balanceDto = createBalanceDto(null, new BigDecimal("100.00"), new BigDecimal("100.00"));
 
         when(balanceMapper.toEntity(balanceDto)).thenReturn(balance);
         when(balanceRepository.save(balance)).thenReturn(balance);
@@ -86,10 +87,7 @@ class BalanceServiceTest {
     void testUpdateBalance_Success() {
         Long accountId = 1L;
         Balance balance = new Balance();
-        BalanceDto balanceDto = BalanceDto.builder()
-                .authBalance(new BigDecimal("200.00"))
-                .actualBalance(new BigDecimal("150.00"))
-                .build();
+        BalanceDto balanceDto = createBalanceDto(accountId, new BigDecimal("200.00"), new BigDecimal("150.00"));
 
         when(balanceRepository.findById(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
@@ -105,7 +103,7 @@ class BalanceServiceTest {
     @Test
     void testUpdateBalance_NotFound() {
         Long accountId = 1L;
-        BalanceDto balanceDto = BalanceDto.builder().build();
+        BalanceDto balanceDto = createBalanceDto(accountId, new BigDecimal("0.00"), new BigDecimal("0.00"));
 
         when(balanceRepository.findById(accountId)).thenReturn(Optional.empty());
 
