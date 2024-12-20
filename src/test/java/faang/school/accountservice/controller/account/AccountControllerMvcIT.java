@@ -3,9 +3,13 @@ package faang.school.accountservice.controller.account;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.account.AccountDtoCloseBlock;
 import faang.school.accountservice.dto.account.AccountDtoFilter;
+import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
 import faang.school.accountservice.dto.account.AccountDtoVerify;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.jpa.AccountJpaRepository;
@@ -28,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -81,8 +86,39 @@ class AccountControllerMvcIT {
     }
 
     @Test
-    void testOpen_Positive() {
+    void testOpen_Positive() throws Exception {
+        AccountDtoOpen dto = AccountDtoOpen.builder()
+                .ownerId(20L)
+                .ownerType(OwnerType.PROJECT)
+                .accountType(AccountType.SAVINGS)
+                .currency(Currency.EUR)
+                .notes("Notes")
+                .build();
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_OPEN)
+                        .header("x-user-id", 1L)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        AccountDtoResponse response = objectMapper.readValue(content, AccountDtoResponse.class);
+        assertEquals(response.getStatus(), AccountStatus.PENDING);
+        assertTrue(response.getAccountNumber().length() >= 12);
+        assertEquals(response.getNotes(), dto.getNotes());
+    }
 
+    @Test
+    void testOpen_invalidOwnerId_Negative() throws Exception {
+        AccountDtoOpen dto = AccountDtoOpen.builder()
+                .ownerId(-1L)
+                .build();
+        mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_OPEN)
+                        .header("x-user-id", 1L)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -92,7 +128,7 @@ class AccountControllerMvcIT {
                 .id(account.getId())
                 .build();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_VERIFY)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_VERIFY)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +144,7 @@ class AccountControllerMvcIT {
     @Test
     void testVerify_Negative() throws Exception {
         AccountDtoVerify dto = AccountDtoVerify.builder().build();
-        mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_VERIFY)
+        mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_VERIFY)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -214,7 +250,7 @@ class AccountControllerMvcIT {
                 .id(account.getId())
                 .build();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_CLOSE)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_CLOSE)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -234,7 +270,7 @@ class AccountControllerMvcIT {
                 .accountNumber(account.getAccountNumber())
                 .build();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_CLOSE)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_CLOSE)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -251,7 +287,7 @@ class AccountControllerMvcIT {
     void testCloseAccount_nullInput_Negative() throws Exception {
         AccountDtoCloseBlock dto = AccountDtoCloseBlock.builder()
                 .build();
-        mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_CLOSE)
+        mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_CLOSE)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -266,7 +302,7 @@ class AccountControllerMvcIT {
                 .id(account.getId())
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_CLOSE)
+        mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_CLOSE)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -281,7 +317,7 @@ class AccountControllerMvcIT {
                 .id(account.getId())
                 .build();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_BLOCK)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_BLOCK)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -301,7 +337,7 @@ class AccountControllerMvcIT {
                 .accountNumber(account.getAccountNumber())
                 .build();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_BLOCK)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_BLOCK)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -318,7 +354,7 @@ class AccountControllerMvcIT {
     void testBlockAccount_nullInput_Negative() throws Exception {
         AccountDtoCloseBlock dto = AccountDtoCloseBlock.builder()
                 .build();
-        mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_BLOCK)
+        mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_BLOCK)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -333,7 +369,7 @@ class AccountControllerMvcIT {
                 .id(account.getId())
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.post(URL_PREFIX + URL_BLOCK)
+        mockMvc.perform(MockMvcRequestBuilders.put(URL_PREFIX + URL_BLOCK)
                         .header("x-user-id", 1L)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
