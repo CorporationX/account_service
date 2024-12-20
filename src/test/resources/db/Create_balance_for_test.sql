@@ -1,4 +1,4 @@
-INSERT INTO public.account_owner (owner_id, owner_type, created_at)
+INSERT INTO account_owner (owner_id, owner_type, created_at)
 VALUES(1, 'USER', '2024-12-19 10:44:10.991');
 
 INSERT INTO account (account_number, "type", currency, status, created_at, updated_at, closed_at, "version", owner_id)
