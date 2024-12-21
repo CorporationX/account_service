@@ -27,7 +27,7 @@ public class AccountNumberSequence {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_type",length = 32, nullable = false, unique = true)
+    @Column(name = "account_type", length = 32, nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
@@ -35,6 +35,6 @@ public class AccountNumberSequence {
     private Long currentSequenceValue;
 
     @Version
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private Long version;
 }

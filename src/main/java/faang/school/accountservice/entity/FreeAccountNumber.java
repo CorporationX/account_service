@@ -26,10 +26,10 @@ public class FreeAccountNumber {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "account_type", nullable = false,length = 32)
+    @Column(name = "account_type", length = 32, nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    @Column(name = "account_number", nullable = false, unique = true, length = 20)
+    @Column(name = "account_number", length = 20, nullable = false, unique = true)
     private String accountNumber;
 }

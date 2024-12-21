@@ -73,10 +73,10 @@ public class FreeAccountNumbersService {
 
         log.info("Start incrementing sequence for account type: {}", accountType);
         AccountNumberSequence sequence = accountNumbersSequenceRepository.
-                findByAccountType(accountType);
-        if (sequence == null) {
-            throw new EntityNotFoundException("Sequence not found for account type: " + accountType);
-        }
+                findByAccountType(accountType).
+                orElseThrow(() -> new EntityNotFoundException(
+                        "Sequence not found for account type: " + accountType));
+
         Long newValue = sequence.getCurrentSequenceValue() + increment;
         sequence.setCurrentSequenceValue(newValue);
         accountNumbersSequenceRepository.save(sequence);
@@ -103,11 +103,11 @@ public class FreeAccountNumbersService {
     }
 
     private String buildAccountNumber(int accountTypeIdentity, long uniqueNumber, int numberLength) {
-        char characterForBuilding = '0';
+        String characterForBuilding = "0";
         StringBuilder accountNumber = new StringBuilder();
         accountNumber.append(accountTypeIdentity);
 
-        accountNumber.append(String.valueOf(characterForBuilding).
+        accountNumber.append((characterForBuilding).
                 repeat(Math.max(0, (numberLength - String.valueOf(accountTypeIdentity).length()))));
 
         accountNumber.replace(accountNumber.length() - String.valueOf(uniqueNumber).length(),

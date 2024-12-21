@@ -20,7 +20,7 @@ class FreeAccountNumberValidatorTest {
 
     @Test
     void validateNumberSequenceIsNotExceededThrowsExceptionTest() {
-        long numberSequence = 1000_0000_0000_0L;
+        long numberSequence = 1000000000000L;
         int accountNumberLength = 16;
         int accountTypeIdentity = 4455;
 
