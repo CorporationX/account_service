@@ -22,8 +22,10 @@ public class AccountDtoFilter {
     private AccountType accountType;
     private Currency currency;
     private AccountStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime closedAt;
+    private LocalDateTime createdAtStart;
+    private LocalDateTime createdAtEnd;
+    private LocalDateTime closedAtStart;
+    private LocalDateTime closedAtEnd;
     private Boolean isVerified;
     private String notes;
 }
