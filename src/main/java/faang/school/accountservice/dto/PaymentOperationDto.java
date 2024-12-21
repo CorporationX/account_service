@@ -14,13 +14,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PaymentOperationDto {
     private Long id;
-    private BigDecimal amount; // сумма
+    private BigDecimal amount; //сумма
     private String currency; // валюта
-    private long ownerId; // счет отправителя (проверку что такой счет существует)
-    private long recipientId; // счет получателя (проверка что счет корректен)
+    private long ownerAccId; //счет отправителя (проверку что такой счет существует)
+    private long recipientAccId; //счет получателя (проверка что счет корректен)
     private PaymentOperationType operationType;
     private PaymentStatus status;
-//    private LocalDateTime clearScheduledAt;
-    private LocalDateTime createdAt; //дата создания
-    private LocalDateTime updatedAt; //дата обновления
+    private String clearScheduledAt;
+    private String createdAt; //дата создания
+    private String updatedAt; //дата обновления
 }
