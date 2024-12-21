@@ -31,12 +31,12 @@ public class AccountController {
     }
 
     @PostMapping
-    public AccountDto openNewAccount(@RequestBody @Valid CreateAccountDto createAccountDto){
+    public AccountDto openNewAccount(@RequestBody @Valid CreateAccountDto createAccountDto) {
         return accountService.openNewAccount(createAccountDto);
     }
 
     @PutMapping("/{accountId}")
-    public AccountDto changeStatus(@PathVariable long accountId, @RequestParam Status status){
+    public AccountDto changeStatus(@PathVariable long accountId, @RequestParam Status status) {
         return accountService.changeStatus(accountId, status);
     }
 }

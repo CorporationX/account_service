@@ -39,6 +39,9 @@ public class AccountService {
     }
 
     public AccountDto openNewAccount(CreateAccountDto createAccountDto) {
+        validator.checkId(createAccountDto.getOwnerId());
+        validator.validateCreateAccountDto(createAccountDto);
+
         Account account = createAccountMapper.toEntity(createAccountDto);
         account.setStatus(Status.ACTIVE);
 
@@ -47,11 +50,13 @@ public class AccountService {
         return accountMapper.toDto(account);
     }
 
-    public AccountDto changeStatus(long accountId, Status status){
+    public AccountDto changeStatus(long accountId, Status status) {
+        validator.checkId(accountId);
+
         Account account = getAccountById(accountId);
         account.setStatus(status);
 
-        if(status == Status.CLOSED){
+        if (status == Status.CLOSED) {
             account.setClosedAt(LocalDateTime.now());
         }
 
@@ -59,10 +64,12 @@ public class AccountService {
         return accountMapper.toDto(account);
     }
 
-    private Account getAccountById(long accountId){
+    private Account getAccountById(long accountId) {
+        validator.checkId(accountId);
+
         return accountRepository.findById(accountId)
-                .orElseThrow(()->new EntityNotFoundException(
-                        String.format("account with id = %d does not exist",accountId)));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("account with id = %d does not exist", accountId)));
     }
 
     private List<Account> getAccountByOwnerIdAndType(long ownerId, long ownerType) {

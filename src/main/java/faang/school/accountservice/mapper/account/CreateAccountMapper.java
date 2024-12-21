@@ -7,6 +7,6 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CreateAccountMapper {
-    Account toEntity (CreateAccountDto createAccountDto);
+    Account toEntity(CreateAccountDto createAccountDto);
 
 }

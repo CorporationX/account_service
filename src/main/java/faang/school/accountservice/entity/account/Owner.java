@@ -4,9 +4,9 @@ public enum Owner {
     USER,
     PROJECT;
 
-    public static Owner getOwnerById(long ownerId){
-        for (Owner owner : Owner.values()){
-            if(owner.ordinal()==ownerId){
+    public static Owner getOwnerById(long ownerId) {
+        for (Owner owner : Owner.values()) {
+            if (owner.ordinal() == ownerId) {
                 return owner;
             }
         }
