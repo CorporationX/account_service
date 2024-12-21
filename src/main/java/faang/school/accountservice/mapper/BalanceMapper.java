@@ -1,5 +1,6 @@
 package faang.school.accountservice.mapper;
 
+import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.model.balance.Balance;
 import org.mapstruct.Mapper;
@@ -13,5 +14,8 @@ public interface BalanceMapper {
   BalanceDto toDto(Balance balance);
 
   Balance toEntity(BalanceDto dto);
+
+  @Mapping(target = "account", ignore = true)
+  Balance toEntity(BalanceCreateDto dto);
 
 }

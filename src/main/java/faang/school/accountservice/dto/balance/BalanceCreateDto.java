@@ -5,16 +5,11 @@ import java.math.BigDecimal;
 import lombok.Builder;
 
 @Builder
-public record BalanceDto(
-    @NotNull
-    long id,
+public record BalanceCreateDto(
     @NotNull
     long accountId,
-    BigDecimal authorizedValue,
-    BigDecimal actualValue,
-    String createdAt,
-    String updatedAt,
-    String version
+    BigDecimal authorizedValue
 ) {
+
 
 }

@@ -5,16 +5,14 @@ import java.math.BigDecimal;
 import lombok.Builder;
 
 @Builder
-public record BalanceDto(
+public record PaymentDto(
     @NotNull
-    long id,
+    Long balanceId,
     @NotNull
-    long accountId,
-    BigDecimal authorizedValue,
-    BigDecimal actualValue,
-    String createdAt,
-    String updatedAt,
-    String version
-) {
+    PaymentStep paymentStep,
+    @NotNull
+    BigDecimal value
+ ) {
+
 
 }

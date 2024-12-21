@@ -1,12 +1,15 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.controller.balance;
 
+import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.balance.BalanceDto;
-import faang.school.accountservice.service.BalanceService;
+import faang.school.accountservice.dto.balance.PaymentDto;
+import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,17 +22,21 @@ public class BalanceController {
   private final BalanceService balanceService;
 
   @PostMapping("/add")
-  public BalanceDto addBalance(@RequestHeader("x-user-id") long userId, BalanceDto dto) {
+  public BalanceDto addBalance(@RequestHeader("x-user-id") Long userId,
+      @RequestBody BalanceCreateDto dto) {
     return balanceService.create(userId, dto);
   }
 
   @PutMapping("/update")
-  public BalanceDto updateBalance(@RequestHeader("x-user-id") long userId, BalanceDto dto) {
-    return null;
+  public BalanceDto updateBalance(@RequestHeader("x-user-id") Long userId,
+      @RequestBody PaymentDto dto) {
+    return balanceService.update(userId, dto);
   }
 
   @GetMapping("/{id}")
-  public BalanceDto getBalanceById(@RequestHeader("x-user-id") long userId, @PathVariable long id) {
-    return null;
+  public BalanceDto getBalanceById(@RequestHeader("x-user-id") Long userId,
+      @PathVariable("id") Long id) {
+    return balanceService.getBalanceById(userId, id);
   }
+
 }

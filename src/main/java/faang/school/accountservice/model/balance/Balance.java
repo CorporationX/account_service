@@ -8,10 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -34,7 +32,6 @@ public class Balance {
   private Long id;
 
   @OneToOne(cascade = CascadeType.ALL)
-  @MapsId
   @JoinColumn(name = "account_id", referencedColumnName = "id")
   private Account account;
 
@@ -53,6 +50,15 @@ public class Balance {
   private LocalDateTime updatedAt;
 
   @Column(name = "version", nullable = false)
-  @Version
   private long version;
+
+  public void authorizePayment(BigDecimal value) {
+    authorizedValue = authorizedValue.subtract(value);
+    version++;
+  }
+
+  public void clearPayment(BigDecimal value) {
+    actualValue = actualValue.subtract(value);
+    version++;
+  }
 }
