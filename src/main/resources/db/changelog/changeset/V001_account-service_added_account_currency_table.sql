@@ -1,4 +1,4 @@
-CREATE TABLE account
+CREATE TABLE IF NOT EXISTS account
 (
     id               BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     account_number   VARCHAR(20)  NOT NULL UNIQUE,
@@ -14,4 +14,4 @@ CREATE TABLE account
     account_version  INT          NOT NULL DEFAULT 1
 );
 
-CREATE INDEX owner_id_idx ON account (owner_id);
+CREATE INDEX IF NOT EXISTS owner_id_idx ON account (owner_id);

@@ -1,7 +1,7 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
+      file: db/changelog/changeset/V001_account-service_added_account_currency_table.sql
   - include:
-      file: db/changelog/changeset/V002_account-service_added_account_currency_table.sql
+      file: db/changelog/changeset/V002_account-service_added_balance_table.sql
   - include:
-      file: db/changelog/changeset/V003_account-service_added_balance_table.sql
+      file: db/changelog/changeset/V003_account-service_create_trigger_for_balance.sql
