@@ -10,10 +10,6 @@ public record CreateAccountDto(
         @NotNull(message = "Project owner type should not be empty")
         AccountOwnerType ownerType,
 
-//        @NotNull(message = "Owner id cannot be null")
-//        @Positive(message = "Owner id should be a positive number")
-//        Long ownerId,
-
         @NotBlank(message = "Owner name cannot be empty")
         String ownerName,
 
