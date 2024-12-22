@@ -4,10 +4,13 @@ import faang.school.accountservice.model.account.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Builder
 @NoArgsConstructor
@@ -22,7 +25,6 @@ public class BalanceAudit {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "version")
     private int version;
 
@@ -35,6 +37,7 @@ public class BalanceAudit {
     @Column(name = "operation_id", nullable = false)
     private long operationId;
 
+    @CreationTimestamp
     @Column(name = "created_at")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }
