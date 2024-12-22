@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BalanceAuditServiceImpl implements BalanceAuditService {
+public class  BalanceAuditServiceImpl implements BalanceAuditService {
     private final BalanceAuditRepository balanceAuditRepository;
     private final BalanceToBalanceAuditMapper balanceToBalanceAuditMapper;
 

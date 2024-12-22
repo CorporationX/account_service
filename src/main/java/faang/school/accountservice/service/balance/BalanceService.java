@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.aspect.balance.audit.BalanceAuditSupervisor;
-import faang.school.accountservice.aspect.balance.audit.NewBalanceAuditSupervisor;
+import faang.school.accountservice.aspect.balance.audit.ExistingBalanceAuditSupervisor;
 import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.PaymentDto;
@@ -13,7 +13,7 @@ public interface BalanceService {
   @BalanceAuditSupervisor
   BalanceDto create(@Valid Long userId, @Valid BalanceCreateDto balanceCreateDto);
 
-  @NewBalanceAuditSupervisor
+  @ExistingBalanceAuditSupervisor
   BalanceDto update(@Valid Long userId, @Valid PaymentDto paymentDto);
 
   Balance findBalanceById(Long id);
