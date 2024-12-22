@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V001__account-service_account.sql
   - include:
       file: db/changelog/changeset/V002_account-service_added_account_currency_table.sql
+  - include:
+      file: db/changelog/changeset/V003_account-service_added_balance_table.sql
