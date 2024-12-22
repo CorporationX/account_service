@@ -41,7 +41,6 @@ public class AccountService {
         account.setCreatedAt(LocalDateTime.now());
 
         try {
-            account.setVersion(account.getVersion() + 1);
             Account savedAccount = accountRepository.save(account);
 
             return accountMapper.toDto(savedAccount);
@@ -56,9 +55,18 @@ public class AccountService {
 
         Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException("Account not found"));
-        account.setStatus(AccountStatus.BLOCKED);
-        account.setUpdatedAt(LocalDateTime.now());
-        return accountMapper.toDto(accountRepository.save(account));
+
+
+        try {
+            account.setStatus(AccountStatus.BLOCKED);
+            account.setUpdatedAt(LocalDateTime.now());
+            account.setVersion(account.getVersion() + 1);
+            return accountMapper.toDto(accountRepository.save(account));
+
+        } catch (OptimisticLockException e) {
+            throw new ConflictException("The account has been updated by another process.");
+        }
+
     }
 
     public AccountDto closeAccount(Long accountId) {
@@ -66,10 +74,18 @@ public class AccountService {
 
         Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException("Account not found"));
-        account.setStatus(AccountStatus.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
 
-        return accountMapper.toDto(accountRepository.save(account));
+        try {
+            account.setStatus(AccountStatus.CLOSED);
+            account.setClosedAt(LocalDateTime.now());
+            account.setVersion(account.getVersion() + 1);
+            return accountMapper.toDto(accountRepository.save(account));
+
+        } catch (OptimisticLockException e) {
+            throw new ConflictException("The account has been updated by another process.");
+        }
+
+
     }
 
 

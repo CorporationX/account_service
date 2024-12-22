@@ -31,7 +31,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "accountType")
+    @Column(name = "accounttype")
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
@@ -47,6 +47,9 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Balance balance;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -57,6 +60,7 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Version
     @Column(name = "version")
-    private String version;
+    private Integer version;
 }

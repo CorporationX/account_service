@@ -1,6 +1,7 @@
 package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,11 +21,13 @@ public class AccountDto {
     @NotNull
     private String number;
     @NotNull
+    private String accountType;
+    @NotNull
     private Currency currency;
     @NotNull
     private AccountStatus status;
     @NotNull
-    private String version;
+    private Integer version;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
