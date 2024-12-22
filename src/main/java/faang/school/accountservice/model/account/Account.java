@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.account;
 
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.Column;

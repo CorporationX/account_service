@@ -1,4 +1,4 @@
-package faang.school.accountservice.model.account;
+package faang.school.accountservice.enums;
 
 public enum AccountStatus {
     ACTIVE,
@@ -13,5 +13,6 @@ public enum AccountStatus {
     REFUNDED,
     PARTIALLY_PAID,
     AWAITING_CONFIRMATION,
-    ARCHIVED
+    ARCHIVED,
+    BLOCKED
 }
