@@ -1,7 +1,7 @@
 package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.entity.account.Currency;
-import faang.school.accountservice.entity.account.Owner;
+import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Type;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -12,11 +12,7 @@ import lombok.Data;
 @Data
 public class CreateAccountDto {
     @NotNull
-    @NotBlank
-    @Size(min = 12, max = 20, message = "accountNumber must have length between 12 and 20 ")
-    private String accountNumber;
-    @NotNull
-    private Owner owner;
+    private OwnerType ownerType;
     @Min(value = 0, message = "ownerId cant be < 0")
     private long ownerId;
     @NotNull

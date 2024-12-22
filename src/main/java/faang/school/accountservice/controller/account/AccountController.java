@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +26,8 @@ import java.util.List;
 public class AccountController {
     private final AccountService accountService;
 
-    @GetMapping("/{ownerId}")
-    public List<AccountDto> getAccount(@PathVariable long ownerId, @RequestParam long ownerType) {
+    @GetMapping("/owners/{ownerId}")
+    public List<AccountDto> getAccount(@PathVariable @Positive long ownerId, @RequestParam @Positive  long ownerType) {
         return accountService.getAccount(ownerId, ownerType);
     }
 
@@ -36,7 +37,7 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}")
-    public AccountDto changeStatus(@PathVariable long accountId, @RequestParam Status status) {
+    public AccountDto changeStatus(@PathVariable @Positive  long accountId, @RequestParam Status status) {
         return accountService.changeStatus(accountId, status);
     }
 }

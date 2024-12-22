@@ -1,10 +1,9 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.controller.account.AccountController;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.account.Owner;
+import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.mapper.account.CreateAccountMapper;
@@ -13,9 +12,8 @@ import faang.school.accountservice.validator.account.AccountServiceValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +43,7 @@ public class AccountService {
         Account account = createAccountMapper.toEntity(createAccountDto);
         account.setStatus(Status.ACTIVE);
 
-        accountRepository.save(account);
+        createAccountNumberAndSave(account);
 
         return accountMapper.toDto(account);
     }
@@ -75,7 +73,43 @@ public class AccountService {
     private List<Account> getAccountByOwnerIdAndType(long ownerId, long ownerType) {
         validator.checkId(ownerId, ownerType);
 
-        Owner owner = Owner.getOwnerById(ownerType);
-        return accountRepository.findByOwnerIdAndOwner(ownerId, owner);
+        OwnerType owner = OwnerType.getOwnerById(ownerType);
+        return accountRepository.findByOwnerIdAndOwnerType(ownerId, owner);
+    }
+
+    //TODO заглушка. исправить на актуальную версию генерации при выполнении задачи на генерацию уникальных счетов
+    private void createAccountNumberAndSave(Account account){
+        int maxAttempts = 10;
+        int attempts = 0;
+
+        while (attempts < maxAttempts) {
+            try {
+                account.setAccountNumber(generateRandomAccountNumber());
+                accountRepository.save(account);
+                break;
+            } catch (Exception e) {
+                attempts++;
+            }
+        }
+
+        if (attempts == maxAttempts) {
+            throw new IllegalArgumentException("Cant create accountNumber pls try later");
+        }
+    }
+    //TODO заглушка. исправить на актуальную версию генерации при выполнении задачи на генерацию уникальных счетов
+    private String generateRandomAccountNumber() {
+        String DIGITS = "0123456789";
+        SecureRandom random = new SecureRandom();
+
+        int length = 12 + random.nextInt(9);
+
+        StringBuilder result = new StringBuilder(length);
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(DIGITS.length());
+            result.append(DIGITS.charAt(index));
+        }
+
+        return result.toString();
     }
 }

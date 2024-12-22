@@ -3,7 +3,7 @@ package faang.school.accountservice.controller.account;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.entity.account.Currency;
-import faang.school.accountservice.entity.account.Owner;
+import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.entity.account.Type;
 import faang.school.accountservice.service.account.AccountService;
@@ -12,20 +12,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -58,7 +55,7 @@ class AccountControllerTest {
         when(accountService.getAccount(1, 1))
                 .thenReturn(List.of(new AccountDto(), new AccountDto()));
 
-        mockMvc.perform(get("/api/v1/accounts/1")
+        mockMvc.perform(get("/api/v1/accounts/owners/1")
                         .param("ownerType", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
@@ -68,10 +65,9 @@ class AccountControllerTest {
     @Test
     void testOpenNewAccount() throws Exception {
         CreateAccountDto createAccountDto = new CreateAccountDto();
-        createAccountDto.setAccountNumber("12345678901234");
         createAccountDto.setType(Type.FOREX_ACCOUNT);
         createAccountDto.setCurrency(Currency.EUR);
-        createAccountDto.setOwner(Owner.USER);
+        createAccountDto.setOwnerType(OwnerType.USER);
         createAccountDto.setOwnerId(1);
 
         String json = objectMapper.writeValueAsString(createAccountDto);

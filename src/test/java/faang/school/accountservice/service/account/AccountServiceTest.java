@@ -4,12 +4,10 @@ import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.Currency;
-import faang.school.accountservice.entity.account.Owner;
+import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.entity.account.Type;
-import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.mapper.account.AccountMapperImpl;
-import faang.school.accountservice.mapper.account.CreateAccountMapper;
 import faang.school.accountservice.mapper.account.CreateAccountMapperImpl;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.validator.account.AccountServiceValidator;
@@ -25,7 +23,6 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +74,7 @@ class AccountServiceTest {
         firstAccount.setId(1);
         secondAccount.setId(2);
 
-        when(accountRepository.findByOwnerIdAndOwner(1, Owner.USER))
+        when(accountRepository.findByOwnerIdAndOwnerType(1, OwnerType.USER))
                 .thenReturn(List.of(firstAccount, secondAccount));
 
         List<AccountDto> accountDtos = accountService.getAccount(1, 0);
@@ -90,9 +87,8 @@ class AccountServiceTest {
     @Test
     void testOpenNewAccountCorrectWork() {
         CreateAccountDto createAccountDto = new CreateAccountDto();
-        createAccountDto.setAccountNumber("12345678901234");
         createAccountDto.setType(Type.FOREX_ACCOUNT);
-        createAccountDto.setOwner(Owner.USER);
+        createAccountDto.setOwnerType(OwnerType.USER);
         createAccountDto.setOwnerId(1);
         createAccountDto.setCurrency(Currency.EUR);
 
@@ -106,7 +102,7 @@ class AccountServiceTest {
 
         assertEquals(accountDto.getStatus(), Status.ACTIVE);
         assertEquals(accountDto.getType(), Type.FOREX_ACCOUNT);
-        assertEquals(accountDto.getOwner(), Owner.USER);
+        assertEquals(accountDto.getOwnerType(), OwnerType.USER);
         assertEquals(accountDto.getCurrency(), Currency.EUR);
     }
 

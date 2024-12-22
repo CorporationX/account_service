@@ -1,6 +1,8 @@
 package faang.school.accountservice.validator.account;
 
 import faang.school.accountservice.dto.account.CreateAccountDto;
+import faang.school.accountservice.entity.account.Currency;
+import faang.school.accountservice.entity.account.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +32,7 @@ class AccountServiceValidatorTest {
 
     @Test
     void testValidateCreateAccountDtoThrowExceptionWhenInvalidAccount_number(){
-        createAccountDto.setAccountNumber("       ");
+        createAccountDto.setType(Type.FOREX_ACCOUNT);
 
         assertThrows(IllegalArgumentException.class,
                 ()->accountServiceValidator.validateCreateAccountDto(createAccountDto));
@@ -38,7 +40,7 @@ class AccountServiceValidatorTest {
 
     @Test
     void testValidateCreateAccountDtoThrowExceptionWhenEnumIsNull(){
-        createAccountDto.setAccountNumber("12345678901234");
+        createAccountDto.setCurrency(Currency.EUR);
 
         assertThrows(IllegalArgumentException.class,
                 ()->accountServiceValidator.validateCreateAccountDto(createAccountDto));
