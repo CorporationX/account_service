@@ -1,7 +1,7 @@
 CREATE TABLE account
 (
     id                BIGSERIAL PRIMARY KEY,
-    number            VARCHAR(20) CHECK (length(number) >= 12) UNIQUE NOT NULL,
+    account_number    VARCHAR(20) CHECK (length(account_number) >= 12) UNIQUE NOT NULL,
     user_owner_id     BIGINT,
     project_owner_id  BIGINT,
     type              VARCHAR(32) NOT NULL,
