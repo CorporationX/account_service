@@ -13,9 +13,6 @@ import java.util.Optional;
 @Repository
 public interface FreeAccountRepository extends JpaRepository<FreeAccountNumber, Long> {
 
-    @Query(value = "SELECT f FROM FreeAccountNumber f WHERE f.type = :type ORDER BY f.id ASC")
-    Optional<FreeAccountNumber> retrieveFirst(@Param("type") String type);
-
     @Query(value = """
     DELETE FROM free_account_numbers
     WHERE id IN (
@@ -27,9 +24,5 @@ public interface FreeAccountRepository extends JpaRepository<FreeAccountNumber, 
     RETURNING id, type, account_number
     """, nativeQuery = true)
     Optional<FreeAccountNumber> retrieveAndDeleteFirst(@Param("type") String type);
-
-    //@Query("SELECT MAX(f.accountNumber) FROM FreeAccountNumber f WHERE f.type = :type")
-    @Query(value = "SELECT MAX(account_number) FROM free_account_numbers WHERE type = :type", nativeQuery = true)
-    Optional<Long> findMaxAccountNumberByType(@Param("type") String type);
 }
 
