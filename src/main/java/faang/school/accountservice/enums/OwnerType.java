@@ -1,4 +1,4 @@
-package faang.school.accountservice.model.owner;
+package faang.school.accountservice.enums;
 
 public enum OwnerType {
     USER,
