@@ -27,7 +27,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/owners/{ownerId}")
-    public List<AccountDto> getAccount(@PathVariable @Positive long ownerId, @RequestParam @Positive  long ownerType) {
+    public List<AccountDto> getAccount(@PathVariable @Positive long ownerId, @RequestParam @Positive long ownerType) {
         return accountService.getAccount(ownerId, ownerType);
     }
 

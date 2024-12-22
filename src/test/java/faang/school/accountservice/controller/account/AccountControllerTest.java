@@ -1,65 +1,78 @@
 package faang.school.accountservice.controller.account;
 
-import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.Currency;
 import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.entity.account.Type;
-import faang.school.accountservice.service.account.AccountService;
+import faang.school.accountservice.repository.account.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Testcontainers
 class AccountControllerTest {
-    @InjectMocks
+    @Autowired
     private AccountController accountController;
 
-    @Mock
-    private AccountService accountService;
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Container
+    private static PostgreSQLContainer<?> postgresContainer =
+            new PostgreSQLContainer<>("postgres:13.6").withReuse(true);
 
     private MockMvc mockMvc;
-
-    @Spy
     private ObjectMapper objectMapper;
 
-    private AccountDto accountDto;
+    @DynamicPropertySource
+    static void postgresqlProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", () -> postgresContainer.getJdbcUrl());
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+    }
+
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
-        accountDto = new AccountDto();
+
+        objectMapper = new ObjectMapper();
     }
 
     @Test
     void testGetAccount() throws Exception {
-        when(accountService.getAccount(1, 1))
-                .thenReturn(List.of(new AccountDto(), new AccountDto()));
-
         mockMvc.perform(get("/api/v1/accounts/owners/1")
-                        .param("ownerType", "1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+                        .param("ownerType", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
+    }
+
+    @Test
+    void testGetAccountBadRequest() throws Exception {
+        mockMvc.perform(get("/api/v1/accounts/owners/1")
+                        .param("ownerType", "-1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -72,22 +85,36 @@ class AccountControllerTest {
 
         String json = objectMapper.writeValueAsString(createAccountDto);
 
-        accountDto.setId(23L);
-
-        when(accountService.openNewAccount(createAccountDto)).thenReturn(accountDto);
-
         mockMvc.perform(post("/api/v1/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("23"));
+                .andExpect(jsonPath("$.ownerId").value("1"))
+                .andExpect(jsonPath("$.ownerType").value("USER"));
+
+    }
+    @Test
+    void testOpenNewAccountBadRequest() throws Exception {
+        CreateAccountDto createAccountDto = new CreateAccountDto();
+        String json = objectMapper.writeValueAsString(createAccountDto);
+
+        mockMvc.perform(post("/api/v1/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+
     }
 
     @Test
     void testChangeStatus() throws Exception {
-        accountDto.setStatus(Status.CLOSED);
-
-        when(accountService.changeStatus(1, Status.CLOSED)).thenReturn(accountDto);
+        Account account = new Account();
+        account.setOwnerType(OwnerType.USER);
+        account.setOwnerId(11);
+        account.setType(Type.FOREX_ACCOUNT);
+        account.setCurrency(Currency.EUR);
+        account.setStatus(Status.ACTIVE);
+        account.setAccountNumber("09876543212345");
+        accountRepository.save(account);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts/1")
                         .param("status", "CLOSED"))

@@ -28,6 +28,7 @@ public class Account {
     @Column(nullable = false)
     private String accountNumber;
 
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OwnerType ownerType;
