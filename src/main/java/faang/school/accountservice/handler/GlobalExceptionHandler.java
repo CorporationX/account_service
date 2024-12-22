@@ -1,6 +1,7 @@
 package faang.school.accountservice.handler;
 
 import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.AccountNumberGenerationException;
 import faang.school.accountservice.exception.ConflictException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,5 +39,16 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
         log.error("Entity not found", e);
         return new ErrorResponse("Entity not found", e.getMessage());
+    }
+
+    @ExceptionHandler(AccountNumberGenerationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleAccountNumberGenerationException(AccountNumberGenerationException e) {
+        log.error("Error generating account number for account type: {}", e.getAccountType(), e);
+        return new ErrorResponse(
+            "Error generating account number",
+            String.format("Account number generation failed for account type: %s. %s",
+                e.getAccountType(), e.getMessage())
+        );
     }
 }
