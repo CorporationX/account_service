@@ -26,7 +26,7 @@ public class FreeAccountNumbersService {
     public void getAndRemoveFreeAccountNumber(AccountType accountType, Consumer<String> onSuccess) {
         log.info("Попытка получить свободный номер счета для типа: {}", accountType);
 
-        Optional<FreeAccountNumber> freeNumberOpt = freeAccountNumbersRepository.findFirstByAccountType(accountType);
+        Optional<FreeAccountNumber> freeNumberOpt = freeAccountNumbersRepository.getAndDeleteFirstFreeAccountNumber(accountType);
 
         if (freeNumberOpt.isPresent()) {
             FreeAccountNumber freeAccountNumber = freeNumberOpt.get();

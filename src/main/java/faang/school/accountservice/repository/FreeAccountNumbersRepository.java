@@ -20,21 +20,13 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
     @Transactional
     @Modifying
     @Query(value = "DELETE FROM free_account_numbers " +
-        "WHERE account_type = :accountType " +
+        "WHERE accounttype = :accountType " +
         "RETURNING account_number", nativeQuery = true)
-    Optional<String> getAndDeleteFirstFreeAccountNumber(String accountType);
+    Optional<FreeAccountNumber> getAndDeleteFirstFreeAccountNumber(AccountType accountType);
 
     /**
      * Добавляет новый свободный номер счета.
      */
     @Override
     <S extends FreeAccountNumber> S save(S entity);
-
-    /**
-     * Найти первый свободный номер счета для конкретного типа счета.
-     *
-     * @param accountType тип счета
-     * @return Optional с первым свободным номером счета
-     */
-    Optional<FreeAccountNumber> findFirstByAccountType(AccountType accountType);
 }
