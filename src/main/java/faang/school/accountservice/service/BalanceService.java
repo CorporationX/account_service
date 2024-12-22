@@ -59,7 +59,6 @@ public class BalanceService {
         }
         balance.setActualBalance(actualBalance);
         balance.setAuthorizationBalance(authorizationBalance);
-        balance.setVersion(balance.getVersion() + 1);
         balance.setUpdatedAt(LocalDateTime.now());
         log.info("Balance for {} account is updated", accountId);
         return balanceMapper.toDto(balanceRepository.save(balance));
