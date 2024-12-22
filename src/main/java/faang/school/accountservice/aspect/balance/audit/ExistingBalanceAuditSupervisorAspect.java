@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class ExistingBalanceAuditSupervisorAspect {
     private final BalanceAuditService balanceAuditServiceImpl;
 
-    @Around("@annotation(NewBalanceAuditSupervisor)")
+    @Around("@annotation(ExistingBalanceAuditSupervisor)")
     public Object audit(ProceedingJoinPoint joinPoint) throws Throwable {
         Object object = joinPoint.proceed();
         Object[] args = joinPoint.getArgs();
