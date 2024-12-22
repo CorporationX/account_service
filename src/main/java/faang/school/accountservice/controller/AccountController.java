@@ -1,33 +1,28 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.model.account.freeaccounts.AccountType;
-import faang.school.accountservice.repository.account.freeaccounts.FreeAccountRepository;
+
+import faang.school.accountservice.model.account.freeaccounts.FreeAccountNumber;
 import faang.school.accountservice.service.FreeAccountNumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class AccountController {
+
     private final FreeAccountNumberService freeAccountNumberService;
 
-    @GetMapping("/accounts/retrieve/{type}")
-    public ResponseEntity<String> retrieveAccountNumber(@PathVariable("type") String type) {
-        AccountType accountType;
-
+    @PostMapping("/process/{type}")
+    public ResponseEntity<String> processAccountNumber(@PathVariable("type") String type) {
         try {
-            accountType = AccountType.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid account type: " + type + " .Valid types are: CREDIT DEBIT");
+            freeAccountNumberService.processAccountNumber(type, accountNumber -> {
+                System.out.println("Processed account number: " + accountNumber.getAccountNumber());
+            });
+            return ResponseEntity.ok("Account processed successfully.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
-        freeAccountNumberService.generateOneAccountNumber(accountType);
-
-        StringBuilder result = new StringBuilder();
-        freeAccountNumberService.retrieveAccountNumber(accountType, accountNumber ->
-                result.append("Полученный номер счета: ").append(accountNumber.getId().getAccountNumber()));
-        return ResponseEntity.ok(result.toString());
     }
 }

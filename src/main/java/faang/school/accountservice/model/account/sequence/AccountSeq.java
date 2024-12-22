@@ -1,23 +1,29 @@
 package faang.school.accountservice.model.account.sequence;
 
-import faang.school.accountservice.model.account.freeaccounts.AccountType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
+import faang.school.accountservice.model.account.AccountType;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "account_number_sequence")
-@Data
+@Table(name = "account_numbers_sequence")
 @NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class AccountSeq {
 
     @Id
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 32)
     private AccountType type;
 
     @Column(name = "counter", nullable = false)
-    private long counter;
+    private Long counter;
+
+    @Version
+    private Integer version;
 }
+

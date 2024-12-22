@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS free_account_numbers (
-    type VARCHAR(32) NOT NULL,
-    account_number BIGINT NOT NULL,
-
-    CONSTRAINT free_acc_pk PRIMARY KEY (type, account_number)
+                                      id BIGSERIAL PRIMARY KEY,
+                                      type VARCHAR(32) NOT NULL,
+                                      account_number BIGINT NOT NULL,
+                                      UNIQUE (type, account_number)
 );
 
-CREATE TABLE IF NOT EXISTS account_number_sequence(
-    type VARCHAR(32) NOT NULL PRIMARY KEY,
-    counter BIGINT NOT NULL DEFAULT 1
+CREATE TABLE IF NOT EXISTS account_numbers_sequence (
+                                          type VARCHAR(32) NOT NULL PRIMARY KEY,
+                                          counter BIGINT NOT NULL
 );
