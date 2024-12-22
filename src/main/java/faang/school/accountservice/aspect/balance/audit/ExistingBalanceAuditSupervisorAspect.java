@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class NewBalanceAuditSupervisorAspect {
+public class ExistingBalanceAuditSupervisorAspect {
     private final BalanceAuditService balanceAuditServiceImpl;
 
     @Around("@annotation(NewBalanceAuditSupervisor)")
