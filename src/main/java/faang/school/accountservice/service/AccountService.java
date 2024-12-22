@@ -46,6 +46,7 @@ public class AccountService {
         log.info("Request to get accounts of {} id: {} completed", ownerType, ownerId);
         return accountMapper.toDto(accounts);
     }
+    
     @Transactional
     public AccountDto updateAccountStatus(String accountNumber, Long ownerId, AccountStatus accountStatus) {
         Account account = getAccountByNumber(accountNumber);
