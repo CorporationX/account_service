@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
+      file: db/changelog/changeset/V003_storing_free_account_numbers.sql
+  - include:
+      file: db/changelog/changeset/V004_initial_account_sequences.sql

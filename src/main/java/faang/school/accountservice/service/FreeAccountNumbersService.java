@@ -32,11 +32,11 @@ public class FreeAccountNumbersService {
         numberConsumer.accept(freeAccountNumbersRepository.retrieveFirst(type.name()));
     }
 
-    private AccountNumbersSequence incrementAndGetCounter(String type, int batchSize) {
+    public AccountNumbersSequence incrementAndGetCounter(String type, int batchSize) {
         return accountNumbersSequenceRepository.incrementAndGetCounter(type, batchSize);
     }
 
-    private void saveAllAccountNumbers(List<FreeAccountNumber> numbers) {
+    public void saveAllAccountNumbers(List<FreeAccountNumber> numbers) {
         freeAccountNumbersRepository.saveAll(numbers);
     }
 }

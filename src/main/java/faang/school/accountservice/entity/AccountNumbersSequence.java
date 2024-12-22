@@ -17,7 +17,7 @@ public class AccountNumbersSequence {
 
     @Id
     @Column(name = "type", nullable = false, length = 32)
-    private AccountType type;
+    private String type;
 
     @Column(name = "counter", nullable = false)
     private long counter;
