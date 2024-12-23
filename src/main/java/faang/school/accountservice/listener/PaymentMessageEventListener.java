@@ -3,8 +3,11 @@ package faang.school.accountservice.listener;
 import faang.school.accountservice.config.redis.RedisMessage;
 import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.dto.PaymentStatus;
-import faang.school.accountservice.publisher.PaymentMessageEventErrorPublisher;
+import faang.school.accountservice.dto.PaymentValidationResult;
+import faang.school.accountservice.enums.AccValidationStatus;
 import faang.school.accountservice.publisher.PaymentMessageEventPublisher;
+import faang.school.accountservice.service.account.AccountService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -18,8 +21,8 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class PaymentMessageEventListener implements MessageListener {
-    private final PaymentMessageEventErrorPublisher paymentMessageEventErrorPublisher;
     private final PaymentMessageEventPublisher paymentMessageEventPublisher;
+    private final AccountService accountService;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -31,7 +34,7 @@ public class PaymentMessageEventListener implements MessageListener {
         RedisMessage receivedMessage;
         try {
             receivedMessage = serializer.deserialize(message.getBody());
-            log.debug("Successfully deserialized message. CorrelationId: {}, Type: {}",
+            log.info("Successfully deserialized message. CorrelationId: {}, Type: {}",
                     receivedMessage.getCorrelationId(), receivedMessage.getType());
         } catch (Exception e) {
             log.error("Failed to deserialize Redis message", e);
@@ -42,31 +45,37 @@ public class PaymentMessageEventListener implements MessageListener {
             log.info("Processing REQUEST message. CorrelationId: {}", receivedMessage.getCorrelationId());
             try {
                 PaymentOperationDto payload = receivedMessage.getPayload();
-                log.debug("Payment request details - Amount: {}, Currency: {}, Owner: {}, Recipient: {}",
+                log.info("Payment request details - Amount: {}, Currency: {}, Owner: {}, Recipient: {}",
                         payload.getAmount(),
                         payload.getCurrency(),
                         payload.getOwnerAccId(),
                         payload.getRecipientAccId());
 
-                PaymentOperationDto result = processPaymentRequest(receivedMessage.getPayload());
+                PaymentOperationDto result = processPaymentBaseRequest(receivedMessage.getPayload());
                 log.info("Successfully processed payment request. CorrelationId: {}, PaymentId: {}",
                         receivedMessage.getCorrelationId(), result.getId());
 
-                paymentMessageEventPublisher.publishResponse(
-                        receivedMessage.getCorrelationId(),
-                        result
-                );
-                log.debug("Published success response. CorrelationId: {}", receivedMessage.getCorrelationId());
+                PaymentValidationResult validationResult = validateAccounts(payload);
+                switch (validationResult.status()) {
+                    case SUCCESS: {
+                        result.setStatus(PaymentStatus.AUTHORIZED);
+                        paymentMessageEventPublisher.publishResponse(
+                                receivedMessage.getCorrelationId(),
+                                result
+                        );
+                    }
+                    case ERROR: {
+                        result.setStatus(PaymentStatus.FAILED);
+                        paymentMessageEventPublisher.publishResponse(
+                                receivedMessage.getCorrelationId(),
+                                result
+                        );
+                    }
+                }
+                log.info("Published success response. CorrelationId: {}", receivedMessage.getCorrelationId());
             } catch (Exception e) {
                 log.error("Error processing payment request. CorrelationId: {}, Error: {}",
                         receivedMessage.getCorrelationId(), e.getMessage(), e);
-
-                // Публикация ответа с ошибкой через publisher
-                paymentMessageEventErrorPublisher.publishError(
-                        receivedMessage.getCorrelationId(),
-                        e.getMessage()
-                );
-                log.debug("Published error response. CorrelationId: {}", receivedMessage.getCorrelationId());
             }
         } else {
             log.warn("Received message with unexpected type: {}. CorrelationId: {}",
@@ -74,8 +83,8 @@ public class PaymentMessageEventListener implements MessageListener {
         }
     }
 
-    private PaymentOperationDto processPaymentRequest(PaymentOperationDto payload) {
-        log.debug("Processing payment operation. PaymentId: {}", payload.getId());
+    private PaymentOperationDto processPaymentBaseRequest(PaymentOperationDto payload) {
+        log.info("Processing payment operation. PaymentId: {}", payload.getId());
 
         LocalDateTime clearScheduledAt = LocalDateTime.now().plusMinutes(3L);
         LocalDateTime updatedAt = LocalDateTime.now();
@@ -88,16 +97,34 @@ public class PaymentMessageEventListener implements MessageListener {
                 .recipientAccId(payload.getRecipientAccId())
                 .createdAt(payload.getCreatedAt())
                 .updatedAt(updatedAt.toString())
-                .status(PaymentStatus.AUTHORIZED)
                 .operationType(payload.getOperationType())
                 .clearScheduledAt(clearScheduledAt.toString())
                 .createdAt(payload.getCreatedAt())
                 .updatedAt(updatedAt.toString())
                 .build();
 
-        log.debug("Payment processing completed. PaymentId: {}, Status: {}, ClearScheduledAt: {}",
+        log.info("Payment processing completed. PaymentId: {}, Status: {}, ClearScheduledAt: {}",
                 result.getId(), result.getStatus(), result.getClearScheduledAt());
-
         return result;
+    }
+
+    public PaymentValidationResult validateAccounts(PaymentOperationDto payload) {
+        try {
+            if (!accountService.existsAccById(payload.getOwnerAccId())) {
+                return new PaymentValidationResult(
+                        AccValidationStatus.ERROR,
+                        new EntityNotFoundException("Owner account not found: " + payload.getOwnerAccId())
+                );
+            }
+            if (!accountService.existsAccById(payload.getRecipientAccId())) {
+                return new PaymentValidationResult(
+                        AccValidationStatus.ERROR,
+                        new EntityNotFoundException("Recipient account not found: " + payload.getRecipientAccId())
+                );
+            }
+            return new PaymentValidationResult(AccValidationStatus.SUCCESS, null);
+        } catch (Exception e) {
+            return new PaymentValidationResult(AccValidationStatus.ERROR, e);
+        }
     }
 }
