@@ -1,4 +1,4 @@
-package faang.school.accountservice.model.account;
+package faang.school.accountservice.enums;
 
 public enum AccountType {
     CURRENT,

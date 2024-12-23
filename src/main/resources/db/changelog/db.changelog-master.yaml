@@ -1,3 +1,13 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/account_V001__initial.sql
+  - include:
+      file: db/changelog/changeset/owner_V002__del_unique_owner_id.sql
+  - include:
+      file: db/changelog/changeset/account_V003__balance.sql
+  - include:
+      file: db/changelog/changeset/account_V004__balance_audit.sql
+  - include:
+      file: db/changelog/changeset/v2_balance_audit_from_version.sql
+  - include:
+      file: db/changelog/changeset/account_V005__account_request.sql
