@@ -4,10 +4,12 @@ import faang.school.accountservice.config.redis.RedisMessage;
 import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.dto.PaymentStatus;
 import faang.school.accountservice.dto.PaymentValidationResult;
+import faang.school.accountservice.dto.balance.PaymentDto;
 import faang.school.accountservice.enums.AccValidationStatus;
 import faang.school.accountservice.publisher.PaymentMessageEventPublisher;
-import faang.school.accountservice.service.account.AccountService;
-import jakarta.persistence.EntityNotFoundException;
+import faang.school.accountservice.repository.balance.BalanceRepository;
+import faang.school.accountservice.service.balance.BalanceService;
+import faang.school.accountservice.service.validation.ValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -22,7 +24,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PaymentMessageEventListener implements MessageListener {
     private final PaymentMessageEventPublisher paymentMessageEventPublisher;
-    private final AccountService accountService;
+    private final BalanceRepository balanceRepository;
+    private final BalanceService balanceService;
+    private final ValidationService validationService;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -51,36 +55,51 @@ public class PaymentMessageEventListener implements MessageListener {
                         payload.getOwnerAccId(),
                         payload.getRecipientAccId());
 
-                PaymentOperationDto result = processPaymentBaseRequest(receivedMessage.getPayload());
+                PaymentOperationDto result = processPaymentBaseRequest(payload);
                 log.info("Successfully processed payment request. CorrelationId: {}, PaymentId: {}",
                         receivedMessage.getCorrelationId(), result.getId());
 
-                PaymentValidationResult validationResult = validateAccounts(payload);
-                switch (validationResult.status()) {
-                    case SUCCESS: {
-                        result.setStatus(PaymentStatus.AUTHORIZED);
-                        paymentMessageEventPublisher.publishResponse(
-                                receivedMessage.getCorrelationId(),
-                                result
-                        );
-                    }
-                    case ERROR: {
-                        result.setStatus(PaymentStatus.FAILED);
-                        paymentMessageEventPublisher.publishResponse(
-                                receivedMessage.getCorrelationId(),
-                                result
-                        );
-                    }
+                String correlationId = receivedMessage.getCorrelationId();
+
+                PaymentValidationResult validationResult = validationService.validateAccounts(result);
+
+                if (validationResult.status() == AccValidationStatus.SUCCESS) {
+                    handleSuccessfulValidation(correlationId, result);
+                } else {
+                    handleFailedValidation(correlationId, result);
                 }
-                log.info("Published success response. CorrelationId: {}", receivedMessage.getCorrelationId());
             } catch (Exception e) {
-                log.error("Error processing payment request. CorrelationId: {}, Error: {}",
-                        receivedMessage.getCorrelationId(), e.getMessage(), e);
+                log.error("Error processing payment request. CorrelationId: {}",
+                        receivedMessage.getCorrelationId(), e);
             }
-        } else {
-            log.warn("Received message with unexpected type: {}. CorrelationId: {}",
-                    receivedMessage.getType(), receivedMessage.getCorrelationId());
         }
+    }
+
+    private void handleSuccessfulValidation(String correlationId, PaymentOperationDto payload) {
+        payload.setStatus(PaymentStatus.AUTHORIZED);
+        LocalDateTime clearScheduledAt = LocalDateTime.now().plusMinutes(3L);
+        payload.setClearScheduledAt(clearScheduledAt.toString());
+
+        PaymentDto initiatePaymentDto = PaymentDto.builder()
+                .balanceId(balanceRepository.findByAccountId(payload.getOwnerAccId()))
+                .paymentOperationType(payload.getOperationType())
+                .value(payload.getAmount())
+                .build();
+
+        balanceService.update(payload.getOwnerAccId(), initiatePaymentDto);
+
+        paymentMessageEventPublisher.publishResponse(
+                correlationId,
+                payload
+        );
+    }
+
+    private void handleFailedValidation(String correlationId, PaymentOperationDto payload) {
+        payload.setStatus(PaymentStatus.FAILED);
+        paymentMessageEventPublisher.publishResponse(
+                correlationId,
+                payload
+        );
     }
 
     private PaymentOperationDto processPaymentBaseRequest(PaymentOperationDto payload) {
@@ -106,25 +125,5 @@ public class PaymentMessageEventListener implements MessageListener {
         log.info("Payment processing completed. PaymentId: {}, Status: {}, ClearScheduledAt: {}",
                 result.getId(), result.getStatus(), result.getClearScheduledAt());
         return result;
-    }
-
-    public PaymentValidationResult validateAccounts(PaymentOperationDto payload) {
-        try {
-            if (!accountService.existsAccById(payload.getOwnerAccId())) {
-                return new PaymentValidationResult(
-                        AccValidationStatus.ERROR,
-                        new EntityNotFoundException("Owner account not found: " + payload.getOwnerAccId())
-                );
-            }
-            if (!accountService.existsAccById(payload.getRecipientAccId())) {
-                return new PaymentValidationResult(
-                        AccValidationStatus.ERROR,
-                        new EntityNotFoundException("Recipient account not found: " + payload.getRecipientAccId())
-                );
-            }
-            return new PaymentValidationResult(AccValidationStatus.SUCCESS, null);
-        } catch (Exception e) {
-            return new PaymentValidationResult(AccValidationStatus.ERROR, e);
-        }
     }
 }

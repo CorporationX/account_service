@@ -1,16 +1,7 @@
 package faang.school.accountservice.model.balance;
 
+import jakarta.persistence.*;
 import faang.school.accountservice.model.account.Account;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +26,7 @@ public class Balance {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", referencedColumnName = "id")
+    @MapsId
     private Account account;
 
     @Column(name = "authorized_value")
@@ -68,11 +60,6 @@ public class Balance {
         }
         actualValue = actualValue.subtract(value);
         authorizedValue = authorizedValue.subtract(value);
-        version++;
-    }
-
-    public void receivePayment(BigDecimal value) {
-        actualValue = actualValue.add(value);
         version++;
     }
 

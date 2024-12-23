@@ -49,6 +49,7 @@ public class BalanceServiceImpl implements BalanceService {
 
         switch (paymentDto.paymentOperationType()) {
             case INITIATE -> balance.authorizePayment(value);
+            case CANCEL -> balance.cancelAuthorization(value);
             case CONFIRM -> balance.clearPayment(value);
             default -> throw new IllegalArgumentException("Wrong payment step");
         }
@@ -62,9 +63,9 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public BalanceDto getBalanceById(Long userId, Long id) {
+    public BalanceDto getBalanceById(Long userId, Long BalanceId) {
         validateUser(userId);
-        return balanceMapper.toDto(findBalanceById(id));
+        return balanceMapper.toDto(findBalanceById(BalanceId));
     }
 
     private void validateUser(Long userId) {
