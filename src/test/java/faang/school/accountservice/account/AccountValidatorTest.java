@@ -8,7 +8,7 @@ import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.entity.account.enums.AccountStatus;
 import faang.school.accountservice.entity.account.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.exception.account.AccountException;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.validator.account.AccountValidator;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ public class AccountValidatorTest {
     void testCheckOpeningWithException() {
         accountDto.setPaymentNumber("12345");
 
-        assertThrows(AccountException.class, () -> accountValidator.checkOpening(accountDto));
+        assertThrows(AccountNotFoundException.class, () -> accountValidator.checkOpening(accountDto));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class AccountValidatorTest {
         Long userId = 1L;
         doThrow(FeignException.class).when(userClient).getUser(userId);
 
-        assertThrows(AccountException.class, () -> accountValidator.checkUserId(userId));
+        assertThrows(AccountNotFoundException.class, () -> accountValidator.checkUserId(userId));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class AccountValidatorTest {
         Long projectId = 1L;
         doThrow(FeignException.class).when(projectClient).getProject(projectId);
 
-        AccountException exception = assertThrows(AccountException.class,
+        AccountNotFoundException exception = assertThrows(AccountNotFoundException.class,
                 () -> accountValidator.checkProjectId(projectId));
     }
 

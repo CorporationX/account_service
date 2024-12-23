@@ -3,7 +3,7 @@ package faang.school.accountservice.validator.account;
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.exception.account.AccountException;
+import faang.school.accountservice.exception.account.AccountNotValidException;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class AccountValidator {
     public void checkOpening(AccountDto accountDto) {
         if (accountDto.getPaymentNumber().isEmpty()) {
             log.error("Payment number not empty");
-            throw new AccountException("Payment number must be empty");
+            throw new AccountNotValidException("Payment number must be empty");
         }
     }
 
@@ -29,7 +29,7 @@ public class AccountValidator {
             userClient.getUser(id);
         } catch (FeignException e) {
             log.error("User doesn't exist");
-            throw new AccountException("User doesn't exist");
+            throw new AccountNotValidException("User doesn't exist");
         }
     }
 
@@ -38,7 +38,7 @@ public class AccountValidator {
             projectClient.getProject(id);
         } catch (FeignException e) {
             log.error("Project doesn't exist");
-            throw new AccountException("Project doesn't exist");
+            throw new AccountNotValidException("Project doesn't exist");
         }
     }
 }

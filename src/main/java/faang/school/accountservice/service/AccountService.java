@@ -3,7 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.exception.account.AccountException;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.validator.account.AccountValidator;
@@ -64,7 +64,7 @@ public class AccountService {
                 .orElseThrow(() ->
                         {
                             log.error("Account doesn't exist.");
-                            return new AccountException("Account doesn't exist.");
+                            return new AccountNotFoundException("Account doesn't exist.");
                         }
                 );
     }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class AccountController {
 
@@ -37,12 +37,12 @@ public class AccountController {
         return accountService.closeAccount(id);
     }
 
-    @GetMapping("/all/user/{userId}")
+    @GetMapping("/user/{userId}")
     public List<AccountDto> getAllOfUser(@PathVariable Long userId) {
         return accountService.getAllOfUser(userId);
     }
 
-    @GetMapping("/all/project/{projectId}")
+    @GetMapping("/project/{projectId}")
     public List<AccountDto> getAllOfProject(@PathVariable Long projectId) {
         return accountService.getAllOfProject(projectId);
     }

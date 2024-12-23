@@ -30,3 +30,6 @@ user-service:
 project-service:
   host: localhost
   port: 8082
+
+api:
+  version: "/api/v1"

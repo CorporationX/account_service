@@ -4,35 +4,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.controller.AccountController;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.entity.account.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.exception.account.AccountException;
-import faang.school.accountservice.mapper.account.AccountMapper;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.mapper.account.AccountMapperImpl;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.AccountService;
 import faang.school.accountservice.validator.account.AccountValidator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,9 +40,9 @@ public class AccountServiceTest {
     @Test
     public void testGetWithException() {
         Long id = 1L;
-        doThrow(AccountException.class).when(accountRepo).findById(id);
+        doThrow(AccountNotFoundException.class).when(accountRepo).findById(id);
 
-        assertThrows(AccountException.class, () -> accountService.get(id));
+        assertThrows(AccountNotFoundException.class, () -> accountService.get(id));
     }
 
     @Test
