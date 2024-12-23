@@ -84,8 +84,15 @@ public class AccountService {
         } catch (OptimisticLockException e) {
             throw new ConflictException("The account has been updated by another process.");
         }
+    }
 
+    public AccountDto getAccountByNumber(String number){
+        Account account = accountRepository.findByNumber(number);
+        if (account.getStatus() == AccountStatus.BLOCKED || account.getStatus() == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Account has been blocked");
+        }
 
+        return accountMapper.toDto(account);
     }
 
 
