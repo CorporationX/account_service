@@ -63,7 +63,7 @@ public class FreeAccountNumberService {
         int updatedRows = accountNumbersSequenceRepository.incrementCounter(accountType, currentCounter);
         if (updatedRows > 0) {
             Long newCounterValue = currentCounter + 1;
-            Long newAccountNumber = BASE_ACCOUNT_NUMBER + newCounterValue;
+            String newAccountNumber = BASE_ACCOUNT_NUMBER + newCounterValue.toString();
 
             log.info("Counter successfully incremented. New counter value: {}", newCounterValue);
 

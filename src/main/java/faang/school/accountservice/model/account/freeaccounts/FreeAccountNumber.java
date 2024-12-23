@@ -22,6 +22,6 @@ public class FreeAccountNumber {
     @Column(name = "type", nullable = false, length = 32)
     private AccountType type;
 
-    @Column(name = "account_number", nullable = false)
-    private Long accountNumber;
+    @Column(name = "account_number", nullable = false, length = 20)
+    private String accountNumber;
 }
