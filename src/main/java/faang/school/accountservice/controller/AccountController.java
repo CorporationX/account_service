@@ -37,7 +37,7 @@ public class AccountController {
         return ResponseEntity.ok(accountService.closeAccount(accountId));
     }
 
-    @GetMapping("/number/{number}")
+    @PostMapping("/number/{number}")
     public AccountDto getAccountByNumber(@PathVariable String number) {
         log.info("Received a request to get account by number: {}", number);
         return accountService.getAccountByNumber(number);

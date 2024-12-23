@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.ConflictException;
 import faang.school.accountservice.mappers.AccountMapper;
@@ -10,9 +11,11 @@ import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
