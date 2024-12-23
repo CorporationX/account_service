@@ -24,10 +24,7 @@ import lombok.NoArgsConstructor;
 public class AccountNumberSequence {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "account_type", length = 32, nullable = false, unique = true)
+    @Column(name = "account_type", length = 32, nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 

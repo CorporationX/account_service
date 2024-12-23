@@ -70,18 +70,22 @@ public class FreeAccountNumbersService {
     )
     private Long incrementSequence(AccountType accountType) {
         int increment = 1;
-
         log.info("Start incrementing sequence for account type: {}", accountType);
-        AccountNumberSequence sequence = accountNumbersSequenceRepository.
-                findByAccountType(accountType).
-                orElseThrow(() -> new EntityNotFoundException(
-                        "Sequence not found for account type: " + accountType));
 
+        AccountNumberSequence sequence = getNumberSequence(accountType);
         Long newValue = sequence.getCurrentSequenceValue() + increment;
         sequence.setCurrentSequenceValue(newValue);
         accountNumbersSequenceRepository.save(sequence);
+
         log.info("Sequence incremented for account type: {}", accountType);
         return newValue;
+    }
+
+    private AccountNumberSequence getNumberSequence(AccountType accountType) {
+        return accountNumbersSequenceRepository.
+                findByAccountType(accountType).
+                orElseThrow(() -> new EntityNotFoundException(
+                        "Sequence not found for account type: " + accountType));
     }
 
     private int getLengthByAccountType(AccountType accountType) {

@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS free_account_numbers
 
 CREATE TABLE IF NOT EXISTS account_numbers_sequence
 (
-    id            BIGSERIAL PRIMARY KEY,
-    account_type  VARCHAR(32)      NOT NULL UNIQUE,
+    account_type  VARCHAR(32) NOT NULL PRIMARY KEY,
     current_value BIGINT DEFAULT 0 NOT NULL,
     version       BIGINT DEFAULT 1 NOT NULL
 );
