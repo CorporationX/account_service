@@ -10,6 +10,7 @@ import faang.school.accountservice.repository.account.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Testcontainers
+@AutoConfigureMockMvc
 class AccountControllerTest {
     @Autowired
     private AccountController accountController;
@@ -40,6 +42,7 @@ class AccountControllerTest {
     private static PostgreSQLContainer<?> postgresContainer =
             new PostgreSQLContainer<>("postgres:13.6").withReuse(true);
 
+    @Autowired
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
@@ -53,14 +56,13 @@ class AccountControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
-
         objectMapper = new ObjectMapper();
     }
 
     @Test
     void testGetAccount() throws Exception {
         mockMvc.perform(get("/api/v1/accounts/owners/1")
+                        .header("x-user-id",1)
                         .param("ownerType", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -70,6 +72,7 @@ class AccountControllerTest {
     @Test
     void testGetAccountBadRequest() throws Exception {
         mockMvc.perform(get("/api/v1/accounts/owners/1")
+                        .header("x-user-id",1)
                         .param("ownerType", "-1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -86,6 +89,7 @@ class AccountControllerTest {
         String json = objectMapper.writeValueAsString(createAccountDto);
 
         mockMvc.perform(post("/api/v1/accounts")
+                        .header("x-user-id",1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
@@ -99,6 +103,7 @@ class AccountControllerTest {
         String json = objectMapper.writeValueAsString(createAccountDto);
 
         mockMvc.perform(post("/api/v1/accounts")
+                        .header("x-user-id",1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());
@@ -117,8 +122,18 @@ class AccountControllerTest {
         accountRepository.save(account);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts/1")
+                        .header("x-user-id",1)
                         .param("status", "CLOSED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CLOSED"));
     }
+
+    @Test
+    void testChangeStatusBadRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts/-1")
+                        .header("x-user-id",1)
+                        .param("status", "CLOSED"))
+                .andExpect(status().isBadRequest());
+    }
+
 }
