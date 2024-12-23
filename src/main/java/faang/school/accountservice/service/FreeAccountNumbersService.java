@@ -52,7 +52,7 @@ public class FreeAccountNumbersService {
 
         if (!incremented) {
             log.error("Не удалось инкрементировать счетчик для типа счета: {}. Возможно, версия счетчика устарела.", accountType);
-            throw new AccountNumberGenerationException("Не удалось инкрементировать счетчик для типа счета: ", accountType);
+            throw new AccountNumberGenerationException("Не удалось инкрементировать счетчик для типа счета: " + accountType.name(), accountType);
         }
 
         String accountNumber = accountType.name().substring(0, 4) + String.format("%012d", sequence.getCurrentValue());
