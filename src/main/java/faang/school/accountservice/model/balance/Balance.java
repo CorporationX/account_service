@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,16 +51,36 @@ public class Balance {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "version", nullable = false)
-    private long version;
+    @Version
+    private Long version;
 
     public void authorizePayment(BigDecimal value) {
-        authorizedValue = authorizedValue.subtract(value);
+        if (actualValue.subtract(authorizedValue).compareTo(value) < 0) {
+            throw new IllegalStateException("Insufficient funds for transfer");
+        }
+        authorizedValue = authorizedValue.add(value);
         version++;
     }
 
     public void clearPayment(BigDecimal value) {
+        if (authorizedValue.compareTo(value) < 0) {
+            throw new IllegalStateException("Payment not authorized or already cleared");
+        }
         actualValue = actualValue.subtract(value);
+        authorizedValue = authorizedValue.subtract(value);
+        version++;
+    }
+
+    public void receivePayment(BigDecimal value) {
+        actualValue = actualValue.add(value);
+        version++;
+    }
+
+    public void cancelAuthorization(BigDecimal value) {
+        if (authorizedValue.compareTo(value) < 0) {
+            throw new IllegalStateException("No such authorization exists");
+        }
+        authorizedValue = authorizedValue.subtract(value);
         version++;
     }
 }

@@ -1,6 +1,6 @@
 package faang.school.accountservice.config.redis;
 
-import faang.school.accountservice.listener.RedisMessageEventListener;
+import faang.school.accountservice.listener.PaymentMessageEventListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +22,11 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    @Value("${spring.data.redis.initiate_channel}")
-    private String payment_service_initiate;
+    @Value("${spring.data.redis.initiate_req_channel}")
+    private String payment_service_initiate_request;
+
+    @Value("${spring.data.redis.initiate_res_channel}")
+    private String payment_service_initiate_response;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -32,16 +35,21 @@ public class RedisConfig {
     }
 
     @Bean
-    ChannelTopic initiateChannelTopic() {
-        return new ChannelTopic(payment_service_initiate);
+    ChannelTopic initiateReqChannelTopic() {
+        return new ChannelTopic(payment_service_initiate_request);
+    }
+
+    @Bean
+    ChannelTopic initiateResChannelTopic() {
+        return new ChannelTopic(payment_service_initiate_response);
     }
 
     @Bean
     RedisMessageListenerContainer redisMessageListenerContainer(
-            RedisMessageEventListener redisMessageEventListener) {
+            PaymentMessageEventListener paymentMessageEventListener) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory());
-        container.addMessageListener(redisMessageEventListener, initiateChannelTopic());
+        container.addMessageListener(paymentMessageEventListener, initiateReqChannelTopic());
         return container;
     }
 
@@ -55,7 +63,7 @@ public class RedisConfig {
 
     @Bean
     MessageListenerAdapter redisMessageListener(
-            RedisMessageEventListener redisMessageEventListener) {
-        return new MessageListenerAdapter(redisMessageEventListener);
+            PaymentMessageEventListener paymentMessageEventListener) {
+        return new MessageListenerAdapter(paymentMessageEventListener);
     }
 }

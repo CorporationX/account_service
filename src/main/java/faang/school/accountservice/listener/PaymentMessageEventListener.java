@@ -3,7 +3,8 @@ package faang.school.accountservice.listener;
 import faang.school.accountservice.config.redis.RedisMessage;
 import faang.school.accountservice.dto.PaymentOperationDto;
 import faang.school.accountservice.dto.PaymentStatus;
-import faang.school.accountservice.publisher.RedisMessagePublisher;
+import faang.school.accountservice.publisher.PaymentMessageEventErrorPublisher;
+import faang.school.accountservice.publisher.PaymentMessageEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -16,8 +17,9 @@ import java.time.LocalDateTime;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RedisMessageEventListener implements MessageListener {
-    private final RedisMessagePublisher redisMessagePublisher;
+public class PaymentMessageEventListener implements MessageListener {
+    private final PaymentMessageEventErrorPublisher paymentMessageEventErrorPublisher;
+    private final PaymentMessageEventPublisher paymentMessageEventPublisher;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -46,13 +48,11 @@ public class RedisMessageEventListener implements MessageListener {
                         payload.getOwnerAccId(),
                         payload.getRecipientAccId());
 
-                // Обработка запроса через сервис
                 PaymentOperationDto result = processPaymentRequest(receivedMessage.getPayload());
                 log.info("Successfully processed payment request. CorrelationId: {}, PaymentId: {}",
                         receivedMessage.getCorrelationId(), result.getId());
 
-                // Публикация успешного ответа через publisher
-                redisMessagePublisher.publishResponse(
+                paymentMessageEventPublisher.publishResponse(
                         receivedMessage.getCorrelationId(),
                         result
                 );
@@ -62,7 +62,7 @@ public class RedisMessageEventListener implements MessageListener {
                         receivedMessage.getCorrelationId(), e.getMessage(), e);
 
                 // Публикация ответа с ошибкой через publisher
-                redisMessagePublisher.publishError(
+                paymentMessageEventErrorPublisher.publishError(
                         receivedMessage.getCorrelationId(),
                         e.getMessage()
                 );

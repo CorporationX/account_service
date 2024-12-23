@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changeset/account_V004__balance_audit.sql
   - include:
       file: db/changelog/changeset/v2_balance_audit_from_version.sql
+  - include:
+      file: db/changelog/changeset/account_V005__account_request.sql

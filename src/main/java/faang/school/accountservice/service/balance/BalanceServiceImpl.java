@@ -9,13 +9,14 @@ import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -46,9 +47,9 @@ public class BalanceServiceImpl implements BalanceService {
         BigDecimal value = paymentDto.value();
         Balance balance = findBalanceById(id);
 
-        switch (paymentDto.paymentStep()) {
-            case AUTHORIZATION -> balance.authorizePayment(value);
-            case CLEARING -> balance.clearPayment(value);
+        switch (paymentDto.paymentOperationType()) {
+            case INITIATE -> balance.authorizePayment(value);
+            case CONFIRM -> balance.clearPayment(value);
             default -> throw new IllegalArgumentException("Wrong payment step");
         }
         return balanceMapper.toDto(balanceRepository.save(balance));
