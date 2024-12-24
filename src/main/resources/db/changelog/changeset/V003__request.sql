@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS request
+(
+    idempotent_token uuid NOT NULL UNIQUE PRIMARY KEY
+);
+
+ALTER TABLE request
+    ADD COLUMN IF NOT EXISTS context      VARCHAR(256),
+    ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMP;
