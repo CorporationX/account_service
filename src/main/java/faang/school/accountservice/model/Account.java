@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -40,6 +42,9 @@ public class Account {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
+
+    @Column(name = "cashback_balance", nullable = false)
+    private BigDecimal cashbackBalance = BigDecimal.ZERO;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Balance balance;
