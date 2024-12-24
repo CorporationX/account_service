@@ -7,6 +7,6 @@ public enum AccountType {
     DEBIT,
     CURRENCY,
     CREDIT,
-    DEPOSIT
-
+    DEPOSIT,
+    SAVINGS_ACCOUNT
 }

@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller.advice;
 
-import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.exception.BalanceHasBeenUpdatedException;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
+import faang.school.accountservice.exception.balance.BalanceHasBeenUpdatedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

@@ -23,3 +23,9 @@ server:
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
+
+maximum_allowed_interest_rate: 15

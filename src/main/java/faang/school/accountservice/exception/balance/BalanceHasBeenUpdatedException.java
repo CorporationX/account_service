@@ -1,4 +1,4 @@
-package faang.school.accountservice.exception;
+package faang.school.accountservice.exception.balance;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

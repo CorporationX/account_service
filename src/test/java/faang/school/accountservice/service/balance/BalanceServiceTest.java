@@ -1,8 +1,8 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.ResponseBalanceDto;
-import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.exception.BalanceHasBeenUpdatedException;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
+import faang.school.accountservice.exception.balance.BalanceHasBeenUpdatedException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.balance.Balance;

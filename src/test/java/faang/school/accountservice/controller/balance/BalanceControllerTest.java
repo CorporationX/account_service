@@ -2,7 +2,7 @@ package faang.school.accountservice.controller.balance;
 
 import faang.school.accountservice.controller.advice.GlobalExceptionHandler;
 import faang.school.accountservice.dto.balance.ResponseBalanceDto;
-import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
