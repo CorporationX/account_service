@@ -2,7 +2,7 @@ package faang.school.accountservice.repository;
 
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.AccountNumbersSequence;
-import feign.Param;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,10 +27,11 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     @Transactional
     @Modifying
     @Query("UPDATE AccountNumbersSequence ans " +
-        "SET ans.currentValue = ans.currentValue + 1 " +
+        "SET ans.currentValue = ans.currentValue + 1, ans.version = ans.version + 1 " +
         "WHERE ans.accountType = :accountType " +
         "AND ans.version = :version")
     int incrementCounter(@Param("accountType") AccountType accountType, @Param("version") Long version);
 
-    Optional<AccountNumbersSequence> findByAccountType(AccountType accountType);
+    @Query("SELECT s FROM AccountNumbersSequence s WHERE s.accountType = :accountType")
+    Optional<AccountNumbersSequence> findByAccountType(@Param("accountType") AccountType accountType);
 }

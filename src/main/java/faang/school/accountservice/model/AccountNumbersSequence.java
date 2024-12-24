@@ -25,12 +25,13 @@ public class AccountNumbersSequence {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_type", nullable = false, unique = true)
+    @Column(name = "accounttype", nullable = false, unique = true)
     private AccountType accountType;
 
     @Column(name = "current_value", nullable = false)
     private Long currentValue;
 
     @Version
+    @Column(name = "version")
     private Long version;
 }

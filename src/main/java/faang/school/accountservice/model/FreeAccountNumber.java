@@ -26,7 +26,7 @@ public class FreeAccountNumber {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "accounttype", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 

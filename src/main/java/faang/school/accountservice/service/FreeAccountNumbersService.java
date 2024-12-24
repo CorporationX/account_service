@@ -26,7 +26,7 @@ public class FreeAccountNumbersService {
     public void getAndRemoveFreeAccountNumber(AccountType accountType, Consumer<String> onSuccess) {
         log.info("Попытка получить свободный номер счета для типа: {}", accountType);
 
-        Optional<FreeAccountNumber> freeNumberOpt = freeAccountNumbersRepository.getAndDeleteFirstFreeAccountNumber(accountType);
+        Optional<FreeAccountNumber> freeNumberOpt = freeAccountNumbersRepository.findFirstByAccountType(accountType);
 
         if (freeNumberOpt.isPresent()) {
             FreeAccountNumber freeAccountNumber = freeNumberOpt.get();
@@ -40,6 +40,7 @@ public class FreeAccountNumbersService {
             onSuccess.accept(generatedNumber);
         }
     }
+
 
     private String generateNewAccountNumber(AccountType accountType) {
         log.info("Попытка получить или создать последовательность для типа счета: {}", accountType);
@@ -55,7 +56,9 @@ public class FreeAccountNumbersService {
             throw new AccountNumberGenerationException("Не удалось инкрементировать счетчик для типа счета: " + accountType.name(), accountType);
         }
 
-        String accountNumber = accountType.name().substring(0, 4) + String.format("%012d", sequence.getCurrentValue());
+        String prefix = accountType.getPrefix();
+
+        String accountNumber = prefix + String.format("%012d", sequence.getCurrentValue());
         log.info("Новый номер счета для типа {}: {}", accountType, accountNumber);
 
         return accountNumber;
