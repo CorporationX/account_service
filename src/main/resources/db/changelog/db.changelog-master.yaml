@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__acount-service_create_balance_table.sql
   - include:
       file: db/changelog/changeset/V005__create_account_numbers_sequence.sql
+  - include:
+      file: db/changelog/changeset/V002_balance_audit.sql
