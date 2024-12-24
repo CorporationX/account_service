@@ -6,9 +6,10 @@ import faang.school.accountservice.entity.FreeAccountId;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountSequenseRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,10 @@ public class FreeAccountNumbersService {
         for (long i = next.getInitialCounter(); i < next.getCounter(); i++) {
             FreeAccountId accountId = new FreeAccountId(type, ACCOUNT_PATTERN + i);
             accountNumbers.add(new FreeAccountNumber(accountId));
+        }
+        if (accountNumbers.isEmpty()) {
+            log.warn("No account numbers generated");
+            return;
         }
         freeAccountNumbersRepository.saveAll(accountNumbers);
         log.info("Saved account numbers: {}", accountNumbers);
