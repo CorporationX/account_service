@@ -1,6 +1,6 @@
 package faang.school.accountservice.dto.balance;
 
-import faang.school.accountservice.dto.PaymentOperationType;
+import faang.school.accountservice.enums.PaymentOperationType;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import lombok.Builder;

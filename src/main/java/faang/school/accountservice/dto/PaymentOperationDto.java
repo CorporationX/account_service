@@ -1,5 +1,7 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.enums.PaymentOperationType;
+import faang.school.accountservice.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,13 +15,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PaymentOperationDto {
     private Long id;
-    private BigDecimal amount; //сумма
-    private String currency; // валюта
-    private long ownerAccId; //счет отправителя (проверку что такой счет существует)
-    private long recipientAccId; //счет получателя (проверка что счет корректен)
+    private BigDecimal amount;
+    private String currency;
+    private long ownerAccId;
+    private long recipientAccId;
     private PaymentOperationType operationType;
     private PaymentStatus status;
     private String clearScheduledAt;
-    private String createdAt; //дата создания
-    private String updatedAt; //дата обновления
+    private String createdAt;
+    private String updatedAt;
 }

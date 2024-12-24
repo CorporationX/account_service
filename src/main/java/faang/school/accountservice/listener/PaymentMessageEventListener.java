@@ -2,7 +2,7 @@ package faang.school.accountservice.listener;
 
 import faang.school.accountservice.config.redis.RedisMessage;
 import faang.school.accountservice.dto.PaymentOperationDto;
-import faang.school.accountservice.dto.PaymentStatus;
+import faang.school.accountservice.enums.PaymentStatus;
 import faang.school.accountservice.dto.PaymentValidationResult;
 import faang.school.accountservice.dto.balance.PaymentDto;
 import faang.school.accountservice.enums.AccValidationStatus;
