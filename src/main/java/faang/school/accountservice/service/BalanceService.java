@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.mappers.BalanceMapper;
+import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.exception.BalanceConflictException;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -52,5 +55,18 @@ public class BalanceService {
         }
 
         return balanceMapper.toDto(balance);
+    }
+
+    /**
+     * Метод добавляет зарезервированную сумму
+     * **/
+    @Transactional
+    public void authorizePayment(Account account, BigDecimal amount) {
+        Balance balance = account.getBalance();
+        balance.setAuthBalance(amount);
+
+        balanceRepository.save(balance);
+
+        log.info("Successfully authorized payment for account ID: {}", account.getId());
     }
 }
