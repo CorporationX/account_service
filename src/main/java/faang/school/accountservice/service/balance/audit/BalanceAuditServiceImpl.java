@@ -7,6 +7,7 @@ import faang.school.accountservice.model.balance.audit.BalanceAudit;
 import faang.school.accountservice.repository.balance.audit.BalanceAuditRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class  BalanceAuditServiceImpl implements BalanceAuditService {
     private final BalanceToBalanceAuditMapper balanceToBalanceAuditMapper;
 
     @Override
+    @Transactional
     public void addAuditFromNewBalance(BalanceDto balanceDto) {
         if (balanceDto == null) {
             throw new IllegalArgumentException("balanceDto cannot be null");
@@ -24,6 +26,7 @@ public class  BalanceAuditServiceImpl implements BalanceAuditService {
     }
 
     @Override
+    @Transactional
     public void addAuditFromExistingBalance(BalanceDto balanceDto, PaymentDto paymentDto) {
         if (balanceDto == null || paymentDto == null) {
             throw new IllegalArgumentException("balanceDto and paymentDto cannot be null");
@@ -32,6 +35,4 @@ public class  BalanceAuditServiceImpl implements BalanceAuditService {
         balanceAudit.setOperationId(paymentDto.paymentNumber());
         balanceAuditRepository.save(balanceAudit);
     }
-
-
 }
