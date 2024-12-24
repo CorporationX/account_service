@@ -46,7 +46,7 @@ class FreeAccountNumbersServiceTest {
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber(1L, accountType, "123456789012");
         Consumer<String> onSuccess = Mockito.mock(Consumer.class);
 
-        when(freeAccountNumbersRepository.getAndDeleteFirstFreeAccountNumber(accountType))
+        when(freeAccountNumbersRepository.findFirstByAccountType(accountType))
             .thenReturn(Optional.of(freeAccountNumber));
 
         freeAccountNumbersService.getAndRemoveFreeAccountNumber(accountType, onSuccess);
@@ -86,7 +86,7 @@ class FreeAccountNumbersServiceTest {
         AccountType accountType = AccountType.PERSONAL;
         Consumer<String> onSuccess = Mockito.mock(Consumer.class);
 
-        when(freeAccountNumbersRepository.getAndDeleteFirstFreeAccountNumber(accountType))
+        when(freeAccountNumbersRepository.findFirstByAccountType(accountType))
             .thenReturn(Optional.empty());
 
         when(accountNumbersSequenceRepository.save(Mockito.any()))
