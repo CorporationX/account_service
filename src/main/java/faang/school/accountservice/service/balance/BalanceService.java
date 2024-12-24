@@ -15,4 +15,6 @@ public interface BalanceService {
     Balance findBalanceById(Long id);
 
     BalanceDto getBalanceById(@Valid Long userId, Long id);
+
+    void transferAmount(@Valid Long userId, @Valid PaymentDto paymentDto);
 }

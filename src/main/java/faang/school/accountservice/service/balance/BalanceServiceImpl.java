@@ -43,14 +43,14 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     public BalanceDto update(Long userId, PaymentDto paymentDto) {
         validateUser(userId);
-        Long id = paymentDto.balanceId();
         BigDecimal value = paymentDto.value();
-        Balance balance = findBalanceById(id);
+        Balance balance = findBalanceById(paymentDto.balanceOwnerId());
 
         switch (paymentDto.paymentOperationType()) {
             case INITIATE -> balance.authorizePayment(value);
             case CANCEL -> balance.cancelAuthorization(value);
             case CONFIRM -> balance.clearPayment(value);
+            case TIMECONFIRM -> transferAmount(userId, paymentDto);
             default -> throw new IllegalArgumentException("Wrong payment step");
         }
         return balanceMapper.toDto(balanceRepository.save(balance));
@@ -70,5 +70,22 @@ public class BalanceServiceImpl implements BalanceService {
 
     private void validateUser(Long userId) {
         log.info("user with id = {} validated", userId);
+    }
+
+    @Transactional
+    @Override
+    public void transferAmount(Long userId, PaymentDto paymentDto) {
+        if (paymentDto.value().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transfer amount must be positive");
+        }
+        Balance fromBalance = balanceRepository.findByAccountId(paymentDto.balanceOwnerId());
+        Balance toBalance = balanceRepository.findByAccountId(paymentDto.balanceRecipientId());
+
+        fromBalance.setActualValue(fromBalance.getActualValue().subtract(paymentDto.value()));
+        toBalance.setActualValue(toBalance.getActualValue().add(paymentDto.value()));
+        fromBalance.setAuthorizedValue(fromBalance.getAuthorizedValue().subtract(paymentDto.value()));
+
+        balanceRepository.save(fromBalance);
+        balanceRepository.save(toBalance);
     }
 }
