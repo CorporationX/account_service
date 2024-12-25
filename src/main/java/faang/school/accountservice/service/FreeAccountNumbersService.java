@@ -70,12 +70,18 @@ public class FreeAccountNumbersService {
         try {
             log.info("Получение первого свободного номера счета для типа счета: {}", accountType);
 
-            FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.retrieveFirst(accountType.name());
+            // Получаем первый свободный номер счета
+            FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findFirstFreeAccountNumber(accountType.name());
+
             if (freeAccountNumber == null) {
                 log.warn("Нет доступных свободных номеров счетов для типа счета: {}", accountType);
                 throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " + accountType);
             }
 
+            // Удаляем найденный номер счета
+            freeAccountNumbersRepository.deleteByAccountTypeAndAccountNumber(accountType.name(), freeAccountNumber.getFreeAccountId().getAccountNumber());
+
+            // Передаем номер в consumer
             numberConsumer.accept(freeAccountNumber);
 
             log.info("Успешно получен свободный номер счета для типа счета: {}", accountType);
@@ -87,4 +93,9 @@ public class FreeAccountNumbersService {
             throw new RuntimeException("Ошибка при получении свободного номера счета", e);
         }
     }
+
+
+
+
+
 }
