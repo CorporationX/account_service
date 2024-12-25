@@ -116,7 +116,7 @@ class AccountServiceTest {
 
         accountService.changeStatus(accountId, newStatus);
 
-        verify(validator, times(2)).checkId(accountId);
+        verify(validator, times(1)).checkId(accountId);
         assertEquals(newStatus, account.getStatus());
         assertNotNull(account.getClosedAt());
         verify(accountRepository).save(account);

@@ -13,10 +13,13 @@ import lombok.Data;
 public class CreateAccountDto {
     @NotNull
     private OwnerType ownerType;
+
     @Min(value = 0, message = "ownerId cant be < 0")
     private long ownerId;
+
     @NotNull
     private Type type;
+
     @NotNull
     private Currency currency;
 }

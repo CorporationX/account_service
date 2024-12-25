@@ -10,8 +10,10 @@ import faang.school.accountservice.mapper.account.CreateAccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.validator.account.AccountServiceValidator;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -55,6 +57,7 @@ public class AccountService {
         return accountMapper.toDto(account);
     }
 
+    @Retryable(value = OptimisticLockException.class, maxAttempts = 3)
     public AccountDto changeStatus(long accountId, Status status) {
         log.info("validate accountId");
         validator.checkId(accountId);
@@ -75,9 +78,6 @@ public class AccountService {
     }
 
     private Account getAccountById(long accountId) {
-        log.info("validate accountId");
-        validator.checkId(accountId);
-
         log.info("getting account from db by id");
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -85,9 +85,6 @@ public class AccountService {
     }
 
     private List<Account> getAccountByOwnerIdAndType(long ownerId, long ownerType) {
-        log.info("validate ownerId and ownerType");
-        validator.checkId(ownerId, ownerType);
-
         log.info("getting ownerType by id");
         OwnerType owner = OwnerType.getOwnerById(ownerType);
 
