@@ -9,6 +9,7 @@ import faang.school.accountservice.model.FreeAccountId;
 import faang.school.accountservice.model.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
+    @Transactional
     public void generateFreeAccountNumbers(AccountType accountType, int batchSize) {
         try {
             long prefix = ACCOUNT_PREFIXES.getOrDefault(accountType, 0L);
@@ -42,7 +44,8 @@ public class FreeAccountNumbersService {
 
             log.info("Генерация {} свободных номеров счетов для типа счета: {}", batchSize, accountType);
 
-            accountNumbersSequenceRepository.incrementCounter(accountType.name(), batchSize);
+            // Передаем числовое значение (ordinal)
+            accountNumbersSequenceRepository.incrementCounter(accountType.ordinal(), batchSize);
 
             List<FreeAccountNumber> numbers = new ArrayList<>();
             for (long i = 0; i < batchSize; i++) {
@@ -60,6 +63,9 @@ public class FreeAccountNumbersService {
         }
     }
 
+
+
+    @Transactional
     public void retrieveFreeAccountNumbers(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
         try {
             log.info("Получение первого свободного номера счета для типа счета: {}", accountType);

@@ -12,10 +12,7 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountS
     @Query(nativeQuery = true, value = """
             UPDATE account_number_sequence SET counter = counter + :batchSize
             WHERE accounttype = :acccounttype
-            RETURNING accounttype, counter, old.counter AS initialValue
             """)
-
     @Modifying
-    AccountSeq incrementCounter(String acccounttype, int batchSize);
-
+    void incrementCounter(int acccounttype, int batchSize);  // Используем int для accounttype
 }
