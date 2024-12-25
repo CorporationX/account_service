@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.BalanceBelowZeroException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +27,7 @@ public class BalanceService {
     @Transactional
     public BalanceDto createBalance(Account account) {
         Balance balance = new Balance();
-        balance.setActualBalance(BigDecimal.ZERO);
-        balance.setAuthorizationBalance(BigDecimal.ZERO);
         balance.setAccount(account);
-        balance.setCreatedAt(LocalDateTime.now());
-        balance.setUpdatedAt(LocalDateTime.now());
         log.info("Balance for {} account is created", account.getAccountNumber());
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
@@ -66,6 +63,6 @@ public class BalanceService {
 
     private Balance getBalanceFromRepository(Long accountId) {
         return balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Balance not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Balance not found"));
     }
 }

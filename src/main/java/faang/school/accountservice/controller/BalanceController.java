@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/balance")
+@RequestMapping("/api/v1/account")
 @RequiredArgsConstructor
 public class BalanceController {
 
     private final BalanceService balanceService;
 
-    @GetMapping("/{accountId}")
+    @GetMapping("/{accountId}/balance")
     public BalanceDto getBalance(@PathVariable Long accountId) {
         return balanceService.getBalance(accountId);
     }
