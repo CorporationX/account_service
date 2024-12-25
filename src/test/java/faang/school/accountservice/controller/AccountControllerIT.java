@@ -4,17 +4,24 @@ import faang.school.accountservice.dto.AccountOwnerRequest;
 import faang.school.accountservice.dto.AccountOwnerResponse;
 import faang.school.accountservice.dto.AccountRequest;
 import faang.school.accountservice.dto.AccountResponse;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.util.BaseContextTest;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -23,8 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class AccountControllerIT extends BaseContextTest {
 
+    @Autowired
+    private BalanceAuditRepository balanceAuditRepository;
+
     @Test
-    void openAccountTest() throws Exception {
+    void openAccountAndCreateBalanceAuditTest() throws Exception {
         Long ownerId = createOwner(1L, OwnerType.USER);
         String accountRequest = objectMapper.writeValueAsString(
                 new AccountRequest(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.USER)
@@ -42,6 +52,16 @@ public class AccountControllerIT extends BaseContextTest {
         assertNotNull(accountResponse.getAccountNumber());
         assertEquals(20, accountResponse.getAccountNumber().length());
         assertEquals(AccountType.LEGAL, accountResponse.getType());
+
+        List<BalanceAudit> audits = balanceAuditRepository.findByAccountIdOrderByCreatedAtDesc(accountResponse.getId());
+
+        assertFalse(audits.isEmpty());
+        BalanceAudit audit = audits.get(0);
+
+        assertEquals(accountResponse.getId(), audit.getAccount().getId());
+        assertEquals(0, audit.getBalanceVersion());
+        assertEquals(BigDecimal.ZERO.setScale(2), audit.getActualBalance());
+        assertEquals(BigDecimal.ZERO.setScale(2), audit.getAuthorizationBalance());
     }
 
     @Test

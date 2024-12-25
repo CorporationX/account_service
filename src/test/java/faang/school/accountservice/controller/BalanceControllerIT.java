@@ -22,7 +22,7 @@ public class BalanceControllerIT extends BaseContextTest {
         expectedBalance.setAuthorizationBalance(BigDecimal.valueOf(53.00));
         expectedBalance.setActualBalance(BigDecimal.valueOf(53.00));
 
-        MvcResult result = mockMvc.perform(get("/api/v1/balance/1")
+        MvcResult result = mockMvc.perform(get("/api/v1/account/" + accountId + "/balance")
                         .header("x-user-id", 1)
                 ).andExpect(status().isOk())
                 .andReturn();
