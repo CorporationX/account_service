@@ -31,11 +31,13 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Builder.Default
     @Column(name = "authorization_balance", nullable = false)
-    private BigDecimal authorizationBalance;
+    private BigDecimal authorizationBalance = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "actual_balance", nullable = false)
-    private BigDecimal actualBalance;
+    private BigDecimal actualBalance = BigDecimal.ZERO;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

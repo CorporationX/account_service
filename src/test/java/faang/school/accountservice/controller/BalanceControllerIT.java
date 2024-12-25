@@ -12,17 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Sql("/db/Create_balance_for_test.sql")
 public class BalanceControllerIT extends BaseContextTest {
 
     @Test
-    @Sql("/db/Create_balance_for_test.sql")
     public void getBalanceTest() throws Exception {
         int accountId = 1;
         BalanceDto expectedBalance = new BalanceDto();
         expectedBalance.setAuthorizationBalance(BigDecimal.valueOf(53.00));
         expectedBalance.setActualBalance(BigDecimal.valueOf(53.00));
 
-        MvcResult result = mockMvc.perform(get("/api/v1/balance/1")
+        MvcResult result = mockMvc.perform(get("/api/v1/account/1/balance")
                         .header("x-user-id", 1)
                 ).andExpect(status().isOk())
                 .andReturn();

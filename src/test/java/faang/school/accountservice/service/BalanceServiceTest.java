@@ -8,6 +8,7 @@ import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.exception.BalanceBelowZeroException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -61,7 +62,7 @@ public class BalanceServiceTest {
         Long accountId = 1L;
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> balanceService.getBalance(accountId));
+        assertThrows(EntityNotFoundException.class, () -> balanceService.getBalance(accountId));
     }
 
     @Test
