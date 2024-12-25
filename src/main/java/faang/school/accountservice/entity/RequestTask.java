@@ -1,8 +1,13 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.request_task.RequestTaskStatus;
+import faang.school.accountservice.enums.request_task.RequestTaskType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -11,11 +16,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "request_task")
@@ -26,18 +29,19 @@ import java.util.UUID;
 public class RequestTask {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "handler",length = 64)
-    private String handler;
+    @Column(name = "request_id", nullable = false)
+    private Long requestId;
 
-    @Column(name = "status", nullable = false, length = 64)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "handler", length = 64, nullable = false)
+    private RequestTaskType handler;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 32, nullable = false)
+    private RequestTaskStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at")
