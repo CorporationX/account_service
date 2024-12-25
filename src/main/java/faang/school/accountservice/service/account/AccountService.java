@@ -11,6 +11,7 @@ import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.validator.account.AccountServiceValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Retryable;
@@ -58,6 +59,7 @@ public class AccountService {
     }
 
     @Retryable(value = OptimisticLockException.class, maxAttempts = 3)
+    @Transactional
     public AccountDto changeStatus(long accountId, Status status) {
         log.info("validate accountId");
         validator.checkId(accountId);
