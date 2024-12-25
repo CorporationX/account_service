@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    @Query("SELECT t FROM Transaction t WHERE t.accountId = :accountId AND t.type = 'EXPENSE' " +
-            "AND t.date BETWEEN :startDate AND :endDate")
-    List<Transaction> findExpenseTransactionsForAccount(UUID accountId, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId AND t.account.tariffId = :tariffId " +
+            "AND t.type = 'EXPENSE' AND t.date BETWEEN :startDate AND :endDate")
+    List<Transaction> findExpenseTransactionsForAccountAndTariff(Long accountId, Long tariffId, LocalDate startDate, LocalDate endDate);
 }
