@@ -18,7 +18,7 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
                     RETURNING fan.account_number, fan.type
                     """)
     @Modifying
-    FreeAccountNumber retreiveFirst(String type);
+    FreeAccountNumber retrieveFirst(String type);
 
 
 }

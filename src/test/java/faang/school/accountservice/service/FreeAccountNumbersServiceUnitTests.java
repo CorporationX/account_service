@@ -81,7 +81,7 @@ public class FreeAccountNumbersServiceUnitTests {
         freeAccountNumbersService.retrieveAccountNumber(type, accountNumber -> {
             this.consumerIsCalled = true;
         });
-        verify(freeAccountNumbersRepository, times(1)).retreiveFirst(anyString());
+        verify(freeAccountNumbersRepository, times(1)).retrieveFirst(anyString());
         assertTrue(this.consumerIsCalled);
     }
 

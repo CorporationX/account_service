@@ -16,12 +16,12 @@ public class AccountNumberScheduler {
 
     private final FreeAccountNumbersService freeAccountNumbersService;
 
-    @Scheduled(cron = "0 */2 0 * * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     public void generateDebit() {
         freeAccountNumbersService.generateAccountNumbers(AccountType.DEBIT, butchSize);
     }
 
-    @Scheduled(cron = "0 */2 0 * * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     public void generateCredit() {
         freeAccountNumbersService.generateAccountNumbers(AccountType.CREDIT, butchSize);
     }

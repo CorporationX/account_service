@@ -6,7 +6,6 @@ import faang.school.accountservice.entity.FreeAccountId;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountSequenseRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +40,13 @@ public class FreeAccountNumbersService {
             return;
         }
         freeAccountNumbersRepository.saveAll(accountNumbers);
-        log.info("Saved account numbers: {}", accountNumbers);
+        log.info("Saved account numbers, size: {}", accountNumbers.size());
     }
 
     @Transactional
     public void retrieveAccountNumber(@NotNull AccountType type, Consumer<FreeAccountNumber> consumer) {
         log.info("Retrieving account number for type: {}", type);
-        FreeAccountNumber accountNumber = freeAccountNumbersRepository.retreiveFirst(type.name());
+        FreeAccountNumber accountNumber = freeAccountNumbersRepository.retrieveFirst(type.name());
         log.info("Retrieved account number: {}", accountNumber);
         consumer.accept(accountNumber);
         log.info("Consumed account number: {}", accountNumber);
