@@ -26,6 +26,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountOwnerRepository accountOwnerRepository;
+    private final BalanceService balanceService;
     private final AccountMapper accountMapper;
 
     @Transactional(readOnly = true)
@@ -53,6 +54,7 @@ public class AccountService {
                 .build();
 
         account = accountRepository.save(account);
+        balanceService.createBalance(account);
         log.info("Successfully opened account with number: {}, for ownerId: {}",
                 account.getAccountNumber(), request.getOwnerId());
         return accountMapper.toDto(account);
