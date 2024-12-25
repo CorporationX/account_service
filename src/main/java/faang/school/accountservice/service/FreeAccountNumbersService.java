@@ -45,7 +45,6 @@ public class FreeAccountNumbersService {
         log.info("Finished generating free account number for account type: {}", accountType);
     }
 
-
     @Transactional
     public String getFreeAccountNumber(AccountType accountType) {
         log.info("Start getting free account number for account type: {}", accountType);
@@ -60,22 +59,6 @@ public class FreeAccountNumbersService {
         log.info("Finished getting free account number for account type: {}", accountType);
         return freeAccountNumber.getAccountNumber();
     }
-
-//    @Transactional(isolation = Isolation.SERIALIZABLE)
-//    public String getFreeAccountNumber(AccountType accountType) {
-//        log.info("Start getting free account number for account type: {}", accountType);
-//        FreeAccountNumber freeAccountNumber =
-//                freeAccountNumbersRepository.getFirstByAccountType(accountType);
-//
-//        if (freeAccountNumber == null) {
-//            log.info("No free account number found for account type: {}.Generating new...", accountType);
-//            generateFreeAccountNumber(accountType);
-//            freeAccountNumber = freeAccountNumbersRepository.getFirstByAccountType(accountType);
-//        }
-//        freeAccountNumbersRepository.deleteByAccountNumber(freeAccountNumber.getAccountNumber());
-//        log.info("Finished getting free account number for account type: {}", accountType);
-//        return freeAccountNumber.getAccountNumber();
-//    }
 
     private int getLengthByAccountType(AccountType accountType) {
         return switch (accountType) {
