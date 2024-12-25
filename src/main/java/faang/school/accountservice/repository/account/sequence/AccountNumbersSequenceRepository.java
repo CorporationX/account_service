@@ -1,4 +1,5 @@
 package faang.school.accountservice.repository.account.sequence;
+
 import faang.school.accountservice.model.account.AccountType;
 import faang.school.accountservice.model.account.sequence.AccountSeq;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,13 +10,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import faang.school.accountservice.model.account.AccountType;
 
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountSeq, AccountType> {
     @Modifying
     @Query("UPDATE AccountSeq a SET a.counter = a.counter + :batchSize WHERE a.type = :type AND a.counter = :currentCounter")
-    int incrementCounter(@Param("type") AccountType type, @Param("currentCounter") Long currentCounter,@Param("batchSize") long batchSize);
+    int incrementCounter(@Param("type") AccountType type, @Param("currentCounter") Long currentCounter, @Param("batchSize") long batchSize);
 
     @Transactional
     default AccountSeq createCounter(AccountType type) {
