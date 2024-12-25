@@ -1,6 +1,6 @@
 package faang.school.accountservice.model.account.sequence;
 
-import faang.school.accountservice.model.account.AccountType;
+import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

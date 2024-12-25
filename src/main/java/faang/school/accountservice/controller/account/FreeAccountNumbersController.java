@@ -1,9 +1,10 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.controller.account;
 
-import faang.school.accountservice.model.account.AccountType;
-import faang.school.accountservice.service.FreeAccountNumberService;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.service.account.FreeAccountNumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,5 +29,10 @@ public class FreeAccountNumbersController {
                                                   @RequestParam("accountLength") Long accountLength,
                                                   @RequestParam("limit") long limit) {
         freeAccountNumberService.generateFreeAccountNumbersWithLimit(accountType, accountLength, limit);
+    }
+
+    @PostMapping("/process/{type}")
+    public String processAccountNumber(@PathVariable("type") AccountType type) {
+        return freeAccountNumberService.processAccountNumber(type);
     }
 }

@@ -1,7 +1,7 @@
 package faang.school.accountservice.repository.account;
 
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.account.AccountNumberPrefix;
-import faang.school.accountservice.model.account.AccountType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

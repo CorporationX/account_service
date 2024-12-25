@@ -1,8 +1,8 @@
 package faang.school.accountservice.sheduler;
 
 import faang.school.accountservice.config.account.FreeAccountNumbersConfig;
-import faang.school.accountservice.model.account.AccountType;
-import faang.school.accountservice.service.FreeAccountNumberService;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.service.account.FreeAccountNumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;

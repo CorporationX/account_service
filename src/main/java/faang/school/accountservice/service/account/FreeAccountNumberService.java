@@ -1,8 +1,8 @@
 
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.config.account.FreeAccountNumbersConfig;
-import faang.school.accountservice.model.account.AccountType;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.account.freeaccounts.FreeAccountNumber;
 import faang.school.accountservice.model.account.sequence.AccountSeq;
 import faang.school.accountservice.repository.account.AccountNumberPrefixRepository;

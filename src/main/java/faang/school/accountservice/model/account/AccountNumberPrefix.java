@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.account;
 
+import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
