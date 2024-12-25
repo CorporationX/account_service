@@ -34,7 +34,7 @@ public class BalanceAudit {
     private Account account;
 
     @Column(name = "balance_version", nullable = false)
-    private Integer balanceVersion;
+    private Long balanceVersion;
 
     @Column(name = "authorization_balance", nullable = false)
     private BigDecimal authorizationBalance;

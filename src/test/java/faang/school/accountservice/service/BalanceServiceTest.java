@@ -7,7 +7,6 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.exception.BalanceBelowZeroException;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ public class BalanceServiceTest {
     private BalanceRepository balanceRepository;
 
     @Mock
-    private BalanceAuditRepository balanceAuditRepository;
+    private BalanceAuditService balanceAuditService;
 
     @Spy
     private BalanceMapper balanceMapper = Mappers.getMapper(BalanceMapper.class);
