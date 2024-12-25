@@ -32,7 +32,7 @@ public class FreeAccountNumberServiceIT extends BaseContextTest {
         AccountType accountType = AccountType.SAVINGS;
 
         freeAccountNumbersService.generateFreeAccountNumber(accountType);
-        FreeAccountNumber result = accountNumbersRepository.getFirstByAccountType(accountType);
+        FreeAccountNumber result = accountNumbersRepository.retrieveFreeAccountNumber(accountType.name());
 
         assertNotNull(result);
         assertEquals("5444000000000001", result.getAccountNumber());
