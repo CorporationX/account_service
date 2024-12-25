@@ -1,5 +1,6 @@
 package faang.school.accountservice.exception.global_handler;
 
+import faang.school.accountservice.exception.BalanceBelowZeroException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(Exception e) {
+        return buildResponse(e);
+    }
+
+    @ExceptionHandler({BalanceBelowZeroException.class, IllegalArgumentException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBalanceBelowZeroAndIllegalArgument(Exception e) {
         return buildResponse(e);
     }
 
