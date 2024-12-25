@@ -8,7 +8,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -23,6 +23,14 @@ server:
 logging:
   level:
     root: info
+
+services:
+  user-service:
+    host: http://localhost
+    port: 8080
+  project-service:
+    host: http://localhost
+    port: 8082
 
 free-account-generation:
   accountNumberLength: 16

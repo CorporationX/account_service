@@ -1,6 +1,10 @@
 package faang.school.accountservice.model.account;
 
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.owner.Owner;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +25,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -34,10 +39,10 @@ public class Account {
     private Long id;
 
     @Column(name = "account_number", length = 20, unique = true, nullable = false)
-    @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
+    @Pattern(regexp = "^[0-9]{12,20}$")
     private String accountNumber;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
@@ -55,15 +60,14 @@ public class Account {
 
     @CreationTimestamp
     @Column(name = "created_at")
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
-    @UpdateTimestamp
     @Column(name = "closed_at")
-    private Instant closedAt;
+    private LocalDateTime closedAt;
 
     @Column(name = "version", nullable = false)
     @Version
@@ -72,7 +76,7 @@ public class Account {
     @Column(name = "is_verified", nullable = false)
     private boolean isVerified;
 
-    @Size(max = 4096, message = "Notes must be less than 4096 characters")
+    @Size(max = 4096)
     @Column(name = "notes", length = 4096)
     private String notes;
 }
