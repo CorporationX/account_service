@@ -23,3 +23,9 @@ server:
 logging:
   level:
     root: info
+
+free-account-generation:
+  accountNumberLength: 16
+  accountNumberCount: 10
+  cron:
+    expression: "0 0 0 * * *"

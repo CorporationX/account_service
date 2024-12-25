@@ -14,15 +14,17 @@ import java.util.Optional;
 public interface FreeAccountRepository extends JpaRepository<FreeAccountNumber, Long> {
 
     @Query(value = """
-    DELETE FROM free_account_numbers
-    WHERE id IN (
-        SELECT id FROM free_account_numbers
-        WHERE type = :type
-        ORDER BY id ASC
-        LIMIT 1
-    )
-    RETURNING id, type, account_number
-    """, nativeQuery = true)
+            DELETE FROM free_account_numbers
+            WHERE id IN (
+                SELECT id FROM free_account_numbers
+                WHERE type = :type
+                ORDER BY id ASC
+                LIMIT 1
+            )
+            RETURNING id, type, account_number
+            """, nativeQuery = true)
     Optional<FreeAccountNumber> retrieveAndDeleteFirst(@Param("type") String type);
-}
 
+    @Query("SELECT COUNT(accountNumber) FROM FreeAccountNumber WHERE type = :type")
+    int countFreeAccountNumberByType(AccountType type);
+}

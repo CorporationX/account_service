@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changeset/account_V001__initial.sql
   - include:
       file: db/changelog/changeset/account_V002__free_account_number.sql
+  - include:
+      file: db/changelog/changeset/account_V003__account_number_prefix.sql

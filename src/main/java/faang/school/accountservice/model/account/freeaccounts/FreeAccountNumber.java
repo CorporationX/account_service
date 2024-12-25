@@ -13,6 +13,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class FreeAccountNumber {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,12 +14,12 @@ import faang.school.accountservice.model.account.AccountType;
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountSeq, AccountType> {
     @Modifying
-    @Query("UPDATE AccountSeq a SET a.counter = a.counter + 1 WHERE a.type = :type AND a.counter = :currentCounter")
-    int incrementCounter(@Param("type") AccountType type, @Param("currentCounter") Long currentCounter);
+    @Query("UPDATE AccountSeq a SET a.counter = a.counter + :batchSize WHERE a.type = :type AND a.counter = :currentCounter")
+    int incrementCounter(@Param("type") AccountType type, @Param("currentCounter") Long currentCounter,@Param("batchSize") long batchSize);
 
     @Transactional
     default AccountSeq createCounter(AccountType type) {
-        return save(new AccountSeq(type, 0L, null));
+        return save(new AccountSeq(type, 1L, null));
     }
 
     @Query("SELECT a FROM AccountSeq a WHERE a.type = :type")
