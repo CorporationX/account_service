@@ -29,9 +29,9 @@ public class ScheduledExecutorService {
 
                 if (requestMap.getKey().equals(processExecutor.getRequestType())) {
                     requestMap.getValue().forEach(
-                            req -> processExecutor.getThreadPoolExecutor().
+                            request -> processExecutor.getThreadPoolExecutor().
                                     execute(() -> requestExecutorService.
-                                            executeRequest(req.getIdempotentToken())));
+                                            executeRequest(request)));
                 }
             });
         }

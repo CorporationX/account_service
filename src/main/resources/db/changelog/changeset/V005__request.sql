@@ -6,7 +6,3 @@ CREATE TABLE IF NOT EXISTS request
     context                 VARCHAR(128),
     scheduled_at            TIMESTAMP
 );
-
-ALTER TABLE request
-    ADD COLUMN IF NOT EXISTS context      VARCHAR(256),
-    ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMP;

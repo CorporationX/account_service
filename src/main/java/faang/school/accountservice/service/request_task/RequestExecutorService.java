@@ -9,13 +9,11 @@ import faang.school.accountservice.enums.request.RequestType;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.repository.RequestTaskRepository;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +24,9 @@ public class RequestExecutorService {
     private final RequestTaskRepository requestTaskRepository;
     private final ObjectMapper objectMapper;
 
-    public void executeRequest(UUID requestId) {
-        Request request = requestRepository.findById(requestId).orElseThrow(
-                () -> new EntityNotFoundException("Request with id " + requestId + " not found"));
+    public void executeRequest(Request request) {
+//        Request request = requestRepository.findById(requestId).orElseThrow(
+//                () -> new EntityNotFoundException("Request with id " + requestId + " not found"));
 
         List<Long> requestTasksIds;
         try {
@@ -41,6 +39,7 @@ public class RequestExecutorService {
         List<RequestTask> requestTasks = requestTaskRepository.findAllById(requestTasksIds);
 
         List<Long> handlersIds = getHandlersIdsByRequestType(request.getRequestType());
+        //need sort task by queue of executing
         requestTaskHandlers.stream()
                 .filter(handler -> handlersIds.stream()
                         .anyMatch(handlerId -> handlerId.equals(handler.getHandlerId())))

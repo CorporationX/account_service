@@ -24,9 +24,6 @@ logging:
   level:
     root: info
 
-scheduling:
-  request-scheduler-rate: 500
-
 async:
   create-account-pool:
     core-pool-size: 2
