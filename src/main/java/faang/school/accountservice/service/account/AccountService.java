@@ -1,8 +1,8 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.account.enums.AccountStatus;
+import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
@@ -50,13 +50,13 @@ public class AccountService {
     @Transactional
     public List<AccountDto> getAllOfUser(Long userId) {
         validator.checkUserId(userId);
-        return mapper.toDto(accountRepo.findByUserId(userId));
+        return mapper.toDto(accountRepo.findByOwnerUserId(userId));
     }
 
     @Transactional
     public List<AccountDto> getAllOfProject(Long projectId) {
         validator.checkProjectId(projectId);
-        return mapper.toDto(accountRepo.findByProjectId(projectId));
+        return mapper.toDto(accountRepo.findByOwnerProjectId(projectId));
     }
 
     private Account getAccount(Long id) {

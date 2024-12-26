@@ -1,6 +1,6 @@
-package faang.school.accountservice.repository;
+package faang.school.accountservice.repository.account;
 
-import faang.school.accountservice.entity.AccountNumbersSequence;
+import faang.school.accountservice.entity.account.AccountNumbersSequence;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,10 +1,10 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.free;
 
-import faang.school.accountservice.entity.AccountNumbersSequence;
-import faang.school.accountservice.entity.FreeAccountNumber;
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
-import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import faang.school.accountservice.entity.account.AccountNumbersSequence;
+import faang.school.accountservice.entity.free.FreeAccountNumber;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.repository.account.AccountNumbersSequenceRepository;
+import faang.school.accountservice.repository.free.FreeAccountNumbersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

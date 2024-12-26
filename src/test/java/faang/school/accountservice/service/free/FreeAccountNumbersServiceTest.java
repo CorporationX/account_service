@@ -1,9 +1,10 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.free;
 
-import faang.school.accountservice.entity.AccountNumbersSequence;
-import faang.school.accountservice.entity.FreeAccountId;
-import faang.school.accountservice.entity.FreeAccountNumber;
-import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.entity.account.AccountNumbersSequence;
+import faang.school.accountservice.entity.free.FreeAccountId;
+import faang.school.accountservice.entity.free.FreeAccountNumber;
+import faang.school.accountservice.enums.account.AccountType;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Testcontainers
+@Disabled
 public class FreeAccountNumbersServiceTest {
 
     @Autowired

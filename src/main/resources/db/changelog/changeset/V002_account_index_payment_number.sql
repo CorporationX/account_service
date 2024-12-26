@@ -1,1 +1,1 @@
-CREATE INDEX payment_number_idx ON account (payment_number);
+CREATE INDEX payment_number_idx ON account_schema.account (payment_number);

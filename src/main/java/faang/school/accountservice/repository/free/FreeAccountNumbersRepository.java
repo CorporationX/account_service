@@ -1,7 +1,7 @@
-package faang.school.accountservice.repository;
+package faang.school.accountservice.repository.free;
 
-import faang.school.accountservice.entity.FreeAccountId;
-import faang.school.accountservice.entity.FreeAccountNumber;
+import faang.school.accountservice.entity.free.FreeAccountId;
+import faang.school.accountservice.entity.free.FreeAccountNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

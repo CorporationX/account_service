@@ -1,6 +1,6 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.entity.free;
 
-import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.account.AccountType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
