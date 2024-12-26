@@ -99,7 +99,7 @@ public class AccountService {
 
         accountRepository.save(account);
 
-        log.info("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
+        log.debug("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
         return createBalanceChangeDto(account, amount);
     }
 
@@ -120,7 +120,7 @@ public class AccountService {
 
         accountRepository.save(account);
 
-        log.info("Account {} withdrawal of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
+        log.debug("Account {} withdrawal of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
         return createBalanceChangeDto(account, amount);
     }
 
@@ -136,7 +136,7 @@ public class AccountService {
 
         transactionService.approveTransaction(transactionId);
 
-        log.info("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), amount);
+        log.debug("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
     }
 
@@ -154,7 +154,7 @@ public class AccountService {
 
         transactionService.rejectTransaction(transactionId);
 
-        log.info("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), amount);
+        log.debug("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
     }
 
