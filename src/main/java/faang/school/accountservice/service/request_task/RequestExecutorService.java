@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.entity.RequestTask;
-import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.enums.request.RequestType;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.repository.RequestTaskRepository;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class RequestExecutorService {
     private final RequestTaskRepository requestTaskRepository;
     private final ObjectMapper objectMapper;
 
-    public void executeRequest(long requestId) {
+    public void executeRequest(UUID requestId) {
         Request request = requestRepository.findById(requestId).orElseThrow(
                 () -> new EntityNotFoundException("Request with id " + requestId + " not found"));
 
@@ -49,7 +50,6 @@ public class RequestExecutorService {
     private List<Long> getHandlersIdsByRequestType(RequestType requestType) {
         return switch (requestType) {
             case CREATE_ACCOUNT -> new ArrayList<>(List.of(1L, 2L, 3L, 4L, 5L));
-
         };
     }
 }
