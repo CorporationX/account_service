@@ -4,7 +4,6 @@ import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,7 +19,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -29,6 +30,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE account SET deleted_at = NOW(), account_status = 'DELETED', account_version = account_version + 1 WHERE id = ? and account_version = ?")
+@Where(clause = "deleted_at IS NULL")
 @Table(name = "account")
 public class Account {
 

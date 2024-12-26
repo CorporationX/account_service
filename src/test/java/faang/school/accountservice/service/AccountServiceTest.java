@@ -152,7 +152,7 @@ class AccountServiceTest {
         when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
 
         IllegalAccountAccessException ex = assertThrows(IllegalAccountAccessException.class, () ->
-            accountService.updateAccountStatus(accountNumber, ownerId, newStatus)
+                accountService.updateAccountStatus(accountNumber, ownerId, newStatus)
         );
 
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
@@ -179,5 +179,21 @@ class AccountServiceTest {
         verify(accountRepository, times(0)).save(any(Account.class));
 
         assertEquals(String.format("Account with number %s already has status %s", accountNumber, account.getStatus()), ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Delete account success: valid input")
+    void testDeleteAccount_Success() {
+        String accountNumber = "ACC0123456789";
+        Long accountId = 1L;
+        Long ownerId = 10L;
+        Account account = Account.builder().id(accountId).accountNumber(accountNumber).status(AccountStatus.ACTIVE).ownerId(ownerId).build();
+
+        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+
+        accountService.deleteAccount(accountNumber, ownerId);
+
+        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+        verify(accountRepository, times(1)).deleteById(account.getId());
     }
 }

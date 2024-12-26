@@ -3,6 +3,8 @@ package faang.school.accountservice.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import faang.school.accountservice.exception.IllegalAccountCurrencyException;
 
+import java.util.Arrays;
+
 public enum Currency {
     USD,
     EUR,
@@ -16,6 +18,8 @@ public enum Currency {
                 return value;
             }
         }
-        throw new IllegalAccountCurrencyException(String.format("Invalid account currency: %s", json));
+
+        throw new IllegalAccountCurrencyException(String.format(
+                "Invalid account currency: %s. Valid values are: %s", json, Arrays.toString(Currency.values())));
     }
 }

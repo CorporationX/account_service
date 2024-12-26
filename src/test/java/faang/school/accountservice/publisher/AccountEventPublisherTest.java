@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -73,7 +74,7 @@ class AccountEventPublisherTest {
 
         accountDto = null;
 
-        accountEventPublisher.publish(accountDto);
+        assertThrows(IllegalArgumentException.class, () -> accountEventPublisher.publish(accountDto));
 
         verify(redisTemplate, never()).convertAndSend(anyString(), eq(AccountDto.class));
     }

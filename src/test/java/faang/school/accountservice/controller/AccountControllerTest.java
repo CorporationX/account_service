@@ -25,6 +25,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -60,7 +61,14 @@ class AccountControllerTest {
     @Test
     @DisplayName("Open new account success: valid input")
     void testCreateAccount_Success() throws Exception {
-        String jsonCreateDto = "{\"ownerType\": \"project\", \"ownerName\": \"Project owner\", \"accountType\": \"Current\", \"currency\": \"usd\"}";
+        String jsonCreateDto = """
+                {
+                 "ownerType": "project",
+                 "ownerName": "Project owner",
+                 "accountType": "Current",
+                 "currency": "usd"
+                 }
+                """;
         createDto = objectMapper.readValue(jsonCreateDto, CreateAccountDto.class);
         accountDto = new AccountDto(1L, "ACC123456", AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, AccountStatus.ACTIVE);
 
@@ -80,7 +88,14 @@ class AccountControllerTest {
     @Test
     @DisplayName("Open new account fail: blank owner name")
     void testCreateAccount_BlankOwnerName_Fail() throws Exception {
-        String jsonCreateDto = "{\"ownerType\": \"project\", \"ownerName\": \"\", \"accountType\": \"Current\", \"currency\": \"rub\"}";
+        String jsonCreateDto = """
+                {
+                 "ownerType": "project",
+                 "ownerName": "",
+                 "accountType": "Current",
+                 "currency": "rub"
+                 }
+                """;
 
         mockMvc.perform(post("/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +108,14 @@ class AccountControllerTest {
     @Test
     @DisplayName("Open new account fail: invalid account type")
     void testCreateAccount_InvalidAccountType_Fail() throws Exception {
-        String jsonCreateDto = "{\"ownerType\": \"project\", \"ownerName\": \"project 1\", \"accountType\": \"X\", \"currency\": \"rub\"}";
+        String jsonCreateDto = """
+                {
+                 "ownerType": "project",
+                 "ownerName": "Project 1",
+                 "accountType": "X",
+                 "currency": "rub"
+                 }
+                """;
 
         mockMvc.perform(post("/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -257,5 +279,16 @@ class AccountControllerTest {
                         .header("x-user-id", "10"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("New status cannot be empty")));
+    }
+
+    @Test
+    @DisplayName("Delete account success: valid input")
+    void testDeleteAccount_Success() throws Exception {
+        String accountNumber = "ACC0123456789";
+
+        mockMvc.perform(delete("/accounts/{accountNumber}", accountNumber)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("x-user-id", "10"))
+                .andExpect(status().isNoContent());
     }
 }

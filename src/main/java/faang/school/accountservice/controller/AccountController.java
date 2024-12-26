@@ -7,6 +7,7 @@ import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +50,8 @@ public class AccountController {
     @GetMapping
     @Operation(summary = "Get accounts information by owner type and owner id")
     public ResponseEntity<List<AccountDto>> getAccounts(
-            @RequestParam @NotBlank (message = "Owner type cannot be empty") String accountOwnerType) {
+            @Parameter(description = "Type of account owner. Valid values: USER, PROJECT", example = "USER")
+            @RequestParam @NotBlank(message = "Owner type cannot be empty") String accountOwnerType) {
         AccountOwnerType ownerType = AccountOwnerType.toValue(accountOwnerType);
         Long ownerId = userContext.getUserId();
         log.info("Request to get accounts of {} id: {}", ownerType, ownerId);
@@ -59,10 +62,21 @@ public class AccountController {
     @Operation(summary = "Update account status")
     public ResponseEntity<AccountDto> updateAccount(
             @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
-            @RequestParam @NotBlank (message = "New status cannot be empty") String status) {
+            @Parameter(description = "Account status. Valid values: ACTIVE, INACTIVE, FROZEN", example = "ACTIVE")
+            @RequestParam @NotBlank(message = "New status cannot be empty") String status) {
         AccountStatus accountStatus = AccountStatus.toValue(status);
         Long ownerId = userContext.getUserId();
         log.info("Request to update account status from {} id: {}", accountNumber, ownerId);
         return ResponseEntity.ok(accountService.updateAccountStatus(accountNumber, ownerId, accountStatus));
+    }
+
+    @DeleteMapping("/{accountNumber}")
+    @Operation(summary = "Delete account by its number")
+    public ResponseEntity<Void> deleteAccount(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber) {
+        Long ownerId = userContext.getUserId();
+        log.info("Request to delete account from {} id: {}", accountNumber, ownerId);
+        accountService.deleteAccount(accountNumber, ownerId);
+        return ResponseEntity.noContent().build();
     }
 }
