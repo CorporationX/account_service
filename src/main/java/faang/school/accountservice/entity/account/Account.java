@@ -1,16 +1,7 @@
 package faang.school.accountservice.entity.account;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.persistence.Version;
+import faang.school.accountservice.entity.balance.Balance;
+import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -62,4 +53,7 @@ public class Account {
     @Version
     @Column(nullable = false)
     private long version;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 }
