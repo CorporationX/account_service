@@ -23,3 +23,13 @@ server:
 logging:
   level:
     root: info
+
+scheduling:
+  request-scheduler-rate: 500
+
+async:
+  create-account-pool:
+    core-pool-size: 2
+    max-pool-size: 4
+    queue-capacity: 500
+    name-prefix: create-account-

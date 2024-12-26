@@ -1,8 +1,11 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.enums.request.RequestStatus;
+import faang.school.accountservice.enums.request.RequestType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,10 +28,15 @@ public class Request {
     @Column(name = "idempotent_tocken", nullable = false, unique = true)
     private UUID idempotentToken;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "request_type", nullable = false)
     private RequestType requestType;
 
-    @Column(name = "context", length = 256)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "request_status", nullable = false)
+    private RequestStatus requestStatus;
+
+    @Column(name = "context", length = 128)
     private String context;
 
     @Column(name = "scheduled_at")
