@@ -23,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,14 +43,14 @@ public class AccountService {
         AccountDto createdAccount = accountMapper.toDto(account);
         accountEventPublisher.publish(createdAccount);
 
-        log.info("New account created: number: {}, owner: {}", account.getAccountNumber(), account.getOwnerName());
+        log.debug("New account created: number: {}, owner: {}", account.getAccountNumber(), account.getOwnerName());
         return createdAccount;
     }
 
     public List<AccountDto> getAccounts(AccountOwnerType ownerType, Long ownerId) {
         List<Account> accounts = accountRepository.findByOwnerTypeAndOwnerId(ownerType, ownerId);
 
-        log.info("Request to get accounts of {} id: {} completed", ownerType, ownerId);
+        log.debug("Request to get accounts of {} id: {} completed", ownerType, ownerId);
         return accountMapper.toDto(accounts);
     }
 
@@ -68,8 +69,16 @@ public class AccountService {
 
         accountEventPublisher.publish(accountDto);
 
-        log.info("Account status updated: number: {}, status: {}", account.getAccountNumber(), accountStatus);
-        return accountDto;
+        log.debug("Account status updated: number: {}, status: {}", account.getAccountNumber(), accountStatus);
+        return accountMapper.toDto(account);
+    }
+
+    @Transactional
+    public void deleteAccount(String accountNumber, Long ownerId) {
+        Account account = getAccountByNumber(accountNumber);
+        validateAccountOwner(account, ownerId);
+        accountRepository.deleteById(account.getId());
+        log.debug("Account deleted: number: {}", account.getAccountNumber());
     }
 
     @Transactional
@@ -154,12 +163,14 @@ public class AccountService {
     }
 
     private String generateAccountNumber() {
-        Random random = new Random();
-        StringBuilder accountNumber = new StringBuilder();
-        for (int i = 0; i < 20; i++) {
-            accountNumber.append(random.nextInt(10));
-        }
-        return accountNumber.toString();
+        String accountNumber;
+        do {
+            accountNumber = ThreadLocalRandom.current()
+                    .ints(20, 0, 10)
+                    .mapToObj(String::valueOf)
+                    .collect(Collectors.joining());
+        } while (accountRepository.existsByAccountNumber(accountNumber));
+        return accountNumber;
     }
 
     private Account getAccountByNumber(String accountNumber) {

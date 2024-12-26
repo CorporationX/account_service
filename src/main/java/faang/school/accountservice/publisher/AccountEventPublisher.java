@@ -26,7 +26,10 @@ public class AccountEventPublisher implements MessagePublisher<AccountDto> {
     )
     @Override
     public void publish(AccountDto event) {
+        if (event == null) {
+            throw new IllegalArgumentException("Attempted to publish a null event. Operation skipped.");
+        }
         redisTemplate.convertAndSend(redisProperties.channel().account(), event);
-        log.info("Account event published: {}", event);
+        log.info("Account event published. Id: {}", event.id());
     }
 }
