@@ -1,10 +1,10 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.config.context.UserContext;
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.AccountBalanceDto;
-import faang.school.accountservice.dto.TransactionDto;
+import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.CreateAccountDto;
+import faang.school.accountservice.dto.TransactionDto;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.service.AccountService;
@@ -75,7 +75,7 @@ public class AccountController {
     public ResponseEntity<AccountBalanceDto> deposit(@Valid @RequestBody TransactionDto transactionDto) {
         log.info("Request to deposit funds on the account: number: {}, amount: {}", transactionDto.accountNumber(), transactionDto.amount());
 
-        return ResponseEntity.ok().body(accountService.deposit(transactionDto));
+        return ResponseEntity.ok(accountService.deposit(transactionDto));
     }
 
     @PostMapping("/withdraw")
@@ -84,7 +84,7 @@ public class AccountController {
         Long ownerId = userContext.getUserId();
         log.info("Request to withdraw funds from the account: number: {}, amount: {}", transactionDto.accountNumber(), transactionDto.amount());
 
-        return ResponseEntity.ok().body(accountService.withdraw(ownerId, transactionDto));
+        return ResponseEntity.ok(accountService.withdraw(ownerId, transactionDto));
     }
 
     @PostMapping("/approve")

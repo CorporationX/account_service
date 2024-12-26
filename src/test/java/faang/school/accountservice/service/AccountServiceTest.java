@@ -10,7 +10,6 @@ import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.exception.AccountDepositException;
 import faang.school.accountservice.exception.AccountWithdrawalException;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
@@ -34,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -142,7 +142,7 @@ class AccountServiceTest {
                 accountService.updateAccountStatus(accountNumber, ownerId, newStatus));
 
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
-        verify(accountRepository, times(0)).save(any(Account.class));
+        verify(accountRepository, never()).save(any(Account.class));
 
         assertEquals(String.format("Account with number %s doesn't exist", accountNumber), ex.getMessage());
     }
@@ -162,7 +162,7 @@ class AccountServiceTest {
         );
 
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
-        verify(accountRepository, times(0)).save(any(Account.class));
+        verify(accountRepository, never()).save(any(Account.class));
 
         assertEquals(String.format("Owner with id %d doesn't have access to the account %s", ownerId, account.getAccountNumber()), ex.getMessage());
     }
@@ -222,20 +222,6 @@ class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("Deposit account fail: invalid account status")
-    void testDeposit_InvalidAccountStatus_Fail() {
-        TransactionDto transactionDto = new TransactionDto("ACC123456789", BigDecimal.valueOf(100.25));
-        Account account = Account.builder()
-                .accountNumber(transactionDto.accountNumber())
-                .status(AccountStatus.DELETED)
-                .build();
-        when(accountRepository.findByAccountNumber(transactionDto.accountNumber())).thenReturn(Optional.of(account));
-
-        AccountDepositException ex = assertThrows(AccountDepositException.class, () -> accountService.deposit(transactionDto));
-        assertEquals("Deposit is not possible", ex.getMessage());
-    }
-
-    @Test
     @DisplayName("Withdraw account success: valid input")
     void testWithdraw_Success() {
         TransactionDto transactionDto = new TransactionDto("ACC123456789", BigDecimal.valueOf(10));
@@ -274,7 +260,7 @@ class AccountServiceTest {
         when(accountRepository.findByAccountNumber(transactionDto.accountNumber())).thenReturn(Optional.of(account));
 
         AccountWithdrawalException ex = assertThrows(AccountWithdrawalException.class, () -> accountService.withdraw(1L, transactionDto));
-        assertEquals("Withdrawal is not possible", ex.getMessage());
+        assertEquals("Withdrawal from account ACC123456789 is not possible. Status: FROZEN", ex.getMessage());
     }
 
     @Test

@@ -1,14 +1,13 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.AccountBalanceDto;
-import faang.school.accountservice.dto.TransactionDto;
+import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.CreateAccountDto;
+import faang.school.accountservice.dto.TransactionDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.exception.AccountDepositException;
 import faang.school.accountservice.exception.AccountWithdrawalException;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
@@ -34,6 +33,7 @@ public class AccountService {
     private final AccountEventPublisher accountEventPublisher;
     private final AccountRepository accountRepository;
 
+    @Transactional
     public AccountDto createAccount(CreateAccountDto dto, Long ownerId) {
         Account account = generateNewAccount(dto, ownerId);
 
@@ -52,6 +52,7 @@ public class AccountService {
         log.info("Request to get accounts of {} id: {} completed", ownerType, ownerId);
         return accountMapper.toDto(accounts);
     }
+
     @Transactional
     public AccountDto updateAccountStatus(String accountNumber, Long ownerId, AccountStatus accountStatus) {
         Account account = getAccountByNumber(accountNumber);
@@ -63,20 +64,22 @@ public class AccountService {
 
         accountRepository.save(account);
 
-        accountEventPublisher.publish(accountMapper.toDto(account));
+        AccountDto accountDto = accountMapper.toDto(account);
+
+        accountEventPublisher.publish(accountDto);
 
         log.info("Account status updated: number: {}, status: {}", account.getAccountNumber(), accountStatus);
-        return accountMapper.toDto(account);
+        return accountDto;
     }
 
     @Transactional
     public AccountBalanceDto deposit(TransactionDto transactionDto) {
         Account account = getAccountByNumber(transactionDto.accountNumber());
-        validateDepositPossibility(account.getStatus());
 
         BigDecimal transactionAmount = transactionDto.amount();
-        BigDecimal newActualAmount = account.getBalance().getActualBalance().add(transactionAmount);
-        account.getBalance().setActualBalance(newActualAmount);
+
+        increaseActualBalance(account, transactionAmount);
+
         accountRepository.save(account);
 
         log.info("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), transactionAmount, account.getBalance().getActualBalance());
@@ -87,16 +90,14 @@ public class AccountService {
     public AccountBalanceDto withdraw(Long ownerId, TransactionDto transactionDto) {
         Account account = getAccountByNumber(transactionDto.accountNumber());
         validateAccountOwner(account, ownerId);
-        validateWithdrawalPossibility(account.getStatus());
+        validateWithdrawalPossibility(account);
 
         BigDecimal transactionAmount = transactionDto.amount();
         validateFundsAvailableForTransaction(account, transactionAmount);
 
-        BigDecimal newActualAmount = account.getBalance().getActualBalance().subtract(transactionAmount);
-        account.getBalance().setActualBalance(newActualAmount);
+        decreaseActualBalance(account, transactionAmount);
 
-        BigDecimal newAuthorizedAmount = account.getBalance().getAuthorizedBalance().add(transactionAmount);
-        account.getBalance().setAuthorizedBalance(newAuthorizedAmount);
+        increaseAuthorizedBalance(account, transactionAmount);
 
         accountRepository.save(account);
 
@@ -110,8 +111,7 @@ public class AccountService {
 
         BigDecimal transactionAmount = transactionDto.amount();
 
-        BigDecimal newAuthorizedAmount = account.getBalance().getAuthorizedBalance().subtract(transactionAmount);
-        account.getBalance().setAuthorizedBalance(newAuthorizedAmount);
+        decreaseAuthorizedBalance(account, transactionAmount);
 
         log.info("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), transactionAmount);
         accountRepository.save(account);
@@ -123,15 +123,14 @@ public class AccountService {
 
         BigDecimal transactionAmount = transactionDto.amount();
 
-        BigDecimal newAuthorizedAmount = account.getBalance().getAuthorizedBalance().subtract(transactionAmount);
-        account.getBalance().setAuthorizedBalance(newAuthorizedAmount);
+        decreaseAuthorizedBalance(account, transactionAmount);
 
-        BigDecimal newActualAmount = account.getBalance().getActualBalance().add(transactionAmount);
-        account.getBalance().setActualBalance(newActualAmount);
+        increaseActualBalance(account, transactionAmount);
 
         log.info("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), transactionAmount);
         accountRepository.save(account);
     }
+
 
     public AccountBalanceDto getAccountBalance(Long ownerId, String accountNumber) {
         Account account = getAccountByNumber(accountNumber);
@@ -189,15 +188,10 @@ public class AccountService {
         }
     }
 
-    private void validateDepositPossibility(AccountStatus status) {
-        if (status == AccountStatus.DELETED) {
-            throw new AccountDepositException("Deposit is not possible");
-        }
-    }
-
-    private void validateWithdrawalPossibility(AccountStatus status) {
-        if (status == AccountStatus.DELETED || status == AccountStatus.FROZEN || status == AccountStatus.INACTIVE) {
-            throw new AccountWithdrawalException("Withdrawal is not possible");
+    private void validateWithdrawalPossibility(Account account) {
+        if (account.getStatus() == AccountStatus.FROZEN || account.getStatus() == AccountStatus.INACTIVE) {
+            throw new AccountWithdrawalException(String.format(
+                    "Withdrawal from account %s is not possible. Status: %s", account.getAccountNumber(), account.getStatus()));
         }
     }
 
@@ -214,5 +208,25 @@ public class AccountService {
                 account.getBalance().getActualBalance(),
                 account.getBalance().getUpdatedAt()
         );
+    }
+
+    private void increaseActualBalance(Account account, BigDecimal transactionAmount) {
+        BigDecimal newActualAmount = account.getBalance().getActualBalance().add(transactionAmount);
+        account.getBalance().setActualBalance(newActualAmount);
+    }
+
+    private void decreaseActualBalance(Account account, BigDecimal transactionAmount) {
+        BigDecimal newActualAmount = account.getBalance().getActualBalance().subtract(transactionAmount);
+        account.getBalance().setActualBalance(newActualAmount);
+    }
+
+    private void increaseAuthorizedBalance(Account account, BigDecimal transactionAmount) {
+        BigDecimal newAuthorizedAmount = account.getBalance().getAuthorizedBalance().add(transactionAmount);
+        account.getBalance().setAuthorizedBalance(newAuthorizedAmount);
+    }
+
+    private void decreaseAuthorizedBalance(Account account, BigDecimal transactionAmount) {
+        BigDecimal newAuthorizedAmount = account.getBalance().getAuthorizedBalance().subtract(transactionAmount);
+        account.getBalance().setAuthorizedBalance(newAuthorizedAmount);
     }
 }
