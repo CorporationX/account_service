@@ -112,4 +112,10 @@ public class GlobalExceptionHandler {
         log.error("Withdrawal account error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
+
+    @ExceptionHandler(InvalidTransactionTypeException.class)
+    public ResponseEntity<String> handleInvalidTransactionTypeException(InvalidTransactionTypeException ex) {
+        log.error("Transaction type error occurred: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
