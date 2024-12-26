@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 @Service
@@ -44,7 +45,7 @@ public class FreeAccountNumbersService {
 
             log.info("Генерация {} свободных номеров счетов для типа счета: {}", batchSize, accountType);
 
-            accountNumbersSequenceRepository.incrementCounter(accountType.ordinal(), batchSize);
+            accountNumbersSequenceRepository.incrementCounter(accountType, batchSize);
 
             List<FreeAccountNumber> numbers = new ArrayList<>();
             for (long i = 0; i < batchSize; i++) {
@@ -54,51 +55,56 @@ public class FreeAccountNumbersService {
 
             log.info("Успешно сгенерировано {} свободных номеров счетов для типа счета: {}", batchSize, accountType);
         } catch (InvalidAccountTypeException e) {
-            log.error("Ошибка при генерации свободных номеров счетов для типа счета: {} - {}", accountType,
-                e.getMessage());
+            log.error("Ошибка при генерации свободных номеров счетов для типа счета: {} - {}", accountType, e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("Неожиданная ошибка при генерации свободных номеров счетов для типа счета: {} - {}",
-                accountType, e.getMessage());
+            log.error("Неожиданная ошибка при генерации свободных номеров счетов для типа счета: {} - {}", accountType, e.getMessage());
             throw new AccountGenerationException("Ошибка при генерации свободных номеров счетов", e);
         }
     }
 
-
-
     @Transactional
-    public void retrieveFreeAccountNumbers(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
+    public void retrieveFreeAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
         try {
-            log.info("Получение первого свободного номера счета для типа счета: {}", accountType);
+            log.info("Получение свободного номера счета для типа счета: {}", accountType);
 
-            FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findFirstFreeAccountNumber(
-                accountType.name());
+            // Получаем один свободный номер
+            FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findFirstFreeAccountNumber(accountType.name());
 
             if (freeAccountNumber == null) {
                 log.warn("Нет доступных свободных номеров счетов для типа счета: {}", accountType);
-                throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " +
-                    accountType);
+                throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " + accountType);
             }
 
+            // Удаляем номер из таблицы free_account_numbers
             freeAccountNumbersRepository.deleteByAccountTypeAndAccountNumber(accountType.name(),
                 freeAccountNumber.getFreeAccountId().getAccountNumber());
 
+            // Обрабатываем номер
             numberConsumer.accept(freeAccountNumber);
+
+            // Проверяем наличие счетчика для данного типа счета, если его нет - создаем
+            AccountSeq accountSeq = accountNumbersSequenceRepository.findByAccountType(accountType);
+            if (accountSeq == null) {
+                log.info("Не найден счетчик для типа счета: {}, создаем новый.", accountType);
+                accountSeq = new AccountSeq();
+                accountSeq.setAccountType(accountType);
+                accountSeq.setCounter(1);  // Начальный счетчик
+                accountNumbersSequenceRepository.save(accountSeq);
+            }
+
+            // Увеличиваем счетчик на 1, так как мы взяли один номер
+            accountSeq.setCounter(accountSeq.getCounter() + 1);
+            accountNumbersSequenceRepository.save(accountSeq);
 
             log.info("Успешно получен свободный номер счета для типа счета: {}", accountType);
         } catch (NoFreeAccountNumbersException e) {
-            log.error("Ошибка при получении свободного номера счета для типа счета: {} - {}", accountType,
-                e.getMessage());
+            log.error("Ошибка при получении свободного номера счета для типа счета: {} - {}", accountType, e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("Неожиданная ошибка при получении свободного номера счета для типа счета: {} - {}", accountType,
-                e.getMessage());
+            log.error("Неожиданная ошибка при получении свободного номера счета для типа счета: {} - {}", accountType, e.getMessage());
             throw new RuntimeException("Ошибка при получении свободного номера счета", e);
         }
     }
-
-
-
-
 
 }

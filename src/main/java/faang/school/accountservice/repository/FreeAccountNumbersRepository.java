@@ -25,5 +25,5 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
                     DELETE FROM free_account_numbers
                     WHERE accounttype = :accounttype AND account_number = :accountNumber
                     """)
-    void deleteByAccountTypeAndAccountNumber(String accounttype, long accountNumber);  // Изменено на long
+    void deleteByAccountTypeAndAccountNumber(String accounttype, long accountNumber);
 }

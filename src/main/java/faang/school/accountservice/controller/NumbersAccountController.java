@@ -20,18 +20,22 @@ public class NumbersAccountController {
         @PathVariable AccountType accountType,
         @RequestParam int batchSize) {
         log.info("Запрос на генерацию {} свободных номеров счетов для типа: {}", batchSize, accountType);
+
         freeAccountNumbersService.generateFreeAccountNumbers(accountType, batchSize);
+
         log.info("Номера счетов успешно сгенерированы для типа: {}", accountType);
-        return ResponseEntity.ok("Номера счетов успешно сгенерированы.");
+        return ResponseEntity.ok(String.format("Номера счетов успешно сгенерированы для типа: %s", accountType));
     }
 
     @GetMapping("/retrieve/{accountType}")
     public ResponseEntity<String> retrieveFreeAccountNumbers(@PathVariable AccountType accountType) {
         log.info("Запрос на получение первого свободного номера счета для типа: {}", accountType);
-        freeAccountNumbersService.retrieveFreeAccountNumbers(accountType, freeAccountNumber -> {
+
+        freeAccountNumbersService.retrieveFreeAccountNumber(accountType, freeAccountNumber -> {
             String accountNumber = String.valueOf(freeAccountNumber.getFreeAccountId().getAccountNumber());
             log.info("Свободный номер счета для типа {}: {}", accountType, accountNumber);
         });
+
         log.info("Номер счета успешно получен для типа: {}", accountType);
         return ResponseEntity.ok("Номер счета успешно получен.");
     }
