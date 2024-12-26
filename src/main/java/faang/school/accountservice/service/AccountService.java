@@ -2,12 +2,17 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.BalanceChangeDto;
 import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.dto.TransactionDto;
+import faang.school.accountservice.dto.TransactionRequestDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.Transaction;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.TransactionStatus;
+import faang.school.accountservice.enums.TransactionType;
 import faang.school.accountservice.exception.AccountWithdrawalException;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
@@ -32,6 +37,7 @@ import java.util.stream.Collectors;
 public class AccountService {
     private final AccountMapper accountMapper;
     private final AccountEventPublisher accountEventPublisher;
+    private final TransactionService transactionService;
     private final AccountRepository accountRepository;
 
     @Transactional
@@ -82,70 +88,96 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountBalanceDto deposit(TransactionDto transactionDto) {
-        Account account = getAccountByNumber(transactionDto.accountNumber());
+    public BalanceChangeDto deposit(TransactionRequestDto transactionRequestDto) {
+        Account account = getAccountByNumber(transactionRequestDto.accountNumber());
 
-        BigDecimal transactionAmount = transactionDto.amount();
+        BigDecimal amount = transactionRequestDto.amount();
 
-        increaseActualBalance(account, transactionAmount);
+        increaseActualBalance(account, amount);
+
+        createDepositTransaction(account, amount);
 
         accountRepository.save(account);
 
-        log.info("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), transactionAmount, account.getBalance().getActualBalance());
-        return createAccountBalanceDto(account);
+        log.info("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
+        return createBalanceChangeDto(account, amount);
     }
 
     @Transactional
-    public AccountBalanceDto withdraw(Long ownerId, TransactionDto transactionDto) {
-        Account account = getAccountByNumber(transactionDto.accountNumber());
+    public BalanceChangeDto withdraw(Long ownerId, TransactionRequestDto transactionRequestDto) {
+        Account account = getAccountByNumber(transactionRequestDto.accountNumber());
         validateAccountOwner(account, ownerId);
         validateWithdrawalPossibility(account);
 
-        BigDecimal transactionAmount = transactionDto.amount();
-        validateFundsAvailableForTransaction(account, transactionAmount);
+        BigDecimal amount = transactionRequestDto.amount();
+        validateFundsAvailableForTransaction(account, amount);
 
-        decreaseActualBalance(account, transactionAmount);
+        decreaseActualBalance(account, amount);
 
-        increaseAuthorizedBalance(account, transactionAmount);
+        increaseAuthorizedBalance(account, amount);
+
+        createWithdrawalTransaction(account, amount);
 
         accountRepository.save(account);
 
-        log.info("Account {} withdrawal of {} completed. New balance: {}", account.getAccountNumber(), transactionAmount, account.getBalance().getActualBalance());
-        return createAccountBalanceDto(account);
+        log.info("Account {} withdrawal of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
+        return createBalanceChangeDto(account, amount);
     }
 
     @Transactional
-    public void approve(TransactionDto transactionDto) {
-        Account account = getAccountByNumber(transactionDto.accountNumber());
+    public void approve(TransactionRequestDto transactionRequestDto, Long transactionId) {
+        BigDecimal amount = transactionRequestDto.amount();
 
-        BigDecimal transactionAmount = transactionDto.amount();
+        transactionService.validateTransactionExists(transactionId, amount);
 
-        decreaseAuthorizedBalance(account, transactionAmount);
+        Account account = getAccountByNumber(transactionRequestDto.accountNumber());
 
-        log.info("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), transactionAmount);
+        decreaseAuthorizedBalance(account, amount);
+
+        transactionService.approveTransaction(transactionId);
+
+        log.info("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
     }
 
     @Transactional
-    public void cancel(TransactionDto transactionDto) {
-        Account account = getAccountByNumber(transactionDto.accountNumber());
+    public void reject(TransactionRequestDto transactionRequestDto, Long transactionId) {
+        BigDecimal amount = transactionRequestDto.amount();
 
-        BigDecimal transactionAmount = transactionDto.amount();
+        transactionService.validateTransactionExists(transactionId, amount);
 
-        decreaseAuthorizedBalance(account, transactionAmount);
+        Account account = getAccountByNumber(transactionRequestDto.accountNumber());
 
-        increaseActualBalance(account, transactionAmount);
+        decreaseAuthorizedBalance(account, amount);
 
-        log.info("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), transactionAmount);
+        increaseActualBalance(account, amount);
+
+        transactionService.rejectTransaction(transactionId);
+
+        log.info("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
     }
-
 
     public AccountBalanceDto getAccountBalance(Long ownerId, String accountNumber) {
         Account account = getAccountByNumber(accountNumber);
         validateAccountOwner(account, ownerId);
 
-        return createAccountBalanceDto(account);
+        return new AccountBalanceDto(
+                account.getAccountNumber(),
+                account.getBalance().getActualBalance(),
+                account.getBalance().getUpdatedAt());
+    }
+
+    @Transactional
+    public List<TransactionDto> getTransactions(Long ownerId, String accountNumber) {
+        Account account = getAccountByNumber(accountNumber);
+        validateAccountOwner(account, ownerId);
+
+        return account.getTransactions().stream()
+                .filter(transaction -> transaction.getTransactionStatus() == TransactionStatus.APPROVED ||
+                        transaction.getTransactionStatus() == TransactionStatus.PENDING)
+                .map(accountMapper::toDto)
+                .toList();
     }
 
     private Account generateNewAccount(CreateAccountDto dto, Long ownerId) {
@@ -213,14 +245,6 @@ public class AccountService {
         }
     }
 
-    private AccountBalanceDto createAccountBalanceDto(Account account) {
-        return new AccountBalanceDto(
-                account.getAccountNumber(),
-                account.getBalance().getActualBalance(),
-                account.getBalance().getUpdatedAt()
-        );
-    }
-
     private void increaseActualBalance(Account account, BigDecimal transactionAmount) {
         BigDecimal newActualAmount = account.getBalance().getActualBalance().add(transactionAmount);
         account.getBalance().setActualBalance(newActualAmount);
@@ -239,5 +263,36 @@ public class AccountService {
     private void decreaseAuthorizedBalance(Account account, BigDecimal transactionAmount) {
         BigDecimal newAuthorizedAmount = account.getBalance().getAuthorizedBalance().subtract(transactionAmount);
         account.getBalance().setAuthorizedBalance(newAuthorizedAmount);
+    }
+
+    private BalanceChangeDto createBalanceChangeDto(Account account, BigDecimal amount) {
+        Transaction transaction = account.getTransactions().get(account.getTransactions().size() - 1);
+        return new BalanceChangeDto(
+                transaction.getId(),
+                transaction.getTransactionType(),
+                amount,
+                account.getBalance().getUpdatedAt(),
+                account.getBalance().getActualBalance()
+        );
+    }
+
+    private void createDepositTransaction(Account account, BigDecimal amount) {
+        Transaction transaction = Transaction.builder()
+                .account(account)
+                .transactionAmount(amount)
+                .transactionType(TransactionType.DEPOSIT)
+                .transactionStatus(TransactionStatus.APPROVED)
+                .build();
+        account.getTransactions().add(transaction);
+    }
+
+    private void createWithdrawalTransaction(Account account, BigDecimal amount) {
+        Transaction transaction = Transaction.builder()
+                .account(account)
+                .transactionAmount(amount)
+                .transactionType(TransactionType.WITHDRAWAL)
+                .transactionStatus(TransactionStatus.PENDING)
+                .build();
+        account.getTransactions().add(transaction);
     }
 }

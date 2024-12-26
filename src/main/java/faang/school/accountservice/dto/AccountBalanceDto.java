@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record AccountBalanceDto(
-    String accountNumber,
-    BigDecimal balance,
-    LocalDateTime updatedAt
+        String accountNumber,
+        BigDecimal balance,
+        LocalDateTime lastChangeAt
 ) {
 }

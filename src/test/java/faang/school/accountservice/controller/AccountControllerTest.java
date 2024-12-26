@@ -4,12 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.BalanceChangeDto;
 import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.dto.TransactionDto;
+import faang.school.accountservice.dto.TransactionRequestDto;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.TransactionStatus;
+import faang.school.accountservice.enums.TransactionType;
 import faang.school.accountservice.exception.GlobalExceptionHandler;
 import faang.school.accountservice.service.AccountService;
 import org.junit.jupiter.api.DisplayName;
@@ -58,8 +62,9 @@ class AccountControllerTest {
 
     private CreateAccountDto createDto;
     private AccountDto accountDto;
-    private TransactionDto transactionDto;
+    private TransactionRequestDto transactionRequestDto;
     private AccountBalanceDto accountBalanceDto;
+    private BalanceChangeDto balanceChangeDto;
 
     @Test
     @DisplayName("Open new account success: valid input")
@@ -298,29 +303,29 @@ class AccountControllerTest {
     @Test
     @DisplayName("Deposit funds on the account success: valid input")
     void testDeposit_Success() throws Exception {
-        transactionDto = new TransactionDto("ACC123456789", BigDecimal.valueOf(100.25));
-        accountBalanceDto = new AccountBalanceDto("ACC123456789", BigDecimal.valueOf(100.25), LocalDateTime.of(2024, 1, 1, 0, 0));
+        transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(100.25));
+        balanceChangeDto = new BalanceChangeDto(1L, TransactionType.DEPOSIT, BigDecimal.valueOf(100.25), LocalDateTime.now(), BigDecimal.valueOf(100.25));
 
-        when(accountService.deposit(transactionDto)).thenReturn(accountBalanceDto);
+        when(accountService.deposit(transactionRequestDto)).thenReturn(balanceChangeDto);
 
         mockMvc.perform(post("/accounts/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionDto))
+                        .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(accountBalanceDto)))
-                .andExpect(jsonPath("$.balance").value(accountBalanceDto.balance()));
+                .andExpect(content().json(objectMapper.writeValueAsString(balanceChangeDto)))
+                .andExpect(jsonPath("$.currentBalance").value(balanceChangeDto.currentBalance()));
     }
 
     @Test
     @DisplayName("Deposit funds on the account fail: invalid number length")
     void testDeposit_InvalidNumberLength_Fail() throws Exception {
-        transactionDto = new TransactionDto("ACC12345", new BigDecimal("100"));
+        transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("100"));
 
         mockMvc.perform(post("/accounts/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((objectMapper.writeValueAsString(transactionDto)))
+                        .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Account number must be between 12 and 20 characters")));
@@ -329,11 +334,11 @@ class AccountControllerTest {
     @Test
     @DisplayName("Deposit funds on the account fail: zero amount")
     void testDeposit_ZeroAmount_Fail() throws Exception {
-        transactionDto = new TransactionDto("ACC12345", new BigDecimal("0"));
+        transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("0"));
 
         mockMvc.perform(post("/accounts/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((objectMapper.writeValueAsString(transactionDto)))
+                        .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Amount should not be less than 0.01")));
@@ -342,11 +347,11 @@ class AccountControllerTest {
     @Test
     @DisplayName("Deposit funds on the account fail: negative amount")
     void testDeposit_NegativeAmount_Fail() throws Exception {
-        transactionDto = new TransactionDto("ACC12345", new BigDecimal("-10"));
+        transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("-10"));
 
         mockMvc.perform(post("/accounts/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((objectMapper.writeValueAsString(transactionDto)))
+                        .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Amount should not be less than 0.01")));
@@ -355,11 +360,11 @@ class AccountControllerTest {
     @Test
     @DisplayName("Deposit funds on the account fail: positive but less 0.01 amount")
     void testDeposit_PositiveButSmallAmount_Fail() throws Exception {
-        transactionDto = new TransactionDto("ACC12345", new BigDecimal("0.001"));
+        transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("0.001"));
 
         mockMvc.perform(post("/accounts/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((objectMapper.writeValueAsString(transactionDto)))
+                        .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.amount").exists())
@@ -369,11 +374,11 @@ class AccountControllerTest {
     @Test
     @DisplayName("Deposit funds on the account fail: 3 decimal places")
     void testDeposit_ThreeDecimalPlaces_Fail() throws Exception {
-        transactionDto = new TransactionDto("ACC12345", new BigDecimal("3.123"));
+        transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("3.123"));
 
         mockMvc.perform(post("/accounts/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((objectMapper.writeValueAsString(transactionDto)))
+                        .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Amount should have 2 decimal places")));
@@ -382,43 +387,44 @@ class AccountControllerTest {
     @Test
     @DisplayName("Withdraw funds from the account: success")
     void testWithdraw_Success() throws Exception {
-        transactionDto = new TransactionDto("ACC123456789", BigDecimal.valueOf(10));
-        accountBalanceDto = new AccountBalanceDto("ACC123456789", BigDecimal.valueOf(90), LocalDateTime.of(2024, 1, 1, 0, 0));
+        transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
+        balanceChangeDto = new BalanceChangeDto(1L, TransactionType.WITHDRAWAL, BigDecimal.valueOf(10), LocalDateTime.of(2024, 1, 1, 0, 0), BigDecimal.valueOf(90));
         Long ownerId = 1L;
 
         when(userContext.getUserId()).thenReturn(ownerId);
-        when(accountService.withdraw(ownerId, transactionDto)).thenReturn(accountBalanceDto);
+        when(accountService.withdraw(ownerId, transactionRequestDto)).thenReturn(balanceChangeDto);
 
         mockMvc.perform(post("/accounts/withdraw")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionDto))
+                        .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(accountBalanceDto)));
+                .andExpect(content().json(objectMapper.writeValueAsString(balanceChangeDto)));
     }
 
     @Test
     @DisplayName("Approve the pending transaction: success")
     void testApprove_Success() throws Exception {
-        transactionDto = new TransactionDto("ACC123456789", BigDecimal.valueOf(10));
+        transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
         accountBalanceDto = new AccountBalanceDto("ACC123456789", BigDecimal.valueOf(90), LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        mockMvc.perform(post("/accounts/approve")
+        mockMvc.perform(post("/accounts/{transactionId}/approve", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionDto))
+                        .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("Cancel the pending transaction: success")
-    void testCancel_Success() throws Exception {
-        transactionDto = new TransactionDto("ACC123456789", BigDecimal.valueOf(10));
+    @DisplayName("Reject the pending transaction: success")
+    void testReject_Success() throws Exception {
+        Long transactionId = 1L;
+        transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
         accountBalanceDto = new AccountBalanceDto("ACC123456789", BigDecimal.valueOf(90), LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        mockMvc.perform(post("/accounts/cancel")
+        mockMvc.perform(post("/accounts/{transactionId}/reject", transactionId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionDto))
+                        .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
                 .andExpect(status().isOk());
     }
@@ -435,7 +441,7 @@ class AccountControllerTest {
 
         mockMvc.perform(get("/accounts/{accountNumber}", accountNumber)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionDto))
+                        .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(accountBalanceDto)));
@@ -448,10 +454,26 @@ class AccountControllerTest {
 
         mockMvc.perform(get("/accounts/{accountNumber}", accountNumber)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((objectMapper.writeValueAsString(transactionDto)))
+                        .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Account number must be between 12 and 20 characters")));
     }
 
+    @Test
+    @DisplayName("Get all transactions: success")
+    void testGetTransactions_Success() throws Exception {
+        String accountNumber = "ACC123456789";
+        List<TransactionDto> transactions = List.of(new TransactionDto(null, BigDecimal.valueOf(100), TransactionType.DEPOSIT, TransactionStatus.PENDING));
+
+        when(userContext.getUserId()).thenReturn(1L);
+        when(accountService.getTransactions(1L, accountNumber)).thenReturn(transactions);
+
+        mockMvc.perform(get("/accounts/{accountNumber}/transactions", accountNumber)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(transactionRequestDto))
+                        .header("x-user-id", "1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(transactions)));
+    }
 }

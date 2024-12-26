@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @SQLDelete(sql = "UPDATE transaction SET deleted_at = NOW(), transaction_version = transaction_version + 1 WHERE id = ? AND transaction_version = ?")
-@Where(clause = "deleted IS FALSE")
+@Where(clause = "deleted_at IS NULL")
 @Table(name = "transaction")
 public class Transaction {
 
