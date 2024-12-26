@@ -19,7 +19,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -31,7 +30,6 @@ public class SavingsAccountService {
     private final AccountService accountService;
     private final TariffService tariffService;
     private final SavingsAccountRepository savingsAccountRepository;
-    private final SavingsAccountTariffChangelogRepository tariffChangelogRepository;
 
     @Transactional
     public SavingsAccountResponse createSavingsAccount(SavingsAccountCreateDto createDto) {
@@ -42,10 +40,7 @@ public class SavingsAccountService {
             Tariff tariff = tariffService.getTariffById(createDto.getTariffId());
             SavingsAccount savingsAccount = savingsAccountRepository.save(buildSavingsAccount(tariff, account));
 
-            BigDecimal currentRate = tariffService.getCurrentTariffRateByTariffId(createDto.getTariffId());
             SavingsAccountResponse response = savingsAccountMapper.toResponse(savingsAccount);
-            response.setCurrentRate(currentRate);
-            response.setTariffId(tariff.getId());
             log.info("New savings account based on account (ID={}) and tariff (ID={}) was created",
                     createDto.getBaseAccountId(), createDto.getTariffId());
             return response;
@@ -59,16 +54,17 @@ public class SavingsAccountService {
     public SavingsAccountResponse getSavingsAccountById(long savingsAccountId) {
         SavingsAccount savingsAccount = savingsAccountRepository.findById(savingsAccountId)
                 .orElseThrow(() -> new EntityNotFoundException("Savings account with ID=%d was not found".formatted(savingsAccountId)));
-        return null;
+        return savingsAccountMapper.toResponse(savingsAccount);
     }
 
     private SavingsAccount buildSavingsAccount(Tariff tariff, Account account) {
         SavingsAccountTariffChangelog tariffChangelog = new SavingsAccountTariffChangelog();
         tariffChangelog.setTariff(tariff);
-        SavingsAccount savingsAccount = new SavingsAccount();
-        savingsAccount.setAccount(account);
-        savingsAccount.setTariffChangelogs(List.of(tariffChangelog));
-        return savingsAccount;
+        return SavingsAccount.builder()
+                .account(account)
+                .tariff(tariff)
+                .tariffChangelogs(List.of(tariffChangelog))
+                .build();
     }
 
     private void handleUniqueConstraintViolation(DataIntegrityViolationException ex, long baseAccountId) {

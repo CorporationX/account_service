@@ -19,7 +19,7 @@ public class SavingsAccountResponse {
 
     private long id;
     private long baseAccountId;
-    private long tariffId;
+    private long currentTariffId;
     private BigDecimal currentRate;
 
     @JsonFormat(pattern = "dd-MM-yy'T'HH:mm:ss")

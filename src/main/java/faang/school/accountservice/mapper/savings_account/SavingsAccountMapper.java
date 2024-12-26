@@ -10,5 +10,7 @@ import org.mapstruct.ReportingPolicy;
 public interface SavingsAccountMapper {
 
     @Mapping(source = "account.id", target = "baseAccountId")
+    @Mapping(source = "tariff.currentRate", target = "currentRate")
+    @Mapping(source = "tariff.id", target = "currentTariffId")
     SavingsAccountResponse toResponse(SavingsAccount savingsAccount);
 }
