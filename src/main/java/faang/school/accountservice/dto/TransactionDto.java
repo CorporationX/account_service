@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransactionDto {
 
+    private Long operationId;
+
     private BigDecimal amount;
 
     private OperationType operationType;
