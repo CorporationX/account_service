@@ -1,4 +1,4 @@
-package faang.school.accountservice.exception;
+package faang.school.accountservice.exception.global_handler;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -6,18 +6,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
-@Builder
+@Slf4j
 @Setter
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
-    private String message;
-    private String error;
 
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    private String error;
+    private String message;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 }

@@ -83,5 +83,6 @@ public class Account {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY
     )
+    @Builder.Default
     private List<BalanceAudit> balanceAudits = new ArrayList<>();
 }

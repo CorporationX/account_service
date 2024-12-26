@@ -12,10 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Sql("/db/Create_balance_for_test.sql")
 public class BalanceControllerIT extends BaseContextTest {
 
     @Test
-    @Sql("/db/Create_balance_for_test.sql")
     public void getBalanceTest() throws Exception {
         int accountId = 1;
         BalanceDto expectedBalance = new BalanceDto();
