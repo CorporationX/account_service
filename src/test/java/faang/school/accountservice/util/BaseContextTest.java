@@ -42,7 +42,7 @@ public class BaseContextTest {
     @Container
     public static PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
             new PostgreSQLContainer<>("postgres:13.6")
-                    .withStartupTimeout(Duration.ofMinutes(1));
+                    .withStartupTimeout(Duration.ofMinutes(2));
 
     @Container
     private static final RedisContainer REDIS_CONTAINER =

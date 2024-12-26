@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS savings_account (
     id                  BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    account_id          BIGINT NOT NULL,
-    last_interest_date  TIMESTAMPTZ NOT NULL,
-    version             BIGINT DEFAULT 0 NOT NULL,
+    account_id          BIGINT NOT NULL UNIQUE,
+    current_tariff_id   BIGINT NOT NULL,
+    last_interest_date  TIMESTAMPTZ,
+    version             BIGINT DEFAULT 1 NOT NULL,
     updated_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
@@ -10,11 +11,12 @@ CREATE TABLE IF NOT EXISTS savings_account (
 );
 
 CREATE TABLE IF NOT EXISTS tariff (
-    id          BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name        VARCHAR(128) NOT NULL UNIQUE,
-    version     BIGINT DEFAULT 0 NOT NULL,
-    created_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+    id              BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    name            VARCHAR(128) NOT NULL UNIQUE,
+    version         BIGINT DEFAULT 1 NOT NULL,
+    current_rate    DECIMAL(4,2) NOT NULL,
+    created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tariff_rate_changelog (

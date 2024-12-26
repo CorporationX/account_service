@@ -38,13 +38,13 @@ public class SavingsAccount {
     private long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id", unique = true, nullable = false)
     private Account account;
 
-    @Column(name = "last_interest_date", nullable = false)
+    @Column(name = "last_interest_date")
     private LocalDateTime lastInterestDate;
 
-    @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<SavingsAccountTariffChangelog> tariffChangelogs;
 
     @Version

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -17,5 +17,5 @@ public class TariffResponse {
 
     private long id;
     private String name;
-    private List<TariffRateDto> rateHistory;
+    private BigDecimal currentRate;
 }

@@ -2,7 +2,6 @@ package faang.school.accountservice.service.tariff;
 
 import faang.school.accountservice.dto.tariff.TariffCreateDto;
 import faang.school.accountservice.dto.tariff.TariffResponse;
-import faang.school.accountservice.dto.tariff.TariffUpdateDto;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.entity.tariff.TariffRateChangelog;
 import faang.school.accountservice.exception.UniqueConstraintException;
@@ -10,11 +9,12 @@ import faang.school.accountservice.mapper.tariff.TariffMapper;
 import faang.school.accountservice.repository.tariff.TariffRateChangelogRepository;
 import faang.school.accountservice.repository.tariff.TariffRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TariffService {
 
+    private final TariffRateChangelogRepository rateChangelogRepository;
     private final TariffRepository tariffRepository;
-    private final TariffRateChangelogService tariffRateChangelogService;
     private final TariffMapper tariffMapper;
 
     @Transactional
@@ -36,40 +36,36 @@ public class TariffService {
         String tariffName = creationDto.getName();
         BigDecimal tariffRate = creationDto.getRate();
         log.info("Received request to create a new tariff with name '{}' and initial rate={}", tariffName, tariffRate);
-        Tariff tariff = new Tariff();
+
         try {
-            tariff.setName(creationDto.getName());
-            tariffRepository.save(tariff);
+            Tariff tariff = tariffMapper.toEntity(creationDto);
             TariffRateChangelog rateChangelog = buildTariffRateChangelog(tariff, tariffRate);
-            tariffRateChangelogService.save(rateChangelog);
+            tariff.setRateChangelogs(List.of(rateChangelog));
+            tariff = tariffRepository.save(tariff);
             log.info("A new tariff named '{}' with initial rate={} was successfully created.", tariffName, tariffRate);
+            return tariffMapper.toResponse(tariff);
         } catch (DataIntegrityViolationException ex) {
             handleUniqueConstraintViolation(ex, tariffName);
         }
-        return tariffMapper.toResponse(tariff);
+
+        return null;
     }
 
-    @Transactional
     @Retryable(
-            retryFor = OptimisticLockingFailureException.class,
+            retryFor = OptimisticLockException.class,
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000)
     )
-    public TariffResponse updateTariff(long tariffId, TariffUpdateDto updateDto) {
-        log.info("Received request to update the tariff with ID={}", tariffId);
-        Tariff tariff = getTariff(tariffId);
-        if (updateDto.getRate() != null) {
-            TariffRateChangelog tariffRateChangelog = buildTariffRateChangelog(tariff, updateDto.getRate());
-            tariffRateChangelogService.save(tariffRateChangelog);
-        }
-        if (updateDto.getName() != null && !updateDto.getName().isBlank()) {
-            try {
-                tariff.setName(updateDto.getName());
-                tariffRepository.save(tariff);
-            } catch (DataIntegrityViolationException ex) {
-                handleUniqueConstraintViolation(ex, tariff.getName());
-            }
-        }
+    @Transactional
+    public TariffResponse updateTariffRate(long tariffId, BigDecimal newRate) {
+        log.info("Received request to update the rate of the tariff with ID={}. New rate={}", tariffId, newRate);
+
+        Tariff tariff = getTariffById(tariffId);
+        tariff.setCurrentRate(newRate);
+        TariffRateChangelog tariffRateChangelog = buildTariffRateChangelog(tariff, newRate);
+        tariff.getRateChangelogs().add(tariffRateChangelog);
+        tariff = tariffRepository.save(tariff);
+
         TariffResponse tariffResponse = tariffMapper.toResponse(tariff);
         log.info("The tariff with ID={} was updated: {}", tariffId, tariffResponse);
         return tariffResponse;
@@ -82,6 +78,22 @@ public class TariffService {
                 .toList();
     }
 
+    @Recover
+    public void recover(OptimisticLockException ex, long tariffId, BigDecimal newRate) {
+        throw new RuntimeException("Retries exhausted. Could not set new rate=%s for tariff with ID=%d".formatted(newRate,tariffId), ex);
+    }
+
+    public BigDecimal getCurrentTariffRateByTariffId(long tariffId) {
+        return rateChangelogRepository.findTopByTariffIdOrderByChangeDateDesc(tariffId)
+                .map(TariffRateChangelog::getRate)
+                .orElseThrow(() -> new EntityNotFoundException("No rate found for tariff ID=%d".formatted(tariffId)));
+    }
+
+    public Tariff getTariffById(long tariffId) {
+        return tariffRepository.findById(tariffId)
+                .orElseThrow(() -> new EntityNotFoundException("There is no tariff with ID=%d found in database.".formatted(tariffId)));
+    }
+
     public void deleteTariff(long tariffId) {
         tariffRepository.deleteById(tariffId);
     }
@@ -92,11 +104,6 @@ public class TariffService {
                     .formatted(tariffName);
             throw new UniqueConstraintException(exceptionMessage, ex);
         }
-    }
-
-    private Tariff getTariff(long tariffId) {
-        return tariffRepository.findById(tariffId)
-                .orElseThrow(() -> new EntityNotFoundException("There is no tariff with ID=%d found in database.".formatted(tariffId)));
     }
 
     private TariffRateChangelog buildTariffRateChangelog(Tariff tariff, BigDecimal rate) {

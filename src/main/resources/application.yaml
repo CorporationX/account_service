@@ -34,3 +34,8 @@ account-type-number-length:
   legal: 20
   savings: 16
   debit: 16
+
+free-account-number:
+  cron: "0 0 0 * * *"
+  batch-size: 10
+

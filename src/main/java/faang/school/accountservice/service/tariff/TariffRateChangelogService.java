@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TariffRateChangelogService {
 
-    private TariffRateChangelogRepository tariffRateChangelogRepository;
+    private final TariffRateChangelogRepository tariffRateChangelogRepository;
 
     public void save(TariffRateChangelog rateChangelog) {
         tariffRateChangelogRepository.save(rateChangelog);

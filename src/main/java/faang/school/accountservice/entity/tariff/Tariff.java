@@ -20,6 +20,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,12 +40,15 @@ public class Tariff {
     @Column(name = "name", length = 128, unique = true, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<TariffRateChangelog> rateChangelogs;
+    @Column(name = "current_rate", nullable = false)
+    private BigDecimal currentRate;
 
     @Version
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private long version;
+
+    @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<TariffRateChangelog> rateChangelogs;
 
     @Column(name = "updated_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
