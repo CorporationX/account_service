@@ -4,6 +4,7 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +17,18 @@ public class NumbersAccountController {
     private final FreeAccountNumbersService freeAccountNumbersService;
 
     @PostMapping("/generate/{accountType}")
-    public ResponseEntity<String> generateFreeAccountNumbers(
-        @PathVariable AccountType accountType,
-        @RequestParam int batchSize) {
+    public ResponseEntity<String> generateFreeAccountNumbers(@PathVariable AccountType accountType,
+                                                             @RequestParam int batchSize) {
         log.info("Запрос на генерацию {} свободных номеров счетов для типа: {}", batchSize, accountType);
 
         freeAccountNumbersService.generateFreeAccountNumbers(accountType, batchSize);
 
         log.info("Номера счетов успешно сгенерированы для типа: {}", accountType);
-        return ResponseEntity.ok(String.format("Номера счетов успешно сгенерированы для типа: %s", accountType));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8")
+            .body("Номера счетов успешно сгенерированы для типа: " + accountType);
     }
+
 
     @GetMapping("/retrieve/{accountType}")
     public ResponseEntity<String> retrieveFreeAccountNumbers(@PathVariable AccountType accountType) {
@@ -37,6 +40,9 @@ public class NumbersAccountController {
         });
 
         log.info("Номер счета успешно получен для типа: {}", accountType);
-        return ResponseEntity.ok("Номер счета успешно получен.");
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8")
+            .body("Номер счета успешно получен.");
     }
+
 }
