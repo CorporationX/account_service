@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS savings_account (
 
 CREATE TABLE IF NOT EXISTS tariff (
     id          BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name        VARCHAR(128) NOT NULL,
+    name        VARCHAR(128) NOT NULL UNIQUE,
+    version     BIGINT DEFAULT 0 NOT NULL,
     created_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS tariff_rate_changelog (
     rate        DECIMAL(4,2) NOT NULL,
     change_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-    CONSTRAINT tariff_id_fk FOREIGN KEY (tariff_id) REFERENCES tariffs (id) ON DELETE CASCADE
+    CONSTRAINT tariff_id_fk FOREIGN KEY (tariff_id) REFERENCES tariff (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS savings_account_tariff_changelog (
@@ -32,7 +33,7 @@ CREATE TABLE IF NOT EXISTS savings_account_tariff_changelog (
     change_date         TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
     CONSTRAINT savings_account_id_fk FOREIGN KEY (savings_account_id) REFERENCES savings_account (id) ON DELETE CASCADE,
-    CONSTRAINT tariff_id_fk FOREIGN KEY (tariff_id) REFERENCES tariffs (id) ON DELETE CASCADE
+    CONSTRAINT tariff_id_fk FOREIGN KEY (tariff_id) REFERENCES tariff (id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_tariff_rate_changelog_tariff_date ON tariff_rate_changelog (tariff_id, change_date DESC);

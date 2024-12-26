@@ -11,11 +11,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "tariff_rate_changelog")
 public class TariffRateChangelog {
@@ -25,10 +35,10 @@ public class TariffRateChangelog {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tariff_id", nullable = false)
+    @JoinColumn(name = "tariff_id", nullable = false, updatable = false)
     private Tariff tariff;
 
-    @Column(name = "rate", nullable = false)
+    @Column(name = "rate", precision = 4, scale = 2, nullable = false, updatable = false)
     private BigDecimal rate;
 
     @Column(name = "change_date", nullable = false, updatable = false)
