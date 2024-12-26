@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableRetry
+@EnableConfigurationProperties
 @EnableFeignClients("faang.school.accountservice.client")
 public class AccountServiceApplication {
     public static void main(String[] args) {
