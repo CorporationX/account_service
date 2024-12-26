@@ -8,3 +8,4 @@ actual_balance     NUMERIC(18, 2) NOT NULL,
 operation_id       BIGINT         NOT NULL,
 created_at         TIMESTAMPTZ    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_balance_audit_account_id ON balance_audit (account_id);
