@@ -141,7 +141,7 @@ public class AccountController {
             @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber
     ) {
         Long ownerId = userContext.getUserId();
-        log.info("Request to get transactions list: account number: {}\", accountNumber");
+        log.info("Request to get transactions list: account number: {}", accountNumber);
         return ResponseEntity.ok(accountService.getTransactions(ownerId, accountNumber));
     }
 }
