@@ -93,6 +93,7 @@ class AccountControllerTest {
         createAccountDto.setOwnerType(OwnerType.USER);
         createAccountDto.setOwnerId(1);
 
+
         String json = objectMapper.writeValueAsString(createAccountDto);
 
         mockMvc.perform(post("/api/v1/accounts")
