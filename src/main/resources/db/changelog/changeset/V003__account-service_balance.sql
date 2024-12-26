@@ -3,8 +3,8 @@ CREATE TABLE balance (
     account_id bigint NOT NULL,
     authorisation_balance bigint NOT NULL,
     actual_balance bigint NOT NULL,
-    created_at timestampz DEFAULT current_timestamp,
-    updated_at timestampz DEFAULT current_timestamp,
+    created_at timestamptz DEFAULT current_timestamp,
+    updated_at timestamptz DEFAULT current_timestamp,
     version bigint,
     CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES account (id)
 );
