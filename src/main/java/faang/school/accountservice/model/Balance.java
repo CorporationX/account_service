@@ -1,5 +1,6 @@
 package faang.school.accountservice.model;
 
+import faang.school.accountservice.enums.BalanceStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,4 +44,8 @@ public class Balance {
     @Version
     @Column(name = "version", nullable = false)
     private Integer version;
+
+    @Column(name = "balance_status", nullable = false,columnDefinition = "VARCHAR(32) DEFAULT 'APPROVED'")
+    @Enumerated(EnumType.STRING)
+    private BalanceStatus balanceStatus;
 }

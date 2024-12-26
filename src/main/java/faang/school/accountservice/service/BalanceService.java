@@ -1,16 +1,20 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.mappers.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.exception.BalanceConflictException;
 import faang.school.accountservice.exception.BalanceNotFoundException;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -22,6 +26,10 @@ public class BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
+    //добавляем для инжектирования EntityManager который поможет сделать синхронизацию с бд
+    //если не добавим обнавлятся сумма в бд не будет
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public BalanceDto getBalanceByAccountId(Long accountId) {
         log.info("Getting balance by account id {}", accountId);
@@ -60,12 +68,22 @@ public class BalanceService {
     /**
      * Метод добавляет зарезервированную сумму
      * **/
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void authorizePayment(Account account, BigDecimal amount) {
         Balance balance = account.getBalance();
-        balance.setAuthBalance(amount);
 
+        // Обновляем actualBalance
+        BigDecimal updatedActualBalance = balance.getActualBalance().subtract(amount);
+        balance.setActualBalance(updatedActualBalance);
+
+        // Устанавливаем статус баланса
+        balance.setBalanceStatus(BalanceStatus.PENDING);
+
+        // Сохраняем изменения
         balanceRepository.save(balance);
+
+        // Принудительно синхронизируем с базой данных
+        entityManager.flush();
 
         log.info("Successfully authorized payment for account ID: {}", account.getId());
     }

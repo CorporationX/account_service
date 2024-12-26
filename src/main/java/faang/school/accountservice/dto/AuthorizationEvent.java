@@ -13,4 +13,6 @@ import java.math.BigDecimal;
 public class AuthorizationEvent {
     private Long recipientId;
     private BigDecimal amount;
+    private Long senderId;
+    private String verificationCode;
 }

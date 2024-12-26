@@ -17,11 +17,21 @@ public class KafkaConsumerListener {
     // todo: для каждого топика нужен свой listener
     @KafkaListener(topics = "authorization-topic", groupId = "my_consumer_group")
     public void consume(ConsumerRecord<String, AuthorizationEvent> record) {
+        // Проверка на null
+        if (record.value() == null) {
+            log.error("Received null message from Kafka");
+            return;
+        }
+
         // Извлечение значения из ConsumerRecord
         AuthorizationEvent event = record.value();
+        log.info("Received AuthorizationEvent: {}", event);
+
         // Обработка полученного события
-        System.out.println("Received AuthorizationEvent: " + event);
-        // Здесь можно добавить логику какую либо
-        authorizationEventHandler.handle(event);
+        try {
+            authorizationEventHandler.handle(event);
+        } catch (Exception e) {
+            log.error("Error handling AuthorizationEvent: {}", e.getMessage(), e);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package faang.school.accountservice.message;
 
 import faang.school.accountservice.dto.AuthorizationEvent;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.BalanceLimitException;
 import faang.school.accountservice.model.Account;
@@ -22,34 +23,49 @@ public class AuthorizationEventHandler {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void handle(AuthorizationEvent event) {
-        // todo: В AuthorizationEvent мы передаем только айди получателя, но по сути нам так же нужен отправитель
-        //  потому что по айди отправителя мы сможем проверять, достаточно ли у него средств. Поэтому сейчас тут лажа
-        //  написана. Надо потом будет добавить senderId и по нему доставать этот аккаунт и делать проверки
-        Account account = accountRepository.findById(event.getRecipientId()).orElseThrow(
-                () -> new AccountNotFoundException("Account not found")
-        );
-
-        if (calculateBalanceCapacity(account.getBalance().getActualBalance(), event.getAmount())){
-            // todo: решить какой объект отправим для отмены
-            kafkaTemplate.send("cancel-payment-topic", event);
-            log.info("Payment cancelled because balance not enough");
-            throw new BalanceLimitException("Balance is not enough");
+        // Проверяем, что event содержит senderId и recipientId
+        if (event.getSenderId() == null || event.getRecipientId() == null) {
+            throw new IllegalArgumentException("SenderId and RecipientId cannot be null");
         }
-        log.info("Balance capacity is enough");
 
-        balanceService.authorizePayment(account, event.getAmount());
-        log.info("Balance was authorized for account {}", account.getId());
+        // Получаем аккаунт отправителя
+        Account senderAccount = accountRepository.findById(event.getSenderId())
+                .orElseThrow(() -> new AccountNotFoundException("Sender account not found"));
 
-        // todo: решить какой объект отправим для успешной авторизации
+        // Получаем аккаунт получателя
+        Account recipientAccount = accountRepository.findById(event.getRecipientId())
+                .orElseThrow(() -> new AccountNotFoundException("Recipient account not found"));
+
+        // Проверяем, достаточно ли средств у отправителя
+        if (!hasSufficientBalance(senderAccount.getBalance().getActualBalance(), event.getAmount())
+                || senderAccount.getBalance().getBalanceStatus() == BalanceStatus.CANCELLED)
+        {
+            log.warn("Payment cancelled: insufficient balance for sender account {}. Required: {}, available: {}",
+                    senderAccount.getId(), event.getAmount(), senderAccount.getBalance().getActualBalance());
+            kafkaTemplate.send("cancel-payment-topic", event); // Отправляем событие отмены
+            throw new BalanceLimitException("Balance is not enough or cancelled");
+        }
+
+        // Выполняем авторизацию платежа
+        balanceService.authorizePayment(senderAccount, event.getAmount());
+        log.info("Payment authorized for sender account {}", senderAccount.getId());
+
+        // Отправляем событие успешной авторизации
         kafkaTemplate.send("successful-payment-auth-topic", event);
-        log.info("Auth event was sent");
+        log.info("Auth event sent for recipient account {}", recipientAccount.getId());
     }
 
-    private boolean calculateBalanceCapacity(BigDecimal actualBalance, BigDecimal authBalance) {
-        if (actualBalance == null || authBalance == null) {
-            throw new IllegalArgumentException("Balance values cannot be null");
+    /**
+     * Проверяет, достаточно ли средств на счете для выполнения перевода.
+     *
+     * @param actualBalance текущий баланс счета
+     * @param amount        сумма перевода
+     * @return true, если баланс достаточен, иначе false
+     */
+    private boolean hasSufficientBalance(BigDecimal actualBalance, BigDecimal amount) {
+        if (actualBalance == null || amount == null) {
+            throw new IllegalArgumentException("Balance and amount values cannot be null");
         }
-
-        return authBalance.compareTo(actualBalance) >= 0;
+        return actualBalance.compareTo(amount) >= 0;
     }
 }
