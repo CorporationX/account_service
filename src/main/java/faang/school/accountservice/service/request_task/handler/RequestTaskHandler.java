@@ -1,8 +1,10 @@
 package faang.school.accountservice.service.request_task.handler;
 
+import faang.school.accountservice.entity.Request;
+
 public interface RequestTaskHandler {
 
-    void execute(String context);
+    void execute(Request request);
 
     long getHandlerId();
 }

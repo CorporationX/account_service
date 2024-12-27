@@ -40,4 +40,10 @@ public class AccountOwnerService {
                 .orElseThrow(() -> new IllegalArgumentException("Owner not found"));
         return accountOwnerMapper.toOwnerWithAccountsDto(owner);
     }
+
+    public AccountOwner findOwner(Long ownerId, OwnerType ownerType) {
+        return accountOwnerRepository
+                .findByOwnerIdAndOwnerType(ownerId, ownerType)
+                .orElseThrow(() -> new IllegalArgumentException("Owner not found"));
+    }
 }
