@@ -24,6 +24,8 @@ logging:
   level:
     root: info
 
+account:
+  max-accounts-quantity: 4
 account-type-number-identity:
   individual: 3222
   legal: 4333

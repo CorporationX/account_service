@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,4 +43,8 @@ public class Request {
 
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
+
+    @OneToMany(mappedBy = "request")
+    @Column(name = "request_tsks")
+    private List<RequestTask> requestTasks;
 }
