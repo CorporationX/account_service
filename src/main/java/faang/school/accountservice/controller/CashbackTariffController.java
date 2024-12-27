@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.cashbackdto.CashbackTariffDto;
 import faang.school.accountservice.service.CashbackTariffService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,33 +28,30 @@ public class CashbackTariffController {
     @PostMapping("/create")
     public ResponseEntity<Long> createTariff() {
         log.info("Create Tariff");
-        return ResponseEntity.ok(cashbackTariffService.createTariff());
+        return ResponseEntity.status(HttpStatus.CREATED).body(cashbackTariffService.createTariff());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CashbackTariffDto> getTariffById(@PathVariable Long id) {
+    public CashbackTariffDto getTariffById(@PathVariable Long id) {
         log.info("Get Tariff by id: {}", id);
-        return ResponseEntity.ok(cashbackTariffService.getTariffById(id));
+        return cashbackTariffService.getTariffById(id);
     }
 
     @PostMapping("/{id}/mappings")
-    public ResponseEntity<Void> addMapping(@PathVariable Long id, @RequestBody CashbackMappingDto mappingDto) {
+    public void addMapping(@PathVariable Long id, @RequestBody CashbackMappingDto mappingDto) {
         log.info("Add Mapping: {}", mappingDto);
         cashbackTariffService.addMapping(id, mappingDto);
-        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/mappings")
-    public ResponseEntity<Void> updateMapping(@PathVariable Long id, @RequestBody CashbackMappingDto mappingDto) {
+    public void updateMapping(@PathVariable Long id, @RequestBody CashbackMappingDto mappingDto) {
         log.info("Update Mapping: {}", mappingDto);
         cashbackTariffService.updateMapping(id, mappingDto);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}/mappings")
-    public ResponseEntity<Void> deleteMapping(@PathVariable Long id, @RequestParam String mappingKey) {
+    public void deleteMapping(@PathVariable Long id, @RequestParam String mappingKey) {
         log.info("Delete Mapping: {}", mappingKey);
         cashbackTariffService.deleteMapping(id, mappingKey);
-        return ResponseEntity.ok().build();
     }
 }

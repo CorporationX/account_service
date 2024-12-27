@@ -2,9 +2,9 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account-service_account.sql
   - include:
-      file: db/changelog/changeset/V005__cashback_tariff.sql
+      file: db/changelog/changeset/V006__cashback_tariff.sql
   - include:
-      file: db/changelog/changeset/V006__update_account.sql
+      file: db/changelog/changeset/V007__update_account.sql
   - include:
       file: db/changelog/changeset/V002_balance_audit.sql
   - include:
