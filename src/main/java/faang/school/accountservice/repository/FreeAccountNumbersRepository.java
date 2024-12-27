@@ -20,5 +20,7 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
     @Modifying
     FreeAccountNumber retrieveFirst(String type);
 
-
+    @Query(nativeQuery = true,
+            value = "SELECT COUNT(*) FROM free_account_numbers WHERE type = :type")
+    int countByType(String type);
 }

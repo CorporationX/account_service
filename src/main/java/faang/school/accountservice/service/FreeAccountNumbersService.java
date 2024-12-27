@@ -27,8 +27,10 @@ public class FreeAccountNumbersService {
 
     @Transactional
     public void generateAccountNumbers(@NotNull AccountType type, int butchSize) {
-        log.info("Generating account numbers for type: {}, butchSize: {}", type, butchSize);
-        AccountSequence next = accountSequenseRepository.incrementCounter(type.name(), butchSize);
+        int correctedButchSize = getCorrectedButchSize(type, butchSize);
+        log.info("Generating account numbers for type: {}, butchSize: {}, correctedButchSize: {}",
+                type, butchSize, correctedButchSize);
+        AccountSequence next = accountSequenseRepository.incrementCounter(type.name(), correctedButchSize);
         log.info("Generated account numbers: {}", next);
         List<FreeAccountNumber> accountNumbers = new ArrayList<>();
         for (long i = next.getInitialCounter(); i < next.getCounter(); i++) {
@@ -50,5 +52,22 @@ public class FreeAccountNumbersService {
         log.info("Retrieved account number: {}", accountNumber);
         consumer.accept(accountNumber);
         log.info("Consumed account number: {}", accountNumber);
+    }
+
+    private int getCorrectedButchSize(AccountType type, int butchSize) {
+        if (butchSize == 0) {
+            return butchSize;
+        }
+
+        try {
+            log.info("Checking available account numbers for type: {}", type);
+            int countByType = freeAccountNumbersRepository.countByType(type.name());
+            int quotient = countByType / butchSize;
+
+            return quotient < 1 ? butchSize : butchSize / quotient;
+        } catch (Exception e) {
+            log.error("Error while checking available account numbers: {}", e.getMessage());
+            return butchSize;
+        }
     }
 }
