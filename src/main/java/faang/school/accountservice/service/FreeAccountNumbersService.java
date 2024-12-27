@@ -68,7 +68,6 @@ public class FreeAccountNumbersService {
         try {
             log.info("Получение свободного номера счета для типа счета: {}", accountType);
 
-            // Получаем один свободный номер
             FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.findFirstFreeAccountNumber(accountType.name());
 
             if (freeAccountNumber == null) {
@@ -76,24 +75,20 @@ public class FreeAccountNumbersService {
                 throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " + accountType);
             }
 
-            // Удаляем номер из таблицы free_account_numbers
             freeAccountNumbersRepository.deleteByAccountTypeAndAccountNumber(accountType.name(),
                 freeAccountNumber.getFreeAccountId().getAccountNumber());
 
-            // Обрабатываем номер
             numberConsumer.accept(freeAccountNumber);
 
-            // Проверяем наличие счетчика для данного типа счета, если его нет - создаем
             AccountSeq accountSeq = accountNumbersSequenceRepository.findByAccountType(accountType);
             if (accountSeq == null) {
                 log.info("Не найден счетчик для типа счета: {}, создаем новый.", accountType);
                 accountSeq = new AccountSeq();
                 accountSeq.setAccountType(accountType);
-                accountSeq.setCounter(1);  // Начальный счетчик
+                accountSeq.setCounter(0);
                 accountNumbersSequenceRepository.save(accountSeq);
             }
 
-            // Увеличиваем счетчик на 1, так как мы взяли один номер
             accountSeq.setCounter(accountSeq.getCounter() + 1);
             accountNumbersSequenceRepository.save(accountSeq);
 
