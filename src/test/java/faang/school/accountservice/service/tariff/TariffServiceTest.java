@@ -3,7 +3,6 @@ package faang.school.accountservice.service.tariff;
 import faang.school.accountservice.dto.tariff.TariffCreateDto;
 import faang.school.accountservice.dto.tariff.TariffResponse;
 import faang.school.accountservice.entity.tariff.Tariff;
-import faang.school.accountservice.entity.tariff.TariffRateChangelog;
 import faang.school.accountservice.exception.UniqueConstraintException;
 import faang.school.accountservice.mapper.tariff.TariffMapper;
 import faang.school.accountservice.repository.tariff.TariffRateChangelogRepository;
@@ -152,29 +151,5 @@ class TariffServiceTest {
         assertThrows(EntityNotFoundException.class, () -> tariffService.getTariffById(tariffId));
 
         verify(tariffRepository, times(1)).findById(tariffId);
-    }
-
-    @Test
-    void getCurrentTariffRateValidTest() {
-        long tariffId = 1L;
-        BigDecimal tariffRate = BigDecimal.valueOf(10.5);
-        TariffRateChangelog rateChangelog = new TariffRateChangelog();
-        rateChangelog.setRate(tariffRate);
-        when(rateChangelogRepository.findTopByTariffIdOrderByChangeDateDesc(tariffId)).thenReturn(Optional.of(rateChangelog));
-
-        BigDecimal resultTariffRate = assertDoesNotThrow(() -> tariffService.getCurrentTariffRateByTariffId(tariffId));
-
-        assertEquals(tariffRate, resultTariffRate);
-        verify(rateChangelogRepository, times(1)).findTopByTariffIdOrderByChangeDateDesc(tariffId);
-    }
-
-    @Test
-    void getCurrentTariffRateNotFoundTest() {
-        long tariffId = 1L;
-        when(rateChangelogRepository.findTopByTariffIdOrderByChangeDateDesc(tariffId)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> tariffService.getCurrentTariffRateByTariffId(tariffId));
-
-        verify(rateChangelogRepository, times(1)).findTopByTariffIdOrderByChangeDateDesc(tariffId);
     }
 }

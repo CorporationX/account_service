@@ -7,9 +7,11 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +28,16 @@ public class SavingsAccountController {
         return savingsAccountService.createSavingsAccount(createDto);
     }
 
+    @PatchMapping("/{savingsAccountId}/tariffs")
+    public SavingsAccountResponse updateSavingsAccountTariff(
+            @PathVariable @Min(1) long savingsAccountId,
+            @RequestParam @Min(1) long tariffId
+    ) {
+        return savingsAccountService.updateSavingsAccountTariff(savingsAccountId, tariffId);
+    }
+
     @GetMapping("/{savingsAccountId}")
     public SavingsAccountResponse getSavingsAccountById(@PathVariable @Min(1) long savingsAccountId) {
-        return null;
+        return savingsAccountService.getSavingsAccountById(savingsAccountId);
     }
 }

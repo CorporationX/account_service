@@ -39,3 +39,11 @@ free-account-number:
   cron: "0 0 0 * * *"
   batch-size: 10
 
+savings-account:
+  cron: "0 0 0 * * *"
+
+async:
+  thread-name-prefix: AsyncThread-
+  core-pool-size: 5
+  max-pool-size: 10
+  queue_capacity: 25

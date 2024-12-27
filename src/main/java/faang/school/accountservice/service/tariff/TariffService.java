@@ -47,7 +47,6 @@ public class TariffService {
         } catch (DataIntegrityViolationException ex) {
             handleUniqueConstraintViolation(ex, tariffName);
         }
-
         return null;
     }
 
@@ -81,12 +80,6 @@ public class TariffService {
     @Recover
     public void recover(OptimisticLockException ex, long tariffId, BigDecimal newRate) {
         throw new RuntimeException("Retries exhausted. Could not set new rate=%s for tariff with ID=%d".formatted(newRate,tariffId), ex);
-    }
-
-    public BigDecimal getCurrentTariffRateByTariffId(long tariffId) {
-        return rateChangelogRepository.findTopByTariffIdOrderByChangeDateDesc(tariffId)
-                .map(TariffRateChangelog::getRate)
-                .orElseThrow(() -> new EntityNotFoundException("No rate found for tariff ID=%d".formatted(tariffId)));
     }
 
     public Tariff getTariffById(long tariffId) {

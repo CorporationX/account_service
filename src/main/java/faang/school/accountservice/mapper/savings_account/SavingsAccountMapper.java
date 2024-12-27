@@ -6,6 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SavingsAccountMapper {
 
@@ -13,4 +15,6 @@ public interface SavingsAccountMapper {
     @Mapping(source = "tariff.currentRate", target = "currentRate")
     @Mapping(source = "tariff.id", target = "currentTariffId")
     SavingsAccountResponse toResponse(SavingsAccount savingsAccount);
+
+    List<SavingsAccountResponse> toResponseList(List<SavingsAccount> savingsAccounts);
 }

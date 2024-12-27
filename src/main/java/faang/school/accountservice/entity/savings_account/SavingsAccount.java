@@ -24,13 +24,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Table(name = "savings_account")
 public class SavingsAccount {
@@ -50,8 +51,9 @@ public class SavingsAccount {
     @JoinColumn(name = "current_tariff_id", nullable = false)
     private Tariff tariff;
 
+    @Builder.Default
     @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<SavingsAccountTariffChangelog> tariffChangelogs;
+    private List<SavingsAccountTariffChangelog> tariffChangelogs = new ArrayList<>();
 
     @Version
     @Column(name = "version", nullable = false)
@@ -64,4 +66,12 @@ public class SavingsAccount {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    public void changeTariff(Tariff tariff) {
+        this.setTariff(tariff);
+        SavingsAccountTariffChangelog tariffChangelog = new SavingsAccountTariffChangelog();
+        tariffChangelog.setTariff(tariff);
+        tariffChangelog.setSavingsAccount(this);
+        this.tariffChangelogs.add(tariffChangelog);
+    }
 }
