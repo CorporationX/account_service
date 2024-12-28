@@ -6,6 +6,8 @@ import faang.school.accountservice.dto.AccountRequest;
 import faang.school.accountservice.entity.AccountOwner;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestStatus;
+import faang.school.accountservice.enums.request_task.RequestTaskStatus;
+import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.service.AccountOwnerService;
 import faang.school.accountservice.service.RequestService;
@@ -42,6 +44,10 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
                     maxAccountsQuantity + " accounts");
         }
         request.setRequestStatus(RequestStatus.PROCESSING);
+        request.getRequestTasks().stream()
+                .filter(requestTask -> requestTask.getHandler().
+                        equals(RequestTaskType.CHECK_ACCOUNTS_QUANTITY))
+                .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
         requestService.updateRequest(request);
     }
 

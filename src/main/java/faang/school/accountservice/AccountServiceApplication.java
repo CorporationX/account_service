@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableConfigurationProperties
 @SpringBootApplication
 @EnableScheduling
 @EnableRetry

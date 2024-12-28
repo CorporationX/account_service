@@ -23,7 +23,7 @@ public class RequestExecutorService {
                 .filter(handler -> handlersIds.stream()
                         .anyMatch(handlerId -> handlerId.equals(handler.getHandlerId())))
                 .sorted(Comparator.comparing(RequestTaskHandler::getHandlerId))
-                .peek(requestTaskHandler -> requestTaskHandler.execute(request));
+                .forEach(requestTaskHandler -> requestTaskHandler.execute(request));
     }
 
     private List<Long> getHandlersIdsByRequestType(RequestType requestType) {

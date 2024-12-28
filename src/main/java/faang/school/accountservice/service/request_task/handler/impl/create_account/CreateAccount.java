@@ -7,6 +7,8 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.AccountOwner;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.request_task.RequestTaskStatus;
+import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountOwnerService;
@@ -50,6 +52,10 @@ public class CreateAccount implements RequestTaskHandler {
             throw new JsonMappingException("Error processing Json");
         }
         request.setContext(executedContext);
+        request.getRequestTasks().stream()
+                .filter(requestTask -> requestTask.getHandler().
+                        equals(RequestTaskType.WRITE_INTO_ACCOUNT))
+                .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
         requestService.updateRequest(request);
     }
 
