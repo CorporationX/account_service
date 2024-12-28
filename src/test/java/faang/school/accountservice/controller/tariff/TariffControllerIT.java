@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import faang.school.accountservice.dto.tariff.TariffCreateDto;
 import faang.school.accountservice.dto.tariff.TariffResponse;
 import faang.school.accountservice.entity.tariff.Tariff;
+import faang.school.accountservice.entity.tariff.TariffRateChangelog;
+import faang.school.accountservice.repository.tariff.TariffRateChangelogRepository;
 import faang.school.accountservice.repository.tariff.TariffRepository;
 import faang.school.accountservice.util.BaseContextTest;
 import liquibase.exception.DatabaseException;
@@ -17,6 +19,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,11 +36,16 @@ public class TariffControllerIT extends BaseContextTest {
     private TariffRepository tariffRepository;
 
     @Autowired
+    private TariffRateChangelogRepository tariffRateChangelogRepository;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @AfterEach
     void tearDown() throws DatabaseException {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "tariff", "tariff_rate_changelog");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "tariff_rate_changelog", "tariff");
+        jdbcTemplate.execute("SELECT setval('tariff_id_seq', 1, false)");
+        jdbcTemplate.execute("SELECT setval('tariff_rate_changelog_id_seq', 1, false)");
     }
 
     @Test
@@ -57,6 +65,10 @@ public class TariffControllerIT extends BaseContextTest {
         String responseBody = response.getResponse().getContentAsString();
         TariffResponse tariffResponse = objectMapper.readValue(responseBody, TariffResponse.class);
 
+        List<TariffRateChangelog> rateChangelogs = tariffRateChangelogRepository.findByTariffId(tariffResponse.getId());
+
+        assertEquals(1, rateChangelogs.size());
+        assertEquals(0, rateChangelogs.get(0).getRate().compareTo(tariffRate));
         assertEquals(tariffName, tariffResponse.getName());
         assertEquals(0, tariffResponse.getCurrentRate().compareTo(tariffRate));
     }
@@ -80,7 +92,8 @@ public class TariffControllerIT extends BaseContextTest {
     void updateTariffRate() throws Exception {
         long requesterId = 11L;
         String tariffName = "bonus";
-        long tariffId = tariffRepository.findByName(tariffName).get().getId();
+        long tariffId = 1L;
+        int expectedRateChangelogsAmount = 4;
         BigDecimal tariffRate = BigDecimal.valueOf(16);
 
         MvcResult response = mockMvc.perform(patch("/api/v1/tariffs/%d/rates?newRate=%s".formatted(tariffId, tariffRate))
@@ -92,6 +105,14 @@ public class TariffControllerIT extends BaseContextTest {
         String responseBody = response.getResponse().getContentAsString();
         TariffResponse tariffResponse = objectMapper.readValue(responseBody, TariffResponse.class);
 
+        List<TariffRateChangelog> rateChangelogs = tariffRateChangelogRepository.findByTariffId(tariffId);
+        int rateChangelogsSize = rateChangelogs.size();
+        BigDecimal lastTariffRate = rateChangelogs.stream()
+                .sorted(Comparator.comparing(TariffRateChangelog::getChangeDate).reversed())
+                .toList().get(0).getRate();
+
+        assertEquals(expectedRateChangelogsAmount, rateChangelogsSize);
+        assertEquals(0, lastTariffRate.compareTo(tariffRate));
         assertEquals(tariffId, tariffResponse.getId());
         assertEquals(tariffName, tariffResponse.getName());
         assertEquals(0, tariffResponse.getCurrentRate().compareTo(tariffRate));
@@ -119,7 +140,8 @@ public class TariffControllerIT extends BaseContextTest {
     @Test
     void deleteTariff() throws Exception {
         long requesterId = 11L;
-        long tariffId = tariffRepository.findByName("bonus").get().getId();
+        long tariffId = 1L;
+        int expectedRateChangelogsAmount = 0;
 
         MvcResult response = mockMvc.perform(delete("/api/v1/tariffs/%d".formatted(tariffId))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,6 +150,9 @@ public class TariffControllerIT extends BaseContextTest {
                 .andReturn();
 
         List<Tariff> tariffResponses = tariffRepository.findAll();
+        List<TariffRateChangelog> rateChangelogs = tariffRateChangelogRepository.findByTariffId(1L);
+
+        assertEquals(expectedRateChangelogsAmount, rateChangelogs.size());
         assertEquals(1, tariffResponses.size());
     }
 }

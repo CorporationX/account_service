@@ -5,8 +5,8 @@ VALUES
 
 INSERT INTO tariff_rate_changelog (tariff_id, rate, change_date)
 VALUES
-    ((SELECT id FROM tariff WHERE name = 'bonus' LIMIT 1), 10.5, CURRENT_TIMESTAMP - INTERVAL '3 day'),
-    ((SELECT id FROM tariff WHERE name = 'bonus' LIMIT 1), 12, CURRENT_TIMESTAMP - INTERVAL '2 day'),
-    ((SELECT id FROM tariff WHERE name = 'bonus' LIMIT 1), 8, CURRENT_TIMESTAMP - INTERVAL '1 day'),
-    ((SELECT id FROM tariff WHERE name = 'summer' LIMIT 1), 12, CURRENT_TIMESTAMP - INTERVAL '2 day'),
-    ((SELECT id FROM tariff WHERE name = 'summer' LIMIT 1), 8, CURRENT_TIMESTAMP - INTERVAL '1 day');
+    (1, 10.5, CURRENT_TIMESTAMP - INTERVAL '3 day'),
+    (1, 12, CURRENT_TIMESTAMP - INTERVAL '2 day'),
+    (1, 8, CURRENT_TIMESTAMP - INTERVAL '1 day'),
+    (2, 12, CURRENT_TIMESTAMP - INTERVAL '2 day'),
+    (2, 8, CURRENT_TIMESTAMP - INTERVAL '1 day');

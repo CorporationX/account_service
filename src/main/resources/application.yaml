@@ -41,8 +41,8 @@ free-account-number:
 
 savings-account:
   accruing-interest:
-    cron: "0 * * * * ?"
-    batch-size: 1
+    cron: "0 0 0 * * ?"
+    batch-size: 10
 
 async:
   thread-name-prefix: AsyncThread-
