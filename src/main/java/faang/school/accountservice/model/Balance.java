@@ -45,7 +45,7 @@ public class Balance {
     @Column(name = "version", nullable = false)
     private Integer version;
 
-    @Column(name = "balance_status", nullable = false,columnDefinition = "VARCHAR(32) DEFAULT 'APPROVED'")
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private BalanceStatus balanceStatus;
+    private BalanceStatus status;
 }
