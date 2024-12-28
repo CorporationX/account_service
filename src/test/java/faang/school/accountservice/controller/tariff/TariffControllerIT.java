@@ -21,8 +21,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -65,8 +67,11 @@ public class TariffControllerIT extends BaseContextTest {
         String responseBody = response.getResponse().getContentAsString();
         TariffResponse tariffResponse = objectMapper.readValue(responseBody, TariffResponse.class);
 
+        Optional<Tariff> tariff = tariffRepository.findById(tariffResponse.getId());
         List<TariffRateChangelog> rateChangelogs = tariffRateChangelogRepository.findByTariffId(tariffResponse.getId());
 
+        assertTrue(tariff.isPresent());
+        assertEquals(0, tariff.get().getCurrentRate().compareTo(tariffRate));
         assertEquals(1, rateChangelogs.size());
         assertEquals(0, rateChangelogs.get(0).getRate().compareTo(tariffRate));
         assertEquals(tariffName, tariffResponse.getName());
@@ -80,12 +85,11 @@ public class TariffControllerIT extends BaseContextTest {
         BigDecimal tariffRate = BigDecimal.valueOf(10.5);
         String tariffRequest = objectMapper.writeValueAsString(new TariffCreateDto(tariffName, tariffRate));
 
-        MvcResult response = mockMvc.perform(post("/api/v1/tariffs")
+        mockMvc.perform(post("/api/v1/tariffs")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(("x-user-id"), requesterId)
                         .content(tariffRequest))
-                .andExpect(status().isConflict())
-                .andReturn();
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -97,7 +101,6 @@ public class TariffControllerIT extends BaseContextTest {
         BigDecimal tariffRate = BigDecimal.valueOf(16);
 
         MvcResult response = mockMvc.perform(patch("/api/v1/tariffs/%d/rates?newRate=%s".formatted(tariffId, tariffRate))
-                        .contentType(MediaType.APPLICATION_JSON)
                         .header(("x-user-id"), requesterId))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -116,6 +119,17 @@ public class TariffControllerIT extends BaseContextTest {
         assertEquals(tariffId, tariffResponse.getId());
         assertEquals(tariffName, tariffResponse.getName());
         assertEquals(0, tariffResponse.getCurrentRate().compareTo(tariffRate));
+    }
+
+    @Test
+    void updateNotExistingTariffRateTest() throws Exception {
+        long requesterId = 11L;
+        long tariffId = 3L;
+        BigDecimal tariffRate = BigDecimal.valueOf(16);
+
+        mockMvc.perform(patch("/api/v1/tariffs/%d/rates?newRate=%s".formatted(tariffId, tariffRate))
+                        .header(("x-user-id"), requesterId))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -143,11 +157,9 @@ public class TariffControllerIT extends BaseContextTest {
         long tariffId = 1L;
         int expectedRateChangelogsAmount = 0;
 
-        MvcResult response = mockMvc.perform(delete("/api/v1/tariffs/%d".formatted(tariffId))
-                        .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(delete("/api/v1/tariffs/%d".formatted(tariffId))
                         .header(("x-user-id"), requesterId))
-                .andExpect(status().isNoContent())
-                .andReturn();
+                .andExpect(status().isNoContent());
 
         List<Tariff> tariffResponses = tariffRepository.findAll();
         List<TariffRateChangelog> rateChangelogs = tariffRateChangelogRepository.findByTariffId(1L);

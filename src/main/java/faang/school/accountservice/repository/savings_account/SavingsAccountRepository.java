@@ -16,14 +16,14 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             SELECT savings_account.* FROM savings_account
             JOIN account 
             ON savings_account.account_id = account.id 
-            WHERE account.owner_id = :ownerId;
+            WHERE account.owner_id = :ownerId
             """, nativeQuery = true)
-    List<SavingsAccount> getSavingsAccountsByOwnerId(long ownerId);
+    List<SavingsAccount> getSavingsAccountsByOwnerId(@Param("ownerId") long ownerId);
 
     @Query("""
             SELECT sa FROM SavingsAccount sa 
             JOIN sa.account a 
             WHERE a.status = :status
             """)
-    List<SavingsAccount> getSavingsAccountsByStatus(@Param("status")AccountStatus status);
+    List<SavingsAccount> getSavingsAccountsByStatus(@Param("status") AccountStatus status);
 }
