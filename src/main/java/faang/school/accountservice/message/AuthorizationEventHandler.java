@@ -24,21 +24,21 @@ public class AuthorizationEventHandler {
 
     public void handle(AuthorizationEvent event) {
         // Проверяем, что event содержит senderId и recipientId
-        if (event.getSenderId() == null || event.getRecipientId() == null) {
+        if (event.getSenderAccountId() == null || event.getRecipientAccountId() == null) {
             throw new IllegalArgumentException("SenderId and RecipientId cannot be null");
         }
 
         // Получаем аккаунт отправителя
-        Account senderAccount = accountRepository.findById(event.getSenderId())
+        Account senderAccount = accountRepository.findById(event.getSenderAccountId())
                 .orElseThrow(() -> new AccountNotFoundException("Sender account not found"));
 
         // Получаем аккаунт получателя
-        Account recipientAccount = accountRepository.findById(event.getRecipientId())
+        Account recipientAccount = accountRepository.findById(event.getRecipientAccountId())
                 .orElseThrow(() -> new AccountNotFoundException("Recipient account not found"));
 
         // Проверяем, достаточно ли средств у отправителя
         if (!hasSufficientBalance(senderAccount.getBalance().getActualBalance(), event.getAmount())
-                || senderAccount.getBalance().getBalanceStatus() == BalanceStatus.CANCELLED)
+                || senderAccount.getBalance().getStatus() == BalanceStatus.CANCELLED)
         {
             log.warn("Payment cancelled: insufficient balance for sender account {}. Required: {}, available: {}",
                     senderAccount.getId(), event.getAmount(), senderAccount.getBalance().getActualBalance());
