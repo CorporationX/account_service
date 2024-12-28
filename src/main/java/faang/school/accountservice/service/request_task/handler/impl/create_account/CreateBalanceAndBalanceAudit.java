@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.request_task.impl.create_account;
+package faang.school.accountservice.service.request_task.handler.impl.create_account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,10 +9,12 @@ import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.service.request.RequestService;
-import faang.school.accountservice.service.request_task.RequestTaskHandler;
+import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CreateBalanceAndBalanceAudit implements RequestTaskHandler {
@@ -35,6 +37,8 @@ public class CreateBalanceAndBalanceAudit implements RequestTaskHandler {
                         equals(RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT))
                 .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
         requestService.updateRequest(request);
+        log.info("Finished processing request task with type: {}",
+                RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT);
     }
 
     @Override

@@ -33,7 +33,8 @@ public class RequestTaskService {
                         .build()
                 ));
         requestTaskRepository.saveAll(requestTasks);
-        log.info("RequestTasks created for request with id: {}", request.getIdempotentToken());
+        log.info("Created {} RequestTasks for request with id: {}, request type: {}",
+                requestTasks.size(), request.getIdempotentToken(), request.getRequestType());
         return requestTasks;
     }
 
@@ -42,7 +43,7 @@ public class RequestTaskService {
         switch (requestType) {
             case CREATE_ACCOUNT -> requestTaskTypes = List.of(RequestTaskType.CHECK_ACCOUNTS_QUANTITY,
                     RequestTaskType.WRITE_INTO_ACCOUNT, RequestTaskType.WRITE_INTO_CASHBACK,
-                    RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT, RequestTaskType.SENT_NOTIFICATION);
+                    RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT, RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
         }
         return requestTaskTypes;
     }

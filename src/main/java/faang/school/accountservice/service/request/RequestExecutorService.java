@@ -2,7 +2,7 @@ package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestType;
-import faang.school.accountservice.service.request_task.RequestTaskHandler;
+import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

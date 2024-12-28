@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.request_task;
+package faang.school.accountservice.service.request_task.handler;
 
 import faang.school.accountservice.entity.Request;
 

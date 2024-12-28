@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.request_task.impl.create_account;
+package faang.school.accountservice.service.request_task.handler.impl.create_account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +11,7 @@ import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.service.AccountOwnerService;
 import faang.school.accountservice.service.request.RequestService;
-import faang.school.accountservice.service.request_task.RequestTaskHandler;
+import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +53,7 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
                         equals(RequestTaskType.CHECK_ACCOUNTS_QUANTITY))
                 .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
         requestService.updateRequest(request);
+        log.info("Finished processing request task with type: {}", RequestTaskType.CHECK_ACCOUNTS_QUANTITY);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.request_task.impl.create_account;
+package faang.school.accountservice.service.request_task.handler.impl.create_account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +11,7 @@ import faang.school.accountservice.event.CreateAccountEvent;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.publisher.CreateAccountPublisher;
 import faang.school.accountservice.service.request.RequestService;
-import faang.school.accountservice.service.request_task.RequestTaskHandler;
+import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,10 +45,12 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
         request.setRequestStatus(RequestStatus.DONE);
         request.getRequestTasks().stream()
                 .filter(requestTask -> requestTask.getHandler().
-                        equals(RequestTaskType.SENT_NOTIFICATION))
+                        equals(RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION))
                 .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
 
         requestService.updateRequest(request);
+        log.info("Finished processing request task with type: {}",
+                RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
         log.info("Successfully opened account with number: {}", account.getAccountNumber());
     }
 

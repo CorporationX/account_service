@@ -28,7 +28,6 @@ public class RequestService {
         return getRequest(requestId).getRequestStatus();
     }
 
-    //check: do request tasks save together with request
     public void updateRequest(Request request) {
         requestRepository.save(request);
         log.info("Request with Id: {} updated", request.getIdempotentToken());
