@@ -13,7 +13,7 @@ VALUES
 
 INSERT INTO account_owner (owner_id, owner_type)
 VALUES
-    (1, 'USER'),
+    (1, 'PROJECT'),
     (2, 'PROJECT'),
     (3, 'USER');
 

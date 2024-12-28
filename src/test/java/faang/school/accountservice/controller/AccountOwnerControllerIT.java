@@ -3,7 +3,6 @@ package faang.school.accountservice.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import faang.school.accountservice.dto.AccountOwnerRequest;
 import faang.school.accountservice.dto.savings_account.SavingsAccountResponse;
-import faang.school.accountservice.entity.savings_account.SavingsAccount;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.util.BaseContextTest;
 import liquibase.exception.DatabaseException;
@@ -19,16 +18,28 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Sql("/db/savings_account/create_savings_account_for_test.sql")
 public class AccountOwnerControllerIT extends BaseContextTest {
     private static final Long OWNER_ID = 1L;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @AfterEach
+    void tearDown() throws DatabaseException {
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "account_owner", "account",
+                "tariff", "tariff_rate_changelog", "savings_account");
+        jdbcTemplate.execute("SELECT setval('tariff_id_seq', 1, false)");
+        jdbcTemplate.execute("SELECT setval('tariff_rate_changelog_id_seq', 1, false)");
+        jdbcTemplate.execute("SELECT setval('account_owner_id_seq', 1, false)");
+        jdbcTemplate.execute("SELECT setval('account_id_seq', 1, false)");
+        jdbcTemplate.execute("SELECT setval('savings_account_id_seq', 1, false)");
+    }
 
     @Test
     void createOwnerTest() throws Exception {
@@ -48,13 +59,12 @@ public class AccountOwnerControllerIT extends BaseContextTest {
         mockMvc.perform(get("/api/v1/owners/search")
                         .header("x-user-id", OWNER_ID)
                         .param("ownerId", String.valueOf(OWNER_ID))
-                        .param("ownerType", String.valueOf(OwnerType.USER)))
+                        .param("ownerType", String.valueOf(OwnerType.PROJECT)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ownerId").value(OWNER_ID))
                 .andExpect(jsonPath("$.accounts").isArray());
     }
 
-    @Sql("/db/savings_account/create_savings_account_for_test.sql")
     @Test
     void getSavingsAccountsByOwnerIdTest() throws Exception{
         long accountOwnerId = 1L;
@@ -70,13 +80,5 @@ public class AccountOwnerControllerIT extends BaseContextTest {
         List<SavingsAccountResponse> savingsAccounts = objectMapper.readValue(responseBody, new TypeReference<>(){});
 
         assertEquals(expectedSavingsAccountAmount, savingsAccounts.size());
-
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "account_owner", "account",
-                "tariff", "tariff_rate_changelog", "savings_account");
-        jdbcTemplate.execute("SELECT setval('tariff_id_seq', 1, false)");
-        jdbcTemplate.execute("SELECT setval('tariff_rate_changelog_id_seq', 1, false)");
-        jdbcTemplate.execute("SELECT setval('account_owner_id_seq', 1, false)");
-        jdbcTemplate.execute("SELECT setval('account_id_seq', 1, false)");
-        jdbcTemplate.execute("SELECT setval('savings_account_id_seq', 1, false)");
     }
 }
