@@ -40,9 +40,9 @@ public class BaseContextTest {
     protected ObjectMapper objectMapper;
 
     @Container
-    public static PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
+    private static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
             new PostgreSQLContainer<>("postgres:13.6")
-                    .withStartupTimeout(Duration.ofMinutes(1));
+                    .withStartupTimeout(Duration.ofMinutes(2));
 
     @Container
     private static final RedisContainer REDIS_CONTAINER =

@@ -34,3 +34,18 @@ account-type-number-length:
   legal: 20
   savings: 16
   debit: 16
+
+free-account-number:
+  cron: "0 0 0 * * ?"
+  batch-size: 10
+
+savings-account:
+  accruing-interest:
+    cron: "0 0 0 * * ?"
+    batch-size: 10
+
+async:
+  thread-name-prefix: AsyncThread-
+  core-pool-size: 5
+  max-pool-size: 10
+  queue_capacity: 25
