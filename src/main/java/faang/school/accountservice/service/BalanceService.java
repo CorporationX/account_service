@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.AuthorizationEvent;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.mappers.BalanceMapper;
@@ -73,11 +74,11 @@ public class BalanceService {
         Balance balance = account.getBalance();
 
         // Обновляем actualBalance
-        BigDecimal updatedActualBalance = balance.getActualBalance().subtract(amount);
-        balance.setActualBalance(updatedActualBalance);
+        BigDecimal updatedAuthBalance = balance.getAuthBalance().add(amount);
+        balance.setAuthBalance(updatedAuthBalance);
 
         // Устанавливаем статус баланса
-        balance.setBalanceStatus(BalanceStatus.PENDING);
+        balance.setStatus(BalanceStatus.PENDING);
 
         // Сохраняем изменения
         balanceRepository.save(balance);
@@ -86,5 +87,32 @@ public class BalanceService {
         entityManager.flush();
 
         log.info("Successfully authorized payment for account ID: {}", account.getId());
+    }
+
+
+    @Transactional
+    public void clearingPayment(Long senderBalanceId, Long recipientBalanceId, BigDecimal amount) {
+        Balance senderBalance = balanceRepository.findById(senderBalanceId).orElseThrow(
+                () -> new RuntimeException("Sender balance not found"));
+        Balance recipientBalance = balanceRepository.findById(recipientBalanceId).orElseThrow(
+                () -> new RuntimeException("Recipient balance not found"));
+
+
+        // начисление получателю
+        BigDecimal updatedRecipientBalance = recipientBalance.getActualBalance().add(amount);
+        recipientBalance.setActualBalance(updatedRecipientBalance);
+        recipientBalance.setStatus(BalanceStatus.APPROVED);
+
+        // списываем со счета у покупателя
+        BigDecimal updatedSenderActualBalance = senderBalance.getActualBalance().subtract(amount);
+        BigDecimal updatedSenderAuthBalance = senderBalance.getAuthBalance().subtract(amount);
+        senderBalance.setActualBalance(updatedSenderActualBalance);
+        senderBalance.setAuthBalance(updatedSenderAuthBalance);
+        senderBalance.setStatus(BalanceStatus.APPROVED);
+
+
+        balanceRepository.save(recipientBalance);
+        balanceRepository.save(senderBalance);
+
     }
 }
