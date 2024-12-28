@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthorizationEvent {
-    private Long recipientId;
+    private Long recipientAccountId;
     private BigDecimal amount;
-    private Long senderId;
+    private Long senderAccountId;
     private String verificationCode;
 }
