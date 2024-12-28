@@ -1,15 +1,14 @@
-package faang.school.accountservice.account;
+package faang.school.accountservice.controller.account;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.controller.AccountController;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.entity.account.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.currency.Currency;
+import faang.school.accountservice.service.account.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -118,7 +117,7 @@ public class AccountControllerTest {
 
         when(accountService.getAllOfUser(userId)).thenReturn(accounts);
 
-        mockMvc.perform(get("/accounts/user/1")
+        mockMvc.perform(get("/accounts/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -137,7 +136,7 @@ public class AccountControllerTest {
 
         when(accountService.getAllOfProject(projectId)).thenReturn(accounts);
 
-        mockMvc.perform(get("/accounts/project/1")
+        mockMvc.perform(get("/accounts/projects/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

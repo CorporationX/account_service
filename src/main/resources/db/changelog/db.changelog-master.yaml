@@ -4,4 +4,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V002_account_index_payment_number.sql
   - include:
+      file: db/changelog/changeset/V003_storing_free_account_numbers.sql
+  - include:
+      file: db/changelog/changeset/V004_initial_account_sequences.sql
+  - include:
       file: db/changelog/changeset/V005_saving_account.sql

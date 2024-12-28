@@ -1,15 +1,15 @@
-package faang.school.accountservice.account;
+package faang.school.accountservice.validator.account;
 
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.project.ProjectDto;
 import faang.school.accountservice.dto.user.UserDto;
-import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.entity.account.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.currency.Currency;
+import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.exception.account.AccountNotValidException;
-import faang.school.accountservice.validator.account.AccountValidator;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,6 +54,7 @@ public class AccountValidatorTest {
     @Test
     void testCheckOpeningPositive() {
         accountDto.setPaymentNumber("1234");
+
         assertDoesNotThrow(() -> accountValidator.checkOpening(accountDto));
     }
 
