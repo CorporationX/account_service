@@ -34,9 +34,6 @@ public class RequestTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "request_id", nullable = false)
-    private Long requestId;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "handler", length = 64, nullable = false)
     private RequestTaskType handler;
@@ -54,7 +51,7 @@ public class RequestTask {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
     @Version

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Request;
+import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.event.CreateAccountEvent;
@@ -12,8 +13,10 @@ import faang.school.accountservice.publisher.CreateAccountPublisher;
 import faang.school.accountservice.service.RequestService;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SendCreateAccountNotification implements RequestTaskHandler {
@@ -28,7 +31,7 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
         try {
             account = objectMapper.readValue(request.getContext(), Account.class);
         } catch (JsonProcessingException e) {
-            throw new JsonMappingException("Error processing Json");
+            throw new JsonMappingException(e.getMessage());
         }
         CreateAccountEvent event = CreateAccountEvent.builder()
                 .ownerId(account.getOwner().getId())
@@ -39,12 +42,15 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
         publisher.publish(event);
 
         request.setContext(null);
+        request.setRequestStatus(RequestStatus.DONE);
         request.getRequestTasks().stream()
                 .filter(requestTask -> requestTask.getHandler().
                         equals(RequestTaskType.SENT_NOTIFICATION))
                 .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
 
         requestService.updateRequest(request);
+        log.info("Successfully opened account with number: {}",
+                account.getAccountNumber());
     }
 
     @Override

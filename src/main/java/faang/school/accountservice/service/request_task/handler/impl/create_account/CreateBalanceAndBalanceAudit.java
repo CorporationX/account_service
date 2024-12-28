@@ -27,7 +27,7 @@ public class CreateBalanceAndBalanceAudit implements RequestTaskHandler {
         try {
             account = objectMapper.readValue(request.getContext(), Account.class);
         } catch (JsonProcessingException e) {
-            throw new JsonMappingException("Error processing Json");
+            throw new JsonMappingException(e.getMessage());
         }
         balanceService.createBalance(account);
         request.getRequestTasks().stream()

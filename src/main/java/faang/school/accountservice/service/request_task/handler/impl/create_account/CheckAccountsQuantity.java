@@ -13,9 +13,11 @@ import faang.school.accountservice.service.AccountOwnerService;
 import faang.school.accountservice.service.RequestService;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CheckAccountsQuantity implements RequestTaskHandler {
@@ -32,8 +34,10 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
         AccountRequest accountRequest;
         try {
             accountRequest = objectMapper.readValue(request.getContext(), AccountRequest.class);
+            log.info("Start opening a new account for ownerId: {}, ownerType: {}",
+                    accountRequest.getOwnerId(), accountRequest.getOwnerType());
         } catch (JsonProcessingException e) {
-            throw new JsonMappingException("Error processing Json");
+            throw new JsonMappingException(e.getMessage());
         }
 
         AccountOwner owner = accountOwnerService.

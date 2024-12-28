@@ -2,6 +2,7 @@ package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.enums.request.RequestType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,11 +32,11 @@ public class Request {
     private UUID idempotentToken;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "request_type", nullable = false)
+    @Column(name = "request_type", nullable = false, length = 64)
     private RequestType requestType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "request_status", nullable = false)
+    @Column(name = "request_status", nullable = false, length = 64)
     private RequestStatus requestStatus;
 
     @Column(name = "context", length = 128)
@@ -44,7 +45,6 @@ public class Request {
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
-    @OneToMany(mappedBy = "request")
-    @Column(name = "request_tsks")
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RequestTask> requestTasks;
 }

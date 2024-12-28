@@ -10,7 +10,6 @@ import java.util.concurrent.Executor;
 @Component
 public class CreateAccountProcess implements ProcessExecutor {
 
-    @Qualifier("createAccountThreadPool")
     private final Executor createAccountExecutor;
 
     public CreateAccountProcess(@Qualifier("createAccountThreadPool") Executor createAccountExecutor) {

@@ -49,7 +49,7 @@ public class CreateAccount implements RequestTaskHandler {
             accountRepository.save(account);
             executedContext = objectMapper.writeValueAsString(account);
         } catch (JsonProcessingException e) {
-            throw new JsonMappingException("Error processing Json");
+            throw new JsonMappingException(e.getMessage());
         }
         request.setContext(executedContext);
         request.getRequestTasks().stream()
