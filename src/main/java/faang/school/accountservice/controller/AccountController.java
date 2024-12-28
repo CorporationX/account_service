@@ -1,8 +1,12 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.BalanceChangeDto;
 import faang.school.accountservice.dto.CreateAccountDto;
+import faang.school.accountservice.dto.TransactionDto;
+import faang.school.accountservice.dto.TransactionRequestDto;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.service.AccountService;
@@ -11,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +49,7 @@ public class AccountController {
     public ResponseEntity<AccountDto> createAccount(@Valid @RequestBody CreateAccountDto dto) {
         Long ownerId = userContext.getUserId();
         log.info("Request to open new account from {} id: {}", dto.ownerType(), ownerId);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(dto, ownerId));
     }
 
@@ -67,6 +73,7 @@ public class AccountController {
         AccountStatus accountStatus = AccountStatus.toValue(status);
         Long ownerId = userContext.getUserId();
         log.info("Request to update account status from {} id: {}", accountNumber, ownerId);
+
         return ResponseEntity.ok(accountService.updateAccountStatus(accountNumber, ownerId, accountStatus));
     }
 
@@ -78,5 +85,69 @@ public class AccountController {
         log.info("Request to delete account from {} id: {}", accountNumber, ownerId);
         accountService.deleteAccount(accountNumber, ownerId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{accountNumber}/deposit")
+    @Operation(summary = "Deposit funds on the account")
+    public ResponseEntity<BalanceChangeDto> deposit(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
+        log.info("Request to deposit funds on the account: number: {}, amount: {}", transactionRequestDto.accountNumber(), transactionRequestDto.amount());
+
+        return ResponseEntity.ok(accountService.deposit(transactionRequestDto));
+    }
+
+    @PostMapping("/{accountNumber}/withdraw")
+    @Operation(summary = "Withdraw funds from the account")
+    public ResponseEntity<BalanceChangeDto> withdraw(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
+        Long ownerId = userContext.getUserId();
+        log.info("Request to withdraw funds from the account: number: {}, amount: {}", transactionRequestDto.accountNumber(), transactionRequestDto.amount());
+
+        return ResponseEntity.ok(accountService.withdraw(ownerId, transactionRequestDto));
+    }
+
+    @PostMapping("/{accountNumber}/transactions/{transactionId}/approve")
+    @Operation(summary = "Approve the pending transaction", description = "Endpoint to be used by payment systems only!")
+    public ResponseEntity<Void> approve(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
+            @PathVariable @Positive(message = "Transaction id should be positive") Long transactionId,
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
+        log.info("Request to approve the transaction: number: {}, amount: {}", transactionId, transactionRequestDto.amount());
+        accountService.approve(transactionRequestDto, transactionId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{accountNumber}/transactions/{transactionId}/reject")
+    @Operation(summary = "Reject the pending transaction")
+    public ResponseEntity<Void> reject(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
+            @PathVariable @Positive(message = "Transaction id should be positive") Long transactionId,
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
+        log.info("Request to cancel the transaction: number: {}, amount: {}", transactionId, transactionRequestDto.amount());
+        accountService.reject(transactionRequestDto, transactionId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{accountNumber}")
+    @Operation(summary = "Get the balance information")
+    public ResponseEntity<AccountBalanceDto> getAccountBalance(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber
+    ) {
+        Long ownerId = userContext.getUserId();
+        log.info("Request to get account balance information: account number: {}", accountNumber);
+        return ResponseEntity.ok().body(accountService.getAccountBalance(ownerId, accountNumber));
+    }
+
+    @GetMapping("/{accountNumber}/transactions")
+    @Operation(summary = "Get all transactions list")
+    public ResponseEntity<List<TransactionDto>> getTransactions(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber
+    ) {
+        Long ownerId = userContext.getUserId();
+        log.info("Request to get transactions list: account number: {}", accountNumber);
+        return ResponseEntity.ok(accountService.getTransactions(ownerId, accountNumber));
     }
 }

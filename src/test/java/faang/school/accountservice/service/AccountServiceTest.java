@@ -1,12 +1,21 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.BalanceChangeDto;
 import faang.school.accountservice.dto.CreateAccountDto;
+import faang.school.accountservice.dto.TransactionDto;
+import faang.school.accountservice.dto.TransactionRequestDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.Transaction;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.TransactionStatus;
+import faang.school.accountservice.enums.TransactionType;
+import faang.school.accountservice.exception.AccountWithdrawalException;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
 import faang.school.accountservice.mapper.AccountMapperImpl;
@@ -21,6 +30,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +50,9 @@ class AccountServiceTest {
 
     @Spy
     private AccountMapperImpl accountMapper;
+
+    @Mock
+    private TransactionService transactionService;
 
     @Mock
     private AccountRepository accountRepository;
@@ -136,7 +152,7 @@ class AccountServiceTest {
                 accountService.updateAccountStatus(accountNumber, ownerId, newStatus));
 
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
-        verify(accountRepository, times(0)).save(any(Account.class));
+        verify(accountRepository, never()).save(any(Account.class));
 
         assertEquals(String.format("Account with number %s doesn't exist", accountNumber), ex.getMessage());
     }
@@ -156,7 +172,7 @@ class AccountServiceTest {
         );
 
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
-        verify(accountRepository, times(0)).save(any(Account.class));
+        verify(accountRepository, never()).save(any(Account.class));
 
         assertEquals(String.format("Owner with id %d doesn't have access to the account %s", ownerId, account.getAccountNumber()), ex.getMessage());
     }
@@ -195,5 +211,207 @@ class AccountServiceTest {
 
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
         verify(accountRepository, times(1)).deleteById(account.getId());
+    }
+
+    @Test
+    @DisplayName("Deposit account success: valid input")
+    void testDeposit_Success() {
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(100.25));
+        BalanceChangeDto balanceChangeDto = new BalanceChangeDto(null, TransactionType.DEPOSIT, BigDecimal.valueOf(100.25), null, BigDecimal.valueOf(110.25));
+        Account account = Account.builder()
+                .accountNumber(transactionRequestDto.accountNumber())
+                .balance(Balance.builder()
+                        .actualBalance(BigDecimal.valueOf(10))
+                        .build())
+                .transactions(new ArrayList<>())
+                .build();
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
+
+        BalanceChangeDto result = accountService.deposit(transactionRequestDto);
+
+        verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).findByAccountNumber(transactionRequestDto.accountNumber());
+
+        assertEquals(balanceChangeDto, result);
+        assertEquals(BigDecimal.valueOf(110.25), account.getBalance().getActualBalance());
+    }
+
+    @Test
+    @DisplayName("Deposit account fail: account not found")
+    void testDeposit_AccountNotFound_Fail() {
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(100.25));
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> accountService.deposit(transactionRequestDto));
+        assertEquals(String.format("Account with number %s doesn't exist", transactionRequestDto.accountNumber()), ex.getMessage());
+
+        verify(accountRepository, times(1)).findByAccountNumber(transactionRequestDto.accountNumber());
+    }
+
+    @Test
+    @DisplayName("Withdraw account success: valid input")
+    void testWithdraw_Success() {
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
+        BalanceChangeDto balanceChangeDto = new BalanceChangeDto(null, TransactionType.WITHDRAWAL, BigDecimal.valueOf(10), null, BigDecimal.valueOf(90));
+        Account account = Account.builder()
+                .accountNumber(transactionRequestDto.accountNumber())
+                .ownerId(1L)
+                .balance(Balance.builder()
+                        .actualBalance(BigDecimal.valueOf(100))
+                        .authorizedBalance(BigDecimal.ZERO)
+                        .build())
+                .transactions(new ArrayList<>())
+                .build();
+
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
+
+        BalanceChangeDto result = accountService.withdraw(1L, transactionRequestDto);
+
+        verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).findByAccountNumber(transactionRequestDto.accountNumber());
+
+        assertEquals(balanceChangeDto, result);
+        assertEquals(BigDecimal.valueOf(90), account.getBalance().getActualBalance());
+        assertEquals(BigDecimal.valueOf(10), account.getBalance().getAuthorizedBalance());
+    }
+
+    @Test
+    @DisplayName("Withdraw account fail: invalid account status")
+    void testWithdraw_InvalidAccountStatus_Fail() {
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
+        Account account = Account.builder()
+                .accountNumber(transactionRequestDto.accountNumber())
+                .ownerId(1L)
+                .status(AccountStatus.FROZEN)
+                .build();
+
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
+
+        AccountWithdrawalException ex = assertThrows(AccountWithdrawalException.class, () -> accountService.withdraw(1L, transactionRequestDto));
+        assertEquals("Withdrawal from account ACC123456789 is not possible. Status: FROZEN", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Withdraw account fail: not enough funds")
+    void testWithdraw_NotEnoughFunds_Fail() {
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(100));
+        Account account = Account.builder()
+                .accountNumber(transactionRequestDto.accountNumber())
+                .ownerId(1L)
+                .balance(Balance.builder()
+                        .actualBalance(BigDecimal.valueOf(10))
+                        .build())
+                .build();
+
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
+
+        AccountWithdrawalException ex = assertThrows(AccountWithdrawalException.class, () -> accountService.withdraw(1L, transactionRequestDto));
+        assertEquals("Not enough funds for the transaction. Available: 10, Transaction: 100", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Approve transaction success: valid input")
+    void testApprove_Success() {
+        Long transactionId = 1L;
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
+        Account account = Account.builder()
+                .accountNumber(transactionRequestDto.accountNumber())
+                .ownerId(1L)
+                .balance(Balance.builder()
+                        .actualBalance(BigDecimal.valueOf(90))
+                        .authorizedBalance(BigDecimal.valueOf(20))
+                        .build())
+                .build();
+
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
+
+        accountService.approve(transactionRequestDto, transactionId);
+
+        verify(transactionService, times(1)).validateTransactionExists(transactionId, transactionRequestDto.amount());
+        verify(transactionService, times(1)).approveTransaction(transactionId);
+        verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).findByAccountNumber(transactionRequestDto.accountNumber());
+
+        assertEquals(BigDecimal.valueOf(90), account.getBalance().getActualBalance());
+        assertEquals(BigDecimal.valueOf(10), account.getBalance().getAuthorizedBalance());
+    }
+
+    @Test
+    @DisplayName("Reject transaction success: valid input")
+    void testReject_Success() {
+        Long transactionId = 1L;
+        TransactionRequestDto transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
+        Account account = Account.builder()
+                .accountNumber(transactionRequestDto.accountNumber())
+                .ownerId(1L)
+                .balance(Balance.builder()
+                        .actualBalance(BigDecimal.valueOf(90))
+                        .authorizedBalance(BigDecimal.valueOf(20))
+                        .build())
+                .build();
+
+        when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
+
+        accountService.reject(transactionRequestDto, transactionId);
+
+        verify(transactionService, times(1)).validateTransactionExists(transactionId, transactionRequestDto.amount());
+        verify(transactionService, times(1)).rejectTransaction(transactionId);
+        verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).findByAccountNumber(transactionRequestDto.accountNumber());
+
+        assertEquals(BigDecimal.valueOf(100), account.getBalance().getActualBalance());
+        assertEquals(BigDecimal.valueOf(10), account.getBalance().getAuthorizedBalance());
+    }
+
+    @Test
+    @DisplayName("Get account balance success: valid input")
+    void testGetAccountBalance_Success() {
+        Long ownerId = 1L;
+        String accountNumber = "ACC123456789";
+        AccountBalanceDto accountBalanceDto = new AccountBalanceDto(accountNumber, BigDecimal.valueOf(100), null);
+        BigDecimal expectedBalance = BigDecimal.valueOf(100);
+        Account account = Account.builder()
+                .accountNumber(accountNumber)
+                .ownerId(ownerId)
+                .balance(Balance.builder()
+                        .actualBalance(expectedBalance)
+                        .build())
+                .build();
+
+        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+
+        AccountBalanceDto result = accountService.getAccountBalance(ownerId, accountNumber);
+
+        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+
+        assertEquals(accountBalanceDto, result);
+    }
+
+    @Test
+    @DisplayName("Get all transactions success: valid input")
+    void testGetTransactions_Success() {
+        Long ownerId = 1L;
+        String accountNumber = "ACC123456789";
+        List<Transaction> transactions = List.of(Transaction.builder()
+                .transactionAmount(BigDecimal.valueOf(100))
+                .transactionType(TransactionType.DEPOSIT)
+                .transactionStatus(TransactionStatus.PENDING)
+                .updatedAt(LocalDateTime.of(2024, 1, 1, 0, 0, 0))
+                .build());
+        Account account = Account.builder()
+                .accountNumber(accountNumber)
+                .ownerId(ownerId)
+                .transactions(transactions)
+                .build();
+
+        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+
+        List<TransactionDto> expected = account.getTransactions().stream()
+                .map(transaction -> accountMapper.toDto(transaction))
+                .toList();
+
+        List<TransactionDto> result = accountService.getTransactions(ownerId, accountNumber);
+
+        assertEquals(expected, result);
     }
 }

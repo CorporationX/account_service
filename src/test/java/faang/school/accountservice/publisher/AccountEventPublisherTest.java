@@ -30,7 +30,6 @@ class AccountEventPublisherTest {
     private RedisTemplate<String, Object> redisTemplate;
 
     private RedisProperties redisProperties;
-
     private AccountEventPublisher accountEventPublisher;
 
     private AccountDto accountDto;
@@ -56,7 +55,6 @@ class AccountEventPublisherTest {
     @Test
     @DisplayName("Account event published successfully")
     void testPublish_ValidEvent_Success() {
-
         accountEventPublisher.publish(accountDto);
 
         ArgumentCaptor<String> channelCaptor = ArgumentCaptor.forClass(String.class);
@@ -71,7 +69,6 @@ class AccountEventPublisherTest {
     @Test
     @DisplayName("Publish null event should not send to Redis")
     void testPublish_NullEvent_NoSend() {
-
         accountDto = null;
 
         assertThrows(IllegalArgumentException.class, () -> accountEventPublisher.publish(accountDto));
