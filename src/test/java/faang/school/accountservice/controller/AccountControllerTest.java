@@ -308,7 +308,7 @@ class AccountControllerTest {
 
         when(accountService.deposit(transactionRequestDto)).thenReturn(balanceChangeDto);
 
-        mockMvc.perform(post("/accounts/deposit")
+        mockMvc.perform(post("/accounts/{accountNumber}/deposit", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
@@ -323,7 +323,7 @@ class AccountControllerTest {
     void testDeposit_InvalidNumberLength_Fail() throws Exception {
         transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("100"));
 
-        mockMvc.perform(post("/accounts/deposit")
+        mockMvc.perform(post("/accounts/{accountNumber}/deposit", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
@@ -336,7 +336,7 @@ class AccountControllerTest {
     void testDeposit_ZeroAmount_Fail() throws Exception {
         transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("0"));
 
-        mockMvc.perform(post("/accounts/deposit")
+        mockMvc.perform(post("/accounts/{accountNumber}/deposit", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
@@ -349,7 +349,7 @@ class AccountControllerTest {
     void testDeposit_NegativeAmount_Fail() throws Exception {
         transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("-10"));
 
-        mockMvc.perform(post("/accounts/deposit")
+        mockMvc.perform(post("/accounts/{accountNumber}/deposit", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
@@ -362,7 +362,7 @@ class AccountControllerTest {
     void testDeposit_PositiveButSmallAmount_Fail() throws Exception {
         transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("0.001"));
 
-        mockMvc.perform(post("/accounts/deposit")
+        mockMvc.perform(post("/accounts/{accountNumber}/deposit", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
@@ -376,7 +376,7 @@ class AccountControllerTest {
     void testDeposit_ThreeDecimalPlaces_Fail() throws Exception {
         transactionRequestDto = new TransactionRequestDto("ACC12345", new BigDecimal("3.123"));
 
-        mockMvc.perform(post("/accounts/deposit")
+        mockMvc.perform(post("/accounts/{accountNumber}/deposit", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content((objectMapper.writeValueAsString(transactionRequestDto)))
                         .header("x-user-id", "11"))
@@ -394,7 +394,7 @@ class AccountControllerTest {
         when(userContext.getUserId()).thenReturn(ownerId);
         when(accountService.withdraw(ownerId, transactionRequestDto)).thenReturn(balanceChangeDto);
 
-        mockMvc.perform(post("/accounts/withdraw")
+        mockMvc.perform(post("/accounts/{accountNumber}/withdraw", transactionRequestDto.accountNumber())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
@@ -408,7 +408,7 @@ class AccountControllerTest {
         transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
         accountBalanceDto = new AccountBalanceDto("ACC123456789", BigDecimal.valueOf(90), LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        mockMvc.perform(post("/accounts/{transactionId}/approve", 1L)
+        mockMvc.perform(post("/accounts/{accountNumber}/transactions/{transactionId}/approve", transactionRequestDto.accountNumber(), 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))
@@ -422,7 +422,7 @@ class AccountControllerTest {
         transactionRequestDto = new TransactionRequestDto("ACC123456789", BigDecimal.valueOf(10));
         accountBalanceDto = new AccountBalanceDto("ACC123456789", BigDecimal.valueOf(90), LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        mockMvc.perform(post("/accounts/{transactionId}/reject", transactionId)
+        mockMvc.perform(post("/accounts/{accountNumber}/transactions/{transactionId}/reject", transactionRequestDto.accountNumber(), transactionId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transactionRequestDto))
                         .header("x-user-id", "1"))

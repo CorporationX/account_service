@@ -87,26 +87,31 @@ public class AccountController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/deposit")
+    @PostMapping("/{accountNumber}/deposit")
     @Operation(summary = "Deposit funds on the account")
-    public ResponseEntity<BalanceChangeDto> deposit(@Valid @RequestBody TransactionRequestDto transactionRequestDto) {
+    public ResponseEntity<BalanceChangeDto> deposit(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
         log.info("Request to deposit funds on the account: number: {}, amount: {}", transactionRequestDto.accountNumber(), transactionRequestDto.amount());
 
         return ResponseEntity.ok(accountService.deposit(transactionRequestDto));
     }
 
-    @PostMapping("/withdraw")
+    @PostMapping("/{accountNumber}/withdraw")
     @Operation(summary = "Withdraw funds from the account")
-    public ResponseEntity<BalanceChangeDto> withdraw(@Valid @RequestBody TransactionRequestDto transactionRequestDto) {
+    public ResponseEntity<BalanceChangeDto> withdraw(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
         Long ownerId = userContext.getUserId();
         log.info("Request to withdraw funds from the account: number: {}, amount: {}", transactionRequestDto.accountNumber(), transactionRequestDto.amount());
 
         return ResponseEntity.ok(accountService.withdraw(ownerId, transactionRequestDto));
     }
 
-    @PostMapping("/{transactionId}/approve")
-    @Operation(summary = "Approve the pending transaction")
+    @PostMapping("/{accountNumber}/transactions/{transactionId}/approve")
+    @Operation(summary = "Approve the pending transaction", description = "Endpoint to be used by payment systems only!")
     public ResponseEntity<Void> approve(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
             @PathVariable @Positive(message = "Transaction id should be positive") Long transactionId,
             @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
         log.info("Request to approve the transaction: number: {}, amount: {}", transactionId, transactionRequestDto.amount());
@@ -115,9 +120,10 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{transactionId}/reject")
+    @PostMapping("/{accountNumber}/transactions/{transactionId}/reject")
     @Operation(summary = "Reject the pending transaction")
     public ResponseEntity<Void> reject(
+            @PathVariable @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters") String accountNumber,
             @PathVariable @Positive(message = "Transaction id should be positive") Long transactionId,
             @Valid @RequestBody TransactionRequestDto transactionRequestDto) {
         log.info("Request to cancel the transaction: number: {}, amount: {}", transactionId, transactionRequestDto.amount());
