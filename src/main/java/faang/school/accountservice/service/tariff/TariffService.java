@@ -6,7 +6,6 @@ import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.entity.tariff.TariffRateChangelog;
 import faang.school.accountservice.exception.UniqueConstraintException;
 import faang.school.accountservice.mapper.tariff.TariffMapper;
-import faang.school.accountservice.repository.tariff.TariffRateChangelogRepository;
 import faang.school.accountservice.repository.tariff.TariffRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -27,7 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TariffService {
 
-    private final TariffRateChangelogRepository rateChangelogRepository;
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
 

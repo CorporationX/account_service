@@ -14,6 +14,11 @@ VALUES
 INSERT INTO account_owner (owner_id, owner_type)
 VALUES
     (1, 'USER'),
-    (2, 'PROJECT');
+    (2, 'PROJECT'),
+    (3, 'USER');
 
-INSERT INTO account ()
+INSERT INTO account (account_number, type, currency, status, owner_id)
+VALUES
+    (5444000000000001, 'SAVINGS', 'RUB', 'ACTIVE', 1),
+    (5444000000000002, 'DEBIT', 'EUR', 'ACTIVE', 1),
+    (5444000000000003, 'SAVINGS', 'USD', 'ACTIVE', 1);

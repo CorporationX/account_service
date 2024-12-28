@@ -5,7 +5,6 @@ import faang.school.accountservice.dto.tariff.TariffResponse;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.exception.UniqueConstraintException;
 import faang.school.accountservice.mapper.tariff.TariffMapper;
-import faang.school.accountservice.repository.tariff.TariffRateChangelogRepository;
 import faang.school.accountservice.repository.tariff.TariffRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -36,9 +35,6 @@ class TariffServiceTest {
 
     @Mock
     private TariffRepository tariffRepository;
-
-    @Mock
-    private TariffRateChangelogRepository rateChangelogRepository;
 
     @Spy
     TariffMapper tariffMapper = Mappers.getMapper(TariffMapper.class);
