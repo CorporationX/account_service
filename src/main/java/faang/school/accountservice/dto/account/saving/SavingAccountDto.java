@@ -1,7 +1,7 @@
 package faang.school.accountservice.dto.account.saving;
 
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.dto.tariff.TariffCreateDto;
+import faang.school.accountservice.dto.tariff.TariffDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ public class SavingAccountDto {
     @NotNull
     private AccountDto account;
     @NotNull
-    private TariffCreateDto tariff;
+    private TariffDto tariff;
 
     private LocalDateTime increasedAt;
 

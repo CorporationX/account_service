@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SavingAccountRequestDto {
+public class SavingAccountCreateDto {
     @NotNull
     private AccountDto account;
     @NotNull

@@ -9,27 +9,25 @@ import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.mapper.tariff.TariffMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public abstract class SavingAccountMapper {
-    @Autowired
-    private TariffMapper tariffMapper;
-    @Autowired
-    private AccountMapper accountMapper;
+public interface SavingAccountMapper {
+    TariffMapper tariffMapper = Mappers.getMapper(TariffMapper.class);
+    AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
 
-    public abstract SavingAccountDto toDto(SavingAccount entity);
+    SavingAccountDto toDto(SavingAccount entity);
 
-    public abstract List<SavingAccountDto> toDto(List<SavingAccount> entity);
+    List<SavingAccountDto> toDto(List<SavingAccount> entity);
 
 
-    protected TariffDto mapTariff(Tariff tariff) {
+    default TariffDto mapTariff(Tariff tariff) {
         return tariffMapper.toDto(tariff);
     }
 
-    protected AccountDto mapAccount(Account account) {
+    default AccountDto mapAccount(Account account) {
         return accountMapper.toDto(account);
     }
 

@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,13 +6,12 @@ import faang.school.accountservice.dto.HistoryDto;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.saving.SavingAccountDto;
 import faang.school.accountservice.dto.account.saving.SavingAccountFilter;
-import faang.school.accountservice.dto.account.saving.SavingAccountRequestDto;
+import faang.school.accountservice.dto.account.saving.SavingAccountCreateDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.SavingAccount;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.mapper.account.SavingAccountMapper;
 import faang.school.accountservice.repository.account.SavingAccountRepository;
-import faang.school.accountservice.service.account.AccountService;
 import faang.school.accountservice.service.tariff.TariffService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +43,10 @@ public class SavingAccountService {
 
     public List<SavingAccountDto> findBy(SavingAccountFilter filter) {
         if (filter.getProjectId() == null && filter.getUserId() == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("ProjectId or UserId is required");
         }
         if (filter.getProjectId() != null && filter.getUserId() != null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Only ProjectId or only UserId is required");
         }
 
         return filter.getUserId() != null ?
@@ -55,16 +54,8 @@ public class SavingAccountService {
                 findByProjectOwner(filter.getProjectId());
     }
 
-    public List<SavingAccountDto> findByUserOwner(Long userId) {
-        return savingAccountMapper.toDto(savingAccountRepository.findByAccountOwnerUserId(userId));
-    }
-
-    public List<SavingAccountDto> findByProjectOwner(Long projectId) {
-        return savingAccountMapper.toDto(savingAccountRepository.findByAccountOwnerProjectId(projectId));
-    }
-
     @Transactional
-    public SavingAccountDto openAccount(SavingAccountRequestDto requestDto) {
+    public SavingAccountDto openAccount(SavingAccountCreateDto requestDto) {
         AccountDto openedAccount = accountService.openAccount(requestDto.getAccount());
         Account account = accountService.getAccount(openedAccount.getId());
         Tariff tariff = tariffService.findEntityById(requestDto.getTariffId());
@@ -81,6 +72,13 @@ public class SavingAccountService {
         return savingAccountMapper.toDto(savingAccount);
     }
 
+    private List<SavingAccountDto> findByUserOwner(Long userId) {
+        return savingAccountMapper.toDto(savingAccountRepository.findByAccountOwnerUserId(userId));
+    }
+
+    private List<SavingAccountDto> findByProjectOwner(Long projectId) {
+        return savingAccountMapper.toDto(savingAccountRepository.findByAccountOwnerProjectId(projectId));
+    }
 
     private String createTariffHistroy(Long tariffId) {
         try {

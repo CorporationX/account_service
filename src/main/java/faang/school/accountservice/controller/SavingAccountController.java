@@ -2,8 +2,8 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.account.saving.SavingAccountDto;
 import faang.school.accountservice.dto.account.saving.SavingAccountFilter;
-import faang.school.accountservice.dto.account.saving.SavingAccountRequestDto;
-import faang.school.accountservice.service.SavingAccountService;
+import faang.school.accountservice.dto.account.saving.SavingAccountCreateDto;
+import faang.school.accountservice.service.account.SavingAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ public class SavingAccountController {
     private final SavingAccountService savingAccountService;
 
     @PostMapping
-    public SavingAccountDto create(@Valid @RequestBody SavingAccountRequestDto requestDto) {
+    public SavingAccountDto create(@Valid @RequestBody SavingAccountCreateDto requestDto) {
         return savingAccountService.openAccount(requestDto);
     }
 
