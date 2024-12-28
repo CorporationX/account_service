@@ -21,6 +21,7 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
 
+
     @Transactional(readOnly = true)
     public ResponseBalanceDto getBalance(Long accountId) {
         return balanceMapper.toDto(findBalance(accountId));

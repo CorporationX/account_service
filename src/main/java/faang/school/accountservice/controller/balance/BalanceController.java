@@ -18,6 +18,7 @@ public class BalanceController {
 
     private final BalanceService balanceService;
 
+
     @GetMapping()
     public ResponseBalanceDto getBalanceByAccountId(@PathVariable @NotNull Long accountId) {
         return balanceService.getBalance(accountId);
