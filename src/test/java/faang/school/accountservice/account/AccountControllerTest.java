@@ -49,7 +49,7 @@ public class AccountControllerTest {
 
         when(accountService.get(accountId)).thenReturn(accountDto);
 
-        mockMvc.perform(get("/api/v1/accounts/{id}", accountId))
+        mockMvc.perform(get("/accounts/{id}", accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentNumber").value("123456789012"))
                 .andExpect(jsonPath("$.type").value(AccountType.CURRENCY_ACCOUNT.name()))
@@ -65,7 +65,7 @@ public class AccountControllerTest {
 
         when(accountService.openAccount(accountDto)).thenReturn(accountDto);
 
-        mockMvc.perform(post("/api/v1/accounts")
+        mockMvc.perform(post("/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isOk())
@@ -84,7 +84,7 @@ public class AccountControllerTest {
 
         when(accountService.freezeAccount(accountId)).thenReturn(accountDto);
 
-        mockMvc.perform(post("/api/v1/accounts/{id}/block", accountId))
+        mockMvc.perform(post("/accounts/{id}/block", accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentNumber").value("123456789012"))
                 .andExpect(jsonPath("$.type").value(AccountType.CURRENCY_ACCOUNT.name()))
@@ -101,7 +101,7 @@ public class AccountControllerTest {
 
         when(accountService.closeAccount(accountId)).thenReturn(accountDto);
 
-        mockMvc.perform(post("/api/v1/accounts/{id}/close", accountId))
+        mockMvc.perform(post("/accounts/{id}/close", accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentNumber").value("123456789012"))
                 .andExpect(jsonPath("$.type").value(AccountType.CURRENCY_ACCOUNT.name()))
@@ -118,7 +118,7 @@ public class AccountControllerTest {
 
         when(accountService.getAllOfUser(userId)).thenReturn(accounts);
 
-        mockMvc.perform(get("/api/v1/accounts/all/user/1")
+        mockMvc.perform(get("/accounts/user/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -137,7 +137,7 @@ public class AccountControllerTest {
 
         when(accountService.getAllOfProject(projectId)).thenReturn(accounts);
 
-        mockMvc.perform(get("/api/v1/accounts/all/project/1")
+        mockMvc.perform(get("/accounts/project/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

@@ -50,16 +50,16 @@ public class AccountService {
     @Transactional
     public List<AccountDto> getAllOfUser(Long userId) {
         validator.checkUserId(userId);
-        return mapper.toDto(accountRepo.findByUserId(userId));
+        return mapper.toDto(accountRepo.findByOwnerUserId(userId));
     }
 
     @Transactional
     public List<AccountDto> getAllOfProject(Long projectId) {
         validator.checkProjectId(projectId);
-        return mapper.toDto(accountRepo.findByProjectId(projectId));
+        return mapper.toDto(accountRepo.findByOwnerProjectId(projectId));
     }
 
-    private Account getAccount(Long id) {
+    public Account getAccount(Long id) {
         return accountRepo.findById(id)
                 .orElseThrow(() ->
                         {

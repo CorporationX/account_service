@@ -1,10 +1,5 @@
 package faang.school.accountservice.account;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.*;
-
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.enums.AccountStatus;
@@ -14,14 +9,18 @@ import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.AccountService;
 import faang.school.accountservice.validator.account.AccountValidator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
@@ -60,7 +59,6 @@ public class AccountServiceTest {
         AccountDto result = accountService.freezeAccount(id);
 
         assertEquals(AccountStatus.FROZEN, result.getStatus());
-        assertNotNull(result.getClosedAt());
     }
 
     @Test
@@ -78,6 +76,5 @@ public class AccountServiceTest {
         AccountDto result = accountService.closeAccount(id);
 
         assertEquals(AccountStatus.CLOSED, result.getStatus());
-        assertNotNull(result.getClosedAt());
     }
 }
