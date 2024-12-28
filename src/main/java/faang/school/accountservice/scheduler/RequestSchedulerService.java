@@ -1,6 +1,6 @@
 package faang.school.accountservice.scheduler;
 
-import faang.school.accountservice.service.request_task.ScheduledExecutorService;
+import faang.school.accountservice.service.request.ScheduledRequestExecutorService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,7 +12,7 @@ public class RequestSchedulerService {
 
     private static final int SCHEDULING_RATE = 500;
 
-    private final ScheduledExecutorService scheduledExecutorService;
+    private final ScheduledRequestExecutorService scheduledExecutorService;
 
     @PostConstruct
     @Scheduled(fixedRate = SCHEDULING_RATE)

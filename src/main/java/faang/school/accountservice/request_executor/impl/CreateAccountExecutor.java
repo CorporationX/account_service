@@ -1,18 +1,18 @@
-package faang.school.accountservice.service.bisnes_procces.impl;
+package faang.school.accountservice.request_executor.impl;
 
 import faang.school.accountservice.enums.request.RequestType;
-import faang.school.accountservice.service.bisnes_procces.ProcessExecutor;
+import faang.school.accountservice.request_executor.RequestProcessExecutor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executor;
 
 @Component
-public class CreateAccountProcess implements ProcessExecutor {
+public class CreateAccountExecutor implements RequestProcessExecutor {
 
     private final Executor createAccountExecutor;
 
-    public CreateAccountProcess(@Qualifier("createAccountThreadPool") Executor createAccountExecutor) {
+    public CreateAccountExecutor(@Qualifier("createAccountThreadPool") Executor createAccountExecutor) {
         this.createAccountExecutor = createAccountExecutor;
     }
 

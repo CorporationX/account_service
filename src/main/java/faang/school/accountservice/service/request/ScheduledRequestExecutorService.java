@@ -1,9 +1,9 @@
-package faang.school.accountservice.service.request_task;
+package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestType;
 import faang.school.accountservice.repository.RequestRepository;
-import faang.school.accountservice.service.bisnes_procces.ProcessExecutor;
+import faang.school.accountservice.request_executor.RequestProcessExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ScheduledExecutorService {
+public class ScheduledRequestExecutorService {
 
     private final RequestExecutorService requestExecutorService;
     private final RequestRepository requestRepository;
-    private final List<ProcessExecutor> processExecutors;
+    private final List<RequestProcessExecutor> processExecutors;
 
     public void execute() {
         List<Request> requests = requestRepository.findAllAwaitingRequests();
@@ -26,12 +26,9 @@ public class ScheduledExecutorService {
 
         for (Map.Entry<RequestType, List<Request>> requestMap : sortedRequests.entrySet()) {
             processExecutors.forEach(processExecutor -> {
-
                 if (requestMap.getKey().equals(processExecutor.getRequestType())) {
-                    requestMap.getValue().forEach(
-                            request -> processExecutor.getThreadPoolExecutor().
-                                    execute(() -> requestExecutorService.
-                                            executeRequest(request)));
+                    requestMap.getValue().forEach(request -> processExecutor.getThreadPoolExecutor().
+                            execute(() -> requestExecutorService.executeRequest(request)));
                 }
             });
         }

@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.request_task.handler.impl.create_account;
+package faang.school.accountservice.service.request_task.impl.create_account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,8 +13,8 @@ import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountOwnerService;
 import faang.school.accountservice.service.FreeAccountNumbersService;
-import faang.school.accountservice.service.RequestService;
-import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
+import faang.school.accountservice.service.request.RequestService;
+import faang.school.accountservice.service.request_task.RequestTaskHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
