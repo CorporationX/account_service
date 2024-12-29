@@ -1,16 +1,17 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.controller.account;
 
 import com.google.gson.Gson;
 import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.controller.account.AccountController;
 import faang.school.accountservice.controller.advice.GlobalExceptionHandler;
-import faang.school.accountservice.dto.RequestAccountDto;
-import faang.school.accountservice.dto.ResponseAccountDto;
+import faang.school.accountservice.dto.account.RequestAccountDto;
+import faang.school.accountservice.dto.account.ResponseAccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,21 +47,15 @@ public class AccountControllerTest {
     private UserContext userContext;
 
     private ResponseAccountDto responseAccountDto;
-    private RequestAccountDto requestAccountDto;
 
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(accountController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
-        requestAccountDto = RequestAccountDto.builder()
-                .accountType(AccountType.CREDIT)
-                .currency(Currency.RUB)
-                .ownerType(OwnerType.USER)
-                .build();
         responseAccountDto = ResponseAccountDto.builder()
                 .number("40817810099910004312")
-                .accountType(AccountType.CREDIT)
+                .accountType(AccountType.FL)
                 .currency(Currency.RUB)
                 .status(AccountStatus.OPEN)
                 .build();
@@ -126,19 +121,6 @@ public class AccountControllerTest {
         when(userContext.getUserId()).thenReturn(USER_ID);
         when(accountService.unblockAccount(ACCOUNT_ID,USER_ID)).thenReturn(responseAccountDto);
         mockMvc.perform(put("/api/v1/accounts/" + ACCOUNT_ID + "/unblock"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(responseAccountDto.getNumber()));
-    }
-
-    @Test
-    void testCreateAccount() throws Exception {
-        when(userContext.getUserId()).thenReturn(USER_ID);
-        when(accountService.createAccount(requestAccountDto,USER_ID)).thenReturn(responseAccountDto);
-        String requestDtoJson = new Gson().toJson(requestAccountDto);
-
-        mockMvc.perform(post("/api/v1/accounts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestDtoJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number").value(responseAccountDto.getNumber()));
     }

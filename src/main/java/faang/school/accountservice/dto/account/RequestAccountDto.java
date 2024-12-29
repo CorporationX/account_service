@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -23,5 +23,4 @@ public class RequestAccountDto {
 
     @NotNull(message = "Currency cannot be null")
     private Currency currency;
-
 }

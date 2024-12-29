@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
@@ -13,7 +13,6 @@ import java.time.OffsetDateTime;
 @Data
 @Builder
 public class ResponseAccountDto {
-
     private String number;
     private OwnerType ownerType;
     private long ownerId;
@@ -23,5 +22,4 @@ public class ResponseAccountDto {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private OffsetDateTime closedAt;
-
 }

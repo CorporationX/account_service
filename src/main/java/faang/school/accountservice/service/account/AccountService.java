@@ -1,7 +1,6 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.RequestAccountDto;
-import faang.school.accountservice.dto.ResponseAccountDto;
+import faang.school.accountservice.dto.account.ResponseAccountDto;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
@@ -23,22 +22,12 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final AccountValidator validator;
 
-    @Transactional
-    public ResponseAccountDto createAccount(RequestAccountDto requestAccountDto, long userId) {
-        Account account = accountMapper.toAccount(requestAccountDto);
-        account.setOwnerId(userId);
-        account.setStatus(AccountStatus.OPEN);
-        accountRepository.save(account);
-        log.info("Created account for user {}", userId);
-        return accountMapper.toResponseAccountDto(account);
-    }
-
     @Transactional(readOnly = true)
     public ResponseAccountDto getAccountWithId(long accountId, long userId) {
         Account account = validator.validateAccount(accountId);
         validator.checkAccountToUser(account, userId);
         log.info("Getting an account with id {} user with id {}", accountId, userId);
-        return accountMapper.toResponseAccountDto(account);
+        return accountMapper.toDto(account);
     }
 
     @Transactional(readOnly = true)
@@ -46,7 +35,7 @@ public class AccountService {
         Account account = validator.validateAccount(accountNumber);
         validator.checkAccountToUser(account, userId);
         log.info("Getting an account with id {} user with id {}", account.getId(), userId);
-        return accountMapper.toResponseAccountDto(account);
+        return accountMapper.toDto(account);
     }
 
     @Transactional
@@ -57,7 +46,7 @@ public class AccountService {
         account.setStatus(AccountStatus.FREEZE);
         accountRepository.save(account);
         log.info("Blocking an account with id {} user with id {}", accountId, userId);
-        return accountMapper.toResponseAccountDto(account);
+        return accountMapper.toDto(account);
     }
 
     @Transactional
@@ -68,7 +57,7 @@ public class AccountService {
         account.setStatus(AccountStatus.OPEN);
         accountRepository.save(account);
         log.info("Unblocking an account with id {} user with id {}", accountId, userId);
-        return accountMapper.toResponseAccountDto(account);
+        return accountMapper.toDto(account);
     }
 
     @Transactional
@@ -80,7 +69,7 @@ public class AccountService {
         accountRepository.save(account);
         account.setClosedAt(OffsetDateTime.now());
         log.info("Closing an account with id {} user with id {}", accountId, userId);
-        return accountMapper.toResponseAccountDto(account);
+        return accountMapper.toDto(account);
     }
 
 }

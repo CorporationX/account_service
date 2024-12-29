@@ -1,7 +1,6 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.RequestAccountDto;
-import faang.school.accountservice.dto.ResponseAccountDto;
+import faang.school.accountservice.dto.account.ResponseAccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -41,28 +40,15 @@ public class AccountServiceTest {
     @Mock
     private AccountValidator validator;
 
-    private RequestAccountDto requestDto;
     private Account account;
 
     @BeforeEach
     void setUp() {
         account = Account.builder()
-                .accountType(AccountType.CREDIT)
+                .accountType(AccountType.FL)
                 .currency(Currency.RUB)
                 .status(AccountStatus.OPEN)
                 .build();
-        requestDto = RequestAccountDto.builder()
-                .accountType(AccountType.CREDIT)
-                .currency(Currency.RUB)
-                .build();
-    }
-
-    @Test
-    void testCreateAccountSuccess() {
-        when(accountMapper.toAccount(requestDto)).thenReturn(account);
-        accountService.createAccount(requestDto, USER_ID);
-        verify(accountRepository).save(accountCaptor.capture());
-        assertEquals(AccountStatus.OPEN, accountCaptor.getValue().getStatus());
     }
 
     @Test

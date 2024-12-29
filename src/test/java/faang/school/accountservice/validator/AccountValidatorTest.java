@@ -37,7 +37,7 @@ public class AccountValidatorTest {
         account = Account.builder()
                 .number("40817810099910004312")
                 .ownerId(USER_ID)
-                .accountType(AccountType.CREDIT)
+                .accountType(AccountType.FL)
                 .currency(Currency.RUB)
                 .status(AccountStatus.OPEN)
                 .build();

@@ -1,4 +1,4 @@
-package faang.school.accountservice.mapper;
+package faang.school.accountservice.mapper.balance;
 
 import faang.school.accountservice.dto.balance.ResponseBalanceDto;
 import faang.school.accountservice.model.balance.Balance;
