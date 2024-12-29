@@ -1,8 +1,20 @@
 package faang.school.accountservice.model.account.freeaccounts;
 
 import faang.school.accountservice.enums.AccountType;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Entity
@@ -25,4 +37,9 @@ public class FreeAccountNumber {
 
     @Column(name = "account_number", nullable = false, length = 20)
     private String accountNumber;
+
+    public FreeAccountNumber(AccountType type, String accountNumber) {
+        this.type = type;
+        this.accountNumber = accountNumber;
+    }
 }

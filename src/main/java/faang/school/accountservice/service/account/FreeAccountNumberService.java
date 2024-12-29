@@ -66,23 +66,21 @@ public class FreeAccountNumberService {
         if (accountLength < 12 || accountLength > 20) {
             throw new IllegalArgumentException("Invalid account number length");
         }
-        List<String> accountNumbers = new ArrayList<>();
+
         String prefix = accountNumberPrefixRepository.findAccountNumberPrefixByType(accountType);
+        if (prefix == null) {
+            throw new NoSuchElementException("No prefix found for account type: " + accountType);
+        }
+
         AccountSeq accountSequence = accountNumbersSequenceRepository.findByType(accountType)
                 .orElseGet(() -> accountNumbersSequenceRepository.createCounter(accountType));
-        long sequenceNumber = accountSequence.getCounter();
-        long initialSequenceNumber = sequenceNumber;
-        for (int i = 0; i < accountQuantity; i++) {
-            accountNumbers.add(generateAccountNumber(prefix, accountLength, sequenceNumber));
-            sequenceNumber++;
+        long initialSequenceNumber = accountSequence.getCounter();
+
+        List<FreeAccountNumber> freeAccounts = new ArrayList<>();
+        for (long i = initialSequenceNumber; i < initialSequenceNumber + accountQuantity; i++) {
+            freeAccounts.add(new FreeAccountNumber(accountType, generateAccountNumber(prefix, accountLength, i)));
         }
-        List<FreeAccountNumber> freeAccounts = accountNumbers.stream()
-                .map(accountNumber -> FreeAccountNumber
-                        .builder()
-                        .type(accountType)
-                        .accountNumber(accountNumber)
-                        .build())
-                .toList();
+
         accountNumbersSequenceRepository.incrementCounter(accountType, initialSequenceNumber, accountQuantity);
         freeAccountRepository.saveAll(freeAccounts);
     }
