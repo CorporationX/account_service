@@ -156,7 +156,6 @@ public class FreeAccountNumberServiceTest {
     @Test
     void processAccountNumber_noFreeAccountFound() {
         AccountType accountType = AccountType.SAVINGS;
-        String accountNumber = "2200000000000001";
         when(freeAccountRepository.countFreeAccountNumberByType(accountType)).thenReturn(1);
         when(freeAccountRepository.retrieveAndDeleteFirst(accountType.name())).thenReturn(Optional.empty());
 
