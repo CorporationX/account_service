@@ -3,6 +3,7 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.entity.account.SavingAccount;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.repository.account.SavingAccountRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -22,6 +23,7 @@ public class SavingAccountPaymentService {
     private final SavingAccountRepository savingAccountRepository;
     private final AccountRepository accountRepository;
 
+    @Transactional
     @Async("savingAccountPayoffInterestTaskExecutor")
     @Retryable(retryFor = Exception.class, maxAttempts = 5, backoff = @Backoff(delay = 3000))
     public void payOffInterests(List<SavingAccount> accounts) {
