@@ -1,8 +1,5 @@
 package faang.school.accountservice.event;
 
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateAccountEvent {
     private Long ownerId;
-    private OwnerType ownerType;
-    private AccountType accountType;
-    private Currency currency;
+    private String ownerType;
+    private String accountType;
+    private String currency;
 }

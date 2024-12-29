@@ -28,7 +28,7 @@ import java.util.UUID;
 public class Request {
 
     @Id
-    @Column(name = "idempotent_tocken", nullable = false, unique = true)
+    @Column(name = "idempotent_token", nullable = false, unique = true)
     private UUID idempotentToken;
 
     @Enumerated(EnumType.STRING)

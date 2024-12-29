@@ -10,8 +10,10 @@ import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.event.CreateAccountEvent;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.publisher.CreateAccountPublisher;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.request.RequestService;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
     private final ObjectMapper objectMapper;
     private final CreateAccountPublisher publisher;
     private final RequestService requestService;
+    private final AccountRepository accountRepository;
 
     @Override
     public void execute(Request request) {
@@ -33,13 +36,15 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
         } catch (JsonProcessingException e) {
             throw new JsonMappingException(e.getMessage());
         }
+        Account accountWithOwner = accountRepository.findById(account.getId()).orElseThrow(() ->
+                new EntityNotFoundException("Account with id " + account.getId() + " not found"));
+
         CreateAccountEvent event = CreateAccountEvent.builder()
-                .ownerId(account.getOwner().getId())
-                .ownerType(account.getOwner().getOwnerType())
-                .accountType(account.getType())
-                .currency(account.getCurrency())
+                .ownerId(accountWithOwner.getOwner().getId())
+                .ownerType(accountWithOwner.getOwner().getOwnerType().name())
+                .accountType(account.getType().name())
+                .currency(account.getCurrency().name())
                 .build();
-        publisher.publish(event);
 
         request.setContext(null);
         request.setRequestStatus(RequestStatus.DONE);
@@ -49,6 +54,7 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
                 .forEach(requestTask -> requestTask.setStatus(RequestTaskStatus.DONE));
 
         requestService.updateRequest(request);
+        publisher.publish(event);
         log.info("Finished processing request task with type: {}",
                 RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
         log.info("Successfully opened account with number: {}", account.getAccountNumber());

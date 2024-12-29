@@ -34,7 +34,7 @@ public class RequestService {
     }
 
     public Request createRequest(RequestType requestType, LocalDateTime scheduledAt) {
-        UUID requestId = UUID.fromString(requestType + String.valueOf(LocalDateTime.now()));
+        UUID requestId = UUID.randomUUID();
 
         Request request = Request.builder()
                 .idempotentToken(requestId)
@@ -42,10 +42,9 @@ public class RequestService {
                 .requestStatus(RequestStatus.AWAITING)
                 .scheduledAt(scheduledAt)
                 .build();
-
+        requestRepository.save(request);
         List<RequestTask> requestTasks = requestTaskService.createRequestTasksForRequest(request);
         request.setRequestTasks(requestTasks);
-        requestRepository.save(request);
         log.info("Request with Id: {} created", request.getIdempotentToken());
         return request;
     }
