@@ -1,4 +1,4 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.account.saving.SavingAccountDto;
 import faang.school.accountservice.dto.account.saving.SavingAccountFilter;

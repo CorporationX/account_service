@@ -33,3 +33,13 @@ project-service:
 
 api:
   version: "/api/v1"
+
+task:
+  savings-account:
+    pool:
+      max-size: 10
+      core-size: 6
+      queue-capacity: 20
+    batch-size: 10
+    cron: "0 * * * * *" # every hour
+    payment-interval: 1 # in days
