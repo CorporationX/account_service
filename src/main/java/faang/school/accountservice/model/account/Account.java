@@ -3,6 +3,7 @@ package faang.school.accountservice.model.account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,18 +15,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -79,4 +80,7 @@ public class Account {
     @Size(max = 4096)
     @Column(name = "notes", length = 4096)
     private String notes;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Balance balance;
 }

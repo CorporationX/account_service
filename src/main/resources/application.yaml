@@ -26,10 +26,10 @@ logging:
 
 services:
   user-service:
-    host: http://localhost
+    host: localhost
     port: 8080
   project-service:
-    host: http://localhost
+    host: localhost
     port: 8082
 
 free-account-generation:
