@@ -37,9 +37,9 @@ public class AccountController {
         return ResponseEntity.ok(accountService.closeAccount(accountId));
     }
 
-    @PostMapping("/number/{number}")
-    public AccountDto getAccountByNumber(@PathVariable String number) {
-        log.info("Received a request to get account by number: {}", number);
-        return accountService.getAccountByNumber(number);
+    @PostMapping("/{accountId}")
+    public AccountDto getAccountByNumber(@PathVariable Long accountId) {
+        log.info("Received a request to get account by number: {}", accountId);
+        return accountService.getAccountById(accountId);
     }
 }

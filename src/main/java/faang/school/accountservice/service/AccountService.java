@@ -89,8 +89,8 @@ public class AccountService {
         }
     }
 
-    public AccountDto getAccountByNumber(String number){
-        Account account = accountRepository.findByNumber(number);
+    public AccountDto getAccountById(Long accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(()-> new AccountNotFoundException("Account not found"));
         if (account.getStatus() == AccountStatus.BLOCKED || account.getStatus() == AccountStatus.CLOSED) {
             throw new IllegalStateException("Account has been blocked");
         }

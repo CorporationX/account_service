@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumerListener {
     private final AuthorizationEventHandler authorizationEventHandler;
     private final KafkaRecordConverter kafkaRecordConverter;
-    private final ObjectMapper objectMapper;
 
     // todo: для каждого топика нужен свой listener
     @KafkaListener(topics = "authorization-topic", groupId = "my_consumer_group")

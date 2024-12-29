@@ -10,6 +10,7 @@ import faang.school.accountservice.service.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -68,4 +69,13 @@ public class AuthorizationEventHandler {
         }
         return actualBalance.compareTo(amount) >= 0;
     }
+
 }
+
+// todo: Написать шедулер которй будет делать запросы в БД и достовать все реквесты со статусом PENDING.
+// todo: Если у нас время создание равно времени клеар_скедюал то мы должны поменять в БД статус на CANCELLED данногл реквеста
+// todo: В пеймент сервисе, зайти в файлик пеймет серивис и добавить в return message (подумать откуда его взять)
+// todo: В пеймент сервисе, SuccessAuthEventHandler добавить статус APPROVED
+
+
+// todo: Спросить у Юры как откинуть меседж на удачный исхол и неудачный (завязанный на кафка)

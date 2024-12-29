@@ -29,8 +29,8 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
     //добавляем для инжектирования EntityManager который поможет сделать синхронизацию с бд
     //если не добавим обнавлятся сумма в бд не будет
-    @PersistenceContext
-    private EntityManager entityManager;
+//    @PersistenceContext
+//    private EntityManager entityManager;
 
     public BalanceDto getBalanceByAccountId(Long accountId) {
         log.info("Getting balance by account id {}", accountId);
@@ -84,7 +84,6 @@ public class BalanceService {
         balanceRepository.save(balance);
 
         // Принудительно синхронизируем с базой данных
-        entityManager.flush();
 
         log.info("Successfully authorized payment for account ID: {}", account.getId());
     }

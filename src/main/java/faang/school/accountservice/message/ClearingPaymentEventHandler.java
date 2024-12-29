@@ -8,6 +8,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class ClearingPaymentEventHandler {
     private final BalanceService balanceService;
     private final AccountRepository accountRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void handle(AuthorizationEvent event) {
         // Получаем аккаунт отправителя
@@ -30,5 +32,7 @@ public class ClearingPaymentEventHandler {
         Balance recipientBalance = recipientAccount.getBalance();
 
         balanceService.clearingPayment(senderBalance.getId(), recipientBalance.getId(), event.getAmount());
+
+        kafkaTemplate.send("successful-payment-clear-topic", event);
     }
 }
