@@ -8,7 +8,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -31,3 +31,9 @@ services:
   project-service:
     host: localhost
     port: 8082
+
+free-account-generation:
+  accountNumberLength: 16
+  accountNumberCount: 10
+  cron:
+    expression: "0 0 0 * * *"
