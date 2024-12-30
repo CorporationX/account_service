@@ -2,12 +2,14 @@ package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
+import faang.school.accountservice.entity.AccountType;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.mapper.account.CreateAccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.validator.account.AccountServiceValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -30,6 +32,7 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final CreateAccountMapper createAccountMapper;
     private final AccountServiceValidator validator;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     public List<AccountDto> getAccount(long ownerId, long ownerType) {
         log.info("validate ownerId and ownerType");
@@ -52,7 +55,15 @@ public class AccountService {
         Account account = createAccountMapper.toEntity(createAccountDto);
         account.setStatus(Status.ACTIVE);
 
-        createAccountNumberAndSave(account);
+        freeAccountNumbersService.retrieveAccountNumber(AccountType.DEBIT, accountNumber -> {
+            String number = String.valueOf(accountNumber.getId().getAccountNumber());
+            if (number != null) {
+                account.setAccountNumber(number);
+            } else {
+                throw new IllegalArgumentException("Cant create accountNumber pls try later");
+            }
+            account.setAccountNumber(number);
+        });
 
         log.info("mapping account to accountDto");
         return accountMapper.toDto(account);
@@ -94,25 +105,6 @@ public class AccountService {
         return accountRepository.findByOwnerIdAndOwnerType(ownerId, owner);
     }
 
-    //TODO заглушка. исправить на актуальную версию генерации при выполнении задачи на генерацию уникальных счетов
-    private void createAccountNumberAndSave(Account account){
-        int maxAttempts = 10;
-        int attempts = 0;
-
-        while (attempts < maxAttempts) {
-            try {
-                account.setAccountNumber(generateRandomAccountNumber());
-                accountRepository.save(account);
-                break;
-            } catch (Exception e) {
-                attempts++;
-            }
-        }
-
-        if (attempts == maxAttempts) {
-            throw new IllegalArgumentException("Cant create accountNumber pls try later");
-        }
-    }
     //TODO заглушка. исправить на актуальную версию генерации при выполнении задачи на генерацию уникальных счетов
     private String generateRandomAccountNumber() {
         String DIGITS = "0123456789";
