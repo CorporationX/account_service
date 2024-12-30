@@ -26,7 +26,6 @@ public class FreeAccountNumberService {
     private final FreeAccountRepository freeAccountRepository;
     private final AccountNumberPrefixRepository accountNumberPrefixRepository;
     private final FreeAccountNumbersConfig freeAccountNumbersConfig;
-
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
     private static final Logger log = LoggerFactory.getLogger(FreeAccountNumberService.class);
