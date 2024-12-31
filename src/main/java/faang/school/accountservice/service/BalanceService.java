@@ -77,7 +77,7 @@ public class BalanceService {
 
     public void deleteBalance(long balanceId) {
         balanceRepository.deleteById(balanceId);
-        log.info("Balance with id: {} is deleted", balanceId);
+        log.info("Balance with id: {} deleted", balanceId);
     }
 
     private Balance getBalanceFromRepository(Long accountId) {

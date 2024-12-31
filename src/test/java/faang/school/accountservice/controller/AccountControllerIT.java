@@ -17,13 +17,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +38,7 @@ public class AccountControllerIT extends BaseContextTest {
     void openAccountAndCreateBalanceAuditTest() throws Exception {
         Long ownerId = createOwner(1L, OwnerType.USER);
         String accountRequest = objectMapper.writeValueAsString(
-                new AccountRequest(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.USER)
+                new AccountRequest(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.USER, LocalDateTime.now())
         );
         MvcResult result = mockMvc.perform(post("/api/v1/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -67,7 +68,7 @@ public class AccountControllerIT extends BaseContextTest {
     @Test
     void getAccountTest() throws Exception {
         Long ownerId = createOwner(1L, OwnerType.PROJECT);
-        Long accountId = createAccount(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.PROJECT);
+        Long accountId = createAccount(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.PROJECT, LocalDateTime.now());
         mockMvc.perform(get("/api/v1/accounts/{id}", accountId)
                         .header("x-user-id", ownerId))
                 .andExpect(status().isOk())
@@ -78,7 +79,7 @@ public class AccountControllerIT extends BaseContextTest {
     @Test
     void blockAccountTest() throws Exception {
         Long ownerId = createOwner(2L, OwnerType.USER);
-        Long accountId = createAccount(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.USER);
+        Long accountId = createAccount(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.USER, LocalDateTime.now());
         mockMvc.perform(put("/api/v1/accounts/{id}/block", accountId)
                         .header("x-user-id", ownerId))
                 .andExpect(status().isOk())
@@ -88,7 +89,7 @@ public class AccountControllerIT extends BaseContextTest {
     @Test
     void closeAccountTest() throws Exception {
         Long ownerId = createOwner(2L, OwnerType.PROJECT);
-        Long accountId = createAccount(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.PROJECT);
+        Long accountId = createAccount(AccountType.LEGAL, Currency.RUB, ownerId, OwnerType.PROJECT, LocalDateTime.now());
         mockMvc.perform(put("/api/v1/accounts/{id}/close", accountId)
                         .header("x-user-id", ownerId))
                 .andExpect(status().isOk())
@@ -110,9 +111,10 @@ public class AccountControllerIT extends BaseContextTest {
         return ownerResponse.getOwnerId();
     }
 
-    private Long createAccount(AccountType type, Currency currency, Long ownerId, OwnerType ownerType) throws Exception {
+    private Long createAccount(AccountType type, Currency currency, Long ownerId,
+                               OwnerType ownerType, LocalDateTime scheduledAt) throws Exception {
         String accountRequest = objectMapper.writeValueAsString(
-                new AccountRequest(type, currency, ownerId, ownerType));
+                new AccountRequest(type, currency, ownerId, ownerType, scheduledAt));
 
         MvcResult result = mockMvc.perform(post("/api/v1/accounts")
                         .contentType(MediaType.APPLICATION_JSON)

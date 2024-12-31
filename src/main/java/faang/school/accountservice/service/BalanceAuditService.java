@@ -32,6 +32,6 @@ public class BalanceAuditService {
 
     public void deleteAudit(long auditId) {
         balanceAuditRepository.deleteById(auditId);
-        log.info("Balance audit with Id: deleted");
+        log.info("Balance audit with Id: {} deleted",auditId);
     }
 }
