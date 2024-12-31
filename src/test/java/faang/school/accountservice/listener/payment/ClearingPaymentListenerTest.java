@@ -1,0 +1,47 @@
+package faang.school.accountservice.listener.payment;
+
+import faang.school.accountservice.dto.payment.request.ClearingPaymentRequest;
+import faang.school.accountservice.service.payment.PaymentService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+public class ClearingPaymentListenerTest {
+
+    private static final String TOPIC_NAME = "topic-name";
+
+    @Mock
+    private PaymentService paymentService;
+
+    @InjectMocks
+    private ClearingPaymentListener listener;
+
+    private ClearingPaymentRequest clearingPaymentRequest;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(listener, "topicName", TOPIC_NAME);
+
+        clearingPaymentRequest = ClearingPaymentRequest.builder().build();
+    }
+
+    @Test
+    void testSaveEvent_successful() {
+        listener.handleMessage(clearingPaymentRequest);
+        verify(paymentService).clearingPayment(clearingPaymentRequest);
+    }
+
+    @Test
+    void testGetTopic_successful() {
+        assertThat(listener.getTopic().getTopic()).isEqualTo(TOPIC_NAME);
+    }
+}
+

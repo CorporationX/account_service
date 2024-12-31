@@ -1,9 +1,14 @@
 package faang.school.accountservice.service.payment;
 
+import faang.school.accountservice.annotation.PublishPayment;
 import faang.school.accountservice.dto.payment.request.PaymentRequest;
 import faang.school.accountservice.dto.payment.request.CancelPaymentRequest;
 import faang.school.accountservice.dto.payment.request.ClearingPaymentRequest;
 import faang.school.accountservice.dto.payment.request.ErrorPaymentRequest;
+import faang.school.accountservice.dto.payment.response.CancelPaymentResponse;
+import faang.school.accountservice.dto.payment.response.ClearingPaymentResponse;
+import faang.school.accountservice.dto.payment.response.ErrorPaymentResponse;
+import faang.school.accountservice.dto.payment.response.PaymentResponse;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.balance.BalanceHasBeenUpdatedException;
 import faang.school.accountservice.exception.payment.PaymentHasBeenUpdatedException;
@@ -34,6 +39,7 @@ public class PaymentService {
     private final BalanceRepository balanceRepository;
     private final PaymentValidator paymentValidator;
 
+    @PublishPayment(returnedType = PaymentResponse.class)
     @Transactional
     public Payment authorizePayment(PaymentRequest request) {
         log.info("Authorize payment, operationId={}", request.getOperationId());
@@ -53,6 +59,7 @@ public class PaymentService {
         return savedPayment;
     }
 
+    @PublishPayment(returnedType = ClearingPaymentResponse.class)
     @Transactional
     public Payment clearingPayment(ClearingPaymentRequest request) {
         log.info("Clearing payment, operationId={}", request.getOperationId());
@@ -69,7 +76,9 @@ public class PaymentService {
         log.info("Payment cleared, paymentId={}", savedPayment.getId());
         return savedPayment;
     }
-//TODO добавить аудит после трансакций
+
+    //TODO добавить аудит после трансакций
+    @PublishPayment(returnedType = CancelPaymentResponse.class)
     @Transactional
     public Payment cancelPayment(CancelPaymentRequest request) {
         log.info("Cancel payment, operationId={}", request.getOperationId());
@@ -78,6 +87,7 @@ public class PaymentService {
         return payment;
     }
 
+    @PublishPayment(returnedType = ErrorPaymentResponse.class)
     @Transactional
     public Payment errorPayment(ErrorPaymentRequest request) {
         log.info("Error payment, operationId={}", request.getOperationId());

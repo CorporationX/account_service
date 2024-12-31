@@ -5,6 +5,24 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        auth-payment:
+          request: auth-payment-request
+          response: auth-payment-response
+        cancel-payment:
+          request: cancel-payment-request
+          response: cancel-payment-response
+        clearing-payment:
+          request: clearing-payment-request
+          response: clearing-payment-response
+        error-payment:
+          request: error-payment-request
+          response: error-payment-response
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
