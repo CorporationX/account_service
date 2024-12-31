@@ -24,8 +24,9 @@ public class RequestService {
     private final RequestTaskService requestTaskService;
 
     public RequestStatus getRequestStatus(UUID requestId) {
-        log.info("Get status for request with Id: {}", requestId);
-        return getRequest(requestId).getRequestStatus();
+        Request request = getRequest(requestId);
+        log.info("Getting status for request with Id: {}", requestId);
+        return request.getRequestStatus();
     }
 
     public void updateRequest(Request request) {
