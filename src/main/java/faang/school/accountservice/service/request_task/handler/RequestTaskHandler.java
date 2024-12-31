@@ -7,4 +7,6 @@ public interface RequestTaskHandler {
     void execute(Request request);
 
     long getHandlerId();
+
+    void rollback(Request request);
 }

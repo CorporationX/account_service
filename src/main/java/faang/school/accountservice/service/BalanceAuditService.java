@@ -29,4 +29,9 @@ public class BalanceAuditService {
         log.info("Balance audit for account {} with version {} is created",
                 balance.getAccount().getId(), balance.getVersion());
     }
+
+    public void deleteAudit(long auditId) {
+        balanceAuditRepository.deleteById(auditId);
+        log.info("Balance audit with Id: deleted");
+    }
 }

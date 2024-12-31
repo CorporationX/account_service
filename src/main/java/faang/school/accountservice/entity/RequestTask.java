@@ -54,6 +54,9 @@ public class RequestTask {
     @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
+    @Column(name = "rollback_context")
+    private String rollbackContext;
+
     @Version
     @Column(name = "version")
     private long version;

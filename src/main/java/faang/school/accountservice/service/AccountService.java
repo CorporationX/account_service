@@ -52,7 +52,8 @@ public class AccountService {
     @Transactional
     public AccountResponse openAccount(AccountRequest accountRequest) {
         Account account;
-        Request request = requestService.createRequest(RequestType.CREATE_ACCOUNT, null);
+        Request request = requestService.
+                createRequest(RequestType.CREATE_ACCOUNT, accountRequest.getScheduledAt());
         try {
             String requestContext = objectMapper.writeValueAsString(accountRequest);
             request.setContext(requestContext);

@@ -42,8 +42,8 @@ public class RequestTaskService {
         List<RequestTaskType> requestTaskTypes = new ArrayList<>();
         switch (requestType) {
             case CREATE_ACCOUNT -> requestTaskTypes = List.of(RequestTaskType.CHECK_ACCOUNTS_QUANTITY,
-                    RequestTaskType.WRITE_INTO_ACCOUNT, RequestTaskType.WRITE_INTO_CASHBACK,
-                    RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT, RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
+                    RequestTaskType.WRITE_INTO_ACCOUNT, RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT,
+                    RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
         }
         return requestTaskTypes;
     }
