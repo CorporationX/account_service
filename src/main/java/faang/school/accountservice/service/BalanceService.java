@@ -22,12 +22,14 @@ import java.time.LocalDateTime;
 public class BalanceService {
 
     private static final String BALANCE_NOT_FOUND = "Balance for account with id = %s not found";
-    private static final String BALANCE_CREATED = "Balance for account with id = %s is created";
+    private static final String BALANCE_CREATED = "Balance for account with id = {} is created";
     private static final String ACCOUNT_NOT_FOUND = "Account with id = %s not found";
+    private static final String INCORRECT_AMOUNT_VALUE = "Incorrect amount value for account id = %s, amount = %s";
     private static final String NOT_ENOUGH_FUNDS = "There are not enough funds in the account balance id = %s (amount = %s)";
     private static final String NOT_ENOUGH_FUNDS_ON_AUTHORIZATION_BALANCE = "There are not enough funds in the account on authorization balance id = %s (amount = %s)";
-    private static final String CLEARING_BALANCE_SUCCESSFULLY = "Account (id = %s) balance clearing completed successfully";
-    private static final String AUTHORIZATION_BALANCE_UPDATED = "Authorization balance for %s account is updated (amount = %s)";
+    private static final String CLEARING_BALANCE_SUCCESSFULLY = "Account (id = {}) balance clearing completed successfully";
+    private static final String AUTHORIZATION_BALANCE_UPDATED = "Authorization balance for {} account is updated (amount = {})";
+    private static final String ACTUAL_BALANCE_UPDATED = "Actual balance for {} account is updated (amount = {})";
 
     private final BalanceRepository balanceRepository;
     private final AccountRepository accountRepository;
@@ -44,12 +46,16 @@ public class BalanceService {
                 new EntityNotFoundException(String.format(ACCOUNT_NOT_FOUND, accountId))
         );
 
+        if (account.getBalance() != null) {
+            return balanceMapper.toDto(account.getBalance());
+        }
+
         Balance balance = createDefaultBalance(account);
         account.setBalance(balance);
 
         balance = balanceRepository.save(balance);
 
-        log.info(String.format(BALANCE_CREATED, account.getAccountNumber()));
+        log.info(BALANCE_CREATED, account.getAccountNumber());
 
         return balanceMapper.toDto(balance);
     }
@@ -70,7 +76,7 @@ public class BalanceService {
 
         Balance balanceSaved = saveBalance(balance, actualBalance.subtract(amount), authorizationBalance.add(amount));
 
-        log.info(String.format(AUTHORIZATION_BALANCE_UPDATED, accountId, authorizationBalance));
+        log.info(AUTHORIZATION_BALANCE_UPDATED, accountId, authorizationBalance);
         return balanceMapper.toDto(balanceSaved);
     }
 
@@ -78,12 +84,14 @@ public class BalanceService {
     public BalanceDto updateActualBalance(Long accountId, BigDecimal amount) {
         Balance balance = getBalanceCurrentBalance(accountId);
 
+        validateAmount(amount, accountId);
+
         BigDecimal actualBalance = balance.getActualBalance().add(amount);
         BigDecimal authorizationBalance = balance.getAuthorizationBalance();
 
         Balance balanceSaved = saveBalance(balance, actualBalance, authorizationBalance);
 
-        log.info(String.format(AUTHORIZATION_BALANCE_UPDATED, accountId, authorizationBalance));
+        log.info(ACTUAL_BALANCE_UPDATED, accountId, authorizationBalance);
         return balanceMapper.toDto(balanceSaved);
     }
 
@@ -98,7 +106,7 @@ public class BalanceService {
 
         Balance balanceSaved = saveBalance(balance, actualBalance, authorizationBalance.subtract(amount));
 
-        log.info(String.format(AUTHORIZATION_BALANCE_UPDATED, accountId, authorizationBalance));
+        log.info(AUTHORIZATION_BALANCE_UPDATED, accountId, authorizationBalance);
         return balanceMapper.toDto(balanceSaved);
     }
 
@@ -111,7 +119,7 @@ public class BalanceService {
         authorizationBalance = BigDecimal.valueOf(0.0);
 
         Balance balanceSaved = saveBalance(balance, actualBalance, authorizationBalance);
-        log.info(String.format(CLEARING_BALANCE_SUCCESSFULLY, accountId));
+        log.info(CLEARING_BALANCE_SUCCESSFULLY, accountId);
         return balanceMapper.toDto(balanceSaved);
     }
 
@@ -123,6 +131,8 @@ public class BalanceService {
     }
 
     private void validateAuthorizationBalance(BigDecimal actualBalance, BigDecimal amount, long accountId) {
+        validateAmount(amount, accountId);
+
         if (actualBalance.compareTo(BigDecimal.ZERO) <= 0 &&
                 amount.compareTo(BigDecimal.ZERO) > 0) {
             throw new BalanceException(String.format(NOT_ENOUGH_FUNDS, accountId, amount));
@@ -130,13 +140,20 @@ public class BalanceService {
     }
 
     private void validateUpdatingAuthorizationBalance(BigDecimal authorizationBalance, BigDecimal amount, long accountId) {
+        validateAmount(amount, accountId);
+
         if (amount.compareTo(BigDecimal.ZERO) > 0 && authorizationBalance.compareTo(amount) < 0) {
             throw new BalanceException(String.format(NOT_ENOUGH_FUNDS_ON_AUTHORIZATION_BALANCE, accountId, amount));
         }
     }
 
-    private Balance saveBalance(Balance balance, BigDecimal actualBalance, BigDecimal authorizationBalance) {
+    private void validateAmount(BigDecimal amount, long accountId) {
+        if (amount == null) {
+            throw new IllegalArgumentException(String.format(INCORRECT_AMOUNT_VALUE, accountId, null));
+        }
+    }
 
+    private Balance saveBalance(Balance balance, BigDecimal actualBalance, BigDecimal authorizationBalance) {
         balance.setActualBalance(actualBalance);
         balance.setAuthorizationBalance(authorizationBalance);
         balance.setUpdatedAt(LocalDateTime.now());

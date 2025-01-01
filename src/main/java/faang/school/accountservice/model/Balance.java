@@ -30,7 +30,6 @@ import java.time.LocalDateTime;
 @Table(name = "balance")
 public class Balance {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private long id;
 
