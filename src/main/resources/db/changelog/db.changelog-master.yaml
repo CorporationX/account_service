@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/payment-account_V001_initial.sql
+  - include:
+      file: db/changelog/changeset/request-V002__initial.sql
