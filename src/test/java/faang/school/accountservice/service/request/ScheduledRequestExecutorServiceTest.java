@@ -14,11 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,14 +38,16 @@ class ScheduledRequestExecutorServiceTest {
     private ScheduledRequestExecutorService executorService;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         List<RequestProcessExecutor> executors = new ArrayList<>(List.of(createAccountExecutor));
         executorService = new ScheduledRequestExecutorService(
-                requestExecutorService,requestRepository,executors);
+                requestExecutorService, requestRepository, executors);
     }
 
     @Test
-    public void executeTest(){
+    public void executeTest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(3);
+
         Request request1 = Request.builder()
                 .idempotentToken(UUID.randomUUID())
                 .requestType(RequestType.CREATE_ACCOUNT)
@@ -61,17 +63,22 @@ class ScheduledRequestExecutorServiceTest {
                 .requestType(RequestType.CREATE_ACCOUNT)
                 .build();
 
-        List<Request> requests = new ArrayList<>(List.of(request1,request2,request3));
+        List<Request> requests = new ArrayList<>(List.of(request1, request2, request3));
 
         when(requestRepository.findAllAwaitingRequests()).thenReturn(requests);
         when(createAccountExecutor.getRequestType()).thenReturn(RequestType.CREATE_ACCOUNT);
-        when(createAccountExecutor.getThreadPoolExecutor()).thenReturn(Executors.newFixedThreadPool(1));
+        when(createAccountExecutor.getThreadPoolExecutor()).thenReturn(Executors.newSingleThreadExecutor());
+
+        doAnswer(invocation -> {
+            latch.countDown();
+            return null;
+        }).when(requestExecutorService).executeRequest(any(Request.class));
 
         executorService.execute();
+        latch.await();
 
-        verify(requestExecutorService, times(3)).executeRequest(any(Request.class));
-        verify(requestExecutorService,times(1)).executeRequest(request1);
-        verify(requestExecutorService,times(1)).executeRequest(request2);
-        verify(requestExecutorService,times(1)).executeRequest(request3);
+        verify(requestExecutorService, times(1)).executeRequest(request1);
+        verify(requestExecutorService, times(1)).executeRequest(request2);
+        verify(requestExecutorService, times(1)).executeRequest(request3);
     }
 }

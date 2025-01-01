@@ -64,9 +64,11 @@ public class CreateAccount implements RequestTaskHandler {
 
             Account savedAccount = accountRepository.save(account);
             request.setContext(mapAccount(savedAccount));
-            setRequestTaskStatusAndContext(request, RequestTaskStatus.DONE, savedAccount.getId().toString());
+            setRequestTaskStatusAndContext(request, RequestTaskStatus.DONE,
+                    savedAccount.getId().toString());
             requestService.updateRequest(request);
-            log.info("Finished processing request task with type: {}", RequestTaskType.WRITE_INTO_ACCOUNT);
+            log.info("Finished processing request task with type: {}",
+                    RequestTaskType.WRITE_INTO_ACCOUNT);
 
         } catch (OptimisticLockingFailureException e) {
             log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
@@ -77,6 +79,7 @@ public class CreateAccount implements RequestTaskHandler {
             log.error("Unexpected error occurred during execution request with id: {}. " +
                     "Executing rollback.", request.getIdempotentToken(), e);
             rollback(request);
+            throw e;
         }
     }
 
@@ -90,22 +93,25 @@ public class CreateAccount implements RequestTaskHandler {
         RequestTask requestTask = request.getRequestTasks().stream()
                 .filter(task -> task.getHandler().equals(RequestTaskType.WRITE_INTO_ACCOUNT))
                 .findFirst().orElseThrow(() -> new EntityNotFoundException("No request task found"));
-        accountRepository.deleteById(Long.getLong(requestTask.getRollbackContext()));
-        setRequestTaskStatusAndContext(request, RequestTaskStatus.AWAITING, requestTask.getRollbackContext());
+        if (requestTask.getRollbackContext() != null) {
+            accountRepository.deleteById(Long.getLong(requestTask.getRollbackContext()));
+        }
+        setRequestTaskStatusAndContext(request, RequestTaskStatus.AWAITING,
+                requestTask.getRollbackContext());
 
         List<RequestTask> tasks = request.getRequestTasks().stream()
                 .filter(task -> task.getStatus() == RequestTaskStatus.DONE).toList();
         if (!tasks.isEmpty()) {
             checkAccountsQuantity.rollback(request);
         }
-        log.info("Request task with type: {} rollback",RequestTaskType.WRITE_INTO_ACCOUNT);
+        log.info("Request task with type: {}, id: {} rollback",
+                RequestTaskType.WRITE_INTO_ACCOUNT, requestTask.getId());
     }
 
     private AccountRequest mapAccountRequest(Request request) {
         AccountRequest accountRequest;
         try {
-            accountRequest = objectMapper.
-                    readValue(request.getContext(), AccountRequest.class);
+            accountRequest = objectMapper.readValue(request.getContext(), AccountRequest.class);
         } catch (JsonProcessingException e) {
             throw new JsonMappingException(e.getMessage());
         }

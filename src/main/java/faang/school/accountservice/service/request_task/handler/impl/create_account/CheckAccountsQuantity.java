@@ -49,23 +49,25 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
                     findOwner(accountRequest.getOwnerId(), accountRequest.getOwnerType());
 
             if (owner.getAccounts().size() >= maxAccountsQuantity) {
+                setRequestStatus(request, RequestStatus.DONE);
+                request.getRequestTasks().forEach(requestTask ->
+                        requestTask.setStatus(RequestTaskStatus.DONE));
+                requestService.updateRequest(request);
+
                 throw new IllegalStateException("Forbidden have more than " +
                         maxAccountsQuantity + " accounts");
             }
             setRequestStatus(request, RequestStatus.PROCESSING);
             setRequestTaskStatus(request, RequestTaskStatus.DONE);
             requestService.updateRequest(request);
-            log.info("Finished processing request task with type: {}", RequestTaskType.CHECK_ACCOUNTS_QUANTITY);
+            log.info("Finished processing request task with type: {}, for request with id: {} ",
+                    RequestTaskType.CHECK_ACCOUNTS_QUANTITY, request.getIdempotentToken());
 
         } catch (OptimisticLockingFailureException e) {
             log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
                     "Executing rollback.", request.getIdempotentToken(), e);
             rollback(request);
             throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error occurred during execution request with id: {}. " +
-                    "Executing rollback.", request.getIdempotentToken(), e);
-            rollback(request);
         }
     }
 
@@ -79,7 +81,8 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
         setRequestStatus(request, RequestStatus.AWAITING);
         setRequestTaskStatus(request, RequestTaskStatus.AWAITING);
         requestService.updateRequest(request);
-        log.info("Request task with type: {} rollback",RequestTaskType.CHECK_ACCOUNTS_QUANTITY);
+        log.info("Request task with type: {}, id: {} rollback",
+                RequestTaskType.CHECK_ACCOUNTS_QUANTITY, request.getIdempotentToken());
     }
 
     private void setRequestStatus(Request request, RequestStatus requestStatus) {
