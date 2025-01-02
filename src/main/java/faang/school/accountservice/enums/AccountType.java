@@ -11,7 +11,8 @@ public enum AccountType {
     DEPOSIT,
     INVESTMENT,
     CREDIT,
-    CURRENCY;
+    CURRENCY,
+    DEBIT;
 
     @JsonCreator
     public static AccountType toValue(String json) {

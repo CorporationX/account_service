@@ -38,3 +38,8 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    batch:
+      size: 100

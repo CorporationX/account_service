@@ -1,0 +1,4 @@
+CREATE TABLE account_number_sequence(
+type VARCHAR(32) PRIMARY KEY NOT NULL,
+counter BIGINT NOT NULL DEFAULT 1
+);

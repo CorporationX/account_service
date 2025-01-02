@@ -11,3 +11,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V005_account-service_set_account_is_pk.sql
   - include:
       file: db/changelog/changeset/V006_account-service_adds_transaction_table.sql
+  - include:
+      file: db/changelog/changeset/V007_account-service_free_account_numbers_add.sql
+  - include:
+      file: db/changelog/changeset/V008_account-service_account_number_sequence_add.sql
