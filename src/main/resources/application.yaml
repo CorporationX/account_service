@@ -17,9 +17,29 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        request-in-progress-notification-channel:
+          name: request-in-progress-notification-channel
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+
+schedule:
+  send-request-in-progress-notification:
+    chunk-size: 500
+
+async:
+  executors:
+    schedule:
+      core-pool-size: 4
+      max-pool-size: 8
+      queue-capacity: 500
+      thread-name-prefix: "Schedule"

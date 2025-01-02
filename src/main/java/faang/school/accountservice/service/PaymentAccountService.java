@@ -66,4 +66,8 @@ public class PaymentAccountService {
             throw new DataValidationException("Attempt to operate on a closed account");
         }
     }
+
+    public boolean existsByAccountId(Long paymentAccountId) {
+        return paymentAccountRepository.existsById(paymentAccountId);
+    }
 }
