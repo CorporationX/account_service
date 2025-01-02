@@ -1,10 +1,7 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.enums.RequestStatus;
-import faang.school.accountservice.enums.RequestType;
 import faang.school.accountservice.model.Request;
 import feign.Param;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -68,9 +65,9 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     @Query(nativeQuery = true, value = """
             UPDATE request
-            SET request_status = 'COMPLETED'
+            SET request_status = 'COMPLETED',
                 is_open = FALSE
-            WHERE id = :requestId;
+            WHERE id = :requestId
             """)
     @Modifying
     void completeRequest(@Param("requestId") Long requestId);

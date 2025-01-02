@@ -38,7 +38,6 @@ public class SendRequestNotifScheduler {
         List<Request> requests = requestService.getRequestsToExecute(RequestType.REMITTANCE, limit);
 
         log.debug("Given requests to execute: " + requests.size());
-        System.out.println("Given requests to execute: " + requests.size());
         requests.parallelStream()
                 .map(requestMapper::toCreateRequestEvent)
                 .forEach(event ->

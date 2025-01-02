@@ -6,12 +6,12 @@ import faang.school.accountservice.dto.request.ResponseRequestDto;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
 import faang.school.accountservice.mapper.RequestMapper;
-import faang.school.accountservice.model.PaymentAccount;
 import faang.school.accountservice.model.Request;
 import faang.school.accountservice.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -59,14 +59,17 @@ public class RequestService {
         }
     }
 
+    @Transactional
     public List<Request> getRequestsToExecute(RequestType requestType, int limit) {
         return requestRepository.getRequestToExecuteByType(requestType.name(), limit);
     }
 
+    @Transactional
     public void updateRequestStatus(Long requestId, RequestStatus requestStatus) {
         requestRepository.updateRequestStatusById(requestId, requestStatus.name());
     }
 
+    @Transactional
     public void completeRequest(Long requestId) {
         requestRepository.completeRequest(requestId);
     }
