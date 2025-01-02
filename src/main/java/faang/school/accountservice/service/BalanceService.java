@@ -20,13 +20,12 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class BalanceService {
-
-    private static final String BALANCE_NOT_FOUND = "Balance for account with id = %s not found";
+    public static final String BALANCE_NOT_FOUND = "Balance for account with id = %s not found";
+    public static final String ACCOUNT_NOT_FOUND = "Account with id = %s not found";
+    public static final String INCORRECT_AMOUNT_VALUE = "Incorrect amount value for account id = %s, amount = %s";
+    public static final String NOT_ENOUGH_FUNDS = "There are not enough funds in the account balance id = %s (amount = %s)";
+    public static final String NOT_ENOUGH_FUNDS_ON_AUTHORIZATION_BALANCE = "There are not enough funds in the account on authorization balance id = %s (amount = %s)";
     private static final String BALANCE_CREATED = "Balance for account with id = {} is created";
-    private static final String ACCOUNT_NOT_FOUND = "Account with id = %s not found";
-    private static final String INCORRECT_AMOUNT_VALUE = "Incorrect amount value for account id = %s, amount = %s";
-    private static final String NOT_ENOUGH_FUNDS = "There are not enough funds in the account balance id = %s (amount = %s)";
-    private static final String NOT_ENOUGH_FUNDS_ON_AUTHORIZATION_BALANCE = "There are not enough funds in the account on authorization balance id = %s (amount = %s)";
     private static final String CLEARING_BALANCE_SUCCESSFULLY = "Account (id = {}) balance clearing completed successfully";
     private static final String AUTHORIZATION_BALANCE_UPDATED = "Authorization balance for {} account is updated (amount = {})";
     private static final String ACTUAL_BALANCE_UPDATED = "Actual balance for {} account is updated (amount = {})";
@@ -36,7 +35,7 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
 
     public BalanceDto getBalance(Long accountId) {
-        Balance balance = getBalanceCurrentBalance(accountId);
+        Balance balance = getCurrentBalance(accountId);
         return balanceMapper.toDto(balance);
     }
 
@@ -62,7 +61,7 @@ public class BalanceService {
 
     @Transactional
     public BalanceDto authorizationBalance(Long accountId, BigDecimal amount) {
-        Balance balance = getBalanceCurrentBalance(accountId);
+        Balance balance = getCurrentBalance(accountId);
 
         BigDecimal actualBalance = balance.getActualBalance();
         BigDecimal authorizationBalance = balance.getAuthorizationBalance();
@@ -82,14 +81,13 @@ public class BalanceService {
 
     @Transactional
     public BalanceDto updateActualBalance(Long accountId, BigDecimal amount) {
-        Balance balance = getBalanceCurrentBalance(accountId);
+        Balance balance = getCurrentBalance(accountId);
 
         validateAmount(amount, accountId);
 
-        BigDecimal actualBalance = balance.getActualBalance().add(amount);
         BigDecimal authorizationBalance = balance.getAuthorizationBalance();
 
-        Balance balanceSaved = saveBalance(balance, actualBalance, authorizationBalance);
+        Balance balanceSaved = saveBalance(balance, amount, authorizationBalance);
 
         log.info(ACTUAL_BALANCE_UPDATED, accountId, authorizationBalance);
         return balanceMapper.toDto(balanceSaved);
@@ -97,7 +95,7 @@ public class BalanceService {
 
     @Transactional
     public BalanceDto updateAuthorizationBalance(Long accountId, BigDecimal amount) {
-        Balance balance = getBalanceCurrentBalance(accountId);
+        Balance balance = getCurrentBalance(accountId);
 
         BigDecimal actualBalance = balance.getActualBalance();
         BigDecimal authorizationBalance = balance.getAuthorizationBalance();
@@ -112,7 +110,7 @@ public class BalanceService {
 
     @Transactional
     public BalanceDto clearingBalance(Long accountId) {
-        Balance balance = getBalanceCurrentBalance(accountId);
+        Balance balance = getCurrentBalance(accountId);
 
         BigDecimal authorizationBalance = balance.getAuthorizationBalance();
         BigDecimal actualBalance = balance.getActualBalance().add(authorizationBalance);
@@ -123,7 +121,7 @@ public class BalanceService {
         return balanceMapper.toDto(balanceSaved);
     }
 
-    private Balance getBalanceCurrentBalance(Long accountId) {
+    private Balance getCurrentBalance(Long accountId) {
         return balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() ->
                         new EntityNotFoundException(String.format(BALANCE_NOT_FOUND, accountId))
@@ -133,8 +131,7 @@ public class BalanceService {
     private void validateAuthorizationBalance(BigDecimal actualBalance, BigDecimal amount, long accountId) {
         validateAmount(amount, accountId);
 
-        if (actualBalance.compareTo(BigDecimal.ZERO) <= 0 &&
-                amount.compareTo(BigDecimal.ZERO) > 0) {
+        if (amount.compareTo(BigDecimal.ZERO) > 0 && amount.compareTo(actualBalance) > 0) {
             throw new BalanceException(String.format(NOT_ENOUGH_FUNDS, accountId, amount));
         }
     }
