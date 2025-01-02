@@ -29,7 +29,7 @@ public class SendRequestNotifScheduler {
     @Value("${schedule.send-request-in-progress-notification.chunk-size}")
     private int limit;
 
-    private final static int FIXED_RATE_MS = 10000;
+    private final static int FIXED_RATE_MS = 200;
 
     @Scheduled(fixedRate = FIXED_RATE_MS)
     @Async(AsyncConfig.SCHEDULED_EXECUTOR)
@@ -39,7 +39,7 @@ public class SendRequestNotifScheduler {
 
         log.debug("Given requests to execute: " + requests.size());
         requests.parallelStream()
-                .map(requestMapper::toCreateRequestEvent)
+                .map(requestMapper::toRequestInProgressEvent)
                 .forEach(event ->
                         messagePublisher.publish(redisTopicProperties.getRequestInProgressTopic(), event));
     }

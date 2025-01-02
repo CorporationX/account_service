@@ -19,5 +19,5 @@ public interface RequestMapper {
 
     @Mapping(target = "requestId", source = "id")
     @Mapping(target = "receiverId", source = "userId")
-    RequestInProgressEvent toCreateRequestEvent(Request request);
+    RequestInProgressEvent toRequestInProgressEvent(Request request);
 }

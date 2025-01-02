@@ -2,10 +2,12 @@ package faang.school.accountservice.dto.request;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Builder
 public record ResponseRequestDto(
         Long id,
         String idempotencyToken,
