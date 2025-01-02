@@ -117,7 +117,7 @@ class CreateAccountTest {
 
         verify(requestService).updateRequest(request);
 
-        assertEquals(account, objectMapper.readValue(request.getContext(), Account.class));
+        assertEquals(account.getId().toString(), request.getContext());
         assertEquals(RequestTaskStatus.DONE, updatedTask.getStatus());
         assertEquals(RequestTaskStatus.AWAITING, notUpdatedTask.getStatus());
         assertEquals(String.valueOf(accountId), updatedTask.getRollbackContext());

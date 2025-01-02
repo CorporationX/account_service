@@ -76,6 +76,7 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
         return 1;
     }
 
+    @Transactional
     @Override
     public void rollback(Request request) {
         setRequestStatus(request, RequestStatus.AWAITING);

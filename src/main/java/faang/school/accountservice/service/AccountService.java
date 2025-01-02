@@ -59,7 +59,7 @@ public class AccountService {
             request.setContext(requestContext);
             checkAccountsQuantity.execute(request);
             createAccount.execute(request);
-            account = objectMapper.readValue(request.getContext(), Account.class);
+            account = getAccountEntity(Long.valueOf(request.getContext()));
             balanceAudit.execute(request);
             accountNotification.execute(request);
         } catch (JsonProcessingException e) {

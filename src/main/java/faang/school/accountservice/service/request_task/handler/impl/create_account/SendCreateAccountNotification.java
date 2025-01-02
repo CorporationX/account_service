@@ -1,15 +1,11 @@
 package faang.school.accountservice.service.request_task.handler.impl.create_account;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Request;
-import faang.school.accountservice.entity.RequestTask;
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.event.CreateAccountEvent;
-import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.publisher.CreateAccountPublisher;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.request.RequestService;
@@ -23,14 +19,11 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SendCreateAccountNotification implements RequestTaskHandler {
 
-    private final ObjectMapper objectMapper;
     private final CreateAccountPublisher publisher;
     private final RequestService requestService;
     private final AccountRepository accountRepository;
@@ -48,13 +41,13 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
     @Override
     public void execute(Request request) {
         try {
-            Account account = mapAccount(request);
-            Account accountWithOwner = accountRepository.findById(account.getId()).orElseThrow(() ->
-                    new EntityNotFoundException("Account with id " + account.getId() + " not found"));
+            Long accountId = Long.valueOf(request.getContext());
+            Account account = accountRepository.findById(accountId).orElseThrow(() ->
+                    new EntityNotFoundException("Account with id " + accountId + " not found"));
 
             CreateAccountEvent event = CreateAccountEvent.builder()
-                    .ownerId(accountWithOwner.getOwner().getOwnerId())
-                    .ownerType(accountWithOwner.getOwner().getOwnerType().name())
+                    .ownerId(account.getOwner().getOwnerId())
+                    .ownerType(account.getOwner().getOwnerType().name())
                     .accountType(account.getType().name())
                     .currency(account.getCurrency().name())
                     .build();
@@ -78,6 +71,7 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
             log.error("Unexpected error occurred during execution request with id: {}. " +
                     "Executing rollback.", request.getIdempotentToken(), e);
             rollback(request);
+            throw e;
         }
     }
 
@@ -86,37 +80,28 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
         return 5;
     }
 
+    @Transactional
     @Override
     public void rollback(Request request) {
-        request.setContext(null);
         request.setRequestStatus(RequestStatus.AWAITING);
-        setRequestTaskStatus(request, RequestTaskStatus.AWAITING);
+        setRequestTasksStatus(request, RequestTaskStatus.AWAITING);
         requestService.updateRequest(request);
 
-        List<RequestTask> tasks = request.getRequestTasks().stream()
-                .filter(requestTask -> requestTask.getStatus() == RequestTaskStatus.DONE).toList();
-        if (!tasks.isEmpty()) {
-            balanceAudit.rollback(request);
-            createAccount.rollback(request);
-            checkAccountsQuantity.rollback(request);
-        }
-        log.info("Request task with type: {} rollback",RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
+        balanceAudit.rollback(request);
+        createAccount.rollback(request);
+        checkAccountsQuantity.rollback(request);
+        log.info("Request task with type: {} rollback", RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
     }
 
-    private void setRequestTaskStatus(Request request, RequestTaskStatus status) {
+    private void setRequestTaskStatus(Request request, RequestTaskStatus requestTaskStatus) {
         request.getRequestTasks().stream()
                 .filter(requestTask -> requestTask.getHandler().
                         equals(RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION))
-                .forEach(requestTask -> requestTask.setStatus(status));
+                .forEach(requestTask -> requestTask.setStatus(requestTaskStatus));
     }
 
-    private Account mapAccount(Request request) {
-        Account account;
-        try {
-            account = objectMapper.readValue(request.getContext(), Account.class);
-        } catch (JsonProcessingException e) {
-            throw new JsonMappingException(e.getMessage());
-        }
-        return account;
+    private void setRequestTasksStatus(Request request, RequestTaskStatus status) {
+        request.getRequestTasks()
+                .forEach(requestTask -> requestTask.setStatus(status));
     }
 }

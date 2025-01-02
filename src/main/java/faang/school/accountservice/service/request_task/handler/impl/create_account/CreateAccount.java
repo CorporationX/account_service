@@ -63,7 +63,7 @@ public class CreateAccount implements RequestTaskHandler {
                     .build();
 
             Account savedAccount = accountRepository.save(account);
-            request.setContext(mapAccount(savedAccount));
+            request.setContext(savedAccount.getId().toString());
             setRequestTaskStatusAndContext(request, RequestTaskStatus.DONE,
                     savedAccount.getId().toString());
             requestService.updateRequest(request);
@@ -88,20 +88,21 @@ public class CreateAccount implements RequestTaskHandler {
         return 2;
     }
 
+    @Transactional
     @Override
     public void rollback(Request request) {
         RequestTask requestTask = request.getRequestTasks().stream()
                 .filter(task -> task.getHandler().equals(RequestTaskType.WRITE_INTO_ACCOUNT))
                 .findFirst().orElseThrow(() -> new EntityNotFoundException("No request task found"));
+
         if (requestTask.getRollbackContext() != null) {
             accountRepository.deleteById(Long.getLong(requestTask.getRollbackContext()));
         }
-        setRequestTaskStatusAndContext(request, RequestTaskStatus.AWAITING,
-                requestTask.getRollbackContext());
 
         List<RequestTask> tasks = request.getRequestTasks().stream()
                 .filter(task -> task.getStatus() == RequestTaskStatus.DONE).toList();
         if (!tasks.isEmpty()) {
+            setRequestTasksStatus(request, RequestTaskStatus.AWAITING);
             checkAccountsQuantity.rollback(request);
         }
         log.info("Request task with type: {}, id: {} rollback",
@@ -118,14 +119,9 @@ public class CreateAccount implements RequestTaskHandler {
         return accountRequest;
     }
 
-    private String mapAccount(Account account) {
-        String accountJson;
-        try {
-            accountJson = objectMapper.writeValueAsString(account);
-        } catch (JsonProcessingException e) {
-            throw new JsonMappingException(e.getMessage());
-        }
-        return accountJson;
+    private void setRequestTasksStatus(Request request, RequestTaskStatus status) {
+        request.getRequestTasks()
+                .forEach(requestTask -> requestTask.setStatus(status));
     }
 
     private void setRequestTaskStatusAndContext(
