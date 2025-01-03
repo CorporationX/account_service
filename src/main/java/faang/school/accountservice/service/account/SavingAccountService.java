@@ -29,15 +29,18 @@ import java.util.List;
 public class SavingAccountService {
     private final SavingAccountRepository savingAccountRepository;
     private final SavingAccountPaymentService savingAccountPaymentService;
+    private final SavingAccountBonusService savingAccountBonusService;
     private final SavingAccountMapper savingAccountMapper;
     private final AccountService accountService;
     private final TariffService tariffService;
     private final ObjectMapper objectMapper;
 
-    @Value("${task.savings-account.batch-size}")
+    @Value("${task.saving-account.batch-size}")
     private int batchSize;
-    @Value("${task.savings-account.payment-interval}")
+    @Value("${task.saving-account-payments.interval}")
     private int paymentIntervalInDays;
+    @Value("${task.saving-account-bonuses.interval}")
+    private int bonusUpdatingIntervalInDays;
 
     public SavingAccountDto findById(Long id) {
         return savingAccountMapper.toDto(findEntityById(id));
@@ -87,6 +90,16 @@ public class SavingAccountService {
             int end = Math.min(i + batchSize, accounts.size());
             List<SavingAccount> batch = accounts.subList(i, end);
             savingAccountPaymentService.payOffInterests(batch);
+        }
+    }
+
+    public void updateBonusValue() {
+        List<SavingAccount> accounts = savingAccountRepository.findAllForBonusUpdating(bonusUpdatingIntervalInDays);
+        log.info("Bonus updating of saving accounts started: {}", LocalDateTime.now());
+        for (int i = 0; i < accounts.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, accounts.size());
+            List<SavingAccount> batch = accounts.subList(i, end);
+            savingAccountBonusService.updateBonuses(batch);
         }
     }
 
