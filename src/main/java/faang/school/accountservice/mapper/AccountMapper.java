@@ -12,4 +12,7 @@ public interface AccountMapper {
 
     @Mapping(target = "ownerId", source = "owner.id")
     AccountDtoResponse toDto(Account account);
+
+    @Mapping(source = "ownerId", target = "owner.id")
+    Account toAccount(AccountDtoResponse dto);
 }

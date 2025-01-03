@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changeset/owner_V002__del_unique_owner_id.sql
   - include:
       file: db/changelog/changeset/account_V003__balance.sql
+  - include:
+      file: db/changelog/changeset/account_V005__savings.sql

@@ -4,10 +4,14 @@ import faang.school.accountservice.model.account.Account;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -25,18 +29,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "savings_account")
 public class SavingsAccount {
 
-  @OneToOne(cascade = CascadeType.ALL)
-  @MapsId
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "account_id", referencedColumnName = "id")
   private Account account;
 
-  @Column(name = "tariff")
-  private String tariff;
+  @Column(name = "tariff_history", nullable = false)
+  private String tariffHistory;
 
-  @Column(name = "payment_date")
-  private LocalDate paymentDate;
+  @Column(name = "last_income_at")
+  private LocalDate lastIncomeAt;
 
   @Column(name = "version", nullable = false)
+  @Version
   private Long version;
 
   @CreationTimestamp
@@ -46,5 +54,11 @@ public class SavingsAccount {
   @UpdateTimestamp
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+  public Long getCurrentTariffId() {
+    String [] str = tariffHistory.split(",");
+    int index = str.length - 1;
+    return Long.valueOf(str[index].trim().replaceAll("[\\[%\\]]", ""));
+  }
 
 }

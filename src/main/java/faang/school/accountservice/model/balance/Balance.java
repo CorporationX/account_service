@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -50,6 +51,7 @@ public class Balance {
   private LocalDateTime updatedAt;
 
   @Column(name = "version", nullable = false)
+  @Version
   private long version;
 
   public void authorizePayment(BigDecimal value) {
