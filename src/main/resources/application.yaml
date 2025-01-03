@@ -30,6 +30,9 @@ user-service:
 project-service:
   host: localhost
   port: 8082
+achievement-service:
+  host: localhost
+  port: 8085
 
 api:
   version: "/api/v1"
