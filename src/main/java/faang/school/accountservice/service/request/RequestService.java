@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +35,7 @@ public class RequestService {
         log.info("Request with Id: {} updated", request.getIdempotentToken());
     }
 
+    @Transactional
     public Request createRequest(RequestType requestType, LocalDateTime scheduledAt) {
         UUID requestId = UUID.randomUUID();
 
