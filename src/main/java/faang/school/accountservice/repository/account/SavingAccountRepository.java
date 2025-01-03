@@ -23,4 +23,11 @@ public interface SavingAccountRepository extends JpaRepository<SavingAccount, Lo
             """)
     List<SavingAccount> findAllForPayment(@Param("days") int days);
 
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM saving_accounts sa
+            WHERE account.status = 'ACTIVE'
+            AND (sa.bonus_updated_at < CURRENT_DATE - CAST(:days || ' days' AS INTERVAL) OR sa.bonus_updated_at is null)
+            """)
+    List<SavingAccount> findAllForBonusUpdating(@Param("days") int days);
+
 }
