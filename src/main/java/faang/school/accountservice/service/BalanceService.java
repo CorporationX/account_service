@@ -4,10 +4,8 @@ import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.TransactionDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.exception.BalanceBelowZeroException;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -75,6 +73,11 @@ public class BalanceService {
 
         log.info("Balance for {} account is updated", accountId);
         return balanceMapper.toDto(balance);
+    }
+
+    public void deleteBalance(long balanceId) {
+        balanceRepository.deleteById(balanceId);
+        log.info("Balance with id: {} deleted", balanceId);
     }
 
     private Balance getBalanceFromRepository(Long accountId) {

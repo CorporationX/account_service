@@ -1,6 +1,7 @@
 package faang.school.accountservice.exception.global_handler;
 
 import faang.school.accountservice.exception.BalanceBelowZeroException;
+import faang.school.accountservice.exception.JsonMappingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,9 +15,9 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InternalError.class)
+    @ExceptionHandler({JsonMappingException.class, InternalError.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleInternalError(Exception e) {
+    public ErrorResponse handleJsonMappingExceptionInternalError(Exception e) {
         return buildResponse(e);
     }
 
@@ -29,6 +30,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BalanceBelowZeroException.class, IllegalArgumentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBalanceBelowZeroAndIllegalArgument(Exception e) {
+        return buildResponse(e);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleIllegalStateException(Exception e) {
         return buildResponse(e);
     }
 

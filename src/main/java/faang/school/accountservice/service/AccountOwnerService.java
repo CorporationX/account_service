@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.AccountOwner;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.AccountOwnerMapper;
 import faang.school.accountservice.repository.AccountOwnerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,11 @@ public class AccountOwnerService {
 
     @Transactional(readOnly = true)
     public AccountOwnerWithAccountsResponse getOwnerWithAccountsByOwnerIdAndType(Long ownerId, OwnerType ownerType) {
-        AccountOwner owner = accountOwnerRepository.findByOwnerIdAndOwnerType(ownerId, ownerType)
-                .orElseThrow(() -> new IllegalArgumentException("Owner not found"));
-        return accountOwnerMapper.toOwnerWithAccountsDto(owner);
+        return accountOwnerMapper.toOwnerWithAccountsDto(findOwner(ownerId, ownerType));
+    }
+
+    public AccountOwner findOwner(Long ownerId, OwnerType ownerType) {
+        return accountOwnerRepository.findByOwnerIdAndOwnerType(ownerId, ownerType)
+                .orElseThrow(() -> new EntityNotFoundException("Owner with id: " + ownerId + " not found"));
     }
 }
