@@ -43,6 +43,9 @@ public class SavingAccount {
     @JoinColumn(name = "tariff_id", nullable = false)
     private Tariff tariff;
 
+    @Column(name = "bonuses", nullable = false)
+    private Integer bonuses;
+
     @Column(name = "tariff_history", columnDefinition = "TEXT", nullable = false)
     private String tariffHistory;
 
@@ -53,6 +56,10 @@ public class SavingAccount {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "increased_at")
     private LocalDateTime increasedAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "bonus_updated_at")
+    private LocalDateTime bonusUpdatedAt;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
