@@ -9,11 +9,11 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BalanceAuditMapper {
 
-    @Mapping(target = "operationId", source = "operationId")
+    @Mapping(target = "transactionId", source = "transactionId")
     @Mapping(target = "account", source = "balance.account")
     @Mapping(target = "balanceVersion", source = "balance.balanceVersion")
     @Mapping(target = "authorizedBalance", source = "balance.authorizedBalance")
     @Mapping(target = "actualBalance", source = "balance.actualBalance")
-    BalanceAudit toBalanceAudit(Balance balance, Long operationId);
+    BalanceAudit toBalanceAudit(Balance balance, Long transactionId);
 }
 

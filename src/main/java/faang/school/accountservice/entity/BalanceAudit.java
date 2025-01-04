@@ -44,8 +44,8 @@ public class BalanceAudit {
     @Column(name = "actual_balance", precision = 18, scale = 2, nullable = false)
     private BigDecimal actualBalance;
 
-    @Column(name = "operation_id", nullable = false)
-    private Long operationId;
+    @Column(name = "transaction_id", nullable = false)
+    private Long transactionId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

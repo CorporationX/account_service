@@ -17,6 +17,7 @@ import faang.school.accountservice.exception.AccountWithdrawalException;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.publisher.AccountEventPublisher;
 import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,6 +40,7 @@ public class AccountService {
     private final AccountEventPublisher accountEventPublisher;
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
+    private final BalanceAuditService balanceAuditService;
 
     @Transactional
     public AccountDto createAccount(CreateAccountDto dto, Long ownerId) {
@@ -95,9 +97,11 @@ public class AccountService {
 
         increaseActualBalance(account, amount);
 
-        createDepositTransaction(account, amount);
+        Transaction transaction = createDepositTransaction(account, amount);
 
         accountRepository.save(account);
+
+        balanceAuditService.createBalanceAudit(account, transaction.getId());
 
         log.debug("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
         return createBalanceChangeDto(account, amount);
@@ -116,9 +120,10 @@ public class AccountService {
 
         increaseAuthorizedBalance(account, amount);
 
-        createWithdrawalTransaction(account, amount);
+        Transaction transaction = createWithdrawalTransaction(account, amount);
 
         accountRepository.save(account);
+        balanceAuditService.createBalanceAudit(account, transaction.getId());
 
         log.debug("Account {} withdrawal of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
         return createBalanceChangeDto(account, amount);
@@ -138,6 +143,7 @@ public class AccountService {
 
         log.debug("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
+        balanceAuditService.createBalanceAudit(account, transactionId);
     }
 
     @Transactional
@@ -156,6 +162,7 @@ public class AccountService {
 
         log.debug("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
+        balanceAuditService.createBalanceAudit(account, transactionId);
     }
 
     public AccountBalanceDto getAccountBalance(Long ownerId, String accountNumber) {
@@ -276,7 +283,7 @@ public class AccountService {
         );
     }
 
-    private void createDepositTransaction(Account account, BigDecimal amount) {
+    private Transaction createDepositTransaction(Account account, BigDecimal amount) {
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .transactionAmount(amount)
@@ -284,9 +291,10 @@ public class AccountService {
                 .transactionStatus(TransactionStatus.APPROVED)
                 .build();
         account.getTransactions().add(transaction);
+        return transaction;
     }
 
-    private void createWithdrawalTransaction(Account account, BigDecimal amount) {
+    private Transaction createWithdrawalTransaction(Account account, BigDecimal amount) {
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .transactionAmount(amount)
@@ -294,5 +302,6 @@ public class AccountService {
                 .transactionStatus(TransactionStatus.PENDING)
                 .build();
         account.getTransactions().add(transaction);
+        return transaction;
     }
 }
