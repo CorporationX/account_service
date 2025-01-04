@@ -51,12 +51,10 @@ public class Tariff {
     private List<TariffRateChangelog> rateChangelogs;
 
     @Column(name = "updated_at", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
     private LocalDateTime createdAt;
 }

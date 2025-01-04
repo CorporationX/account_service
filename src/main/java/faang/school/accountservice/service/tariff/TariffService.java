@@ -35,17 +35,18 @@ public class TariffService {
         BigDecimal tariffRate = creationDto.getRate();
         log.info("Received request to create a new tariff with name '{}' and initial rate={}", tariffName, tariffRate);
 
+        TariffResponse response = null;
         try {
             Tariff tariff = tariffMapper.toEntity(creationDto);
             TariffRateChangelog rateChangelog = buildTariffRateChangelog(tariff, tariffRate);
             tariff.setRateChangelogs(List.of(rateChangelog));
             tariff = tariffRepository.save(tariff);
             log.info("A new tariff named '{}' with initial rate={} was successfully created.", tariffName, tariffRate);
-            return tariffMapper.toResponse(tariff);
+            response = tariffMapper.toResponse(tariff);
         } catch (DataIntegrityViolationException ex) {
-            handleUniqueConstraintViolation(ex, tariffName);
+            handleDataIntegrityViolationException(ex, tariffName);
         }
-        return null;
+        return response;
     }
 
     @Retryable(
@@ -89,12 +90,13 @@ public class TariffService {
         tariffRepository.deleteById(tariffId);
     }
 
-    private void handleUniqueConstraintViolation(DataIntegrityViolationException ex, String tariffName) {
+    private void handleDataIntegrityViolationException(DataIntegrityViolationException ex, String tariffName) {
         if (ex.getMessage().contains("constraint [tariff_name_key]")) {
             String exceptionMessage = "Unable to set tariff name='%s': there is already existing tariff with this name."
                     .formatted(tariffName);
             throw new UniqueConstraintException(exceptionMessage, ex);
         }
+        throw ex;
     }
 
     private TariffRateChangelog buildTariffRateChangelog(Tariff tariff, BigDecimal rate) {

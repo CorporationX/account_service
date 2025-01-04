@@ -29,32 +29,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SavingsAccountService {
 
+    private static final String ACCOUNT_UNIQUE_CONSTRAINT = "savings_account_account_id_key";
+
     private final SavingsAccountMapper savingsAccountMapper;
     private final AccountService accountService;
     private final TariffService tariffService;
     private final SavingsAccountRepository savingsAccountRepository;
 
     @Transactional
-    public SavingsAccountResponse createSavingsAccount(SavingsAccountCreateDto createDto) {
+    public SavingsAccountResponse createSavingsAccount(SavingsAccountCreateDto creationDto) {
         log.info("Received request to create SavingAccount based on account (ID={}) and tariff (ID={})",
-                createDto.getBaseAccountId(), createDto.getTariffId());
+                creationDto.getBaseAccountId(), creationDto.getTariffId());
+
+        SavingsAccountResponse response = null;
         try {
-            Account account = accountService.getAccountById(createDto.getBaseAccountId());
+            Account account = accountService.getAccountById(creationDto.getBaseAccountId());
             validateAccountType(account);
-            Tariff tariff = tariffService.getTariffById(createDto.getTariffId());
+            Tariff tariff = tariffService.getTariffById(creationDto.getTariffId());
             SavingsAccount savingsAccount = new SavingsAccount();
             savingsAccount.changeTariff(tariff);
             savingsAccount.setAccount(account);
             savingsAccount = savingsAccountRepository.save(savingsAccount);
 
-            SavingsAccountResponse response = savingsAccountMapper.toResponse(savingsAccount);
+            response = savingsAccountMapper.toResponse(savingsAccount);
             log.info("New savings account based on account (ID={}) and tariff (ID={}) was created",
-                    createDto.getBaseAccountId(), createDto.getTariffId());
-            return response;
+                    creationDto.getBaseAccountId(), creationDto.getTariffId());
         } catch (DataIntegrityViolationException ex) {
-            handleUniqueConstraintViolation(ex, createDto.getBaseAccountId());
+            handleDataIntegrityViolationException(ex, creationDto.getBaseAccountId());
         }
-        return null;
+        return response;
     }
 
     @Retryable(
@@ -91,9 +94,8 @@ public class SavingsAccountService {
 
     @Recover
     public void recover(OptimisticLockException ex, long savingsAccountId, long tariffId) {
-        throw new RuntimeException("Retries exhausted. Could not set new tariff with ID=%d for savings account with ID=%d"
-                .formatted(tariffId, savingsAccountId), ex
-        );
+        log.error("Retries exhausted. Could not set new tariff with ID={} for savings account with ID={}. Exception: {}",
+                tariffId, savingsAccountId, ex.getMessage(), ex);
     }
 
     private void validateAccountType(Account account) {
@@ -110,13 +112,14 @@ public class SavingsAccountService {
                 .orElseThrow(() -> new EntityNotFoundException("Savings account with ID=%d was not found".formatted(savingsAccountId)));
     }
 
-    private void handleUniqueConstraintViolation(DataIntegrityViolationException ex, long baseAccountId) {
-        if (ex.getMessage().contains("constraint [savings_account_account_id_key]")) {
-            String exceptionMessage = String.format(
-                    "Unable to set base account ID='%d' for new savings account: " +
-                            "there is already an existing savings account with this base account ID.",
-                    baseAccountId);
+    private void handleDataIntegrityViolationException(DataIntegrityViolationException ex, long baseAccountId) {
+        if (ex.getMessage().contains(ACCOUNT_UNIQUE_CONSTRAINT)) {
+            String exceptionMessage = """
+                Unable to set base account ID='%d' for new savings account: \
+                there is already an existing savings account with this base account ID.
+            """.formatted(baseAccountId);
             throw new UniqueConstraintException(exceptionMessage, ex);
         }
+        throw ex;
     }
 }

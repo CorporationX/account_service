@@ -35,9 +35,19 @@ public class SavingsAccountScheduler {
 
         List<List<SavingsAccount>> savingsAccountsBatches = divideSavingsAccountsIntoBatches(savingsAccounts);
         List<CompletableFuture<Void>> futures = savingsAccountsBatches.stream()
-                .map(asyncSavingsAccountService::accrueInterest)
-                .toList();
-        log.info("Interest for savings accounts was accrued");
+                .map(batch -> asyncSavingsAccountService.accrueInterest(batch)
+                        .exceptionally(ex -> {
+                            log.error(
+                                    "Error while accruing interest for savings accounts with IDs: {}",
+                                    batch.stream().map(SavingsAccount::getId).toList(),
+                                    ex);
+                            return null;
+                        })
+                ).toList();
+
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
+                        .join();
+        log.info("Interest accruing for savings accounts was finished");
     }
 
     private List<List<SavingsAccount>> divideSavingsAccountsIntoBatches(List<SavingsAccount> savingsAccounts) {

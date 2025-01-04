@@ -42,7 +42,6 @@ public class TariffRateChangelog {
     private BigDecimal rate;
 
     @Column(name = "change_date", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
     private LocalDateTime changeDate;
 }
