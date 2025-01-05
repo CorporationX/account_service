@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.model.Account;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +39,6 @@ public class AccountController {
     @PostMapping("/{accountId}")
     public AccountDto getAccountByNumber(@PathVariable Long accountId) {
         log.info("Received a request to get account by number: {}", accountId);
-        return accountService.getAccountById(accountId);
+        return accountService.getBlockedOrClosedAccountById(accountId);
     }
 }

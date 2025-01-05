@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.ConflictException;
 import faang.school.accountservice.mappers.AccountMapper;
@@ -13,6 +12,7 @@ import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -89,10 +89,10 @@ public class AccountService {
         }
     }
 
-    public AccountDto getAccountById(Long accountId) {
+    public AccountDto getBlockedOrClosedAccountById(Long accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(()-> new AccountNotFoundException("Account not found"));
         if (account.getStatus() == AccountStatus.BLOCKED || account.getStatus() == AccountStatus.CLOSED) {
-            throw new IllegalStateException("Account has been blocked");
+            throw new IllegalStateException("Account has been blocked or closed");
         }
 
         return accountMapper.toDto(account);

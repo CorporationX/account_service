@@ -21,16 +21,13 @@ public class KafkaCancelPaymentListener {
 
     @KafkaListener(topics = "clearing-payment-topic", groupId = "my_consumer_group")
     public void consume(ConsumerRecord<String, String> record) throws JsonProcessingException {
-        // Проверка на null
         if (record.value() == null) {
             log.error("Message from Kafka is null");
             return;
         }
 
-        // Извлечение значения из ConsumerRecord
         AuthorizationEvent event = kafkaRecordConverter.convertRecordToObject(record, AuthorizationEvent.class);
 
-        // Обработка полученного события
         try {
             clearingPaymentEventHandler.handle(event);
         } catch (Exception e) {

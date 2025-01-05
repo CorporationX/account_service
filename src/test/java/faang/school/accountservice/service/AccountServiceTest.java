@@ -27,6 +27,7 @@ public class AccountServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
+
     @Mock
     private AccountMapper accountMapper;
 
@@ -172,6 +173,43 @@ public class AccountServiceTest {
         assertEquals("Account ID cannot be null", exception.getMessage());
         verify(accountRepository, times(0)).findById(any());
         verify(accountRepository, times(0)).save(any());
+    }
+
+    @Test
+    void getBlockedOrClosedAccountById_shouldThrowIllegalStateException_whenAccountIsBlocked() {
+        Account account = initializeAccount();
+        account.setStatus(AccountStatus.BLOCKED);
+        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+
+       IllegalStateException exception = assertThrows(IllegalStateException.class, () -> accountService.getBlockedOrClosedAccountById(1L));
+
+        assertEquals("Account has been blocked or closed", exception.getMessage());
+    }
+
+    @Test
+    void getBlockedOrClosedAccountById_shouldThrowIllegalStateException_whenAccountIsClosed() {
+        Account account = initializeAccount();
+        account.setStatus(AccountStatus.CLOSED);
+        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> accountService.getBlockedOrClosedAccountById(1L));
+
+        assertEquals("Account has been blocked or closed", exception.getMessage());
+    }
+
+    @Test
+    void getBlockedOrClosedAccountByIdPositive() {
+        AccountDto accountDto = initializeAccountDto();
+        Account account = initializeAccount();
+
+        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        Mockito.when(accountMapper.toDto(account)).thenReturn(accountDto);
+
+        AccountDto actualAccountDto = accountService.getBlockedOrClosedAccountById(1L);
+
+        verify(accountRepository, times(1)).findById(1L);
+
+        assertEquals(accountDto,actualAccountDto);
     }
 
 

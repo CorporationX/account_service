@@ -1,17 +1,14 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AuthorizationEvent;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.enums.BalanceStatus;
+import faang.school.accountservice.exception.BalanceConflictException;
+import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.mappers.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
-import faang.school.accountservice.exception.BalanceConflictException;
-import faang.school.accountservice.exception.BalanceNotFoundException;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,10 +24,6 @@ public class BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
-    //добавляем для инжектирования EntityManager который поможет сделать синхронизацию с бд
-    //если не добавим обнавлятся сумма в бд не будет
-//    @PersistenceContext
-//    private EntityManager entityManager;
 
     public BalanceDto getBalanceByAccountId(Long accountId) {
         log.info("Getting balance by account id {}", accountId);
@@ -66,24 +59,20 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    /**
-     * Метод добавляет зарезервированную сумму
-     * **/
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void authorizePayment(Account account, BigDecimal amount) {
+        if (account == null || amount == null) {
+            throw new IllegalArgumentException("Account or amount cannot be null");
+        }
+
         Balance balance = account.getBalance();
 
-        // Обновляем actualBalance
         BigDecimal updatedAuthBalance = balance.getAuthBalance().add(amount);
         balance.setAuthBalance(updatedAuthBalance);
 
-        // Устанавливаем статус баланса
         balance.setStatus(BalanceStatus.PENDING);
 
-        // Сохраняем изменения
         balanceRepository.save(balance);
-
-        // Принудительно синхронизируем с базой данных
 
         log.info("Successfully authorized payment for account ID: {}", account.getId());
     }
@@ -92,17 +81,14 @@ public class BalanceService {
     @Transactional
     public void clearingPayment(Long senderBalanceId, Long recipientBalanceId, BigDecimal amount) {
         Balance senderBalance = balanceRepository.findById(senderBalanceId).orElseThrow(
-                () -> new RuntimeException("Sender balance not found"));
+                () -> new BalanceNotFoundException("Sender balance not found"));
         Balance recipientBalance = balanceRepository.findById(recipientBalanceId).orElseThrow(
-                () -> new RuntimeException("Recipient balance not found"));
+                () -> new BalanceNotFoundException("Recipient balance not found"));
 
-
-        // начисление получателю
         BigDecimal updatedRecipientBalance = recipientBalance.getActualBalance().add(amount);
         recipientBalance.setActualBalance(updatedRecipientBalance);
         recipientBalance.setStatus(BalanceStatus.APPROVED);
 
-        // списываем со счета у покупателя
         BigDecimal updatedSenderActualBalance = senderBalance.getActualBalance().subtract(amount);
         BigDecimal updatedSenderAuthBalance = senderBalance.getAuthBalance().subtract(amount);
         senderBalance.setActualBalance(updatedSenderActualBalance);
@@ -112,6 +98,5 @@ public class BalanceService {
 
         balanceRepository.save(recipientBalance);
         balanceRepository.save(senderBalance);
-
     }
 }

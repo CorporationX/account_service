@@ -20,11 +20,9 @@ public class ClearingPaymentEventHandler {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void handle(AuthorizationEvent event) {
-        // Получаем аккаунт отправителя
         Account senderAccount = accountRepository.findById(event.getSenderAccountId())
                 .orElseThrow(() -> new AccountNotFoundException("Sender account not found"));
 
-        // Получаем аккаунт получателя
         Account recipientAccount = accountRepository.findById(event.getRecipientAccountId())
                 .orElseThrow(() -> new AccountNotFoundException("Recipient account not found"));
 
