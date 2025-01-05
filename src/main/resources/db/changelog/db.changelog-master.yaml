@@ -5,3 +5,9 @@ databaseChangeLog:
       file: db/changelog/changeset/owner_V002__del_unique_owner_id.sql
   - include:
       file: db/changelog/changeset/account_V003__balance.sql
+  - include:
+      file: db/changelog/changeset/V005__account_request.sql
+  - include:
+      file: db/changelog/changeset/request_V001__add_column_context.sql
+  - include:
+      file: db/changelog/changeset/request_task_V001__initial.sql
