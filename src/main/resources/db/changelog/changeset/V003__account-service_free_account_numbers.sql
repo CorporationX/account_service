@@ -1,0 +1,5 @@
+CREATE TABLE free_account_numbers (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    type VARCHAR(64) NOT NULL,
+    account_number CHAR(16) UNIQUE NOT NULL
+)
