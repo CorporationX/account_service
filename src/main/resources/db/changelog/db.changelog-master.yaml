@@ -1,6 +1,6 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
+      file: db/changelog/changeset/payment-account_V001_initial.sql
   - include:
       file: db/changelog/changeset/V002__account-service_account_numbers_sequence.sql
   - include:
