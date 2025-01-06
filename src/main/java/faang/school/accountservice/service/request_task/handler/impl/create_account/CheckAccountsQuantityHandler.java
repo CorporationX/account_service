@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CheckAccountsQuantity implements RequestTaskHandler {
+public class CheckAccountsQuantityHandler implements RequestTaskHandler {
 
     private final ObjectMapper objectMapper;
     private final AccountOwnerService accountOwnerService;
@@ -41,39 +42,32 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
     )
     @Override
     public void execute(Request request) {
-        try {
-            AccountRequest accountRequest = mapAccountRequest(request);
-            log.info("Start opening a new account for ownerId: {}, ownerType: {}",
-                    accountRequest.getOwnerId(), accountRequest.getOwnerType());
-            AccountOwner owner = accountOwnerService.
-                    findOwner(accountRequest.getOwnerId(), accountRequest.getOwnerType());
+        AccountRequest accountRequest = mapAccountRequest(request);
+        log.info("Start opening a new account for ownerId: {}, ownerType: {}",
+                accountRequest.getOwnerId(), accountRequest.getOwnerType());
+        AccountOwner owner = accountOwnerService.
+                findOwner(accountRequest.getOwnerId(), accountRequest.getOwnerType());
 
-            if (owner.getAccounts().size() >= maxAccountsQuantity) {
-                setRequestStatus(request, RequestStatus.DONE);
-                request.getRequestTasks().forEach(requestTask ->
-                        requestTask.setStatus(RequestTaskStatus.DONE));
-                requestService.updateRequest(request);
-
-                throw new IllegalStateException("Forbidden have more than " +
-                        maxAccountsQuantity + " accounts");
-            }
-            setRequestStatus(request, RequestStatus.PROCESSING);
-            setRequestTaskStatus(request, RequestTaskStatus.DONE);
+        if (owner.getAccounts().size() >= maxAccountsQuantity) {
+            setRequestStatus(request, RequestStatus.DONE);
+            request.getRequestTasks().forEach(requestTask ->
+                    requestTask.setStatus(RequestTaskStatus.DONE));
             requestService.updateRequest(request);
-            log.info("Finished processing request task with type: {}, for request with id: {} ",
-                    RequestTaskType.CHECK_ACCOUNTS_QUANTITY, request.getIdempotentToken());
 
-        } catch (OptimisticLockingFailureException e) {
-            log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
-                    "Executing rollback.", request.getIdempotentToken(), e);
-            rollback(request);
-            throw e;
+            throw new IllegalStateException("Forbidden have more than " +
+                    maxAccountsQuantity + " accounts");
         }
+        setRequestStatus(request, RequestStatus.PROCESSING);
+        setRequestTaskStatus(request, RequestTaskStatus.DONE);
+        requestService.updateRequest(request);
+        log.info("Finished processing request task with type: {}, for request with id: {} ",
+                RequestTaskType.CHECK_ACCOUNTS_QUANTITY, request.getIdempotentToken());
     }
 
-    @Override
-    public long getHandlerId() {
-        return 1;
+    @Recover
+    public void recover(OptimisticLockingFailureException e, Request request) {
+        log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
+                "Executing rollback.", request.getIdempotentToken(), e);
     }
 
     @Transactional
@@ -84,6 +78,11 @@ public class CheckAccountsQuantity implements RequestTaskHandler {
         requestService.updateRequest(request);
         log.info("Request task with type: {}, id: {} rollback",
                 RequestTaskType.CHECK_ACCOUNTS_QUANTITY, request.getIdempotentToken());
+    }
+
+    @Override
+    public long getHandlerId() {
+        return 1;
     }
 
     private void setRequestStatus(Request request, RequestStatus requestStatus) {

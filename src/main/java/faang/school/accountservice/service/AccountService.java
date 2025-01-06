@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.AccountRequest;
 import faang.school.accountservice.dto.AccountResponse;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.AccountOwner;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.request.RequestType;
@@ -12,10 +13,6 @@ import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.request.RequestService;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.CheckAccountsQuantity;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.CreateAccount;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.CreateBalanceAndBalanceAudit;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.SendCreateAccountNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -35,11 +32,8 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final ObjectMapper objectMapper;
     private final RequestService requestService;
-
-    private final CheckAccountsQuantity checkAccountsQuantity;
-    private final CreateAccount createAccount;
-    private final CreateBalanceAndBalanceAudit balanceAudit;
-    private final SendCreateAccountNotification accountNotification;
+    private final FreeAccountNumbersService numbersService;
+    private final AccountOwnerService accountOwnerService;
 
     @Transactional(readOnly = true)
     public AccountResponse getAccount(Long id) {
@@ -50,22 +44,33 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountResponse openAccount(AccountRequest accountRequest) {
-        Account account;
+    public void createAccountRequest(AccountRequest accountRequest) {
         Request request = requestService.
                 createRequest(RequestType.CREATE_ACCOUNT, accountRequest.getScheduledAt());
         try {
             String requestContext = objectMapper.writeValueAsString(accountRequest);
             request.setContext(requestContext);
-            checkAccountsQuantity.execute(request);
-            createAccount.execute(request);
-            account = getAccountEntity(Long.valueOf(request.getContext()));
-            balanceAudit.execute(request);
-            accountNotification.execute(request);
         } catch (JsonProcessingException e) {
             throw new JsonMappingException(e.getMessage());
         }
-        return accountMapper.toDto(account);
+    }
+
+    @Transactional
+    public Account createAccount(Request request) {
+        AccountRequest accountRequest = mapAccountRequest(request);
+        String number = numbersService.getFreeAccountNumber(accountRequest.getType());
+        AccountOwner owner = accountOwnerService.findOwner(accountRequest.getOwnerId(),
+                accountRequest.getOwnerType());
+
+        Account account = Account.builder()
+                .accountNumber(number)
+                .type(accountRequest.getType())
+                .currency(accountRequest.getCurrency())
+                .status(AccountStatus.ACTIVE)
+                .owner(owner)
+                .build();
+
+        return accountRepository.save(account);
     }
 
     @Transactional
@@ -112,5 +117,15 @@ public class AccountService {
     private Account getAccountEntity(Long id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+    }
+
+    private AccountRequest mapAccountRequest(Request request) {
+        AccountRequest accountRequest;
+        try {
+            accountRequest = objectMapper.readValue(request.getContext(), AccountRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new JsonMappingException(e.getMessage());
+        }
+        return accountRequest;
     }
 }

@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SendCreateAccountNotificationTest {
+class SendCreateAccountNotificationHandlerTest {
 
     @Mock
     private CreateAccountPublisher publisher;
@@ -49,16 +49,16 @@ class SendCreateAccountNotificationTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private CheckAccountsQuantity checkAccountsQuantity;
+    private CheckAccountsQuantityHandler checkAccountsQuantity;
 
     @Mock
-    private CreateAccount createAccount;
+    private CreateAccountHandler createAccount;
 
     @Mock
-    private CreateBalanceAndBalanceAudit balanceAudit;
+    private CreateBalanceAndBalanceAuditHandler balanceAudit;
 
     @InjectMocks
-    private SendCreateAccountNotification sendCreateAccountNotification;
+    private SendCreateAccountNotificationHandler sendCreateAccountNotificationHandler;
 
     @Test
     public void executeTest() {
@@ -96,7 +96,7 @@ class SendCreateAccountNotificationTest {
 
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
-        sendCreateAccountNotification.execute(request);
+        sendCreateAccountNotificationHandler.execute(request);
 
         verify(requestService).updateRequest(request);
         verify(publisher).publish(any(CreateAccountEvent.class));
@@ -158,7 +158,7 @@ class SendCreateAccountNotificationTest {
         }).when(requestService).updateRequest(any(Request.class));
 
         assertThrows(OptimisticLockingFailureException.class,
-                () -> sendCreateAccountNotification.execute(request));
+                () -> sendCreateAccountNotificationHandler.execute(request));
 
         verify(accountRepository).findById(accountId);
         verify(requestService, times(2)).updateRequest(request);
@@ -198,7 +198,7 @@ class SendCreateAccountNotificationTest {
                 .build();
         when(accountRepository.findById(2L)).thenThrow(EntityNotFoundException.class);
 
-        assertThrows(EntityNotFoundException.class, () -> sendCreateAccountNotification.execute(request));
+        assertThrows(EntityNotFoundException.class, () -> sendCreateAccountNotificationHandler.execute(request));
     }
 
     @Test
@@ -220,7 +220,7 @@ class SendCreateAccountNotificationTest {
                 .requestTasks(new ArrayList<>(List.of(requestTask1, requestTask2)))
                 .build();
 
-        sendCreateAccountNotification.rollback(request);
+        sendCreateAccountNotificationHandler.rollback(request);
 
         verify(requestService).updateRequest(request);
         verify(balanceAudit).rollback(request);

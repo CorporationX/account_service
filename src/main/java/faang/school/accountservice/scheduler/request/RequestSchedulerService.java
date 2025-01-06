@@ -1,4 +1,4 @@
-package faang.school.accountservice.scheduler;
+package faang.school.accountservice.scheduler.request;
 
 import faang.school.accountservice.service.request.ScheduledRequestExecutorService;
 import jakarta.annotation.PostConstruct;

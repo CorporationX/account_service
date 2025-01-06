@@ -57,10 +57,10 @@ class CreateAccountTest {
     private RequestService requestService;
 
     @Mock
-    private CheckAccountsQuantity checkAccountsQuantity;
+    private CheckAccountsQuantityHandler checkAccountsQuantity;
 
     @InjectMocks
-    private CreateAccount createAccount;
+    private CreateAccountHandler createAccount;
 
     @Test
     public void executeTest() throws JsonProcessingException {

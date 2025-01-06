@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CreateBalanceAndBalanceAuditTest {
+class CreateBalanceAndBalanceAuditHandlerTest {
 
     @Spy
     private ObjectMapper objectMapper;
@@ -55,16 +55,16 @@ class CreateBalanceAndBalanceAuditTest {
     private BalanceAuditService balanceAuditService;
 
     @Mock
-    private CheckAccountsQuantity checkAccountsQuantity;
+    private CheckAccountsQuantityHandler checkAccountsQuantity;
 
     @Mock
-    private CreateAccount createAccount;
+    private CreateAccountHandler createAccount;
 
     @Mock
     private AccountRepository accountRepository;
 
     @InjectMocks
-    private CreateBalanceAndBalanceAudit createBalanceAndBalanceAudit;
+    private CreateBalanceAndBalanceAuditHandler createBalanceAndBalanceAuditHandler;
 
     @Test
     public void executeTest() throws JsonProcessingException {
@@ -108,7 +108,7 @@ class CreateBalanceAndBalanceAuditTest {
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
         when(balanceService.createBalance(account)).thenReturn(balanceDto);
 
-        createBalanceAndBalanceAudit.execute(request);
+        createBalanceAndBalanceAuditHandler.execute(request);
 
         verify(requestService).updateRequest(request);
 
@@ -166,7 +166,7 @@ class CreateBalanceAndBalanceAuditTest {
                 when(requestService).updateRequest(any(Request.class));
 
         assertThrows(OptimisticLockingFailureException.class,
-                () -> createBalanceAndBalanceAudit.execute(request));
+                () -> createBalanceAndBalanceAuditHandler.execute(request));
         System.out.println(request.getRequestTasks());
 
         verify(requestService).updateRequest(request);
@@ -230,7 +230,7 @@ class CreateBalanceAndBalanceAuditTest {
                 .thenThrow(JsonProcessingException.class);
 
         assertThrows(JsonMappingException.class,
-                () -> createBalanceAndBalanceAudit.execute(request));
+                () -> createBalanceAndBalanceAuditHandler.execute(request));
 
         verify(checkAccountsQuantity).rollback(request);
         verify(createAccount).rollback(request);
@@ -257,7 +257,7 @@ class CreateBalanceAndBalanceAuditTest {
                 .context(accountId.toString())
                 .build();
 
-        createBalanceAndBalanceAudit.rollback(request);
+        createBalanceAndBalanceAuditHandler.rollback(request);
 
         verify(checkAccountsQuantity).rollback(request);
         verify(createAccount).rollback(request);

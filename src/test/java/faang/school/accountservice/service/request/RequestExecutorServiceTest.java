@@ -3,9 +3,9 @@ package faang.school.accountservice.service.request;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestType;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.CheckAccountsQuantity;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.CreateAccount;
-import faang.school.accountservice.service.request_task.handler.impl.create_account.CreateBalanceAndBalanceAudit;
+import faang.school.accountservice.service.request_task.handler.impl.create_account.CheckAccountsQuantityHandler;
+import faang.school.accountservice.service.request_task.handler.impl.create_account.CreateAccountHandler;
+import faang.school.accountservice.service.request_task.handler.impl.create_account.CreateBalanceAndBalanceAuditHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,13 +24,13 @@ import static org.mockito.Mockito.when;
 class RequestExecutorServiceTest {
 
     @Mock
-    private CheckAccountsQuantity checkAccountsQuantity;
+    private CheckAccountsQuantityHandler checkAccountsQuantity;
 
     @Mock
-    private CreateAccount createAccount;
+    private CreateAccountHandler createAccount;
 
     @Mock
-    private CreateBalanceAndBalanceAudit balanceAudit;
+    private CreateBalanceAndBalanceAuditHandler balanceAudit;
 
     private RequestExecutorService requestExecutorService;
 

@@ -2,18 +2,18 @@ package faang.school.accountservice.service.request_task.handler.impl.create_acc
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.dto.AccountRequest;
+import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.dto.rollbeck.RollbackTaskCrateBalanceDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.entity.AccountOwner;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.entity.RequestTask;
-import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.AccountOwnerService;
-import faang.school.accountservice.service.FreeAccountNumbersService;
+import faang.school.accountservice.service.BalanceAuditService;
+import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.service.request.RequestService;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,15 +31,18 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CreateAccount implements RequestTaskHandler {
+public class CreateBalanceAndBalanceAuditHandler implements RequestTaskHandler {
 
+    private static final Long HANDLER_ID = 3L;
+
+    private final BalanceService balanceService;
     private final ObjectMapper objectMapper;
-    private final FreeAccountNumbersService numbersService;
-    private final AccountOwnerService accountOwnerService;
-    private final AccountRepository accountRepository;
     private final RequestService requestService;
+    private final BalanceAuditService balanceAuditService;
+    private final AccountRepository accountRepository;
 
-    private final CheckAccountsQuantity checkAccountsQuantity;
+    private final CheckAccountsQuantityHandler checkAccountsQuantity;
+    private final CreateAccountHandler createAccount;
 
     @Transactional
     @Retryable(
@@ -49,32 +53,26 @@ public class CreateAccount implements RequestTaskHandler {
     @Override
     public void execute(Request request) {
         try {
-            AccountRequest accountRequest = mapAccountRequest(request);
-            String number = numbersService.getFreeAccountNumber(accountRequest.getType());
-            AccountOwner owner = accountOwnerService.findOwner(accountRequest.getOwnerId(),
-                    accountRequest.getOwnerType());
+            Long accountId = Long.valueOf(request.getContext());
+            Account account = accountRepository.findById(accountId)
+                    .orElseThrow(() -> new EntityNotFoundException("Account with Id: " +
+                            accountId + " not found"));
+            BalanceDto balanceDto = balanceService.createBalance(account);
+            List<BalanceAudit> audits = account.getBalanceAudits();
+            List<Long> auditsIds = audits.stream()
+                    .map(BalanceAudit::getId).toList();
 
-            Account account = Account.builder()
-                    .accountNumber(number)
-                    .type(accountRequest.getType())
-                    .currency(accountRequest.getCurrency())
-                    .status(AccountStatus.ACTIVE)
-                    .owner(owner)
+            RollbackTaskCrateBalanceDto context = RollbackTaskCrateBalanceDto.builder()
+                    .balanceId(balanceDto.getId())
+                    .balanceAuditIds(auditsIds)
                     .build();
 
-            Account savedAccount = accountRepository.save(account);
-            request.setContext(savedAccount.getId().toString());
-            setRequestTaskStatusAndContext(request, RequestTaskStatus.DONE,
-                    savedAccount.getId().toString());
+            String rollbackContext = mapRollbackTaskDtoToString(context);
+            setRequestTaskStatusAndContext(request, RequestTaskStatus.DONE, rollbackContext);
             requestService.updateRequest(request);
-            log.info("Finished processing request task with type: {}",
-                    RequestTaskType.WRITE_INTO_ACCOUNT);
+            log.info("Finished processing request task with type: {}, id: {}",
+                    RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT, request.getIdempotentToken());
 
-        } catch (OptimisticLockingFailureException e) {
-            log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
-                    "Executing rollback.", request.getIdempotentToken(), e);
-            rollback(request);
-            throw e;
         } catch (Exception e) {
             log.error("Unexpected error occurred during execution request with id: {}. " +
                     "Executing rollback.", request.getIdempotentToken(), e);
@@ -83,40 +81,61 @@ public class CreateAccount implements RequestTaskHandler {
         }
     }
 
+    @Recover
+    public void recover(OptimisticLockingFailureException e, Request request) {
+        log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
+                "Executing rollback.", request.getIdempotentToken(), e);
+        rollback(request);
+    }
+
     @Override
     public long getHandlerId() {
-        return 2;
+        return HANDLER_ID;
     }
 
     @Transactional
     @Override
     public void rollback(Request request) {
         RequestTask requestTask = request.getRequestTasks().stream()
-                .filter(task -> task.getHandler().equals(RequestTaskType.WRITE_INTO_ACCOUNT))
+                .filter(task -> task.getHandler().equals(RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT))
                 .findFirst().orElseThrow(() -> new EntityNotFoundException("No request task found"));
 
         if (requestTask.getRollbackContext() != null) {
-            accountRepository.deleteById(Long.getLong(requestTask.getRollbackContext()));
+            RollbackTaskCrateBalanceDto dto = mapRollbackTaskDto(requestTask.getRollbackContext());
+            balanceService.deleteBalance(dto.getBalanceId());
+            dto.getBalanceAuditIds().forEach(balanceAuditService::deleteAudit);
         }
 
         List<RequestTask> tasks = request.getRequestTasks().stream()
                 .filter(task -> task.getStatus() == RequestTaskStatus.DONE).toList();
+
         if (!tasks.isEmpty()) {
             setRequestTasksStatus(request, RequestTaskStatus.AWAITING);
             checkAccountsQuantity.rollback(request);
+            createAccount.rollback(request);
         }
-        log.info("Request task with type: {}, id: {} rollback",
-                RequestTaskType.WRITE_INTO_ACCOUNT, requestTask.getId());
+        log.info("Request task with id: {}, type: {} rollback",
+                request.getIdempotentToken(), RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT);
     }
 
-    private AccountRequest mapAccountRequest(Request request) {
-        AccountRequest accountRequest;
+    private String mapRollbackTaskDtoToString(RollbackTaskCrateBalanceDto dto) {
+        String rollbackContext;
         try {
-            accountRequest = objectMapper.readValue(request.getContext(), AccountRequest.class);
+            rollbackContext = objectMapper.writeValueAsString(dto);
         } catch (JsonProcessingException e) {
             throw new JsonMappingException(e.getMessage());
         }
-        return accountRequest;
+        return rollbackContext;
+    }
+
+    private RollbackTaskCrateBalanceDto mapRollbackTaskDto(String taskContext) {
+        RollbackTaskCrateBalanceDto dto;
+        try {
+            dto = objectMapper.readValue(taskContext, RollbackTaskCrateBalanceDto.class);
+        } catch (JsonProcessingException e) {
+            throw new JsonMappingException(e.getMessage());
+        }
+        return dto;
     }
 
     private void setRequestTasksStatus(Request request, RequestTaskStatus status) {
@@ -128,7 +147,7 @@ public class CreateAccount implements RequestTaskHandler {
             Request request, RequestTaskStatus requestTaskStatus, String taskContext) {
         request.getRequestTasks().stream()
                 .filter(requestTask -> requestTask.getHandler().
-                        equals(RequestTaskType.WRITE_INTO_ACCOUNT))
+                        equals(RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT))
                 .forEach(requestTask -> {
                     requestTask.setStatus(requestTaskStatus);
                     requestTask.setRollbackContext(taskContext);

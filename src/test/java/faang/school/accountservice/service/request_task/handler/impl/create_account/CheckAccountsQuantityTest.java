@@ -47,12 +47,12 @@ class CheckAccountsQuantityTest {
     private RequestService requestService;
 
     @InjectMocks
-    private CheckAccountsQuantity checkAccountsQuantity;
+    private CheckAccountsQuantityHandler checkAccountsQuantity;
 
     @BeforeEach
     public void setUp() throws Exception {
         Field maxAccountsQuantityField =
-                CheckAccountsQuantity.class.getDeclaredField("maxAccountsQuantity");
+                CheckAccountsQuantityHandler.class.getDeclaredField("maxAccountsQuantity");
         maxAccountsQuantityField.setAccessible(true);
         maxAccountsQuantityField.set(checkAccountsQuantity, 2);
     }
@@ -132,7 +132,7 @@ class CheckAccountsQuantityTest {
 
         assertThrows(OptimisticLockingFailureException.class, () -> checkAccountsQuantity.execute(request));
 
-        verify(requestService, times(2)).updateRequest(request);
+        verify(requestService, times(1)).updateRequest(request);
         assertEquals(RequestStatus.AWAITING, request.getRequestStatus());
         assertEquals(RequestTaskStatus.AWAITING, request.getRequestTasks().get(0).getStatus());
     }

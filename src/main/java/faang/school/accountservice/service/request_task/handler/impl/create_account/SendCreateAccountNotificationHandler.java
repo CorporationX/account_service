@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SendCreateAccountNotification implements RequestTaskHandler {
+public class SendCreateAccountNotificationHandler implements RequestTaskHandler {
+
+    private static final Long HANDLER_ID = 5L;
 
     private final CreateAccountPublisher publisher;
     private final RequestService requestService;
     private final AccountRepository accountRepository;
 
-    private final CheckAccountsQuantity checkAccountsQuantity;
-    private final CreateAccount createAccount;
-    private final CreateBalanceAndBalanceAudit balanceAudit;
+    private final CheckAccountsQuantityHandler checkAccountsQuantity;
+    private final CreateAccountHandler createAccount;
+    private final CreateBalanceAndBalanceAuditHandler balanceAudit;
 
     @Transactional
     @Retryable(
@@ -62,11 +65,6 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
                     RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION);
             log.info("Successfully opened account with number: {}", account.getAccountNumber());
 
-        } catch (OptimisticLockingFailureException e) {
-            log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
-                    "Executing rollback.", request.getIdempotentToken(), e);
-            rollback(request);
-            throw e;
         } catch (Exception e) {
             log.error("Unexpected error occurred during execution request with id: {}. " +
                     "Executing rollback.", request.getIdempotentToken(), e);
@@ -75,9 +73,17 @@ public class SendCreateAccountNotification implements RequestTaskHandler {
         }
     }
 
+    @Transactional
+    @Recover
+    public void recover(OptimisticLockingFailureException e, Request request) {
+        log.error("Optimistic locking failed after 3 retries for request with id: {}. " +
+                "Executing rollback.", request.getIdempotentToken(), e);
+        rollback(request);
+    }
+
     @Override
     public long getHandlerId() {
-        return 5;
+        return HANDLER_ID;
     }
 
     @Transactional
