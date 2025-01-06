@@ -10,9 +10,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -41,6 +42,12 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
+    @Column(name = "tariff_id", nullable = false)
+    private Long tariffId;
+
+    @Column(name = "cashback_balance", nullable = false)
+    private BigDecimal cashbackBalance = BigDecimal.ZERO;
+
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Balance balance;
 
@@ -57,4 +64,7 @@ public class Account {
     @Version
     @Column(name = "version")
     private Integer version;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions;
 }

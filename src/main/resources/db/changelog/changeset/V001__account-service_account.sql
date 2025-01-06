@@ -15,4 +15,3 @@ create table if not exists public.account
 
 alter table public.account
     owner to "user";
-
