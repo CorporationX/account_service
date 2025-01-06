@@ -26,6 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TariffService {
 
+    private static final String TARIFF_NAME_UNIQUE_CONSTRAINT = "tariff_name_key";
+
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
 
@@ -91,7 +93,7 @@ public class TariffService {
     }
 
     private void handleDataIntegrityViolationException(DataIntegrityViolationException ex, String tariffName) {
-        if (ex.getMessage().contains("constraint [tariff_name_key]")) {
+        if (ex.getMessage().contains(TARIFF_NAME_UNIQUE_CONSTRAINT)) {
             String exceptionMessage = "Unable to set tariff name='%s': there is already existing tariff with this name."
                     .formatted(tariffName);
             throw new UniqueConstraintException(exceptionMessage, ex);

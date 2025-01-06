@@ -22,12 +22,12 @@ public class SavingsAccountResponse {
     private long currentTariffId;
     private BigDecimal currentRate;
 
-    @JsonFormat(pattern = "dd-MM-yy'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime lastInterestDate;
 
-    @JsonFormat(pattern = "dd-MM-yy'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    @JsonFormat(pattern = "dd-MM-yy'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 }
