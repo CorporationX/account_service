@@ -142,6 +142,16 @@ class CheckAccountsQuantityTest {
     public void executeThrowsJsonProcessingExceptionTest() throws JsonProcessingException {
         long ownerId = 1L;
 
+        RequestTask requestTask1 = RequestTask.builder()
+                .status(RequestTaskStatus.AWAITING)
+                .handler(RequestTaskType.CHECK_ACCOUNTS_QUANTITY)
+                .build();
+
+        RequestTask requestTask2 = RequestTask.builder()
+                .status(RequestTaskStatus.AWAITING)
+                .handler(RequestTaskType.WRITE_INTO_ACCOUNT)
+                .build();
+
         AccountRequest accountRequest = AccountRequest.builder()
                 .ownerId(ownerId)
                 .ownerType(OwnerType.USER)
@@ -149,6 +159,7 @@ class CheckAccountsQuantityTest {
 
         Request request = Request.builder()
                 .requestStatus(RequestStatus.AWAITING)
+                .requestTasks(List.of(requestTask1, requestTask2))
                 .context(objectMapper.writeValueAsString(accountRequest))
                 .build();
 

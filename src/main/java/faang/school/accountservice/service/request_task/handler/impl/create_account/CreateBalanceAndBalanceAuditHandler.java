@@ -52,6 +52,12 @@ public class CreateBalanceAndBalanceAuditHandler implements RequestTaskHandler {
     )
     @Override
     public void execute(Request request) {
+        RequestTask requestTask = getPerticularRequestTask(request);
+        if (requestTask.getStatus()== RequestTaskStatus.DONE) {
+            log.info("Request task with id: {} already completed.", requestTask.getId());
+            return;
+        }
+
         try {
             Long accountId = Long.valueOf(request.getContext());
             Account account = accountRepository.findById(accountId)
@@ -152,5 +158,13 @@ public class CreateBalanceAndBalanceAuditHandler implements RequestTaskHandler {
                     requestTask.setStatus(requestTaskStatus);
                     requestTask.setRollbackContext(taskContext);
                 });
+    }
+
+    private RequestTask getPerticularRequestTask(Request request) {
+        return request.getRequestTasks().stream()
+                .filter(task -> task.getHandler().equals(RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT))
+                .findFirst().orElseThrow(
+                        () -> new EntityNotFoundException("No request task found for type: %s".
+                                formatted(RequestTaskType.WRITE_INTO_BALANCE_BALANCE_AUDIT)));
     }
 }

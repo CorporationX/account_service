@@ -2,6 +2,7 @@ package faang.school.accountservice.service.request_task.handler.impl.create_acc
 
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Request;
+import faang.school.accountservice.entity.RequestTask;
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskType;
@@ -43,6 +44,12 @@ public class SendCreateAccountNotificationHandler implements RequestTaskHandler 
     )
     @Override
     public void execute(Request request) {
+        RequestTask requestTask = getPerticularRequestTask(request);
+        if (requestTask.getStatus() == RequestTaskStatus.DONE) {
+            log.info("Request task with id: {} already completed.", requestTask.getId());
+            return;
+        }
+
         try {
             Long accountId = Long.valueOf(request.getContext());
             Account account = accountRepository.findById(accountId).orElseThrow(() ->
@@ -109,5 +116,13 @@ public class SendCreateAccountNotificationHandler implements RequestTaskHandler 
     private void setRequestTasksStatus(Request request, RequestTaskStatus status) {
         request.getRequestTasks()
                 .forEach(requestTask -> requestTask.setStatus(status));
+    }
+
+    private RequestTask getPerticularRequestTask(Request request) {
+        return request.getRequestTasks().stream()
+                .filter(task -> task.getHandler().equals(RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION))
+                .findFirst().orElseThrow(
+                        () -> new EntityNotFoundException("No request task found for type: %s".
+                                formatted(RequestTaskType.SEND_CREATE_ACCOUNT_NOTIFICATION)));
     }
 }

@@ -115,7 +115,7 @@ public class AccountService {
         return accountMapper.toDto(account);
     }
 
-    public void deleteAccount(Long id){
+    public void deleteAccount(Long id) {
         accountRepository.deleteById(id);
         log.info("Deleting account with id: {}", id);
     }

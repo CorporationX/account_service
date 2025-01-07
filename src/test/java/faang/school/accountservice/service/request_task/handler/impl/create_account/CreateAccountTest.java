@@ -1,30 +1,20 @@
 package faang.school.accountservice.service.request_task.handler.impl.create_account;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.dto.AccountRequest;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.entity.AccountOwner;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.entity.RequestTask;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskType;
-import faang.school.accountservice.exception.JsonMappingException;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.AccountOwnerService;
 import faang.school.accountservice.service.AccountService;
-import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.service.request.RequestService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.OptimisticLockingFailureException;
 
@@ -35,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +44,7 @@ class CreateAccountTest {
     private CreateAccountHandler createAccount;
 
     @Test
-    public void executeTest()  {
+    public void executeTest() {
         long accountId = 2L;
         String accountNumber = "4222000000000001";
 
@@ -138,7 +127,7 @@ class CreateAccountTest {
     }
 
     @Test
-    public void rollbackTest(){
+    public void rollbackTest() {
         RequestTask requestTask1 = RequestTask.builder()
                 .status(RequestTaskStatus.DONE)
                 .handler(RequestTaskType.WRITE_INTO_ACCOUNT)
@@ -159,6 +148,6 @@ class CreateAccountTest {
 
         verify(accountService).deleteAccount(Long.getLong(requestTask1.getRollbackContext()));
         verify(checkAccountsQuantity).rollback(request);
-        assertEquals(RequestTaskStatus.AWAITING,requestTask1.getStatus());
+        assertEquals(RequestTaskStatus.AWAITING, requestTask1.getStatus());
     }
 }
