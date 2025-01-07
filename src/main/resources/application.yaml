@@ -38,3 +38,8 @@ server:
 logging:
   level:
     root: info
+
+cron:
+  expression:
+    every-midnight: "0 0 0 * * * ?"
+batchSize: 1
