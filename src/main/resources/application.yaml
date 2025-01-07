@@ -31,3 +31,9 @@ services:
   project-service:
     host: localhost
     port: 8082
+
+executor:
+  core-pool-size: 4
+  max-pool-size: 10
+  queue-capacity: 30
+  keep-alive-time: 60
