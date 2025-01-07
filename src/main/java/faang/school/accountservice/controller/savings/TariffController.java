@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.savings.TariffDto;
 import faang.school.accountservice.dto.savings.TariffRateHistoryDto;
 import faang.school.accountservice.service.savings.TariffService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,11 @@ public class TariffController {
   @GetMapping("/{id}")
   public TariffRateHistoryDto getById(@RequestHeader("x-user-id") Long userId, @Valid @PathVariable Long id) {
     return tariffService.getById(userId, id);
+  }
+
+  @GetMapping("")
+  public List<TariffRateHistoryDto> getAll(@RequestHeader("x-user-id") Long userId) {
+    return tariffService.getAll(userId);
   }
 
   @PutMapping("/update")

@@ -9,6 +9,7 @@ import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.utils.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,9 @@ public class TariffServiceImpl implements TariffService {
   public TariffRateHistoryDto update(Long userId, TariffDto dto) {
     userUtils.validateUser(userId);
     Tariff tariff = findById(dto.id());
+    if (tariff.getCurrentRate().equals(dto.rate())) {
+      throw new IllegalArgumentException("Rate must be different to current rate");
+    }
     tariff.setTitle(dto.title());
     tariff.addNewRate(dto.rate());
     //TODO check if it works without save()
@@ -49,5 +53,12 @@ public class TariffServiceImpl implements TariffService {
   public Tariff findById(Long id) {
     return tariffRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("tariff not found, id = " + id));
+  }
+
+  @Override
+  public List<TariffRateHistoryDto> getAll(Long userId) {
+    return tariffRepository.findAll().stream()
+        .map(tariffMapper::toRateHistoryDto)
+        .toList();
   }
 }

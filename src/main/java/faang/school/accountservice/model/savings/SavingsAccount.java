@@ -26,7 +26,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "savings_account")
+@Table(name = "savings_account", schema = "public")
 public class SavingsAccount {
 
   @Id
@@ -60,5 +60,6 @@ public class SavingsAccount {
     int index = str.length - 1;
     return Long.valueOf(str[index].trim().replaceAll("[\\[%\\]]", ""));
   }
+
 
 }

@@ -15,4 +15,6 @@ public interface BalanceService {
   Balance findBalanceById(Long id);
 
   BalanceDto getBalanceById(@Valid Long userId, Long id);
+
+  Balance findBalanceByAccountId(Long id);
 }

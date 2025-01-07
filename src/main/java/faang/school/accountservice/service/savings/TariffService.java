@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.savings.TariffDto;
 import faang.school.accountservice.dto.savings.TariffRateHistoryDto;
 import faang.school.accountservice.model.savings.Tariff;
 import jakarta.validation.Valid;
+import java.util.List;
 
 public interface TariffService {
 
@@ -14,4 +15,6 @@ public interface TariffService {
   TariffRateHistoryDto update(Long userId, TariffDto dto);
 
   Tariff findById(Long id);
+
+  List<TariffRateHistoryDto> getAll(Long userId);
 }

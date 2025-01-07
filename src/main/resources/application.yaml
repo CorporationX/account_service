@@ -31,3 +31,12 @@ services:
   project-service:
     host: localhost
     port: 8082
+
+cron:
+  savings-payment: 0 0 * * *
+
+executor-service:
+  core-pool-size: 5
+  list-batch-size: 10
+  threads:
+    number: 100

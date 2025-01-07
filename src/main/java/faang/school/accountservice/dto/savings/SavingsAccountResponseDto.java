@@ -11,7 +11,7 @@ public class SavingsAccountResponseDto {
   private AccountDtoResponse account;
   private TariffDto tariff;
   private String lastPaymentDate;
-  private  Long version;
+  private Long version;
   private String createdAt;
   private String updatedAt;
 }

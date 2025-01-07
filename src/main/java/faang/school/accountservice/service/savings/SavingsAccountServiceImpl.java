@@ -1,22 +1,28 @@
 package faang.school.accountservice.service.savings;
 
 import faang.school.accountservice.dto.account.AccountDtoResponse;
+import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.savings.SavingsAccountCreateDto;
 import faang.school.accountservice.dto.savings.SavingsAccountResponseDto;
 import faang.school.accountservice.dto.savings.TariffDto;
-import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.mapper.TariffMapper;
 import faang.school.accountservice.model.savings.SavingsAccount;
 import faang.school.accountservice.repository.savings.SavingsAccountRepository;
+import faang.school.accountservice.repository.savings.SavingsAccountRepository.SavingsBalancesToPay;
 import faang.school.accountservice.service.account.AccountService;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.service.utils.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SavingsAccountServiceImpl implements SavingsAccountService {
@@ -24,10 +30,10 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
   private final SavingsAccountRepository savingsAccountRepository;
   private final SavingsAccountMapper savingsAccountMapper;
   private final AccountService accountService;
-  private final AccountMapper accountMapper;
   private final TariffService tariffService;
   private final TariffMapper tariffMapper;
   private final UserUtils userUtils;
+  private final BalanceService balanceService;
 
   @Transactional
   @Override
@@ -46,6 +52,11 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
 
     savingsDto.setTariff(tariffDto);
 
+    balanceService.create(userId, BalanceCreateDto.builder()
+        .accountId(accountId)
+        .authorizedValue(BigDecimal.ZERO)
+        .build());
+
     return savingsDto;
   }
 
@@ -56,8 +67,6 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
   }
 
   //TODO AK: @Scheduled generate account numbers for AccountType.SAVINGS - separate method
-
-  //TODO AK: @Scheduled (or other way) every day calculate %% and update balances for SavingsAccounts - use @Retry, user Multithreading
 
   @Override
   public SavingsAccountResponseDto getById(Long userId, Long id) {
@@ -81,12 +90,44 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         .map(account -> {
           Long tariffId = account.getCurrentTariffId();
           SavingsAccountResponseDto dto = savingsAccountMapper.toDto(account);
-          System.out.println("*******" + account.getAccount().getOwner().getId());
           dto.setTariff(tariffMapper.toDto(tariffService.findById(tariffId)));
           dto.getAccount().setOwnerId(ownerId);
           return dto;
         })
         .toList();
+  }
+
+  //TODO распараллелить список накопов на несколько списков и пустить в расчет и начисление
+
+  //TODO @Scheduled, @Retry
+  @Override
+  public void payToCustomers() {
+    payInterestRate(getSavingsWithRates());
+  }
+
+  @Override
+  public List<SavingsBalancesToPay> getSavingsWithRates() {
+    return savingsAccountRepository.getSavingsWithRates();
+  }
+
+  private void payInterestRate(List<SavingsBalancesToPay> balancesToUpdate) {
+    balancesToUpdate.forEach(this::payToOneAccount);
+  }
+
+  @Transactional
+  private void payToOneAccount(SavingsBalancesToPay b) {
+    if (!b.getLastIncomeDate().equals(LocalDate.now())) {
+      savingsAccountRepository.updateBalanceByIncome(b.getBalanceId(), b.getCurrentRate());
+      updateSavingsAccountAfterIncome(findById(b.getId()));
+      log.info("payment done!");
+    }
+  }
+
+  private void updateSavingsAccountAfterIncome(SavingsAccount account) {
+    account.setLastIncomeAt(LocalDate.now());
+    long version = account.getVersion() + 1;
+    account.setVersion(version);
+    savingsAccountRepository.save(account);
   }
 
 }

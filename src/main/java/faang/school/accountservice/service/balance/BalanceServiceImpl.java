@@ -62,6 +62,12 @@ public class BalanceServiceImpl implements BalanceService {
   }
 
   @Override
+  public Balance findBalanceByAccountId(Long id) {
+    return balanceRepository.findByAccountId(id);
+  }
+
+
+  @Override
   public BalanceDto getBalanceById(Long userId, Long id) {
     validateUser(userId);
     return balanceMapper.toDto(findBalanceById(id));

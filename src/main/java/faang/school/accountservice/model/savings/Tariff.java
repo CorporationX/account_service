@@ -40,10 +40,11 @@ public class Tariff {
     version++;
   }
 
-  //TODO
+  //TODO move all duplicates into utils getLastDigitValueFromArray
   public BigDecimal getCurrentRate() {
     String [] str = rateHistory.split(",");
-    String rate = str[str.length - 1].replace("[%]", "");
+    int index = str.length - 1;
+    String rate = str[index].trim().replaceAll("[\\[%\\]]", "");
     return new BigDecimal(rate);
   }
 
