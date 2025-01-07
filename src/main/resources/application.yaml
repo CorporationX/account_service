@@ -33,7 +33,7 @@ services:
     port: 8082
 
 cron:
-  savings-payment: 0 0 * * *
+  savings-payment: 0 0 * * * *
 
 executor-service:
   core-pool-size: 5

@@ -32,9 +32,9 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
       JOIN tariff t on savings.current_tariff = t.id AND savings.last_income_at < CURRENT_DATE
       JOIN balance b on b.account_id = savings.account_id
       """)
-  List<SavingsBalancesToPay> getSavingsWithRates();
+  List<SavingsAccountToPay> getSavingsWithRates();
 
-  interface SavingsBalancesToPay {
+  interface SavingsAccountToPay {
 
     Long getId();
 
@@ -54,4 +54,13 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
       WHERE id = :balanceId
       """)
   void updateBalanceByIncome(Long balanceId, BigDecimal rate);
+
+  @Transactional
+  @Modifying
+  @Query(nativeQuery = true, value = """
+      UPDATE savings_account SET version = version + 1,
+      last_income_at = CURRENT_DATE
+      WHERE id = :savingsAccountId
+      """)
+  void updateSavingsAccountAfterIncome(Long savingsAccountId);
 }

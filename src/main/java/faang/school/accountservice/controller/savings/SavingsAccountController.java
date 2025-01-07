@@ -2,7 +2,7 @@ package faang.school.accountservice.controller.savings;
 
 import faang.school.accountservice.dto.savings.SavingsAccountCreateDto;
 import faang.school.accountservice.dto.savings.SavingsAccountResponseDto;
-import faang.school.accountservice.repository.savings.SavingsAccountRepository.SavingsBalancesToPay;
+import faang.school.accountservice.repository.savings.SavingsAccountRepository.SavingsAccountToPay;
 import faang.school.accountservice.service.savings.SavingsAccountService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -41,7 +41,7 @@ public class SavingsAccountController {
   }
 
   @GetMapping("/test")
-  public List<SavingsBalancesToPay> test(@RequestHeader("x-user-id") Long userId) {
+  public List<SavingsAccountToPay> test(@RequestHeader("x-user-id") Long userId) {
     return savingsAccountService.getSavingsWithRates();
   }
 
