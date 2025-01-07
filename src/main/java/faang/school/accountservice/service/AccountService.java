@@ -53,6 +53,7 @@ public class AccountService {
         } catch (JsonProcessingException e) {
             throw new JsonMappingException(e.getMessage());
         }
+        requestService.updateRequest(request);
     }
 
     @Transactional
@@ -112,6 +113,11 @@ public class AccountService {
         account = accountRepository.save(account);
         log.info("Successfully closed account with id: {}", id);
         return accountMapper.toDto(account);
+    }
+
+    public void deleteAccount(Long id){
+        accountRepository.deleteById(id);
+        log.info("Deleting account with id: {}", id);
     }
 
     private Account getAccountEntity(Long id) {

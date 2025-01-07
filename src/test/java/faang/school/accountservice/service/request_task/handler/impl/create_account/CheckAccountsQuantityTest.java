@@ -133,8 +133,8 @@ class CheckAccountsQuantityTest {
         assertThrows(OptimisticLockingFailureException.class, () -> checkAccountsQuantity.execute(request));
 
         verify(requestService, times(1)).updateRequest(request);
-        assertEquals(RequestStatus.AWAITING, request.getRequestStatus());
-        assertEquals(RequestTaskStatus.AWAITING, request.getRequestTasks().get(0).getStatus());
+        assertEquals(RequestStatus.PROCESSING, request.getRequestStatus());
+        assertEquals(RequestTaskStatus.DONE, request.getRequestTasks().get(0).getStatus());
     }
 
 

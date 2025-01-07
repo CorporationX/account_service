@@ -17,6 +17,7 @@ import faang.school.accountservice.enums.request_task.RequestTaskType;
 import faang.school.accountservice.exception.JsonMappingException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountOwnerService;
+import faang.school.accountservice.service.AccountService;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.service.request.RequestService;
 import org.junit.jupiter.api.Test;
@@ -41,17 +42,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CreateAccountTest {
 
-    @Spy
-    private ObjectMapper objectMapper;
-
     @Mock
-    private FreeAccountNumbersService numbersService;
-
-    @Mock
-    private AccountOwnerService accountOwnerService;
-
-    @Mock
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Mock
     private RequestService requestService;
@@ -63,22 +55,9 @@ class CreateAccountTest {
     private CreateAccountHandler createAccount;
 
     @Test
-    public void executeTest() throws JsonProcessingException {
-        long ownerId = 1L;
+    public void executeTest()  {
         long accountId = 2L;
-        OwnerType ownerType = OwnerType.USER;
         String accountNumber = "4222000000000001";
-
-        AccountOwner accountOwner = AccountOwner.builder()
-                .id(ownerId)
-                .build();
-
-        AccountRequest accountRequest = AccountRequest.builder()
-                .ownerId(ownerId)
-                .ownerType(ownerType)
-                .type(AccountType.DEBIT)
-                .currency(Currency.USD)
-                .build();
 
         RequestTask requestTask1 = RequestTask.builder()
                 .status(RequestTaskStatus.AWAITING)
@@ -92,20 +71,18 @@ class CreateAccountTest {
 
         Request request = Request.builder()
                 .requestTasks(new ArrayList<>(List.of(requestTask1, requestTask2)))
-                .context(objectMapper.writeValueAsString(accountRequest))
+                .context(String.valueOf(accountId))
                 .build();
 
         Account account = Account.builder()
                 .id(accountId)
                 .accountNumber(accountNumber)
-                .type(accountRequest.getType())
-                .currency(accountRequest.getCurrency())
+                .type(AccountType.DEBIT)
+                .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
                 .build();
 
-        when(numbersService.getFreeAccountNumber(accountRequest.getType())).thenReturn(accountNumber);
-        when(accountOwnerService.findOwner(ownerId, ownerType)).thenReturn(accountOwner);
-        when(accountRepository.save(any(Account.class))).thenReturn(account);
+        when(accountService.createAccount(request)).thenReturn(account);
 
         createAccount.execute(request);
 
@@ -124,58 +101,10 @@ class CreateAccountTest {
     }
 
     @Test
-    public void executeThrowsJsonProcessingExceptionTest() throws JsonProcessingException {
-        long ownerId = 1L;
-        OwnerType ownerType = OwnerType.USER;
-
-        RequestTask requestTask1 = RequestTask.builder()
-                .status(RequestTaskStatus.AWAITING)
-                .handler(RequestTaskType.WRITE_INTO_ACCOUNT)
-                .build();
-
-        RequestTask requestTask2 = RequestTask.builder()
-                .status(RequestTaskStatus.DONE)
-                .handler(RequestTaskType.CHECK_ACCOUNTS_QUANTITY)
-                .build();
-
-        AccountRequest accountRequest = AccountRequest.builder()
-                .ownerId(ownerId)
-                .ownerType(ownerType)
-                .type(AccountType.DEBIT)
-                .currency(Currency.USD)
-                .build();
-
-        Request request = Request.builder()
-                .requestTasks(new ArrayList<>(List.of(requestTask1, requestTask2)))
-                .context(objectMapper.writeValueAsString(accountRequest))
-                .build();
-
-        when(objectMapper.readValue(request.getContext(), AccountRequest.class)).
-                thenThrow(JsonProcessingException.class);
-
-        assertThrows(JsonMappingException.class, () -> createAccount.execute(request));
-        verify(checkAccountsQuantity).rollback(request);
-        verify(accountRepository, times(0)).deleteById(any());
-    }
-
-    @Test
-    public void executeThrowsOptimisticLockingFailureExceptionTest() throws JsonProcessingException {
-        long ownerId = 1L;
+    public void executeThrowsOptimisticLockingFailureExceptionTest() {
         long accountId = 2L;
-        OwnerType ownerType = OwnerType.USER;
         String accountNumber = "4222000000000001";
 
-        AccountOwner accountOwner = AccountOwner.builder()
-                .id(ownerId)
-                .build();
-
-        AccountRequest accountRequest = AccountRequest.builder()
-                .ownerId(ownerId)
-                .ownerType(ownerType)
-                .type(AccountType.DEBIT)
-                .currency(Currency.USD)
-                .build();
-
         RequestTask requestTask1 = RequestTask.builder()
                 .status(RequestTaskStatus.AWAITING)
                 .handler(RequestTaskType.WRITE_INTO_ACCOUNT)
@@ -188,26 +117,24 @@ class CreateAccountTest {
 
         Request request = Request.builder()
                 .requestTasks(new ArrayList<>(List.of(requestTask1, requestTask2)))
-                .context(objectMapper.writeValueAsString(accountRequest))
+                .context(String.valueOf(accountId))
                 .build();
 
         Account account = Account.builder()
                 .id(accountId)
                 .accountNumber(accountNumber)
-                .type(accountRequest.getType())
-                .currency(accountRequest.getCurrency())
+                .type(AccountType.DEBIT)
+                .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
                 .build();
 
-        when(numbersService.getFreeAccountNumber(accountRequest.getType())).thenReturn(accountNumber);
-        when(accountOwnerService.findOwner(ownerId, ownerType)).thenReturn(accountOwner);
-        when(accountRepository.save(any(Account.class))).thenReturn(account);
+        when(accountService.createAccount(request)).thenReturn(account);
         doThrow(OptimisticLockingFailureException.class).when(requestService).updateRequest(any());
 
         assertThrows(OptimisticLockingFailureException.class, () -> createAccount.execute(request));
 
         verify(checkAccountsQuantity).rollback(request);
-        verify(accountRepository, times(1)).deleteById(any());
+        verify(accountService).createAccount(request);
     }
 
     @Test
@@ -230,7 +157,7 @@ class CreateAccountTest {
 
         createAccount.rollback(request);
 
-        verify(accountRepository).deleteById(Long.getLong(requestTask1.getRollbackContext()));
+        verify(accountService).deleteAccount(Long.getLong(requestTask1.getRollbackContext()));
         verify(checkAccountsQuantity).rollback(request);
         assertEquals(RequestTaskStatus.AWAITING,requestTask1.getStatus());
     }

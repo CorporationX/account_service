@@ -5,7 +5,6 @@ import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.entity.RequestTask;
 import faang.school.accountservice.enums.request_task.RequestTaskStatus;
 import faang.school.accountservice.enums.request_task.RequestTaskType;
-import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
 import faang.school.accountservice.service.request.RequestService;
 import faang.school.accountservice.service.request_task.handler.RequestTaskHandler;
@@ -28,7 +27,6 @@ public class CreateAccountHandler implements RequestTaskHandler {
 
     private static final Long HANDLER_ID = 2L;
 
-    private final AccountRepository accountRepository;
     private final AccountService accountService;
     private final RequestService requestService;
 
@@ -79,7 +77,7 @@ public class CreateAccountHandler implements RequestTaskHandler {
                 .findFirst().orElseThrow(() -> new EntityNotFoundException("No request task found"));
 
         if (requestTask.getRollbackContext() != null) {
-            accountRepository.deleteById(Long.getLong(requestTask.getRollbackContext()));
+            accountService.deleteAccount(Long.getLong(requestTask.getRollbackContext()));
         }
 
         List<RequestTask> tasks = request.getRequestTasks().stream()
