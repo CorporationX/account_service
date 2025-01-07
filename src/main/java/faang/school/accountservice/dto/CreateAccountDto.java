@@ -6,17 +6,14 @@ import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record CreateAccountDto(
-        @NotNull(message = "Project owner type should not be empty")
-        AccountOwnerType ownerType,
+public record CreateAccountDto(@NotNull(message = "Project owner type should not be empty")
+                               AccountOwnerType ownerType,
 
-        @NotBlank(message = "Owner name cannot be empty")
-        String ownerName,
+                               @NotBlank(message = "Owner name cannot be empty")
+                               String ownerName,
 
-        @NotNull(message = "Account type cannot be empty")
-        AccountType accountType,
+                               @NotNull(message = "Account type cannot be empty")
+                               AccountType accountType,
 
-        @NotNull(message = "Currency cannot be empty")
-        Currency currency
-        ) {
-}
+                               @NotNull(message = "Currency cannot be empty")
+                               Currency currency) {}

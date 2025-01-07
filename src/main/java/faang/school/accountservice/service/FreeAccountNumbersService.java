@@ -15,33 +15,23 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
 public class FreeAccountNumbersService {
-    public static final long CREDIT_PATTERN = 5236_000_000_000_000L;
-    public static final long DEBIT_PATTERN = 4200_000_000_000_000L;
-    private static final long ACCOUNT_NUMBER_DIVISOR = 1_000_000_000_000_000L;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
     private final FreeAccountNumberRepository freeAccountNumberRepository;
-    private final AccountService accountService;
 
     @Transactional
-    public FreeAccountNumber deleteReturning(AccountType type) {
-        FreeAccountNumber freeAccNum = freeAccountNumberRepository.findFirstByIdType(type).orElseThrow(
-                () -> new IllegalArgumentException("Free Account Number for that type not found"));
-        freeAccountNumberRepository.delete(freeAccNum);
-        return freeAccNum;
-    }
-
-    @Transactional
-    public void createAccountWithFreeNumber(AccountType type) {
+    public void processAndDeleteFreeAccNumber(AccountType type, Consumer<FreeAccountNumber> consumer) {
         FreeAccountNumber freeAccNum = deleteReturning(type);
+        consumer.accept(freeAccNum);
     }
 
     @Transactional
     @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2))
-    public void generateFreeAccountNumber(AccountType type, int batchSize, long pattern) {
+    public List<FreeAccountNumber> generateFreeAccountNumber(AccountType type, int batchSize) {
         AccountNumberSequence accNumSeq = accountNumberSequenceRepository.findByType(type).orElseThrow(
                 () -> new IllegalArgumentException("Sequence for account type not found"));
         boolean incremented = incrementCounterIfMatches(type, batchSize, accNumSeq.getCounter());
@@ -50,22 +40,32 @@ public class FreeAccountNumbersService {
         }
         List<FreeAccountNumber> numbers = new ArrayList<>();
         for (long i = accNumSeq.getCounter(); i < accNumSeq.getCounter() + batchSize; i++) {
-            FreeAccountId freeAccountId = new FreeAccountId(type, generateNumber(pattern, i));
+            FreeAccountId freeAccountId = new FreeAccountId(type, generateNumber(type.getAccountTypePattern(), i));
             numbers.add(new FreeAccountNumber(freeAccountId));
         }
-        freeAccountNumberRepository.saveAll(numbers);
+        return freeAccountNumberRepository.saveAll(numbers);
     }
 
-    @Transactional
-    public boolean incrementCounterIfMatches(AccountType type, int batchSize, Long expectedCounter) {
+    private boolean incrementCounterIfMatches(AccountType type, int batchSize, Long expectedCounter) {
         int updatedRows = accountNumberSequenceRepository.incrementCounterIfMatch(type, batchSize, expectedCounter);
         return updatedRows > 0;
     }
 
+    @Transactional
+    private FreeAccountNumber deleteReturning(AccountType type) {
+        FreeAccountNumber freeAccNum = freeAccountNumberRepository.findFirstByIdType(type);
+        if (freeAccNum == null) {
+            freeAccNum = generateFreeAccountNumber(type, 1).get(0);
+        }
+        freeAccountNumberRepository.delete(freeAccNum);
+        return freeAccNum;
+    }
+
     private long generateNumber(long pattern, long currentIteration) {
-        long fixedPart = pattern / ACCOUNT_NUMBER_DIVISOR;
-        long remainderPart = pattern % ACCOUNT_NUMBER_DIVISOR;
+        long divisor = 1_000_000_000_000_000L;
+        long fixedPart = pattern / divisor;
+        long remainderPart = pattern % divisor;
         long newRemainder = remainderPart + currentIteration;
-        return fixedPart * ACCOUNT_NUMBER_DIVISOR + newRemainder;
+        return fixedPart * divisor + newRemainder;
     }
 }

@@ -41,5 +41,8 @@ logging:
 
 cron:
   expression:
-    every-midnight: "0 0 0 * * * ?"
-batchSize: 1
+    every-midnight: "0 0 0 * * *"
+
+accounts:
+  generated:
+    amount: 100
