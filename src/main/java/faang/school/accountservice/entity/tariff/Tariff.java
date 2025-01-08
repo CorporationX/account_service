@@ -1,8 +1,11 @@
 package faang.school.accountservice.entity.tariff;
 
+import faang.school.accountservice.enums.tariff.InterestPeriod;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,6 +45,10 @@ public class Tariff {
 
     @Column(name = "current_rate", nullable = false)
     private BigDecimal currentRate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "interest_period")
+    private InterestPeriod interestPeriod;
 
     @Version
     @Column(name = "version", nullable = false)

@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto.tariff;
 
+import faang.school.accountservice.enums.tariff.InterestPeriod;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -25,9 +26,12 @@ public class TariffCreateDto {
     @Length(max = 128, message = "Max tariff name length = 128")
     private String name;
 
+    @NotNull
+    private InterestPeriod interestPeriod;
+
     @DecimalMin(value = "0.01", message = "Rate must be greater than or equal to 0.01")
     @DecimalMax(value = "99.99", message = "Rate must be less than or equal to 99.99")
     @Digits(integer = 2, fraction = 2, message = "Rate must have up to 2 digits and 2 decimals")
-    @NotNull
+    @NotNull(message = "Tariff rate must be specified")
     private BigDecimal rate;
 }

@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.tariff.TariffCreateDto;
 import faang.school.accountservice.dto.tariff.TariffResponse;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.entity.tariff.TariffRateChangelog;
+import faang.school.accountservice.enums.tariff.InterestPeriod;
 import faang.school.accountservice.repository.tariff.TariffRateChangelogRepository;
 import faang.school.accountservice.repository.tariff.TariffRepository;
 import faang.school.accountservice.util.BaseContextTest;
@@ -54,8 +55,9 @@ public class TariffControllerIT extends BaseContextTest {
     void createTariffValidTest() throws Exception {
         long requesterId = 11L;
         String tariffName = "someTariff";
+        InterestPeriod interestPeriod = InterestPeriod.WEEKLY;
         BigDecimal tariffRate = BigDecimal.valueOf(10.5);
-        String tariffRequest = objectMapper.writeValueAsString(new TariffCreateDto(tariffName, tariffRate));
+        String tariffRequest = objectMapper.writeValueAsString(new TariffCreateDto(tariffName, interestPeriod, tariffRate));
 
         MvcResult response = mockMvc.perform(post("/api/v1/tariffs")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,6 +73,7 @@ public class TariffControllerIT extends BaseContextTest {
         List<TariffRateChangelog> rateChangelogs = tariffRateChangelogRepository.findByTariffId(tariffResponse.getId());
 
         assertTrue(tariff.isPresent());
+        assertEquals(interestPeriod, tariffResponse.getInterestPeriod());
         assertEquals(0, tariff.get().getCurrentRate().compareTo(tariffRate));
         assertEquals(1, rateChangelogs.size());
         assertEquals(0, rateChangelogs.get(0).getRate().compareTo(tariffRate));
@@ -82,8 +85,9 @@ public class TariffControllerIT extends BaseContextTest {
     void createTariffWithAlreadyExistingNameTest() throws Exception {
         long requesterId = 11L;
         String tariffName = "bonus";
+        InterestPeriod interestPeriod = InterestPeriod.WEEKLY;
         BigDecimal tariffRate = BigDecimal.valueOf(10.5);
-        String tariffRequest = objectMapper.writeValueAsString(new TariffCreateDto(tariffName, tariffRate));
+        String tariffRequest = objectMapper.writeValueAsString(new TariffCreateDto(tariffName, interestPeriod, tariffRate));
 
         mockMvc.perform(post("/api/v1/tariffs")
                         .contentType(MediaType.APPLICATION_JSON)

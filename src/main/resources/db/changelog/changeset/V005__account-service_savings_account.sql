@@ -13,8 +13,9 @@ CREATE TABLE IF NOT EXISTS savings_account (
 CREATE TABLE IF NOT EXISTS tariff (
     id              BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name            VARCHAR(128) NOT NULL UNIQUE,
-    version         BIGINT DEFAULT 1 NOT NULL,
     current_rate    DECIMAL(4,2) NOT NULL,
+    interest_period VARCHAR(16) NOT NULL,
+    version         BIGINT DEFAULT 1 NOT NULL,
     created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

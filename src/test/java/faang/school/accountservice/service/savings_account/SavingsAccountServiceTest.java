@@ -3,18 +3,25 @@ package faang.school.accountservice.service.savings_account;
 import faang.school.accountservice.dto.savings_account.SavingsAccountCreateDto;
 import faang.school.accountservice.dto.savings_account.SavingsAccountResponse;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.savings_account.SavingsAccount;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.tariff.InterestPeriod;
 import faang.school.accountservice.exception.UniqueConstraintException;
 import faang.school.accountservice.mapper.savings_account.SavingsAccountMapper;
 import faang.school.accountservice.repository.savings_account.SavingsAccountRepository;
 import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.BalanceAuditService;
+import faang.school.accountservice.service.BalanceService;
+import faang.school.accountservice.service.calculators.InterestCalculationHelper;
 import faang.school.accountservice.service.tariff.TariffService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -22,6 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,6 +57,15 @@ class SavingsAccountServiceTest {
 
     @Mock
     private SavingsAccountRepository savingsAccountRepository;
+
+    @Mock
+    private BalanceService balanceService;
+
+    @Mock
+    private BalanceAuditService balanceAuditService;
+
+    @Mock
+    InterestCalculationHelper interestCalculationHelper;
 
     @InjectMocks
     private SavingsAccountService savingsAccountService;
@@ -224,5 +243,97 @@ class SavingsAccountServiceTest {
         assertEquals(tariffId, responses.get(0).getCurrentTariffId());
         assertEquals(tariffRate, responses.get(0).getCurrentRate());
         verify(savingsAccountRepository, times(1)).getSavingsAccountsByOwnerId(ownerId);
+    }
+
+    @Test
+    void accrueInterestNotAccrualDayTest() {
+        Tariff tariff = Tariff.builder()
+                .interestPeriod(InterestPeriod.WEEKLY)
+                .currentRate(BigDecimal.valueOf(15))
+                .build();
+        SavingsAccount savingsAccount = SavingsAccount.builder()
+                .id(1L)
+                .lastInterestDate(LocalDateTime.now().minusDays(2))
+                .tariff(tariff)
+                .build();
+        when(interestCalculationHelper.getInterestStartDate(any(), any())).thenReturn(LocalDateTime.now().minusWeeks(1));
+
+        assertDoesNotThrow(() -> savingsAccountService.accrueInterest(savingsAccount));
+
+        verify(interestCalculationHelper, times(1)).getInterestStartDate(any(), any());
+    }
+
+    @Test
+    void accrueInterestAccrualDayWithoutBalanceAuditsTest() {
+        ArgumentCaptor<BigDecimal> balanceCaptor = ArgumentCaptor.forClass(BigDecimal.class);
+        long accountId = 1L;
+        BigDecimal actualBalance = new BigDecimal(15000);
+
+        Tariff tariff = Tariff.builder()
+                .interestPeriod(InterestPeriod.WEEKLY)
+                .currentRate(BigDecimal.valueOf(15))
+                .build();
+        Balance balance = new Balance();
+        balance.setActualBalance(actualBalance);
+        Account account = Account.builder()
+                .id(1L)
+                .balance(balance)
+                .build();
+        SavingsAccount savingsAccount = SavingsAccount.builder()
+                .id(1L)
+                .account(account)
+                .lastInterestDate(LocalDateTime.now().minusWeeks(2))
+                .tariff(tariff)
+                .build();
+        when(interestCalculationHelper.getInterestStartDate(any(), any())).thenReturn(LocalDateTime.now().minusWeeks(1));
+        when(balanceAuditService.findMinimalActualBalanceByAccountAndPeriod(eq(accountId), any(), any())).thenReturn(Optional.empty());
+
+        assertDoesNotThrow(() -> savingsAccountService.accrueInterest(savingsAccount));
+
+        verify(interestCalculationHelper, times(1)).getInterestStartDate(any(), any());
+        verify(balanceAuditService, times(1)).findMinimalActualBalanceByAccountAndPeriod(eq(accountId), any(), any());
+        verify(interestCalculationHelper, times(1)).calculateBalanceInterest(balanceCaptor.capture(), eq(tariff));
+        verify(balanceService, times(1)).updateBalance(eq(accountId), any());
+        verify(savingsAccountRepository, times(1)).save(any());
+
+        assertEquals(actualBalance, balanceCaptor.getValue());
+    }
+
+    @Test
+    void accrueInterestAccrualDayWithBalanceAuditsTest() {
+        ArgumentCaptor<BigDecimal> balanceCaptor = ArgumentCaptor.forClass(BigDecimal.class);
+        long accountId = 1L;
+        BigDecimal actualBalance = new BigDecimal(15000);
+        BigDecimal minimalBalanceAuditBalance = new BigDecimal(10000);
+
+        Tariff tariff = Tariff.builder()
+                .interestPeriod(InterestPeriod.WEEKLY)
+                .currentRate(BigDecimal.valueOf(15))
+                .build();
+        Balance balance = new Balance();
+        balance.setActualBalance(actualBalance);
+        Account account = Account.builder()
+                .id(1L)
+                .balance(balance)
+                .build();
+        SavingsAccount savingsAccount = SavingsAccount.builder()
+                .id(1L)
+                .account(account)
+                .lastInterestDate(LocalDateTime.now().minusWeeks(2))
+                .tariff(tariff)
+                .build();
+        when(interestCalculationHelper.getInterestStartDate(any(), any())).thenReturn(LocalDateTime.now().minusWeeks(1));
+        when(balanceAuditService.findMinimalActualBalanceByAccountAndPeriod(eq(accountId), any(), any()))
+                .thenReturn(Optional.of(minimalBalanceAuditBalance));
+
+        assertDoesNotThrow(() -> savingsAccountService.accrueInterest(savingsAccount));
+
+        verify(interestCalculationHelper, times(1)).getInterestStartDate(any(), any());
+        verify(balanceAuditService, times(1)).findMinimalActualBalanceByAccountAndPeriod(eq(accountId), any(), any());
+        verify(interestCalculationHelper, times(1)).calculateBalanceInterest(balanceCaptor.capture(), eq(tariff));
+        verify(balanceService, times(1)).updateBalance(eq(accountId), any());
+        verify(savingsAccountRepository, times(1)).save(any());
+
+        assertEquals(minimalBalanceAuditBalance, balanceCaptor.getValue());
     }
 }
