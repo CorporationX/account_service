@@ -17,6 +17,11 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  property-values:
+    retry:
+      max-attempts: 3
+      backoff-delay: 1000
+
 server:
   port: 8090
 

@@ -2,6 +2,7 @@ package faang.school.accountservice.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SavingsAccount {
     @Id
     private long id;
@@ -23,6 +25,7 @@ public class SavingsAccount {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
+    @Version
     @Column(name = "version", nullable = false)
     private int version;
 

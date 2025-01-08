@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLException;
+
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -38,5 +40,12 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
         log.error("Entity not found", e);
         return new ErrorResponse("Entity not found", e.getMessage());
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleSQLException(SQLException e) {
+        log.error("SQL Exception", e);
+        return new ErrorResponse("SQL Exception", e.getMessage());
     }
 }
