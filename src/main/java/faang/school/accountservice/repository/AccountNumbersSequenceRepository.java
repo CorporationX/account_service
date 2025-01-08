@@ -1,6 +1,7 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.entity.AccountNumbersSequence;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -21,12 +22,31 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     AccountNumbersSequence findByAccountType(String accountType);
 
     @Transactional
-    default boolean incrementCounterIfEquals(String accountType, Long expectedValue) {
-        AccountNumbersSequence sequence = findByAccountType(accountType);
-        if (sequence != null && sequence.getCurrent().equals(expectedValue)) {
-            sequence.setCurrent(sequence.getCurrent() + 1);
-            save(sequence);
-            return true;
+    default boolean incrementCounter(String accountType, Long expectedValue) {
+        int maxRetries = 3;
+        int attempt = 0;
+
+        while (attempt < maxRetries) {
+            try {
+                AccountNumbersSequence sequence = findByAccountType(accountType);
+                if (sequence != null && sequence.getCurrent().equals(expectedValue)) {
+                    sequence.setCurrent(sequence.getCurrent() + 1);
+                    save(sequence);
+                    return true;
+                }
+                break;
+            } catch (OptimisticLockException ex) {
+                attempt++;
+                System.err.println("Optimistic lock exception on attempt " + attempt + ": " + ex.getMessage());
+                if (attempt >= maxRetries) {
+                    throw new RuntimeException("Failed to update after multiple retries due to concurrent updates.", ex);
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
         return false;
     }

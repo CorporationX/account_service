@@ -28,7 +28,7 @@ public class FreeAccountNumbersService {
         Long lastDigits = sequence.getCurrent();
         Long newAccountNumber = Long.valueOf(fourDigits.toString() + String.format("%011d", lastDigits));
         freeAccountNumbersRepository.saveNewFreeAccountNumber(type, newAccountNumber);
-        accountNumbersSequenceRepository.incrementCounterIfEquals(type, lastDigits);
+        accountNumbersSequenceRepository.incrementCounter(type, lastDigits);
     }
 
     @Transactional
