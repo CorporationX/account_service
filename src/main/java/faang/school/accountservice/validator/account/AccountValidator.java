@@ -28,7 +28,7 @@ public class AccountValidator {
         try {
             userClient.getUser(id);
         } catch (FeignException e) {
-            log.error("User doesn't exist");
+            log.error("User with ID {} doesn't exist", id);
             throw new AccountNotValidException("User doesn't exist");
         }
     }
@@ -37,7 +37,7 @@ public class AccountValidator {
         try {
             projectClient.getProject(id);
         } catch (FeignException e) {
-            log.error("Project doesn't exist");
+            log.error("Project with ID {} doesn't exist", id);
             throw new AccountNotValidException("Project doesn't exist");
         }
     }

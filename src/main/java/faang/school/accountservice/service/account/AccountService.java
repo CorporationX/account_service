@@ -2,7 +2,7 @@ package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.account.enums.AccountStatus;
+import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;

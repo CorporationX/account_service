@@ -1,4 +1,4 @@
-package faang.school.accountservice.enums;
+package faang.school.accountservice.enums.currency;
 
 public enum Currency {
     USD,
