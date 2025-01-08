@@ -41,7 +41,7 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     @Query(value = """
             SELECT COUNT(*)
-            FROM free_account_numbers\s
+            FROM free_account_numbers
             WHERE type = :type
             """, nativeQuery = true)
     long countByType(String type);
