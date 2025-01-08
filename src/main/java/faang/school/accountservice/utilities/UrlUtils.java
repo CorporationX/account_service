@@ -14,4 +14,8 @@ public class UrlUtils {
     public static final String ID = "/{id}";
     public static final String BLOCK = "/block";
     public static final String CLOSE = "/close";
+    public static final String BALANCE = "/balance";
+    public static final String AUTHORIZATION = "/authorization";
+    public static final String AUTHORIZATION_BALANCE = "/authorization-balance";
+    public static final String ACTUAL_BALANCE = "/actual-balance";
 }

@@ -4,5 +4,9 @@ public enum AccountType {
     CURRENT,
     SPECIAL,
     CURRENCY,
-    BUSINESS
+    BUSINESS,
+    INDIVIDUAL,
+    LEGAL,
+    SAVINGS,
+    DEBIT
 }
