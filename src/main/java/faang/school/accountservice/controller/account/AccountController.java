@@ -1,7 +1,7 @@
-package faang.school.accountservice.controller;
+package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,12 +37,12 @@ public class AccountController {
         return accountService.closeAccount(id);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     public List<AccountDto> getAllOfUser(@PathVariable Long userId) {
         return accountService.getAllOfUser(userId);
     }
 
-    @GetMapping("/project/{projectId}")
+    @GetMapping("/projects/{projectId}")
     public List<AccountDto> getAllOfProject(@PathVariable Long projectId) {
         return accountService.getAllOfProject(projectId);
     }

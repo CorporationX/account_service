@@ -34,16 +34,14 @@ public class Account {
     @Size(min = 12, message = "too short number")
     private String paymentNumber;
 
-    @ManyToOne
     @Column(name = "user_id")
     private Long ownerUserId;
 
-    @ManyToOne
     @Column(name = "project_id")
     private Long ownerProjectId;
 
-    @Column(name = "balance", nullable = false)
-    private Long balance;
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
