@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "free_account_numbers")
 @Data
 @AllArgsConstructor
-public class FreeAccoutNumber {
+@NoArgsConstructor
+public class FreeAccountNumber {
 
     @EmbeddedId
     private FreeAccountId id;
