@@ -98,16 +98,15 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         .toList();
   }
 
-  @Retryable(retryFor = {
-      OptimisticLockException.class}, backoff = @Backoff(delay = 3000, multiplier = 2))
   @Override
+  @Transactional
   public void payToCustomers() {
     payInterestRate(getSavingsWithRates());
   }
 
-  @Override
-  @Transactional
-  public List<SavingsAccountToPay> getSavingsWithRates() {
+  @Retryable(retryFor = {
+      OptimisticLockException.class}, backoff = @Backoff(delay = 3000, multiplier = 2))
+  private List<SavingsAccountToPay> getSavingsWithRates() {
     return savingsAccountRepository.getSavingsWithRates();
   }
 

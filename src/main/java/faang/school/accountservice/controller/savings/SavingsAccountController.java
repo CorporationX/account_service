@@ -2,7 +2,6 @@ package faang.school.accountservice.controller.savings;
 
 import faang.school.accountservice.dto.savings.SavingsAccountCreateDto;
 import faang.school.accountservice.dto.savings.SavingsAccountResponseDto;
-import faang.school.accountservice.repository.savings.SavingsAccountRepository.SavingsAccountToPay;
 import faang.school.accountservice.service.savings.SavingsAccountService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -38,11 +37,6 @@ public class SavingsAccountController {
   public List<SavingsAccountResponseDto> getSavingsAccountByOwnerId(@RequestHeader("x-user-id") Long userId,
       @PathVariable @Valid Long ownerId) {
     return savingsAccountService.getSavingsDtoByOwner(userId, ownerId);
-  }
-
-  @GetMapping("/test")
-  public List<SavingsAccountToPay> test(@RequestHeader("x-user-id") Long userId) {
-    return savingsAccountService.getSavingsWithRates();
   }
 
   @PostMapping("/test-pay")

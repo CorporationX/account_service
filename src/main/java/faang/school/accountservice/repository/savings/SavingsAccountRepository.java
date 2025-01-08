@@ -1,7 +1,6 @@
 package faang.school.accountservice.repository.savings;
 
 import faang.school.accountservice.model.savings.SavingsAccount;
-import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -45,7 +44,6 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
     BigDecimal getCurrentRate();
   }
 
-  @Transactional
   @Modifying
   @Query(nativeQuery = true, value = """
       UPDATE balance SET version = version + 1,
@@ -55,7 +53,6 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
       """)
   void updateBalanceByIncome(Long balanceId, BigDecimal rate);
 
-  @Transactional
   @Modifying
   @Query(nativeQuery = true, value = """
       UPDATE savings_account SET version = version + 1,

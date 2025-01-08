@@ -37,6 +37,6 @@ cron:
 
 executor-service:
   core-pool-size: 5
-  list-batch-size: 10
+  list-batch-size: 1000
   threads:
     number: 100
