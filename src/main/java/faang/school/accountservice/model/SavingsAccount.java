@@ -7,9 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "savings_account")
+@Table(name = "public.savings_account")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,4 +35,7 @@ public class SavingsAccount {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "savingsAccounts")
+    private List<Tariff> tariffs;
 }
