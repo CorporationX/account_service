@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/changeset/owner_V002__del_unique_owner_id.sql
   - include:
       file: db/changelog/changeset/account_V003__balance.sql
+  - include:
+      file: db/changelog/changeset/account_V004_saving-account-create.sql
+  - include:
+      file: db/changelog/changeset/account_V005_add_rate_bonus.xml

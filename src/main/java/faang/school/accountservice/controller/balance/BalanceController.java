@@ -20,24 +20,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/balance")
 public class BalanceController {
 
-  private final BalanceService balanceService;
+    private final BalanceService balanceService;
 
-  @PostMapping("/add")
-  public BalanceDto addBalance(@RequestHeader("x-user-id") Long userId,
-      @Valid @RequestBody BalanceCreateDto dto) {
-    return balanceService.create(userId, dto);
-  }
+    @PostMapping("/add")
+    public BalanceDto addBalance(@RequestHeader("x-user-id") Long userId,
+                                 @Valid @RequestBody BalanceCreateDto dto) {
+        return balanceService.create(userId, dto);
+    }
 
-  @PutMapping("/update")
-  public BalanceDto updateBalance(@RequestHeader("x-user-id") Long userId,
-      @Valid @RequestBody PaymentDto dto) {
-    return balanceService.update(userId, dto);
-  }
+    @PutMapping("/update")
+    public BalanceDto updateBalance(@RequestHeader("x-user-id") Long userId,
+                                    @Valid @RequestBody PaymentDto dto) {
+        return balanceService.update(userId, dto);
+    }
 
-  @GetMapping("/{id}")
-  public BalanceDto getBalanceById(@RequestHeader("x-user-id") Long userId,
-      @Valid @PathVariable("id") Long id) {
-    return balanceService.getBalanceById(userId, id);
-  }
-
+    @GetMapping("/{id}")
+    public BalanceDto getBalanceById(@RequestHeader("x-user-id") Long userId,
+                                     @Valid @PathVariable("id") Long id) {
+        return balanceService.getBalanceById(userId, id);
+    }
 }

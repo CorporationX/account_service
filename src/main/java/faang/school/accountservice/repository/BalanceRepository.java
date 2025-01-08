@@ -1,4 +1,4 @@
-package faang.school.accountservice.repository.balance;
+package faang.school.accountservice.repository;
 
 import faang.school.accountservice.model.balance.Balance;
 import java.math.BigDecimal;

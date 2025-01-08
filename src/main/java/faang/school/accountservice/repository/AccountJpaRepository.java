@@ -1,4 +1,4 @@
-package faang.school.accountservice.repository.jpa;
+package faang.school.accountservice.repository;
 
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.model.account.Account;
@@ -21,4 +21,7 @@ public interface AccountJpaRepository extends JpaRepository<Account, Long>, JpaS
     List<Account> findAccountsByOwnerIds(@Param("ownerIds") List<Long> ownerIds);
 
     List<Account> findAccountsByStatus(AccountStatus accountStatus);
+
+    @Query(value = "SELECT a.account_number FROM account a WHERE a.user_id = :userId", nativeQuery = true)
+    List<String> findNumbersByUserId(@Param("userId") Long userId);
 }

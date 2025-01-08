@@ -6,7 +6,7 @@ import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.PaymentDto;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.balance.Balance;
-import faang.school.accountservice.repository.balance.BalanceRepository;
+import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

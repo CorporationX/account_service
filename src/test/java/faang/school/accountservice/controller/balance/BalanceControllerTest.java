@@ -181,5 +181,4 @@ class BalanceControllerTest {
         .value(BigDecimal.ONE)
         .build();
   }
-
 }

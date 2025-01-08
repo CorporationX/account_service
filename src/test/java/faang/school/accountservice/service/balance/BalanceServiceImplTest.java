@@ -1,11 +1,5 @@
 package faang.school.accountservice.service.balance;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
 import faang.school.accountservice.dto.balance.BalanceCreateDto;
@@ -20,13 +14,9 @@ import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.balance.Balance;
 import faang.school.accountservice.model.owner.Owner;
-import faang.school.accountservice.repository.balance.BalanceRepository;
+import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.persistence.EntityNotFoundException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +27,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -53,10 +54,10 @@ class BalanceServiceImplTest {
   private BalanceRepository balanceRepository;
 
   @Mock
-  private AccountService accountService;
+  private UserServiceClient userServiceClient;
 
   @Mock
-  private UserServiceClient userServiceClient;
+  private AccountService accountService;
 
   @Spy
   private BalanceMapper balanceMapper = Mappers.getMapper(BalanceMapper.class);

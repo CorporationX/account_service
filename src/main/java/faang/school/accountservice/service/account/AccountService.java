@@ -12,7 +12,7 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
-import faang.school.accountservice.repository.jpa.AccountJpaRepository;
+import faang.school.accountservice.repository.AccountJpaRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

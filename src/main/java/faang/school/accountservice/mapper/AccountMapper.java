@@ -10,6 +10,5 @@ import org.mapstruct.Mapping;
 public interface AccountMapper {
     Account toAccount(AccountDtoOpen dto);
 
-    @Mapping(target = "ownerId", source = "owner.id")
     AccountDtoResponse toDto(Account account);
 }
