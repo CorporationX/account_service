@@ -1,5 +1,6 @@
 package faang.school.accountservice.handler;
 
+import faang.school.accountservice.exception.BalanceException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
@@ -60,6 +61,20 @@ public class ExceptionApiHandler {
     public ResponseEntity<ErrorMessage> handleMethodFeignException(FeignException exception) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorMessage> handleRuntimeException(RuntimeException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler(BalanceException.class)
+    public ResponseEntity<ErrorMessage> handleBalanceException(BalanceException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorMessage(exception.getMessage()));
     }
 }
