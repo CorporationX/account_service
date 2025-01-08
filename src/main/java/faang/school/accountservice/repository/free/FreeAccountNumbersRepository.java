@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
@@ -23,4 +25,24 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
                     RETURNING fan.account_number, fan.type
                     """)
     FreeAccountNumber retrieveFirst(String type);
+
+    @Query(value = """
+            DELETE FROM free_account_numbers
+            WHERE account_type = :type
+            AND account_number = (
+                SELECT account_number FROM free_account_numbers
+                WHERE account_type = :accountType
+                ORDER BY account_number
+                LIMIT 1
+            )
+            RETURNING account_number;
+            """, nativeQuery = true)
+    Optional<String> getFreeAccountNumber(String type);
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM free_account_numbers\s
+            WHERE type = :type
+            """, nativeQuery = true)
+    long countByType(String type);
 }
