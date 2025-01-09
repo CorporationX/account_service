@@ -1,6 +1,7 @@
 package faang.school.accountservice.handler;
 
 import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.BalanceInsufficientFundsException;
 import faang.school.accountservice.exception.ConflictException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,5 +39,12 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
         log.error("Entity not found", e);
         return new ErrorResponse("Entity not found", e.getMessage());
+    }
+
+    @ExceptionHandler(BalanceInsufficientFundsException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleEntityBalanceInsufficientFundsException(BalanceInsufficientFundsException e) {
+        log.error("Entity not found", e);
+        return new ErrorResponse("Insufficient funds", e.getMessage());
     }
 }

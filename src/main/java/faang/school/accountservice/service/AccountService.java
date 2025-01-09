@@ -10,9 +10,12 @@ import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -84,8 +87,15 @@ public class AccountService {
         } catch (OptimisticLockException e) {
             throw new ConflictException("The account has been updated by another process.");
         }
+    }
 
+    public AccountDto getBlockedOrClosedAccountById(Long accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(()-> new AccountNotFoundException("Account not found"));
+        if (account.getStatus() == AccountStatus.BLOCKED || account.getStatus() == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Account has been blocked or closed");
+        }
 
+        return accountMapper.toDto(account);
     }
 
 

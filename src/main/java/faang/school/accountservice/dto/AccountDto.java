@@ -1,7 +1,6 @@
 package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

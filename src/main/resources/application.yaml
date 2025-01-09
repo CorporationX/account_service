@@ -1,4 +1,14 @@
 spring:
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    consumer:
+      auto-offset-reset: earliest
+      group-id: "my_group_id"
+    bootstrap-servers: "localhost:9092"
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -23,3 +33,4 @@ server:
 logging:
   level:
     root: info
+
