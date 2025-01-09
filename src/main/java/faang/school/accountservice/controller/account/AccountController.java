@@ -5,6 +5,8 @@ import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -39,5 +41,10 @@ public class AccountController {
     @PutMapping("/{accountId}")
     public AccountDto changeStatus(@PathVariable @Positive  long accountId, @RequestParam Status status) {
         return accountService.changeStatus(accountId, status);
+    }
+
+    @PutMapping("/{accountNumber}")
+    public Status reserveMoney(@PathVariable @NotNull @NotBlank String accountNumber){
+        accountService
     }
 }
