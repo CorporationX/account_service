@@ -74,6 +74,11 @@ public class AccountService {
         log.debug("Account deleted: number: {}", account.getAccountNumber());
     }
 
+    public Account findByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Account with number %s not found", accountNumber)));
+    }
+
     private Account generateNewAccount(CreateAccountDto dto, Long ownerId) {
         Account account = accountMapper.toEntity(dto);
         account.setOwnerId(ownerId);

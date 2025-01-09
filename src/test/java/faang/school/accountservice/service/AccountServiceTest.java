@@ -196,4 +196,27 @@ class AccountServiceTest {
         verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
         verify(accountRepository, times(1)).deleteById(account.getId());
     }
+
+    @Test
+    @DisplayName("Find by account number: success")
+    void testFindByAccountNumber_Success() {
+        String accountNumber = "ACC0123456789";
+        Account account = Account.builder().accountNumber(accountNumber).build();
+
+        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+
+        Account result = accountService.findByAccountNumber(accountNumber);
+        assertEquals(account, result);
+    }
+
+    @Test
+    @DisplayName("Find by account number: not found")
+    void testFindByAccountNumber_NotFound() {
+        String accountNumber = "ACC0123456789";
+
+        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> accountService.findByAccountNumber(accountNumber));
+        assertEquals(String.format("Account with number %s not found", accountNumber), ex.getMessage());
+    }
 }
