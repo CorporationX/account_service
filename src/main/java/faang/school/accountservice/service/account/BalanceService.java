@@ -28,8 +28,8 @@ public class BalanceService {
     public BalanceDto createBalanceForAccount(Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account doesn't exist"));
-        Balance balance = new Balance().setAccount(account);
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        Balance savedBalance = balanceRepository.save(new Balance().setAccount(account));
+        return balanceMapper.toDto(savedBalance);
     }
 
     @Transactional
@@ -38,6 +38,7 @@ public class BalanceService {
                 .orElseThrow(() -> new EntityNotFoundException("Balance doesn't exist"));
         balance.setAuthorisationBalance(balanceDto.getAuthorisationBalance());
         balance.setActualBalance(balanceDto.getActualBalance());
-        return balanceMapper.toDto(balanceRepository.save(balance));
+        balanceRepository.save(balance);
+        return balanceMapper.toDto(balance);
     }
 }
