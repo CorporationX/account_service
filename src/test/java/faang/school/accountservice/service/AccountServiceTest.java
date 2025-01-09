@@ -8,6 +8,7 @@ import faang.school.accountservice.dto.TransactionDto;
 import faang.school.accountservice.dto.TransactionRequestDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.entity.Transaction;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
@@ -40,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,6 +61,9 @@ class AccountServiceTest {
 
     @Mock
     private AccountEventPublisher accountEventPublisher;
+
+    @Mock
+    private BalanceAuditService balanceAuditService;
 
     @InjectMocks
     private AccountService accountService;
@@ -225,6 +230,7 @@ class AccountServiceTest {
                         .build())
                 .transactions(new ArrayList<>())
                 .build();
+
         when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
 
         BalanceChangeDto result = accountService.deposit(transactionRequestDto);
