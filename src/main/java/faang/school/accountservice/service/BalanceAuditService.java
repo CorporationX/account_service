@@ -6,6 +6,7 @@ import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +14,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BalanceAuditService {
     private final BalanceAuditRepository balanceAuditRepository;
     private final BalanceAuditMapper balanceAuditMapper;
 
     private List<BalanceAudit> getAuditsAccount(Long accountId) {
-       return balanceAuditRepository.findByAccountId(accountId);
+        return balanceAuditRepository.findByAccountId(accountId);
     }
 
     @Transactional
@@ -26,5 +28,6 @@ public class BalanceAuditService {
         Balance balance = account.getBalance();
         BalanceAudit balanceAudit = balanceAuditMapper.toBalanceAudit(balance, transactionId);
         balanceAuditRepository.save(balanceAudit);
+        log.info("A balance audit entry has been made for account number {}", account.getAccountNumber());
     }
 }

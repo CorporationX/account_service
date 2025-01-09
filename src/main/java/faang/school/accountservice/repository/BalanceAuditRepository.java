@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BalanceAuditRepository  extends JpaRepository<BalanceAudit,Long> {
+public interface BalanceAuditRepository extends JpaRepository<BalanceAudit, Long> {
     List<BalanceAudit> findByAccountId(Long accountId);
 }

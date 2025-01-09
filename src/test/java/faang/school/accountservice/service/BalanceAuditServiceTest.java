@@ -23,10 +23,10 @@ import static org.mockito.Mockito.when;
 class BalanceAuditServiceTest {
 
     @Mock
-    private  BalanceAuditRepository balanceAuditRepository;
+    private BalanceAuditRepository balanceAuditRepository;
 
     @Mock
-    private  BalanceAuditMapper balanceAuditMapper;
+    private BalanceAuditMapper balanceAuditMapper;
 
     @InjectMocks
     private BalanceAuditService balanceAuditService;
