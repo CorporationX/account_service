@@ -35,3 +35,7 @@ services:
 cashback:
   processing:
     batch-size: 100
+
+  retry:
+    cron: "0 */30 * * * *"
+    lookback-hours: 24

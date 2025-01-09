@@ -64,6 +64,9 @@ CREATE TABLE operation (
                            created_at TIMESTAMP NOT NULL,
                            cashback_processed BOOLEAN DEFAULT FALSE,
                            cashback_processed_at TIMESTAMP,
+                           retry_count INT DEFAULT 0,
+                           last_retry_at TIMESTAMP,
+                           error_message TEXT,
                            CONSTRAINT fk_operation_account
                                FOREIGN KEY (account_id)
                                    REFERENCES account(id),

@@ -39,4 +39,13 @@ public class Operation {
 
     @Column(name = "cashback_processed_at")
     private LocalDateTime cashbackProcessedAt;
+
+    @Column(name = "retry_count")
+    private int retryCount;
+
+    @Column(name = "last_retry_at")
+    private LocalDateTime lastRetryAt;
+
+    @Column(name = "error_message")
+    private String errorMessage;
 }
