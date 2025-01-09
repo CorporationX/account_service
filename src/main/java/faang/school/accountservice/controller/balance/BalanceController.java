@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/balance")
@@ -24,7 +26,7 @@ public class BalanceController {
 
   @PostMapping("/add")
   public BalanceDto addBalance(@RequestHeader("x-user-id") Long userId,
-      @Valid @RequestBody BalanceCreateDto dto) {
+      @Valid @RequestBody BalanceCreateDto dto) throws AccountNotFoundException {
     return balanceService.create(userId, dto);
   }
 
@@ -39,5 +41,4 @@ public class BalanceController {
       @Valid @PathVariable("id") Long id) {
     return balanceService.getBalanceById(userId, id);
   }
-
 }

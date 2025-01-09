@@ -6,6 +6,8 @@ import faang.school.accountservice.dto.balance.PaymentDto;
 import faang.school.accountservice.model.balance.Balance;
 import jakarta.validation.Valid;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 public interface BalanceService {
 
   BalanceDto create(@Valid Long userId, @Valid BalanceCreateDto balanceCreateDto);

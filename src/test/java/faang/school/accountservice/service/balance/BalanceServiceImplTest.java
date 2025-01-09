@@ -38,6 +38,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 class BalanceServiceImplTest {
@@ -64,7 +66,7 @@ class BalanceServiceImplTest {
 
   @Test
   @DisplayName("Should return created balance")
-  void testCreateBalance() {
+  void testCreateBalance() throws AccountNotFoundException {
     BalanceCreateDto createDto = generateCreateDto();
     Balance expectedBalance = generateBalance();
     BalanceDto expectedDto = generateDto();

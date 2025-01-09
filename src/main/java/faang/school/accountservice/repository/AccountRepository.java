@@ -2,43 +2,48 @@ package faang.school.accountservice.repository;
 
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.model.account.Account;
-import faang.school.accountservice.repository.jpa.AccountJpaRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import faang.school.accountservice.model.cashback.Operation;
+import feign.Param;
+import jakarta.validation.constraints.Pattern;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-@Slf4j
 @Repository
-@RequiredArgsConstructor
-public class AccountRepository {
-    private final AccountJpaRepository accountJpaRepository;
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    public Account save(Account account) {
-        return accountJpaRepository.save(account);
-    }
+    @Query("SELECT a FROM Account a WHERE a.owner IN (SELECT o FROM Owner  o WHERE o.ownerId IN :ownerIds)")
+    List<Account> findAccountsByOwnerIds(@Param("ownerIds") List<Long> ownerIds);
 
-    public Account getAccountByIdAndStatus(long id, AccountStatus accountStatus) {
-        return accountJpaRepository.findByIdAndStatus(id, accountStatus).orElseThrow(
-                () -> new EntityNotFoundException("Account not found by id: " + id + " and status: " + accountStatus)
-        );
-    }
+    Optional<Account> findById(long id);
 
-    public Account getAccountById(long id) {
-        return accountJpaRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Account not found by id: " + id)
-        );
-    }
+    Optional<Account> findByIdAndStatus(long id, AccountStatus accountStatus);
 
-    public List<Account> findAll() {
-        return accountJpaRepository.findAll();
-    }
+    Optional<Account> findByAccountNumber(String accountNumber);
 
-    public Account getAccountByAccountNumber(String accountNumber) {
-        return accountJpaRepository.findByAccountNumber(accountNumber).orElseThrow(
-                () -> new EntityNotFoundException("Account not found by number: " + accountNumber)
-        );
-    }
+    List<Account> findAll(Specification specification);
+
+    List<Account> findAccountsByStatus(AccountStatus accountStatus);
+
+    Optional<Account> getAccountByIdAndStatus(Long id, AccountStatus accountStatus);
+
+    Account getAccountById(Long id);
+
+    Account getAccountByAccountNumber(@Pattern(regexp = "^[0-9]{12,20}$", message = "Account number must be between 12 and 20 digits and contain only numbers.") String accountNumber);
+
+    @Query(value = """
+            SELECT a.account_number
+            FROM account a
+            WHERE has_cashback_tariff = true
+            LIMIT :batchSize
+            """,
+            nativeQuery = true
+    )
+    List<Account> findAllWithCashbackTariff(PageRequest pageRequest);
 }

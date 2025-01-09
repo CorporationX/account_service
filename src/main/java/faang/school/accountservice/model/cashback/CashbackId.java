@@ -1,0 +1,13 @@
+package faang.school.accountservice.model.cashback;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CashbackId {
+    private Long tariffId;
+    private Long typeId;
+}

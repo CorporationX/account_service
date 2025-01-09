@@ -19,6 +19,4 @@ public interface BalanceMapper {
 
   @Mapping(target = "account", ignore = true)
   Balance toEntity(BalanceCreateDto dto);
-
-
 }

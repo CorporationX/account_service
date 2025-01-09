@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 
 @Validated
@@ -44,7 +45,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public AccountDtoResponse get(@PathVariable("id") @NotNull @Positive Long id) {
+    public AccountDtoResponse get(@PathVariable("id") @NotNull @Positive Long id) throws AccountNotFoundException {
         return accountService.getAccount(id);
     }
 
@@ -62,5 +63,4 @@ public class AccountController {
     public AccountDtoResponse block(@RequestBody @Valid AccountDtoCloseBlock dtoCloseBlock) {
         return accountService.blockAccount(dtoCloseBlock);
     }
-
 }
