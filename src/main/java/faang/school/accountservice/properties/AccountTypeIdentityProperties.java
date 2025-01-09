@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Configuration
-@ConfigurationProperties(prefix = "account-type-number-identity")
+@ConfigurationProperties(prefix = "account.number.identity-by-type")
 public class AccountTypeIdentityProperties {
 
     private int individual;

@@ -28,7 +28,7 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumberValidator freeAccountNumberValidator;
 
     @Transactional
-    public void generateFreeAccountNumbers(AccountType accountType, int accountNumbersAmount) {
+    public void generateFreeAccountNumbers(AccountType accountType, long accountNumbersAmount) {
         log.info("Start generating free account numbers for account type: {}", accountType);
         AccountNumberSequence sequence = accountNumbersSequenceRepository.incrementCounter(accountType.name(), accountNumbersAmount);
         long numberSequence = sequence.getCurrentSequenceValue();
@@ -59,11 +59,27 @@ public class FreeAccountNumbersService {
 
         if (freeAccountNumber == null) {
             log.info("No free account number found for account type: {}.Generating new...", accountType);
-            generateFreeAccountNumber(accountType);
+            generateFreeAccountNumbers(accountType, 1);
             freeAccountNumber = freeAccountNumbersRepository.retrieveFreeAccountNumber(accountType.name());
         }
         log.info("Finished getting free account number for account type: {}", accountType);
         return freeAccountNumber.getAccountNumber();
+    }
+
+    @Transactional
+    public void ensureFreeAccountNumbers(AccountType accountType, long threshold) {
+        log.info("Ensuring free account numbers for account type: {}. Threshold: {}", accountType, threshold);
+        long existingNumbersAmount = freeAccountNumbersRepository.countByAccountType(accountType);
+
+        long amountDifference = threshold - existingNumbersAmount;
+        if (amountDifference > 0) {
+            generateFreeAccountNumbers(accountType, amountDifference);
+            log.info("Generated {} new free account numbers for account type '{}'. Total now: {}",
+                    amountDifference, accountType, threshold);
+        } else {
+            log.info("No new account numbers generated for account type '{}'. Threshold: {}, Existing: {}",
+                    accountType, threshold, existingNumbersAmount);
+        }
     }
 
     private int getLengthByAccountType(AccountType accountType) {

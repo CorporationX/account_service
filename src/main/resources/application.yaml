@@ -24,13 +24,22 @@ logging:
   level:
     root: info
 
-account-type-number-identity:
-  individual: 3222
-  legal: 4333
-  savings: 5444
-  debit: 6555
-account-type-number-length:
-  individual: 12
-  legal: 20
-  savings: 16
-  debit: 16
+account:
+  number:
+    identity-by-type:
+      individual: 3222
+      legal: 4333
+      savings: 5444
+      debit: 6555
+    length-by-type:
+      individual: 12
+      legal: 20
+      savings: 16
+      debit: 16
+    generation:
+      cron: "0 0 0 * * ?"
+      max-amount-by-type:
+        INDIVIDUAL: 30
+        LEGAL: 40
+        SAVINGS: 60
+        DEBIT: 70

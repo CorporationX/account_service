@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Configuration
-@ConfigurationProperties(prefix = "account-type-number-length")
+@ConfigurationProperties(prefix = "account.number.length-by-type")
 public class AccountTypeLengthProperties {
 
     private int individual;
