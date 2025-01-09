@@ -52,6 +52,10 @@ public class Balance {
   @Column(name = "version", nullable = false)
   private long version;
 
+  public void add(BigDecimal amountToAdd){
+    this.actualValue = this.actualValue.add(amountToAdd);
+  }
+
   public void authorizePayment(BigDecimal value) {
     authorizedValue = authorizedValue.subtract(value);
     version++;

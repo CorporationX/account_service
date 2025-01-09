@@ -12,7 +12,6 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
-import faang.school.accountservice.repository.jpa.AccountJpaRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -26,23 +25,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Validated
+@RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
     private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
-    private final AccountJpaRepository accountJpaRepository;
     private final List<FilterSpecification<Account, AccountDtoFilter>> filters;
 
     private final Set<String> accountNumbers = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -73,13 +73,15 @@ public class AccountService {
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public AccountDtoResponse verify(@NotNull @Valid AccountDtoVerify dto) {
-        Account account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING);
-        account.setStatus(AccountStatus.ACTIVE);
-        return accountMapper.toDto(accountRepository.save(account));
+        Optional<Account> account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING);
+        account.ifPresent(value -> value.setStatus(AccountStatus.ACTIVE));
+        return accountMapper.toDto(accountRepository.save(account.get()));
     }
 
-    public AccountDtoResponse getAccount(@NotNull @Positive Long id) {
-        return accountMapper.toDto(accountRepository.getAccountById(id));
+    public AccountDtoResponse getAccount(@NotNull @Positive Long id) throws AccountNotFoundException {
+        return accountRepository.findById(id)
+                .map(accountMapper::toDto)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
     }
 
     public List<AccountDtoResponse> getAccounts(@NotNull AccountDtoFilter filterDto) {
@@ -88,7 +90,7 @@ public class AccountService {
                 .map(filter -> filter.apply(filterDto))
                 .reduce(Specification.where(null), Specification::and);
 
-        return accountJpaRepository.findAll(specification).stream()
+        return accountRepository.findAll(specification).stream()
                 .map(accountMapper::toDto)
                 .toList();
     }
@@ -97,7 +99,7 @@ public class AccountService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public AccountDtoResponse closeAccount(@NotNull @Valid AccountDtoCloseBlock dtoClose) {
         Account account = dtoClose.getId() != null
-                ? accountRepository.getAccountById(dtoClose.getId())
+                ? accountRepository.getAccountById((dtoClose.getId()))
                 : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
         checkAccountClosedBlocked(account);
         account.setStatus(AccountStatus.CLOSED);

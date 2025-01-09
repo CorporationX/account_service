@@ -31,3 +31,7 @@ services:
   project-service:
     host: localhost
     port: 8082
+
+cashback:
+  processing:
+    batch-size: 100

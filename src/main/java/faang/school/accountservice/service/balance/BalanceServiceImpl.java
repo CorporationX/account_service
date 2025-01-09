@@ -18,6 +18,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,8 +35,12 @@ public class BalanceServiceImpl implements BalanceService {
   public BalanceDto create(Long userId, BalanceCreateDto balanceCreateDto) {
     validateUser(userId);
     long accountId = balanceCreateDto.accountId();
-    accountService.getAccount(accountId);
-    Balance balance = balanceRepository.create(accountId,
+      try {
+          accountService.getAccount(accountId);
+      } catch (AccountNotFoundException e) {
+          throw new RuntimeException(e);
+      }
+      Balance balance = balanceRepository.create(accountId,
         balanceCreateDto.authorizedValue());
     return balanceMapper.toDto(balance);
   }
