@@ -57,11 +57,7 @@ public class AccountService {
 
         freeAccountNumbersService.retrieveAccountNumber(AccountType.DEBIT, accountNumber -> {
             String number = String.valueOf(accountNumber.getId().getAccountNumber());
-            if (number != null) {
-                account.setAccountNumber(number);
-            } else {
-                throw new IllegalArgumentException("Cant create accountNumber pls try later");
-            }
+            if (number == null) throw new IllegalArgumentException("Cant create accountNumber pls try later");
             account.setAccountNumber(number);
         });
 
