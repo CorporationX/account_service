@@ -4,7 +4,7 @@ CREATE TABLE if not exists request_task
 (
     id         UUID                 DEFAULT gen_random_uuid() PRIMARY KEY,
     request_id UUID        not null,
-    handler    BIGINT      not null,
+    handler    VARCHAR(32) not null,
     status     VARCHAR(32) not null,
     created_at TIMESTAMPTZ          DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ,

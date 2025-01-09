@@ -1,10 +1,11 @@
-package faang.school.accountservice.handler;
+package faang.school.accountservice.handler.handlers;
 
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.entity.RequestTask;
+import faang.school.accountservice.enums.RequestHandler;
 
 public interface RequestTaskHandler {
+    RequestHandler getHandlerId();
     void execute(Request request, RequestTask task);
-
-    Long getHandlerId();
+    void rollback(Request request, RequestTask task);
 }

@@ -1,6 +1,7 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.RequestStatus;
+import faang.school.accountservice.enums.RequestHandler;
+import faang.school.accountservice.enums.RequestTaskStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,12 +39,13 @@ public class RequestTask {
     @JoinColumn(name="request_id", nullable = false)
     private Request request;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "handler", nullable = false)
-    private Long currentHandlerStep;
+    private RequestHandler handler;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private RequestStatus status;
+    private RequestTaskStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -54,5 +56,5 @@ public class RequestTask {
 
     @Version
     @Column(name = "version", nullable = false)
-    private int version;
+    private Long version;
 }

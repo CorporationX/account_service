@@ -22,6 +22,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -67,5 +69,12 @@ public class Request {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<RequestTask> tasks;
+    private List<RequestTask> tasks = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "context", columnDefinition = "jsonb")
+    private Map<String, Object> context = new HashMap<>();
+
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
 }
