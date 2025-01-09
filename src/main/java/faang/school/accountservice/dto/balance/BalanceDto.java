@@ -16,5 +16,4 @@ public class BalanceDto {
     private Long actualBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long version;
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -19,9 +20,6 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "account_id", nullable = false)
-    private long accountId;
-
     @Column(name = "authorisation_balance", nullable = false)
     private long authorisationBalance;
 
@@ -29,12 +27,15 @@ public class Balance {
     private long actualBalance;
 
     @Column(name = "created_at")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @CreationTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "version")
+    @Version
     private long version;
 
     @OneToOne

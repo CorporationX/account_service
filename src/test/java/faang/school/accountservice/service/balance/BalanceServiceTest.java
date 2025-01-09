@@ -52,7 +52,7 @@ public class BalanceServiceTest {
 
         when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
 
-        BalanceDto result = balanceService.createBalance(new Account(), 50L, 100L);
+        BalanceDto result = balanceService.createBalance(new Account());
         
         assertNotNull(result);
         verify(balanceRepository, times(1)).save(any(Balance.class));

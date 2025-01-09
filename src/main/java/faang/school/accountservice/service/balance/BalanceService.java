@@ -20,11 +20,11 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
 
     @Transactional
-    public BalanceDto createBalance(Account account, long authorisationBalance, long actualBalance) {
+    public BalanceDto createBalance(Account account) {
         Balance balance = new Balance();
         balance.setAccount(account);
-        balance.setActualBalance(actualBalance);
-        balance.setAuthorisationBalance(authorisationBalance);
+        balance.setActualBalance(0L);
+        balance.setAuthorisationBalance(0L);
         balance.setCreatedAt(LocalDateTime.now());
         balance.setUpdatedAt(LocalDateTime.now());
         balance.setVersion(1L);
