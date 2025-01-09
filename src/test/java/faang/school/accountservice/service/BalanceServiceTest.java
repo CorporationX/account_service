@@ -119,6 +119,7 @@ class BalanceServiceTest {
     }
 
     @Test
+    @DisplayName("Withdraw authorized balance: success")
     void testWithdrawAuthorized_Success() {
         balance.setAuthorizedBalance(new BigDecimal("100.00"));
         when(balanceRepository.getReferenceById(balanceId)).thenReturn(balance);
@@ -130,6 +131,7 @@ class BalanceServiceTest {
     }
 
     @Test
+    @DisplayName("Withdraw authorized balance: insufficient funds")
     void testWithdrawAuthorized_InsufficientFunds() {
         BigDecimal amount = new BigDecimal("0.01");
         balance.setAuthorizedBalance(new BigDecimal("0.00"));
@@ -140,6 +142,7 @@ class BalanceServiceTest {
     }
 
     @Test
+    @DisplayName("Withdraw actual balance: success")
     void testWithdrawActual_Success() {
         balance.setActualBalance(new BigDecimal("100.00"));
         when(balanceRepository.getReferenceById(balanceId)).thenReturn(balance);
@@ -151,6 +154,7 @@ class BalanceServiceTest {
     }
 
     @Test
+    @DisplayName("Withdraw actual balance: insufficient funds")
     void testWithdrawActual_InsufficientFunds() {
         BigDecimal amount = new BigDecimal("0.01");
         balance.setAuthorizedBalance(new BigDecimal("0.00"));
