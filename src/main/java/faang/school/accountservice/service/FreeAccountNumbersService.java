@@ -32,14 +32,13 @@ public class FreeAccountNumbersService {
     @Transactional
     @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2))
     public List<FreeAccountNumber> generateFreeAccountNumber(AccountType type, int batchSize) {
-        AccountNumberSequence accNumSeq = accountNumberSequenceRepository.findByType(type).orElseThrow(
-                () -> new IllegalArgumentException("Sequence for account type not found"));
-        boolean incremented = incrementCounterIfMatches(type, batchSize, accNumSeq.getCounter());
+        AccountNumberSequence sequence = accountNumberSequenceRepository.createCounterForType(type);
+        boolean incremented = incrementCounterIfMatches(type, batchSize, sequence.getCounter());
         if (!incremented) {
             throw new OptimisticLockException("Failed to increment account sequence due to concurrent modification");
         }
         List<FreeAccountNumber> numbers = new ArrayList<>();
-        for (long i = accNumSeq.getCounter(); i < accNumSeq.getCounter() + batchSize; i++) {
+        for (long i = sequence.getCounter(); i < sequence.getCounter() + batchSize; i++) {
             FreeAccountId freeAccountId = new FreeAccountId(type, generateNumber(type.getAccountTypePattern(), i));
             numbers.add(new FreeAccountNumber(freeAccountId));
         }

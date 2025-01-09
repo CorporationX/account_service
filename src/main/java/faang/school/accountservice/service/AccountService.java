@@ -178,7 +178,8 @@ public class AccountService {
         Account account = accountMapper.toEntity(dto);
         account.setOwnerId(ownerId);
         freeAccountNumbersService.processAndDeleteFreeAccNumber(dto.accountType(),
-                freeAccountNumber -> account.setAccountNumber(freeAccountNumber.toString()));
+                freeAccountNumber -> account.setAccountNumber(
+                        freeAccountNumber.getId().getAccountNumber().toString()));
         account.setStatus(AccountStatus.ACTIVE);
         Balance balance = new Balance();
         account.setBalance(balance);

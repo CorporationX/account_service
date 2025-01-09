@@ -24,5 +24,5 @@ public class AccountNumberSequence {
     private Long counter;
 
     @Version
-    private Integer version;
+    private Long version;
 }

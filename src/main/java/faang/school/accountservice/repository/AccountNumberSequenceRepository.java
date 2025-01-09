@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface AccountNumberSequenceRepository extends JpaRepository<AccountNumberSequence, String> {
+    long counter = 0L;
+    long version = 0L;
 
     @Transactional
     @Modifying
@@ -22,4 +24,12 @@ public interface AccountNumberSequenceRepository extends JpaRepository<AccountNu
     int incrementCounterIfMatch(@Param("type") AccountType type, @Param("batchSize") int batchSize, @Param("expectedCounter") Long expectedCounter);
 
     Optional<AccountNumberSequence> findByType(AccountType type);
+
+    @Transactional
+    default AccountNumberSequence createCounterForType(AccountType type) {
+        return findByType(type).orElseGet(() -> {
+            AccountNumberSequence sequence = new AccountNumberSequence(type, counter, version);
+            return save(sequence);
+        });
+    }
 }
