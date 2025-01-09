@@ -14,12 +14,15 @@ public class InterestRatePaymentScheduler {
 
   @PostConstruct
   public void init() {
-    savingsAccountService.payToCustomers();
+//    temporary leave options for speed tests
+//    savingsAccountService.payToCustomers();
+    savingsAccountService.payToClients();
   }
 
   @Scheduled(cron = "${cron.savings-payment}")
   public void payInterestRates() {
-    savingsAccountService.payToCustomers();
+//    leave final one
+    savingsAccountService.payToClients();
   }
 
 }

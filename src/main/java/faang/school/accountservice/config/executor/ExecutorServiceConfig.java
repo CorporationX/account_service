@@ -14,9 +14,6 @@ public class ExecutorServiceConfig {
   @Value("${executor-service.core-pool-size}")
   private int corePoolSize;
 
-  @Value("${executor-service.list-batch-size}")
-  private int listBatchSize;
-
   @Value("${executor-service.threads.number}")
   private int threadsNumber;
 

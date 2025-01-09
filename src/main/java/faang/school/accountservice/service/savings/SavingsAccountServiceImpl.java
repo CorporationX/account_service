@@ -18,9 +18,14 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -37,6 +42,10 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
   private final TariffMapper tariffMapper;
   private final UserUtils userUtils;
   private final BalanceService balanceService;
+  private final ExecutorService cachedThreadPool;
+
+  @Value("${db-fetch-data.max-batch-size}")
+  private Integer batchSize;
 
   @Transactional
   @Override
@@ -98,21 +107,93 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         .toList();
   }
 
+  // First solution, seems lowest speed despite to a
   @Override
   @Transactional
   public void payToCustomers() {
-    payInterestRate(getSavingsWithRates());
+
+    Long lastId = 0L;
+
+    List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+    boolean hasList = true;
+    while (hasList) {
+      List<SavingsAccountToPay> payList = savingsAccountRepository.getSavingsWithRatesBatch(lastId,
+          batchSize);
+
+      if (!payList.isEmpty()) {
+        lastId = payList.stream()
+            .map(SavingsAccountToPay::getId)
+            .max(Long::compareTo).orElseThrow(() -> new NoSuchElementException(""));
+
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> payInterestRate(payList),
+            cachedThreadPool);
+        futures.add(future);
+
+      } else {
+        hasList = false;
+      }
+    }
+
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
   }
 
+  //Option A or B to play:
+  @Transactional
+  @Override
   @Retryable(retryFor = {
       OptimisticLockException.class}, backoff = @Backoff(delay = 3000, multiplier = 2))
-  private List<SavingsAccountToPay> getSavingsWithRates() {
-    return savingsAccountRepository.getSavingsWithRates();
+  public void payToClients() {
+    List<SavingsAccountToPay> savingsAccountToPay = savingsAccountRepository.getSavingsWithRates();
+//    List<List<SavingsAccountToPay>> batches = splitIntoBatches(savingsAccountToPay);
+    List<List<SavingsAccountToPay>> batches = readByBatchesFromDB();
+    List<CompletableFuture<Void>> futures = batches
+        .stream()
+        .map(batch -> CompletableFuture.runAsync(() -> payInterestRate(batch), cachedThreadPool))
+        .toList();
+
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+  }
+
+  // Option A: read in batches from DB, collect
+  private List<List<SavingsAccountToPay>> readByBatchesFromDB() {
+
+    long lastId = 0L;
+
+    List<List<SavingsAccountToPay>> batches = new ArrayList<>();
+
+    boolean hasList = true;
+    while (hasList) {
+      List<SavingsAccountToPay> payList = savingsAccountRepository.getSavingsWithRatesBatch(lastId,
+          batchSize);
+      if (!payList.isEmpty()) {
+        batches.add(payList);
+        lastId = payList.get(payList.size() - 1).getId();
+      } else {
+        hasList = false;
+      }
+    }
+    return batches;
+  }
+
+  // Option B: get List and split
+  private List<List<SavingsAccountToPay>> splitIntoBatches(
+      List<SavingsAccountToPay> savingsAccountToPay) {
+    int totalSize = savingsAccountToPay.size();
+
+    int batchNumbs = (totalSize + batchSize - 1) / batchSize;
+
+    List<List<SavingsAccountToPay>> batches = new ArrayList<>();
+
+    for (int i = 0; i < batchNumbs; i++) {
+      int start = i * batchSize;
+      int end = Math.min(totalSize, (i + 1) * batchSize);
+      batches.add(savingsAccountToPay.subList(start, end));
+    }
+    return batches;
   }
 
   private void payInterestRate(List<SavingsAccountToPay> balancesToUpdate) {
-    //TODO распараллелить список накопов на несколько списков и пустить в расчет и начисление
-    // сейчас тупо последовательно по списку
     balancesToUpdate.forEach(this::payToOneAccount);
   }
 
