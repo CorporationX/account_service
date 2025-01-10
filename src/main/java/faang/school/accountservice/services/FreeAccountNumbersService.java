@@ -17,6 +17,7 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
+    @Transactional
     public void createNewFreeAccountNumber(String type) {
         Integer fourDigits = getValueForAccountTypeOrThrowException(type);
         AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType(type);
@@ -32,13 +33,23 @@ public class FreeAccountNumbersService {
     }
 
     @Transactional
-    public void getFreeAccountNumberWithTransaction(String accountType, Runnable action) {
+    public Long getFreeAccountNumberWithTransaction(String accountType, Runnable action) {
         Long accountNumber = freeAccountNumbersRepository.getAndRemoveFirstFreeAccountNumber(accountType);
         if (accountNumber == null) {
             createNewFreeAccountNumber(accountType);
             accountNumber = freeAccountNumbersRepository.getAndRemoveFirstFreeAccountNumber(accountType);
+            if (accountNumber == null) {
+                throw new RuntimeException("No free account numbers available");
+            }
         }
-        action.run();
+
+        try {
+            action.run();
+            return accountNumber;
+        } catch (Exception e) {
+            freeAccountNumbersRepository.saveNewFreeAccountNumber(accountType, accountNumber);
+            throw e;
+        }
     }
 
     public void createNewAccountNumbersSequence(String accountType) {

@@ -8,11 +8,9 @@ import lombok.Data;
 @Table(name = "account_number_sequence")
 public class AccountNumbersSequence {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable = false)
+    @Id
+    @Column(nullable = false, name = "account_type")
     private String accountType;
 
     @Column(nullable = false)

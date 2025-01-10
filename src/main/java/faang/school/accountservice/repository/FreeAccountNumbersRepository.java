@@ -19,9 +19,13 @@ public interface FreeAccountNumbersRepository extends JpaRepository<Account, Lon
     @Transactional
     @Query(value = "WITH deleted AS ( " +
             "    DELETE FROM free_account_numbers " +
-            "    WHERE type = ?1 " +
+            "    WHERE account_number = ( " +
+            "        SELECT account_number FROM free_account_numbers " +
+            "        WHERE type = ?1 " +
+            "        LIMIT 1 " +
+            "    ) " +
             "    RETURNING account_number " +
             ") " +
-            "SELECT account_number FROM deleted LIMIT 1", nativeQuery = true)
+            "SELECT account_number FROM deleted", nativeQuery = true)
     Long getAndRemoveFirstFreeAccountNumber(String accountType);
 }

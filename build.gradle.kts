@@ -46,6 +46,7 @@ dependencies {
      * Test containers
      */
     implementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
+    implementation ("org.flywaydb:flyway-core")
     testImplementation("org.testcontainers:junit-jupiter:1.20.4")
     testImplementation("org.testcontainers:postgresql:1.20.4")
     testImplementation ("org.testcontainers:testcontainers:1.20.4")
