@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface AccountNumberSequenceRepository extends JpaRepository<AccountNumberSequence, String> {
-    long counter = 0L;
 
     @Transactional
     @Modifying
@@ -29,7 +28,6 @@ public interface AccountNumberSequenceRepository extends JpaRepository<AccountNu
         return findByType(type).orElseGet(() -> {
             AccountNumberSequence sequence = AccountNumberSequence.builder()
                     .type(type)
-                    .counter(counter)
                     .build();
             return save(sequence);
         });

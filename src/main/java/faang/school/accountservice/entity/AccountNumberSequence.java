@@ -20,8 +20,8 @@ public class AccountNumberSequence {
     @Enumerated(EnumType.STRING)
     private AccountType type;
 
-    @Column(name = "counter", nullable = false)
-    private Long counter;
+    @Column(name = "counter")
+    private long counter = 0L;
 
     @Version
     private Long version;
