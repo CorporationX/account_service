@@ -23,6 +23,8 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 @Slf4j
 public class FreeAccountNumbersService {
+    private final int single = 1;
+    private final long divisor = 1_000_000_000_000_000L;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
     private final FreeAccountNumberRepository freeAccountNumberRepository;
 
@@ -57,14 +59,13 @@ public class FreeAccountNumbersService {
     private FreeAccountNumber deleteReturning(AccountType type) {
         FreeAccountNumber freeAccNum = freeAccountNumberRepository.findFirstByIdType(type);
         if (freeAccNum == null) {
-            freeAccNum = generateFreeAccountNumber(type, 1).get(0);
+            freeAccNum = generateFreeAccountNumber(type, single).get(0);
         }
         freeAccountNumberRepository.delete(freeAccNum);
         return freeAccNum;
     }
 
     private long generateNumber(long pattern, long currentIteration) {
-        long divisor = 1_000_000_000_000_000L;
         long fixedPart = pattern / divisor;
         long remainderPart = pattern % divisor;
         long newRemainder = remainderPart + currentIteration;
