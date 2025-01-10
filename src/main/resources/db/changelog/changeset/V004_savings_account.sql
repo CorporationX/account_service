@@ -33,7 +33,7 @@ create table if not exists public.rate_history (
     rate decimal not null,
     tariff_id bigint not null,
     start_date timestamp default current_timestamp not null,
-    end_date timestamp,
+    end_date timestamp null,
     created_at timestamp default current_timestamp not null,
     updated_at timestamp default current_timestamp not null,
     constraint fk_tariff_idx foreign key(tariff_id) references public.tariff(id) on delete cascade

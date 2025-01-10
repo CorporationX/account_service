@@ -2,13 +2,18 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.mappers.TariffMapper;
+import faang.school.accountservice.model.RateHistory;
 import faang.school.accountservice.model.Tariff;
+import faang.school.accountservice.repository.RateHistoryRepository;
 import faang.school.accountservice.repository.TariffRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -16,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class TariffService {
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
+    private final RateHistoryRepository rateHistoryRepository;
 
     public TariffDto getTariff(Long id) {
         validateTariffId(id);
@@ -25,6 +31,20 @@ public class TariffService {
                 throw new EntityNotFoundException("Tariff with id " + id + " not found");
             });
         return tariffMapper.toDto(tariff);
+    }
+
+    @Transactional
+    public TariffDto createTariff(TariffDto tariffDto) {
+        validateTariffExistance(tariffDto.getId());
+        Tariff tariff = tariffMapper.toEntity(tariffDto);
+        RateHistory rateHistory = RateHistory.builder()
+                .rate(tariffDto.getRate())
+                .tariffId(tariffDto.getId())
+                .startDate(LocalDateTime.now())
+                .build();
+        Tariff result = tariffRepository.save(tariff);
+        rateHistoryRepository.save(rateHistory);
+        return tariffMapper.toDto(result);
     }
 
     private void validateTariffExistance(Long id) {
