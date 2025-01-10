@@ -2,6 +2,7 @@ package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.RequestHandler;
 import faang.school.accountservice.enums.RequestTaskStatus;
+import faang.school.accountservice.enums.RollbackStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,4 +58,11 @@ public class RequestTask {
     @Version
     @Column(name = "version", nullable = false)
     private Long version;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rollback", nullable = false)
+    private RollbackStatus rollback = RollbackStatus.NONE;
+
+    @Column(name = "rollback_reason", length = 512)
+    private String rollbackReason;
 }

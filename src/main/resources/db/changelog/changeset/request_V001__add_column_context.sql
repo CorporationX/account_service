@@ -1,3 +1,5 @@
 ALTER TABLE request
-ADD COLUMN if not exists context text,
-ADD COLUMN if not exists scheduled_at timestamptz;
+ADD COLUMN IF NOT EXISTS context text,
+ADD COLUMN IF NOT EXISTS scheduled_at timestamptz,
+ADD COLUMN IF NOT EXISTS rollback VARCHAR(32) NOT NULL DEFAULT 'NONE',
+ADD COLUMN IF NOT EXISTS rollback_reason VARCHAR(512);

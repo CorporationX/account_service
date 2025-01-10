@@ -13,7 +13,6 @@ import faang.school.accountservice.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -27,7 +26,6 @@ public class CreateRecordAccountHandler implements RequestTaskHandler {
         return RequestHandler.CREATE_ACCOUNT;
     }
 
-    @Transactional
     @Override
     public void execute(Request request, RequestTask task) {
         log.info("Try create account for user with id: {}", request.getInputData().get("ownerId"));
@@ -43,7 +41,6 @@ public class CreateRecordAccountHandler implements RequestTaskHandler {
     }
 
     @Override
-    @Transactional
     public void rollback(Request request, RequestTask task) {
         log.info("Try rollback creation account with id: {}", request.getContext().get("accountId"));
         Long accountId = (Long) request.getContext().get("accountId");

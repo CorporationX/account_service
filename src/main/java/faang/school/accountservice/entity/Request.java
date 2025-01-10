@@ -2,6 +2,7 @@ package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.enums.RollbackStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -77,4 +78,11 @@ public class Request {
 
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "rollback", nullable = false)
+    private RollbackStatus rollback = RollbackStatus.NONE;
+
+    @Column(name = "rollback_reason", length = 512)
+    private String rollbackReason;
 }
