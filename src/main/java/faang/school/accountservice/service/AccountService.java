@@ -63,7 +63,6 @@ public class AccountService {
         try {
             account.setStatus(AccountStatus.BLOCKED);
             account.setUpdatedAt(LocalDateTime.now());
-            account.setVersion(account.getVersion() + 1);
             return accountMapper.toDto(accountRepository.save(account));
 
         } catch (OptimisticLockException e) {
@@ -78,10 +77,10 @@ public class AccountService {
         Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException("Account not found"));
 
+
         try {
             account.setStatus(AccountStatus.CLOSED);
             account.setClosedAt(LocalDateTime.now());
-            account.setVersion(account.getVersion() + 1);
             return accountMapper.toDto(accountRepository.save(account));
 
         } catch (OptimisticLockException e) {
@@ -89,9 +88,17 @@ public class AccountService {
         }
     }
 
+    public AccountDto getAccountByNumber(String number) {
+        Account account = accountRepository.findByNumber(number);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found");
+        }
+        return accountMapper.toDto(account);
+    }
+
     public AccountDto getBlockedOrClosedAccountById(Long accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(()-> new AccountNotFoundException("Account not found"));
-        if (account.getStatus() == AccountStatus.BLOCKED || account.getStatus() == AccountStatus.CLOSED) {
+        if (account.getStatus().equals(AccountStatus.BLOCKED)  || account.getStatus().equals(AccountStatus.CLOSED)) {
             throw new IllegalStateException("Account has been blocked or closed");
         }
 
