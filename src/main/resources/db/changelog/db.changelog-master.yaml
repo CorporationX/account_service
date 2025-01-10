@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V003_account-service_added_balance_table.sql
   - include:
       file: db/changelog/changeset/V004_account-service_added_constraint_unique_account_id.sql
+  - include:
+      file: db/changelog/changeset/V005_account-service_use_account_id_as_balance_primary_key.sql

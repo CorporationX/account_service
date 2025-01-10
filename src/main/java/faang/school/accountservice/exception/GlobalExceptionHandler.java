@@ -114,14 +114,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleEntityNotFoundException(DataValidationException ex) {
+    public ResponseEntity<String> handleDataValidationException(DataValidationException ex) {
         log.info("Data validation error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleEntityNotFoundException(InsufficientBalanceException ex) {
+    public ResponseEntity<String> handleInsufficientBalanceException(InsufficientBalanceException ex) {
         log.info("Insufficient balance error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }

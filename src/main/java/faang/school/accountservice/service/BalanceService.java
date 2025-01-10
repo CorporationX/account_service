@@ -43,11 +43,12 @@ public class BalanceService {
             maxAttemptsExpression = "@retryProperties.maxAttempts",
             backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
-    public BalanceDto depositAuthorized(Long balanceId, BigDecimal amount) {
-        log.debug("Attempting to deposit authorized balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        Balance balance = balanceRepository.getReferenceById(balanceId);
+    public BalanceDto depositAuthorized(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to deposit authorized balance. Account Number: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumber(accountNumber);
+        Balance balance = account.getBalance();
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
-        log.info("Authorized balance for account number '{}' deposit at {}", balance.getAccount().getAccountNumber(), LocalDateTime.now());
+        log.info("Authorized balance for account number '{}' deposit at {}", accountNumber, LocalDateTime.now());
         return balanceMapper.toDto(balance);
     }
 
@@ -55,13 +56,14 @@ public class BalanceService {
             maxAttemptsExpression = "@retryProperties.maxAttempts",
             backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
-    public BalanceDto withdrawAuthorized(Long balanceId, BigDecimal amount) {
-        log.debug("Attempting to withdraw authorized balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        Balance balance = balanceRepository.getReferenceById(balanceId);
+    public BalanceDto withdrawAuthorized(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to withdraw authorized balance. Account Number: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumber(accountNumber);
+        Balance balance = account.getBalance();
         BigDecimal authorizedBalance = balance.getAuthorizedBalance();
         validateWithdrawal(authorizedBalance, amount);
         balance.setAuthorizedBalance(authorizedBalance.subtract(amount));
-        log.info("Authorized balance for account number '{}' withdraw at {}", balance.getAccount().getAccountNumber(), LocalDateTime.now());
+        log.info("Authorized balance for account number '{}' withdraw at {}", accountNumber, LocalDateTime.now());
         return balanceMapper.toDto(balance);
     }
 
@@ -69,11 +71,12 @@ public class BalanceService {
             maxAttemptsExpression = "@retryProperties.maxAttempts",
             backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
-    public BalanceDto depositActual(Long balanceId, BigDecimal amount) {
-        log.debug("Attempting to deposit actual balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        Balance balance = balanceRepository.getReferenceById(balanceId);
+    public BalanceDto depositActual(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to deposit actual balance. Account Number: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumber(accountNumber);
+        Balance balance = account.getBalance();
         balance.setActualBalance(balance.getActualBalance().add(amount));
-        log.info("Actual balance for account number '{}' deposit at {}", balance.getAccount().getAccountNumber(), LocalDateTime.now());
+        log.info("Actual balance for account number '{}' deposit at {}", accountNumber, LocalDateTime.now());
         return balanceMapper.toDto(balance);
     }
 
@@ -81,16 +84,16 @@ public class BalanceService {
             maxAttemptsExpression = "@retryProperties.maxAttempts",
             backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
-    public BalanceDto withdrawActual(Long balanceId, BigDecimal amount) {
-        log.debug("Attempting to withdraw actual balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        Balance balance = balanceRepository.getReferenceById(balanceId);
+    public BalanceDto withdrawActual(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to withdraw actual balance. Balance ID: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumber(accountNumber);
+        Balance balance = account.getBalance();
         BigDecimal actualBalance = balance.getActualBalance();
         validateWithdrawal(actualBalance, amount);
         balance.setActualBalance(actualBalance.subtract(amount));
-        log.info("Actual balance for account number '{}' withdraw at {}", balance.getAccount().getAccountNumber(), LocalDateTime.now());
+        log.info("Actual balance for account number '{}' withdraw at {}", accountNumber, LocalDateTime.now());
         return balanceMapper.toDto(balance);
     }
-
 
     private void validateBalanceAuthorization(Account account) {
         if (account.getBalance() != null) {

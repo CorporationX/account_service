@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record BalanceDto(Long accountId,
+public record BalanceDto(String accountNumber,
                          BigDecimal authorizedBalance,
                          BigDecimal actualBalance
 ) {}

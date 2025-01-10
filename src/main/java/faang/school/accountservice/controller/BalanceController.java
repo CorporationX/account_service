@@ -24,10 +24,10 @@ import java.math.BigDecimal;
 
 @Slf4j
 @RestController
-@RequestMapping("/balances")
+@RequestMapping("/accounts/balances")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Balance API", description = "Endpoints for operations with accounts")
+@Tag(name = "Balance API", description = "Endpoints for operations with balances")
 public class BalanceController {
 
     private final BalanceService balanceService;
@@ -45,49 +45,57 @@ public class BalanceController {
 
     @PutMapping("/authorized/deposit")
     @Operation(summary = "Deposit authorized balance")
-    public ResponseEntity<BalanceDto> depositAuthorized(@Positive(message = "Balance ID must be positive value")
+    public ResponseEntity<BalanceDto> depositAuthorized(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
+                                                        @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                        @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                         @RequestParam
-                                                        Long balanceId,
+                                                        String accountNumber,
                                                         @Positive(message = "Amount must be positive value")
                                                         @RequestParam
                                                         BigDecimal amount) {
-        log.info("Request to deposit authorized balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        return ResponseEntity.ok(balanceService.depositAuthorized(balanceId, amount));
+        log.info("Request to deposit authorized balance. Balance ID: {}, Amount: {}", accountNumber, amount);
+        return ResponseEntity.ok(balanceService.depositAuthorized(accountNumber, amount));
     }
 
     @PutMapping("/authorized/withdraw")
     @Operation(summary = "Withdraw authorized balance")
-    public ResponseEntity<BalanceDto> withdrawAuthorized(@Positive(message = "Balance ID must be positive value")
+    public ResponseEntity<BalanceDto> withdrawAuthorized(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
+                                                         @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                         @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                          @RequestParam
-                                                         Long balanceId,
+                                                         String accountNumber,
                                                          @Positive(message = "Amount must be positive value")
                                                          @RequestParam
                                                          BigDecimal amount) {
-        log.info("Request to withdraw authorized balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        return ResponseEntity.ok(balanceService.withdrawAuthorized(balanceId, amount));
+        log.info("Request to withdraw authorized balance. Balance ID: {}, Amount: {}", accountNumber, amount);
+        return ResponseEntity.ok(balanceService.withdrawAuthorized(accountNumber, amount));
     }
 
     @PutMapping("/actual/deposit")
     @Operation(summary = "Deposit actual balance")
-    public ResponseEntity<BalanceDto> depositActual(@Positive(message = "Balance ID must be positive value")
+    public ResponseEntity<BalanceDto> depositActual(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
+                                                    @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                    @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                     @RequestParam
-                                                    Long balanceId,
+                                                    String accountNumber,
                                                     @Positive(message = "Amount must be positive value")
                                                     @RequestParam
                                                     BigDecimal amount) {
-        log.info("Request to deposit actual balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        return ResponseEntity.ok(balanceService.depositActual(balanceId, amount));
+        log.info("Request to deposit actual balance. Balance ID: {}, Amount: {}", accountNumber, amount);
+        return ResponseEntity.ok(balanceService.depositActual(accountNumber, amount));
     }
 
     @PutMapping("/actual/withdraw")
     @Operation(summary = "Withdraw actual balance")
-    public ResponseEntity<BalanceDto> withdrawActual(@Positive(message = "Balance ID must be positive value")
+    public ResponseEntity<BalanceDto> withdrawActual(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
+                                                     @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                     @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                      @RequestParam
-                                                     Long balanceId,
+                                                     String accountNumber,
                                                      @Positive(message = "Amount must be positive value")
                                                      @RequestParam
                                                      BigDecimal amount) {
-        log.info("Request to withdraw actual balance. Balance ID: {}, Amount: {}", balanceId, amount);
-        return ResponseEntity.ok(balanceService.withdrawActual(balanceId, amount));
+        log.info("Request to withdraw actual balance. Balance ID: {}, Amount: {}", accountNumber, amount);
+        return ResponseEntity.ok(balanceService.withdrawActual(accountNumber, amount));
     }
 }
