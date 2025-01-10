@@ -22,6 +22,8 @@ create table if not exists public.tariff_history (
     tariff_id bigint not null,
     applied_date timestamp default current_timestamp not null,
     removed_date timestamp,
+    created_at timestamp default current_timestamp not null,
+    updated_at timestamp default current_timestamp not null,
     constraint fk_savings_account foreign key(savings_account_id) references public.savings_account(id) on delete cascade,
     constraint fk_tariff foreign key(tariff_id) references public.tariff(id) on delete cascade
 );
@@ -32,6 +34,8 @@ create table if not exists public.rate_history (
     tariff_id bigint not null,
     start_date timestamp default current_timestamp not null,
     end_date timestamp,
+    created_at timestamp default current_timestamp not null,
+    updated_at timestamp default current_timestamp not null,
     constraint fk_tariff_idx foreign key(tariff_id) references public.tariff(id) on delete cascade
 );
 
