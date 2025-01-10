@@ -6,6 +6,7 @@ import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.free.FreeAccountNumbersService;
 import faang.school.accountservice.validator.account.AccountValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class AccountService {
     private final AccountRepository accountRepo;
     private final AccountValidator validator;
     private final AccountMapper mapper;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Transactional
     public AccountDto get(Long id) {
@@ -34,6 +36,11 @@ public class AccountService {
         validator.checkOpening(accountDto);
         //метод для генерации номера платежного счета
         Account account = mapper.toEntity(accountDto);
+        String number = freeAccountNumbersService.getFreeAccountNumber(account.getType());
+        account.setStatus(AccountStatus.ACTIVE);
+        account.setPaymentNumber(number);
+        account.setCreatedAt(LocalDateTime.now());
+
         return mapper.toDto(accountRepo.save(account));
     }
 
