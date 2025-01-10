@@ -220,7 +220,7 @@ public class AccountControllerTest {
         account.setVersion(1);
         Account getAccount = accountRepository.save(account);
 
-        AccountDto result = accountController.getAccountByNumber("1234567890123");
+        AccountDto result = accountController.getAccountById(getAccount.getId());
 
         assertNotNull(result);
         assertEquals(getAccount.getId(), result.getId());

@@ -181,7 +181,7 @@ public class AccountServiceTest {
         account.setStatus(AccountStatus.BLOCKED);
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 
-       IllegalStateException exception = assertThrows(IllegalStateException.class, () -> accountService.getBlockedOrClosedAccountById(1L));
+       IllegalStateException exception = assertThrows(IllegalStateException.class, () -> accountService.getActiveAccount(1L));
 
         assertEquals("Account has been blocked or closed", exception.getMessage());
     }
@@ -192,7 +192,7 @@ public class AccountServiceTest {
         account.setStatus(AccountStatus.CLOSED);
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> accountService.getBlockedOrClosedAccountById(1L));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> accountService.getActiveAccount(1L));
 
         assertEquals("Account has been blocked or closed", exception.getMessage());
     }
@@ -205,7 +205,7 @@ public class AccountServiceTest {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
         Mockito.when(accountMapper.toDto(account)).thenReturn(accountDto);
 
-        AccountDto actualAccountDto = accountService.getBlockedOrClosedAccountById(1L);
+        AccountDto actualAccountDto = accountService.getActiveAccount(1L);
 
         verify(accountRepository, times(1)).findById(1L);
 

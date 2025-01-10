@@ -88,15 +88,7 @@ public class AccountService {
         }
     }
 
-    public AccountDto getAccountByNumber(String number) {
-        Account account = accountRepository.findByNumber(number);
-        if (account == null) {
-            throw new AccountNotFoundException("Account not found");
-        }
-        return accountMapper.toDto(account);
-    }
-
-    public AccountDto getBlockedOrClosedAccountById(Long accountId) {
+    public AccountDto getActiveAccount(Long accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(()-> new AccountNotFoundException("Account not found"));
         if (account.getStatus().equals(AccountStatus.BLOCKED)  || account.getStatus().equals(AccountStatus.CLOSED)) {
             throw new IllegalStateException("Account has been blocked or closed");
