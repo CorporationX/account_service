@@ -10,9 +10,12 @@ import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -60,7 +63,6 @@ public class AccountService {
         try {
             account.setStatus(AccountStatus.BLOCKED);
             account.setUpdatedAt(LocalDateTime.now());
-            account.setVersion(account.getVersion() + 1);
             return accountMapper.toDto(accountRepository.save(account));
 
         } catch (OptimisticLockException e) {
@@ -75,17 +77,24 @@ public class AccountService {
         Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException("Account not found"));
 
+
         try {
             account.setStatus(AccountStatus.CLOSED);
             account.setClosedAt(LocalDateTime.now());
-            account.setVersion(account.getVersion() + 1);
             return accountMapper.toDto(accountRepository.save(account));
 
         } catch (OptimisticLockException e) {
             throw new ConflictException("The account has been updated by another process.");
         }
+    }
 
+    public AccountDto getActiveAccount(Long accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(()-> new AccountNotFoundException("Account not found"));
+        if (account.getStatus().equals(AccountStatus.BLOCKED)  || account.getStatus().equals(AccountStatus.CLOSED)) {
+            throw new IllegalStateException("Account has been blocked or closed");
+        }
 
+        return accountMapper.toDto(account);
     }
 
 

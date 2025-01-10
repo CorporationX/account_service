@@ -13,6 +13,3 @@ create table if not exists public.account
     version     integer
     );
 
-alter table public.account
-    owner to "user";
-
