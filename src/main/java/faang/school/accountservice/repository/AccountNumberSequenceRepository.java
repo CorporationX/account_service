@@ -12,7 +12,6 @@ import java.util.Optional;
 
 public interface AccountNumberSequenceRepository extends JpaRepository<AccountNumberSequence, String> {
     long counter = 0L;
-    long version = 0L;
 
     @Transactional
     @Modifying
@@ -28,7 +27,10 @@ public interface AccountNumberSequenceRepository extends JpaRepository<AccountNu
     @Transactional
     default AccountNumberSequence createCounterForType(AccountType type) {
         return findByType(type).orElseGet(() -> {
-            AccountNumberSequence sequence = new AccountNumberSequence(type, counter, version);
+            AccountNumberSequence sequence = AccountNumberSequence.builder()
+                    .type(type)
+                    .counter(counter)
+                    .build();
             return save(sequence);
         });
     }
