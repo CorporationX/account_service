@@ -1,4 +1,4 @@
-package faang.school.accountservice.entity.account.enums;
+package faang.school.accountservice.enums.account;
 
 public enum AccountType {
     CHECKING_ACCOUNT_INDIVIDUAL,

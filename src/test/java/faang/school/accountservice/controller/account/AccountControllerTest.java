@@ -1,15 +1,14 @@
-package faang.school.accountservice.account;
+package faang.school.accountservice.controller.account;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.controller.AccountController;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.entity.account.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.currency.Currency;
+import faang.school.accountservice.service.account.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,7 +48,7 @@ public class AccountControllerTest {
 
         when(accountService.get(accountId)).thenReturn(accountDto);
 
-        mockMvc.perform(get("/api/v1/accounts/{id}", accountId))
+        mockMvc.perform(get("/accounts/{id}", accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentNumber").value("123456789012"))
                 .andExpect(jsonPath("$.type").value(AccountType.CURRENCY_ACCOUNT.name()))
@@ -65,7 +64,7 @@ public class AccountControllerTest {
 
         when(accountService.openAccount(accountDto)).thenReturn(accountDto);
 
-        mockMvc.perform(post("/api/v1/accounts")
+        mockMvc.perform(post("/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isOk())
@@ -84,7 +83,7 @@ public class AccountControllerTest {
 
         when(accountService.freezeAccount(accountId)).thenReturn(accountDto);
 
-        mockMvc.perform(post("/api/v1/accounts/{id}/block", accountId))
+        mockMvc.perform(post("/accounts/{id}/block", accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentNumber").value("123456789012"))
                 .andExpect(jsonPath("$.type").value(AccountType.CURRENCY_ACCOUNT.name()))
@@ -101,7 +100,7 @@ public class AccountControllerTest {
 
         when(accountService.closeAccount(accountId)).thenReturn(accountDto);
 
-        mockMvc.perform(post("/api/v1/accounts/{id}/close", accountId))
+        mockMvc.perform(post("/accounts/{id}/close", accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentNumber").value("123456789012"))
                 .andExpect(jsonPath("$.type").value(AccountType.CURRENCY_ACCOUNT.name()))
@@ -118,7 +117,7 @@ public class AccountControllerTest {
 
         when(accountService.getAllOfUser(userId)).thenReturn(accounts);
 
-        mockMvc.perform(get("/api/v1/accounts/all/user/1")
+        mockMvc.perform(get("/accounts/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -137,7 +136,7 @@ public class AccountControllerTest {
 
         when(accountService.getAllOfProject(projectId)).thenReturn(accounts);
 
-        mockMvc.perform(get("/api/v1/accounts/all/project/1")
+        mockMvc.perform(get("/accounts/projects/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

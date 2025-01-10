@@ -1,15 +1,15 @@
-package faang.school.accountservice.account;
+package faang.school.accountservice.validator.account;
 
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.project.ProjectDto;
 import faang.school.accountservice.dto.user.UserDto;
-import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.entity.account.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.currency.Currency;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
-import faang.school.accountservice.validator.account.AccountValidator;
+import faang.school.accountservice.exception.account.AccountNotValidException;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -43,13 +44,17 @@ public class AccountValidatorTest {
 
     @Test
     void testCheckOpeningWithException() {
-        accountDto.setPaymentNumber("12345");
+        accountDto.setPaymentNumber("");
 
-        assertThrows(AccountNotFoundException.class, () -> accountValidator.checkOpening(accountDto));
+        AccountNotValidException exception = assertThrows(AccountNotValidException.class,
+                () -> accountValidator.checkOpening(accountDto));
+        assertEquals("Payment number must be empty", exception.getMessage());
     }
 
     @Test
     void testCheckOpeningPositive() {
+        accountDto.setPaymentNumber("1234");
+
         assertDoesNotThrow(() -> accountValidator.checkOpening(accountDto));
     }
 
@@ -58,7 +63,9 @@ public class AccountValidatorTest {
         Long userId = 1L;
         doThrow(FeignException.class).when(userClient).getUser(userId);
 
-        assertThrows(AccountNotFoundException.class, () -> accountValidator.checkUserId(userId));
+        AccountNotValidException exception = assertThrows(AccountNotValidException.class,
+                () -> accountValidator.checkUserId(userId));
+        assertEquals("User doesn't exist", exception.getMessage());
     }
 
     @Test
@@ -74,8 +81,9 @@ public class AccountValidatorTest {
         Long projectId = 1L;
         doThrow(FeignException.class).when(projectClient).getProject(projectId);
 
-        AccountNotFoundException exception = assertThrows(AccountNotFoundException.class,
+        AccountNotValidException exception = assertThrows(AccountNotValidException.class,
                 () -> accountValidator.checkProjectId(projectId));
+        assertEquals("Project doesn't exist", exception.getMessage());
     }
 
     @Test

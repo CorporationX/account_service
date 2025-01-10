@@ -1,8 +1,8 @@
 package faang.school.accountservice.entity.account;
 
-import faang.school.accountservice.entity.account.enums.AccountStatus;
-import faang.school.accountservice.entity.account.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.currency.Currency;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -34,11 +34,9 @@ public class Account {
     @Size(min = 12, message = "too short number")
     private String paymentNumber;
 
-    @ManyToOne
     @Column(name = "user_id")
     private Long ownerUserId;
 
-    @ManyToOne
     @Column(name = "project_id")
     private Long ownerProjectId;
 
