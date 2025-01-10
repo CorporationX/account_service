@@ -4,9 +4,7 @@ import faang.school.accountservice.entity.account.AccountNumbersSequence;
 import faang.school.accountservice.entity.free.FreeAccountId;
 import faang.school.accountservice.entity.free.FreeAccountNumber;
 import faang.school.accountservice.enums.account.AccountType;
-import faang.school.accountservice.repository.account.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.free.FreeAccountNumbersRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -104,7 +102,6 @@ public class FreeAccountNumbersServiceTest {
 
     @Test
     void testValidateBatchSize() {
-        // Тестируем на некорректном размере пакета
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
             freeAccountNumbersService.validateBatchSize(-1);
         });
