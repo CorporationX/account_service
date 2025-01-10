@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.mappers.TariffMapper;
 import faang.school.accountservice.model.RateHistory;
 import faang.school.accountservice.model.Tariff;
+import faang.school.accountservice.model.TariffHistory;
 import faang.school.accountservice.repository.RateHistoryRepository;
 import faang.school.accountservice.repository.TariffRepository;
 import jakarta.persistence.EntityExistsException;
@@ -43,6 +44,30 @@ public class TariffService {
                 .startDate(LocalDateTime.now())
                 .build();
         Tariff result = tariffRepository.save(tariff);
+        rateHistoryRepository.save(rateHistory);
+        return tariffMapper.toDto(result);
+    }
+
+    @Transactional
+    public TariffDto updateTariff(Long id, TariffDto tariffDto) {
+        validateTariffId(id);
+        Tariff tariff = tariffRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Tariff with id {} not found", id);
+                    throw new EntityNotFoundException("Tariff with id " + id + " not found");
+                });
+        RateHistory currentRateHistory = rateHistoryRepository.findByTariffId(tariff.getId());
+        currentRateHistory.setEndDate(LocalDateTime.now());
+        rateHistoryRepository.save(currentRateHistory);
+
+        tariff.setRate(tariffDto.getRate());
+        Tariff result = tariffRepository.save(tariff);
+
+        RateHistory rateHistory = RateHistory.builder()
+                .rate(tariffDto.getRate())
+                .tariffId(tariffDto.getId())
+                .startDate(LocalDateTime.now())
+                .build();
         rateHistoryRepository.save(rateHistory);
         return tariffMapper.toDto(result);
     }

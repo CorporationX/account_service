@@ -42,3 +42,4 @@ create table if not exists public.rate_history (
 create index idx_account_id on public.savings_account(account_id);
 create index idx_savings_account_id on public.tariff_history(savings_account_id);
 create index idx_tariff_applied_date on public.tariff_history(applied_date);
+create index idx_tariff_id on public.rate_history(tariff_id);

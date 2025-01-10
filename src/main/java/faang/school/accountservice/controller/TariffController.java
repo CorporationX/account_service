@@ -28,4 +28,10 @@ public class TariffController {
         return tariffService.createTariff(tariffDto);
     }
 
+    @PutMapping("/{tariffId}")
+    public TariffDto updateTariff(@PathVariable Long tariffId, @RequestBody @Valid TariffDto tariffDto) {
+        log.info("Received a request to update a tariff with ID: {}", tariffId);
+        return tariffService.updateTariff(tariffId, tariffDto);
+    }
+
 }
