@@ -2,6 +2,7 @@ package faang.school.accountservice.handler;
 
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.ConflictException;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -47,5 +48,12 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleSQLException(SQLException e) {
         log.error("SQL Exception", e);
         return new ErrorResponse("SQL Exception", e.getMessage());
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEntityExistsException(EntityExistsException e) {
+        log.error("Entity exists", e);
+        return new ErrorResponse("Entity exists", e.getMessage());
     }
 }

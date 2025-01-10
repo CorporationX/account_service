@@ -35,6 +35,6 @@ create table if not exists public.rate_history (
     constraint fk_tariff_idx foreign key(tariff_id) references public.tariff(id) on delete cascade
 );
 
-create index idx_account_id on public.savings_account(account_id)
-create index idx_savings_account_id on public.tariff_history(savings_account_id)
-create index idx_tariff_applied_date on public.tariff_history(applied_date)
+create index idx_account_id on public.savings_account(account_id);
+create index idx_savings_account_id on public.tariff_history(savings_account_id);
+create index idx_tariff_applied_date on public.tariff_history(applied_date);
