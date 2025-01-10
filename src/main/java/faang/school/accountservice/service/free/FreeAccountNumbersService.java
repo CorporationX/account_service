@@ -36,7 +36,7 @@ public class FreeAccountNumbersService {
         validateCounter(counter);
         List<FreeAccountNumber> accountNumbers = new ArrayList<>();
         log.info("Generating {} new account numbers for type: {}", batchSize, type);
-        for (long i = initialValue; i < counter; i++) {
+        for (long i = initialValue + 1; i < counter; i++) {
             accountNumbers.add(new FreeAccountNumber(
                     new FreeAccountId(type, ACCOUNT_PATTERN + i)));
         }
@@ -86,7 +86,7 @@ public class FreeAccountNumbersService {
     public void validateCounter(long counter) {
         if (counter > MAX_ACCOUNT_NUMBERS){
             log.error("Reached the limit of accounts numbers: {}", MAX_ACCOUNT_NUMBERS);
-            throw new IllegalArgumentException("Reached the limit of accounts numbers: " +MAX_ACCOUNT_NUMBERS);
+            throw new IllegalArgumentException("Reached the limit of accounts numbers: " + MAX_ACCOUNT_NUMBERS);
         }
     }
 
