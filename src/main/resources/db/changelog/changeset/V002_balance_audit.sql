@@ -12,8 +12,6 @@ create table if not exists public.balance_audit
     references public.account
     );
 
-alter table public.balance_audit
-    owner to "user";
 
 create index if not exists idx_balance_audit_id
     on public.balance_audit (id);

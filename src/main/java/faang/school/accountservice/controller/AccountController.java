@@ -39,8 +39,8 @@ public class AccountController {
     }
 
     @PostMapping("/{accountId}")
-    public AccountDto getAccountByNumber(@PathVariable Long accountId) {
-        log.info("Received a request to get account by number: {}", accountId);
-        return accountService.getBlockedOrClosedAccountById(accountId);
+    public AccountDto getAccountByNumber(@PathVariable String number) {
+        log.info("Received a request to get account by number: {}", number);
+        return accountService.getAccountByNumber(number);
     }
 }
