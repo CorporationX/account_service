@@ -83,7 +83,7 @@ public class AccountService {
     )
     public AccountResponse blockAccount(Long id) {
         log.info("Blocking account with id: {}", id);
-        Account account = getAccountEntity(id);
+        Account account = getAccountById(id);
 
         if (account.getStatus() == AccountStatus.BLOCKED) {
             throw new IllegalStateException("Account is already blocked");
@@ -103,7 +103,7 @@ public class AccountService {
     )
     public AccountResponse closeAccount(Long id) {
         log.info("Closing account with id: {}", id);
-        Account account = getAccountEntity(id);
+        Account account = getAccountById(id);
 
         if (account.getStatus() == AccountStatus.CLOSED) {
             throw new IllegalStateException("Account is already closed");
@@ -124,11 +124,6 @@ public class AccountService {
     public void deleteAccount(Long id) {
         accountRepository.deleteById(id);
         log.info("Deleting account with id: {}", id);
-    }
-
-    private Account getAccountEntity(Long id) {
-        return accountRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
 
     private AccountRequest mapAccountRequest(Request request) {

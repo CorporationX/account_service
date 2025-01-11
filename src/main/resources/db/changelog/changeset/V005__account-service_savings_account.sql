@@ -39,5 +39,5 @@ CREATE TABLE IF NOT EXISTS savings_account_tariff_changelog (
     CONSTRAINT tariff_id_fk FOREIGN KEY (tariff_id) REFERENCES tariff (id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_tariff_rate_changelog_tariff_date ON tariff_rate_changelog (tariff_id, change_date DESC);
-CREATE INDEX idx_savings_account_tariff_change ON savings_account_tariff_changelog (savings_account_id, tariff_id, change_date DESC);
+CREATE INDEX IF NOT EXISTS idx_tariff_rate_changelog_tariff_date ON tariff_rate_changelog (tariff_id, change_date DESC);
+CREATE INDEX IF NOT EXISTS idx_savings_account_tariff_change ON savings_account_tariff_changelog (savings_account_id, tariff_id, change_date DESC);
