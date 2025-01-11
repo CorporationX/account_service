@@ -2,6 +2,7 @@ package faang.school.accountservice.repository;
 
 import faang.school.accountservice.AccountServiceApplication;
 import faang.school.accountservice.entity.AccountNumbersSequence;
+import faang.school.accountservice.util.BaseContextTest;
 import jakarta.transaction.Transactional;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -27,33 +28,38 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = AccountServiceApplication.class)
 @Testcontainers
 @AutoConfigureMockMvc
-public class AccountNumbersSequenceRepositoryTest {
+public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
-    @Container
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpass");
+//    @Container
+//    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:latest")
+//            .withDatabaseName("testdb")
+//            .withUsername("testuser")
+//            .withPassword("testpass");
 
 
     @Autowired
     private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
 
-    @DynamicPropertySource
-    static void setDatasourceProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresContainer::getUsername);
-        registry.add("spring.datasource.password", postgresContainer::getPassword);
-    }
+//    @DynamicPropertySource
+//    static void setDatasourceProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
+//        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+//        registry.add("spring.datasource.username", postgresContainer::getUsername);
+//        registry.add("spring.datasource.password", postgresContainer::getPassword);
+//    }
 
 
-    @BeforeAll
-    static void setup() {
-        Flyway flyway = Flyway.configure()
-                .dataSource(postgresContainer.getJdbcUrl(), postgresContainer.getUsername(), postgresContainer.getPassword())
-                .load();
-        flyway.migrate();
+//    @BeforeAll
+//    static void setup() {
+//        Flyway flyway = Flyway.configure()
+//                .dataSource(POSTGRESQL_CONTAINER.getJdbcUrl(), POSTGRESQL_CONTAINER.getUsername(), POSTGRESQL_CONTAINER.getPassword())
+//                .load();
+//        flyway.migrate();
+//    }
+
+    @Test
+    void testContainerStartup() {
+        assertTrue(POSTGRESQL_CONTAINER.isRunning());
     }
 
     @Test
@@ -137,9 +143,9 @@ public class AccountNumbersSequenceRepositoryTest {
     @AfterEach
     void cleanupDatabase() throws SQLException {
         try (Connection connection = DriverManager.getConnection(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword())) {
+                POSTGRESQL_CONTAINER.getJdbcUrl(),
+                POSTGRESQL_CONTAINER.getUsername(),
+                POSTGRESQL_CONTAINER.getPassword())) {
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM account_number_sequence")) {
                 statement.executeUpdate();
             }
