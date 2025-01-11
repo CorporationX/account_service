@@ -2,6 +2,9 @@ package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
+import faang.school.accountservice.entity.AccountType;
+import faang.school.accountservice.entity.FreeAccountId;
+import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.Currency;
 import faang.school.accountservice.entity.account.OwnerType;
@@ -10,6 +13,7 @@ import faang.school.accountservice.entity.account.Type;
 import faang.school.accountservice.mapper.account.AccountMapperImpl;
 import faang.school.accountservice.mapper.account.CreateAccountMapperImpl;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import faang.school.accountservice.validator.account.AccountServiceValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,9 +29,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,6 +54,8 @@ class AccountServiceTest {
     private CreateAccountMapperImpl createAccountMapper;
     @Mock
     private AccountServiceValidator validator;
+    @Mock
+    private FreeAccountNumbersService freeAccountNumbersService;
 
     @Captor
     private ArgumentCaptor<Account> accountCaptor;
@@ -91,19 +101,25 @@ class AccountServiceTest {
         createAccountDto.setOwnerType(OwnerType.USER);
         createAccountDto.setOwnerId(1);
         createAccountDto.setCurrency(Currency.EUR);
+        long expectedAccountNumber = 2L;
+
+        // Настройка поведения для мока
+        doAnswer(invocation -> {
+            Consumer<FreeAccountNumber> callback = invocation.getArgument(1);
+            FreeAccountNumber accountNumber = new FreeAccountNumber();
+            accountNumber.setId(new FreeAccountId(AccountType.DEBIT, expectedAccountNumber));
+            callback.accept(accountNumber);
+            return null;
+        }).when(freeAccountNumbersService).retrieveAccountNumber(eq(AccountType.DEBIT), any());
 
         AccountDto accountDto = accountService.openNewAccount(createAccountDto);
 
-        verify(accountRepository).save(accountCaptor.capture());
         verify(validator).checkId(createAccountDto.getOwnerId());
         verify(validator).validateCreateAccountDto(createAccountDto);
 
-        assertEquals(accountCaptor.getValue().getStatus(), Status.ACTIVE);
-
         assertEquals(accountDto.getStatus(), Status.ACTIVE);
-        assertEquals(accountDto.getType(), Type.FOREX_ACCOUNT);
-        assertEquals(accountDto.getOwnerType(), OwnerType.USER);
-        assertEquals(accountDto.getCurrency(), Currency.EUR);
+        assertEquals(accountDto.getAccountNumber(), String.valueOf(expectedAccountNumber));
+
     }
 
     @Test

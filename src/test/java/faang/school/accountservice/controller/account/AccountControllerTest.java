@@ -1,18 +1,24 @@
 package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.account.CreateAccountDto;
+import faang.school.accountservice.entity.AccountType;
+import faang.school.accountservice.entity.FreeAccountId;
+import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.Currency;
 import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.entity.account.Status;
 import faang.school.accountservice.entity.account.Type;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.FreeAccountNumbersService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -24,6 +30,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.function.Consumer;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,6 +49,9 @@ class AccountControllerTest {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @MockBean
+    private FreeAccountNumbersService freeAccountNumbersService;
 
     @Container
     private static PostgreSQLContainer<?> postgresContainer =
@@ -93,8 +107,16 @@ class AccountControllerTest {
         createAccountDto.setOwnerType(OwnerType.USER);
         createAccountDto.setOwnerId(1);
 
+        long expectedAccountNumber = 2L;
 
         String json = objectMapper.writeValueAsString(createAccountDto);
+        doAnswer(invocation -> {
+            Consumer<FreeAccountNumber> callback = invocation.getArgument(1);
+            FreeAccountNumber accountNumber = new FreeAccountNumber();
+            accountNumber.setId(new FreeAccountId(AccountType.DEBIT, expectedAccountNumber));
+            callback.accept(accountNumber);
+            return null;
+        }).when(freeAccountNumbersService).retrieveAccountNumber(eq(AccountType.DEBIT), any());
 
         mockMvc.perform(post("/api/v1/accounts")
                         .header("x-user-id", 1)
