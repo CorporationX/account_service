@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS account
     closed_at         TIMESTAMP WITH TIME ZONE
 );
 
-/* CONSTRAINT chk_one_owner CHECK (
-/     (user_owner_id IS NOT NULL AND project_owner_id IS NULL) OR
+CONSTRAINT chk_one_owner CHECK (
+     (user_owner_id IS NOT NULL AND project_owner_id IS NULL) OR
      (user_owner_id IS NULL AND project_owner_id IS NOT NULL)
      ),
  CONSTRAINT fk_user_id FOREIGN KEY (user_owner_id) REFERENCES users (id),
@@ -23,4 +23,3 @@ CREATE TABLE IF NOT EXISTS account
 
 CREATE INDEX ON account (user_owner_id);
 CREATE INDEX ON account (project_owner_id);
-*/
