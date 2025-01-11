@@ -30,6 +30,7 @@ public class SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final AccountRepository accountRepository;
     private final SavingsAccountMapper mapper;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Value("${spring.property-values.retry.max-attempts}")
     private int retryMaxAttempts;
@@ -59,8 +60,12 @@ public class SavingsAccountService {
         validateAccount(savingsAccountDto.getId());
         SavingsAccount savingsAccount = mapper.toEntity(savingsAccountDto);
         savingsAccount.setCreatedAt(LocalDateTime.now());
+        freeAccountNumbersService.retrieveFreeAccountNumber(savingsAccount.getAccount().getAccountType(), (freeAccountNumber -> {
+            savingsAccount.getAccount().setNumber(String.valueOf(freeAccountNumber));
+        }));
         log.info("RETRY NUMBER: {} ", RetrySynchronizationManager.getContext().getRetryCount());
         SavingsAccount result = savingsAccountRepository.save(savingsAccount);
+        log.info("Savings account with ID {} has been successfully saved to the database", savingsAccount.getId());
         return mapper.toDto(result);
     }
 

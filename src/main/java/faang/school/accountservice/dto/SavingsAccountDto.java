@@ -15,12 +15,12 @@ public class SavingsAccountDto {
     private Long id;
 
     @NotNull
-    private Long account_id;
+    private Long accountId;
 
     @NotNull
     private int version;
 
-    private LocalDateTime last_interest_calculation_date;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private LocalDateTime lastInterestCalculationDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

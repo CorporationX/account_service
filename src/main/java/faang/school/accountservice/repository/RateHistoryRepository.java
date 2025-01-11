@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface RateHistoryRepository extends JpaRepository<RateHistory, Long> {
     @Query(value = "SELECT * FROM rate_history where tariff_id = :tariffId", nativeQuery = true)
-    RateHistory findByTariffId(@Param("tariffId") Long tariffId);
+    List<RateHistory> findByTariffId(@Param("tariffId") Long tariffId);
 }

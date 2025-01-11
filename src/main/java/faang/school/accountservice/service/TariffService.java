@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -56,7 +58,9 @@ public class TariffService {
                     log.error("Tariff with id {} not found", id);
                     throw new EntityNotFoundException("Tariff with id " + id + " not found");
                 });
-        RateHistory currentRateHistory = rateHistoryRepository.findByTariffId(tariff.getId());
+        List<RateHistory> rateHistories = rateHistoryRepository.findByTariffId(tariff.getId());
+        Collections.sort(rateHistories, (r1, r2) -> r2.getStartDate().compareTo(r1.getStartDate()));
+        RateHistory currentRateHistory = rateHistories.get(0);
         currentRateHistory.setEndDate(LocalDateTime.now());
         rateHistoryRepository.save(currentRateHistory);
 
