@@ -3,9 +3,7 @@ package faang.school.accountservice.repository;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.util.BaseContextTest;
 import jakarta.transaction.Transactional;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,13 +15,7 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
     @Autowired
     private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
-    @BeforeAll
-    static void setup() {
-        Flyway flyway = Flyway.configure()
-                .dataSource(POSTGRESQL_CONTAINER.getJdbcUrl(), POSTGRESQL_CONTAINER.getUsername(), POSTGRESQL_CONTAINER.getPassword())
-                .load();
-        flyway.migrate();
-    }
+
     @Test
     void createNewAccountNumbersSequenceSuccessTest() {
         String accountType = "CHECKING";
@@ -87,7 +79,7 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
         boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVING", 1L);
 
-        assertTrue(incremented);
+        Assertions.assertTrue(incremented);
         AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVING");
         assertEquals(2L, updatedSequence.getCurrent());
     }

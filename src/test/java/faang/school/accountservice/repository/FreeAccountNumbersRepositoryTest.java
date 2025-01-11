@@ -2,28 +2,17 @@ package faang.school.accountservice.repository;
 
 import faang.school.accountservice.util.BaseContextTest;
 import jakarta.transaction.Transactional;
-import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @Transactional
 public class FreeAccountNumbersRepositoryTest extends BaseContextTest {
 
+
     @Autowired
     private FreeAccountNumbersRepository freeAccountNumbersRepository;
-
-
-    @BeforeAll
-    static void setup() {
-        Flyway flyway = Flyway.configure()
-                .dataSource(POSTGRESQL_CONTAINER.getJdbcUrl(), POSTGRESQL_CONTAINER.getUsername(), POSTGRESQL_CONTAINER.getPassword())
-                .load();
-        flyway.migrate();
-    }
 
     @Test
     void saveNewFreeAccountNumberSuccessTest() {
