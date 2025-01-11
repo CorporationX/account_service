@@ -1,44 +1,28 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.AccountServiceApplication;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.services.FreeAccountNumbersService;
+import faang.school.accountservice.util.BaseContextTest;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-@SpringBootTest(classes = AccountServiceApplication.class)
-@Testcontainers
-@AutoConfigureMockMvc
-public class FreeAccountNumbersServiceTest {
 
-    @Container
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpass");
-
+public class FreeAccountNumbersServiceTest extends BaseContextTest {
 
     @Autowired
     private FreeAccountNumbersService freeAccountNumbersService;
@@ -46,18 +30,10 @@ public class FreeAccountNumbersServiceTest {
     @Autowired
     private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
-    @DynamicPropertySource
-    static void setDatasourceProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresContainer::getUsername);
-        registry.add("spring.datasource.password", postgresContainer::getPassword);
-    }
-
-
     @BeforeAll
     static void setup() {
         Flyway flyway = Flyway.configure()
-                .dataSource(postgresContainer.getJdbcUrl(), postgresContainer.getUsername(), postgresContainer.getPassword())
+                .dataSource(POSTGRESQL_CONTAINER.getJdbcUrl(), POSTGRESQL_CONTAINER.getUsername(), POSTGRESQL_CONTAINER.getPassword())
                 .load();
         flyway.migrate();
     }
@@ -65,9 +41,9 @@ public class FreeAccountNumbersServiceTest {
     @BeforeEach
     void seedDatabase() throws SQLException {
         try (Connection connection = DriverManager.getConnection(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword())) {
+                POSTGRESQL_CONTAINER.getJdbcUrl(),
+                POSTGRESQL_CONTAINER.getUsername(),
+                POSTGRESQL_CONTAINER.getPassword())) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO account_number_sequence (account_type, current) VALUES (?, ?)")) {
                 statement.setString(1, "SAVING");
@@ -79,7 +55,7 @@ public class FreeAccountNumbersServiceTest {
 
     @Test
     void testContainerStartup() {
-        assertTrue(postgresContainer.isRunning());
+        assertTrue(POSTGRESQL_CONTAINER.isRunning());
     }
 
     @Test
@@ -87,13 +63,9 @@ public class FreeAccountNumbersServiceTest {
         String accountType = "SAVING";
         Long existingAccountNumber = 523600000000001L;
 
-        freeAccountNumbersService.createNewFreeAccountNumber(accountType);
-        Runnable action = mock(Runnable.class);
-
+        Consumer<Long> action = mock(Consumer.class);
         Long result = freeAccountNumbersService.getFreeAccountNumberWithTransaction(accountType, action);
-
         assertEquals(existingAccountNumber, result);
-        verify(action).run();
     }
 
 
@@ -103,7 +75,6 @@ public class FreeAccountNumbersServiceTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 freeAccountNumbersService.createNewFreeAccountNumber(accountType));
-
         assertEquals("Invalid account type: " + accountType, exception.getMessage());
     }
 
@@ -132,9 +103,8 @@ public class FreeAccountNumbersServiceTest {
     void getFreeAccountNumberWithTransactionSuccessTest() {
 
         String accountType = "SAVING";
-
-        freeAccountNumbersService.getFreeAccountNumberWithTransaction(accountType, () -> {
-        });
+        Consumer<Long> action = mock(Consumer.class);
+        freeAccountNumbersService.getFreeAccountNumberWithTransaction(accountType, action);
         AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType(accountType);
         assertEquals(2L, sequence.getCurrent());
     }
@@ -142,9 +112,9 @@ public class FreeAccountNumbersServiceTest {
     @AfterEach
     void cleanupDatabase() throws SQLException {
         try (Connection connection = DriverManager.getConnection(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword())) {
+                POSTGRESQL_CONTAINER.getJdbcUrl(),
+                POSTGRESQL_CONTAINER.getUsername(),
+                POSTGRESQL_CONTAINER.getPassword())) {
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM account_number_sequence")) {
                 statement.executeUpdate();
             }

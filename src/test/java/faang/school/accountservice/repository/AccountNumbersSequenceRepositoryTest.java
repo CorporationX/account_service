@@ -1,67 +1,29 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.AccountServiceApplication;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.util.BaseContextTest;
 import jakarta.transaction.Transactional;
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = AccountServiceApplication.class)
-@Testcontainers
-@AutoConfigureMockMvc
+@Transactional
 public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
-
-//    @Container
-//    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:latest")
-//            .withDatabaseName("testdb")
-//            .withUsername("testuser")
-//            .withPassword("testpass");
-
 
     @Autowired
     private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
-
-
-//    @DynamicPropertySource
-//    static void setDatasourceProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
-//        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
-//        registry.add("spring.datasource.username", postgresContainer::getUsername);
-//        registry.add("spring.datasource.password", postgresContainer::getPassword);
-//    }
-
-
-//    @BeforeAll
-//    static void setup() {
-//        Flyway flyway = Flyway.configure()
-//                .dataSource(POSTGRESQL_CONTAINER.getJdbcUrl(), POSTGRESQL_CONTAINER.getUsername(), POSTGRESQL_CONTAINER.getPassword())
-//                .load();
-//        flyway.migrate();
-//    }
-
-    @Test
-    void testContainerStartup() {
-        assertTrue(POSTGRESQL_CONTAINER.isRunning());
+    @BeforeAll
+    static void setup() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(POSTGRESQL_CONTAINER.getJdbcUrl(), POSTGRESQL_CONTAINER.getUsername(), POSTGRESQL_CONTAINER.getPassword())
+                .load();
+        flyway.migrate();
     }
-
     @Test
     void createNewAccountNumbersSequenceSuccessTest() {
         String accountType = "CHECKING";
@@ -71,8 +33,6 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void createAccountTypeCounterSuccessTest() {
         accountNumbersSequenceRepository.createAccountTypeCounter("SAVING");
 
@@ -83,8 +43,6 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void createAccountTypeCounterTwiceSuccessTest() {
         accountNumbersSequenceRepository.createAccountTypeCounter("DEBIT");
         accountNumbersSequenceRepository.createAccountTypeCounter("DEBIT");
@@ -93,8 +51,6 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void incrementCounter_incrementsCounterWhenExpectedValueMatches() {
         accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGS");
         AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
@@ -102,14 +58,12 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
         boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVINGS", 0L);
 
-        assertTrue(incremented);
+        Assertions.assertTrue(incremented);
         AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
         assertEquals(1L, updatedSequence.getCurrent());
     }
 
     @Test
-    @Transactional
-    @Rollback
     void incrementCounter_doesNotIncrementWhenExpectedValueDoesNotMatch() {
         accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGS");
         AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
@@ -124,8 +78,6 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
 
     @Test
-    @Transactional
-    @Rollback
     void incrementCounterWithOptimisticLockExceptionSuccessTest() {
         accountNumbersSequenceRepository.createAccountTypeCounter("SAVING");
         AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVING");
@@ -138,17 +90,5 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
         assertTrue(incremented);
         AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVING");
         assertEquals(2L, updatedSequence.getCurrent());
-    }
-
-    @AfterEach
-    void cleanupDatabase() throws SQLException {
-        try (Connection connection = DriverManager.getConnection(
-                POSTGRESQL_CONTAINER.getJdbcUrl(),
-                POSTGRESQL_CONTAINER.getUsername(),
-                POSTGRESQL_CONTAINER.getPassword())) {
-            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM account_number_sequence")) {
-                statement.executeUpdate();
-            }
-        }
     }
 }

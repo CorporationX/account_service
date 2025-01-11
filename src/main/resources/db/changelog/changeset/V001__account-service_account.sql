@@ -15,9 +15,8 @@ CREATE TABLE IF NOT EXISTS  account
                                     CONSTRAINT chk_one_owner CHECK (
                                     (user_owner_id IS NOT NULL AND project_owner_id IS NULL) OR
 (user_owner_id IS NULL AND project_owner_id IS NOT NULL)
-    ),
-    CONSTRAINT fk_user_id FOREIGN KEY (user_owner_id) REFERENCES users (id),
-    CONSTRAINT fk_project_id FOREIGN KEY (project_owner_id) REFERENCES project (id)
+    )
+
     );
 
 CREATE INDEX ON account (user_owner_id);

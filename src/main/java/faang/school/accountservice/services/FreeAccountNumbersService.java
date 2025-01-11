@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -32,22 +34,27 @@ public class FreeAccountNumbersService {
         accountNumbersSequenceRepository.incrementCounter(type, lastDigits);
     }
 
+
+
     @Transactional
-    public Long getFreeAccountNumberWithTransaction(String accountType, Runnable action) {
+    public Long getFreeAccountNumberWithTransaction(String accountType, Consumer<Long> action) {
         Long accountNumber = freeAccountNumbersRepository.getAndRemoveFirstFreeAccountNumber(accountType);
+
         if (accountNumber == null) {
             createNewFreeAccountNumber(accountType);
             accountNumber = freeAccountNumbersRepository.getAndRemoveFirstFreeAccountNumber(accountType);
+
             if (accountNumber == null) {
                 throw new RuntimeException("No free account numbers available");
             }
         }
 
         try {
-            action.run();
+            action.accept(accountNumber);
             return accountNumber;
         } catch (Exception e) {
             freeAccountNumbersRepository.saveNewFreeAccountNumber(accountType, accountNumber);
+            log.error(e);
             throw e;
         }
     }
@@ -64,7 +71,7 @@ public class FreeAccountNumbersService {
     private Integer getValueForAccountTypeOrThrowException(String type) {
         try {
             AccountType accountType = AccountType.valueOf(type);
-            return accountType.getValue();
+            return accountType.getPrefix();
         } catch (IllegalArgumentException e) {
             log.error("Invalid account type: {}", type, e);
             throw new IllegalArgumentException("Invalid account type: " + type, e);
