@@ -8,6 +8,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountOwnerRepository;
 import faang.school.accountservice.repository.AccountRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -99,6 +100,11 @@ public class AccountService {
         account = accountRepository.save(account);
         log.info("Successfully closed account with id: {}", id);
         return accountMapper.toDto(account);
+    }
+
+    public Account getAccountById(long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account with ID=%d was not found".formatted(accountId)));
     }
 
     private Account getAccountEntity(Long id) {
