@@ -1,0 +1,2 @@
+ALTER TABLE account DROP CONSTRAINT IF EXISTS fk_user_id;
+ALTER TABLE account DROP CONSTRAINT IF EXISTS fk_project_id;
