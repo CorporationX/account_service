@@ -1,0 +1,41 @@
+package faang.school.accountservice.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "public.savings_account")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SavingsAccount {
+    @Id
+    private long id;
+
+    @Column(name = "last_interest_calculation_date")
+    private LocalDateTime lastInterestCalculationDate;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private int version;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "savingsAccounts")
+    private List<Tariff> tariffs;
+}
