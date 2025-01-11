@@ -14,4 +14,5 @@ public class AccountDto {
     private Type type;
     private Currency currency;
     private Status status;
+    private String accountNumber;
 }
