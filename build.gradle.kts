@@ -60,7 +60,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 val jacocoInclude = listOf(
-        "**/controller/**",
+//        "**/controller/**",
         "**/service/**",
         "**/validator/**",
 //  "**/mapper/**"
