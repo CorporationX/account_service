@@ -7,8 +7,11 @@ import faang.school.accountservice.util.BaseContextTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FreeAccountNumberServiceIT extends BaseContextTest {
 
@@ -28,13 +31,23 @@ public class FreeAccountNumberServiceIT extends BaseContextTest {
     }
 
     @Test
-    public void generateFreeAccountNumberTest() {
+    public void generateFreeAccountNumbersTest() {
+        Set<String> expectedAccountNumbers = Set.of(
+                "5444000000000001",
+                "5444000000000002",
+                "5444000000000003",
+                "5444000000000004",
+                "5444000000000005"
+        );
+        int batchSize = 5;
         AccountType accountType = AccountType.SAVINGS;
 
-        freeAccountNumbersService.generateFreeAccountNumber(accountType);
-        FreeAccountNumber result = accountNumbersRepository.retrieveFreeAccountNumber(accountType.name());
+        freeAccountNumbersService.generateFreeAccountNumbers(accountType, batchSize);
 
-        assertNotNull(result);
-        assertEquals("5444000000000001", result.getAccountNumber());
+        for (int i = 1; i <= batchSize; i++) {
+            FreeAccountNumber result = accountNumbersRepository.retrieveFreeAccountNumber(accountType.name());
+            assertNotNull(result);
+            assertTrue(expectedAccountNumbers.contains(result.getAccountNumber()));
+        }
     }
 }

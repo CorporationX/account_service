@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,6 +30,14 @@ public class BalanceAuditService {
         balanceAuditRepository.save(audit);
         log.info("Balance audit for account {} with version {} is created",
                 balance.getAccount().getId(), balance.getVersion());
+    }
+
+    public Optional<BigDecimal> findMinimalActualBalanceByAccountAndPeriod(
+            long accountId,
+            LocalDateTime startDate,
+            LocalDateTime endDate
+    ) {
+        return balanceAuditRepository.findMinimalActualBalanceByAccountAndPeriod(accountId, startDate, endDate);
     }
 
     public void deleteAudit(long auditId) {

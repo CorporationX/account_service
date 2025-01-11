@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,24 +28,27 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumberValidator freeAccountNumberValidator;
 
     @Transactional
-    public void generateFreeAccountNumber(AccountType accountType) {
-        log.info("Start generating free account number for account type: {}", accountType);
-        AccountNumberSequence sequence =
-                accountNumbersSequenceRepository.incrementCounter(accountType.name());
+    public void generateFreeAccountNumbers(AccountType accountType, int batchSize) {
+        log.info("Start generating free account numbers for account type: {}", accountType);
+        AccountNumberSequence sequence = accountNumbersSequenceRepository.incrementCounter(accountType.name(), batchSize);
         long numberSequence = sequence.getCurrentSequenceValue();
         int accountNumberLength = getLengthByAccountType(accountType);
         int accountTypeIdentity = getNumberIdentityByAccountType(accountType);
 
         freeAccountNumberValidator.validateNumberSequenceIsNotExceeded(numberSequence,
                 accountNumberLength, accountTypeIdentity);
-        String accountNumber = buildAccountNumber(accountTypeIdentity,
-                numberSequence, accountNumberLength);
 
-        freeAccountNumbersRepository.save(FreeAccountNumber.builder()
-                .accountType(accountType)
-                .accountNumber(accountNumber)
-                .build());
-        log.info("Finished generating free account number for account type: {}", accountType);
+        List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
+        for (long tempSequence = numberSequence - batchSize + 1; tempSequence <= numberSequence; tempSequence++) {
+            String accountNumber = buildAccountNumber(accountTypeIdentity, tempSequence, accountNumberLength);
+            freeAccountNumbers.add(FreeAccountNumber.builder()
+                    .accountType(accountType)
+                    .accountNumber(accountNumber)
+                    .build());
+        }
+
+        freeAccountNumbersRepository.saveAll(freeAccountNumbers);
+        log.info("Finished generating free account numbers for account type: {}", accountType);
     }
 
     @Transactional
@@ -53,7 +59,7 @@ public class FreeAccountNumbersService {
 
         if (freeAccountNumber == null) {
             log.info("No free account number found for account type: {}.Generating new...", accountType);
-            generateFreeAccountNumber(accountType);
+            generateFreeAccountNumbers(accountType, 1);
             freeAccountNumber = freeAccountNumbersRepository.retrieveFreeAccountNumber(accountType.name());
         }
         log.info("Finished getting free account number for account type: {}", accountType);
