@@ -20,8 +20,7 @@ public class RequestExecutorService {
         List<Long> handlersIds = getHandlersIdsByRequestType(request.getRequestType());
 
         requestTaskHandlers.stream()
-                .filter(handler -> handlersIds.stream()
-                        .anyMatch(handlerId -> handlerId.equals(handler.getHandlerId())))
+                .filter(handler -> handlersIds.contains(handler.getHandlerId()))
                 .sorted(Comparator.comparing(RequestTaskHandler::getHandlerId))
                 .forEach(requestTaskHandler -> requestTaskHandler.execute(request));
     }

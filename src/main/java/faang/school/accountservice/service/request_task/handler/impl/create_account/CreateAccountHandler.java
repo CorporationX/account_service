@@ -42,7 +42,7 @@ public class CreateAccountHandler implements RequestTaskHandler {
     public void execute(Request request) {
         RequestTask requestTask = getPerticularRequestTask(request);
         if (requestTask.getStatus()== RequestTaskStatus.DONE) {
-            log.info("Request task with id: {} already completed.", requestTask.getId());
+            log.warn("Request task with id: {} already completed.", requestTask.getId());
             return;
         }
         try {

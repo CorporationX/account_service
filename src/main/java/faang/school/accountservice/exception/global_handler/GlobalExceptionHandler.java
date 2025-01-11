@@ -26,7 +26,8 @@ public class GlobalExceptionHandler {
         return buildResponse(e);
     }
 
-    @ExceptionHandler({BalanceBelowZeroException.class, IllegalArgumentException.class, ConstraintViolationException.class})
+    @ExceptionHandler({BalanceBelowZeroException.class, IllegalArgumentException.class,
+            ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBalanceBelowZeroAndIllegalArgument(Exception e) {
         return buildResponse(e);

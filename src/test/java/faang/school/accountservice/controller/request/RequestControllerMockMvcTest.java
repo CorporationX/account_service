@@ -26,7 +26,7 @@ class RequestControllerMockMvcTest extends BaseContextTest {
 
         when(requestService.getRequestStatus(id)).thenReturn(RequestStatus.DONE);
 
-        mockMvc.perform(get("/api/v1/requests/{requestId}", id)
+        mockMvc.perform(get("/api/v1/requests/{requestId}/statuses", id)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("x-user-id", userId))
                 .andExpect(status().isOk())

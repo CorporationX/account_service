@@ -17,7 +17,7 @@ public class RequestController {
 
     private final RequestService requestService;
 
-    @GetMapping("/{requestId}")
+    @GetMapping("/{requestId}/statuses")
     public RequestStatus getRequestStatus(@PathVariable UUID requestId) {
         return requestService.getRequestStatus(requestId);
     }

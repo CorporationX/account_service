@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RequestSchedulerService {
 
-    private static final int SCHEDULING_RATE = 500;
+    private static final int SCHEDULING_RATE_MILLISECONDS = 500;
 
     private final ScheduledRequestExecutorService scheduledExecutorService;
 
     @PostConstruct
-    @Scheduled(fixedRate = SCHEDULING_RATE)
+    @Scheduled(fixedRate = SCHEDULING_RATE_MILLISECONDS)
     public void executeRequests() {
         scheduledExecutorService.execute();
     }
