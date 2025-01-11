@@ -35,7 +35,7 @@ public class BalanceController {
     @PostMapping()
     @Operation(summary = "Authorize balance")
     public ResponseEntity<BalanceDto> authorizeBalance(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
-                                                       @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                       @Pattern(regexp = "\\d+", message = "Account number must be numeric positive value")
                                                        @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                        @RequestParam
                                                        String accountNumber) {
@@ -46,7 +46,7 @@ public class BalanceController {
     @PutMapping("/authorized/deposit")
     @Operation(summary = "Deposit authorized balance")
     public ResponseEntity<BalanceDto> depositAuthorized(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
-                                                        @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                        @Pattern(regexp = "\\d+", message = "Account number must be numeric positive value")
                                                         @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                         @RequestParam
                                                         String accountNumber,
@@ -60,7 +60,7 @@ public class BalanceController {
     @PutMapping("/authorized/withdraw")
     @Operation(summary = "Withdraw authorized balance")
     public ResponseEntity<BalanceDto> withdrawAuthorized(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
-                                                         @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                         @Pattern(regexp = "\\d+", message = "Account number must be numeric positive value")
                                                          @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                          @RequestParam
                                                          String accountNumber,
@@ -74,7 +74,7 @@ public class BalanceController {
     @PutMapping("/actual/deposit")
     @Operation(summary = "Deposit actual balance")
     public ResponseEntity<BalanceDto> depositActual(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
-                                                    @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                    @Pattern(regexp = "\\d+", message = "Account number must be numeric positive value")
                                                     @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                     @RequestParam
                                                     String accountNumber,
@@ -88,7 +88,7 @@ public class BalanceController {
     @PutMapping("/actual/withdraw")
     @Operation(summary = "Withdraw actual balance")
     public ResponseEntity<BalanceDto> withdrawActual(@Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
-                                                     @Pattern(regexp = "\\d+", message = "Account number must be numeric")
+                                                     @Pattern(regexp = "\\d+", message = "Account number must be numeric positive value")
                                                      @Parameter(description = "Account number. Value must be numeric", example = "12345678901234567890")
                                                      @RequestParam
                                                      String accountNumber,

@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,28 +26,26 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-class BalanceServiceIntegrationTest {
+class BalanceServiceRetryWithContextTest {
 
     @MockBean
     private BalanceRepository balanceRepository;
+
+    @MockBean
+    private AccountService accountService;
 
     @Autowired
     private BalanceService balanceService;
 
     private Balance balance;
 
-    private Long balanceId;
+    private String accountNumber;
+
+    private Account account;
 
     @BeforeEach
     void setUp() {
-        String accountNumber = "ACC0123456789";
-        Account account = Account.builder()
-                .id(1L)
-                .accountNumber(accountNumber)
-                .status(AccountStatus.ACTIVE)
-                .ownerId(1L)
-                .build();
-        balanceId = 1L;
+        accountNumber = "ACC0123456789";
         balance = Balance.builder()
                 .id(1L)
                 .account(account)
@@ -55,33 +54,42 @@ class BalanceServiceIntegrationTest {
                 .updatedAt(LocalDateTime.now())
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        account = Account.builder()
+                .id(1L)
+                .accountNumber(accountNumber)
+                .balance(balance)
+                .status(AccountStatus.ACTIVE)
+                .ownerId(1L)
+                .balanceStatus(BalanceStatus.ACTIVE)
+                .build();
     }
 
     @Test
     @DisplayName("Retryable deposit authorized balance test: OptimisticLockException")
     void testDepositAuthorized_Success() {
-        when(balanceRepository.getReferenceById(balanceId))
+        when(accountService.findByAccountNumber(accountNumber))
                 .thenThrow(OptimisticLockException.class)
                 .thenThrow(OptimisticLockException.class)
-                .thenReturn(balance);
+                .thenReturn(account);
 
-        BalanceDto result = balanceService.depositAuthorized(balanceId, new BigDecimal("100.00"));
+        BalanceDto result = balanceService.depositAuthorized(accountNumber, new BigDecimal("100.00"));
 
-        verify(balanceRepository, times(3)).getReferenceById(balanceId);
+        verify(accountService, times(3)).findByAccountNumber(accountNumber);
         assertEquals(new BigDecimal("100.00"), result.authorizedBalance());
     }
 
     @Test
     @DisplayName("Retryable deposit actual balance test: OptimisticLockException")
     void testDepositActual_Success() {
-        when(balanceRepository.getReferenceById(balanceId))
+        when(accountService.findByAccountNumber(accountNumber))
                 .thenThrow(OptimisticLockException.class)
                 .thenThrow(OptimisticLockException.class)
-                .thenReturn(balance);
+                .thenReturn(account);
 
-        BalanceDto result = balanceService.depositActual(balanceId, new BigDecimal("100.00"));
+        BalanceDto result = balanceService.depositActual(accountNumber, new BigDecimal("100.00"));
 
-        verify(balanceRepository, times(3)).getReferenceById(balanceId);
+        verify(accountService, times(3)).findByAccountNumber(accountNumber);
         assertEquals(new BigDecimal("100.00"), result.actualBalance());
     }
 
@@ -90,14 +98,14 @@ class BalanceServiceIntegrationTest {
     @DisplayName("Retryable withdraw authorized balance test: OptimisticLockException")
     void testWithdrawAuthorized_Success() {
         balance.setAuthorizedBalance(new BigDecimal("100.00"));
-        when(balanceRepository.getReferenceById(balanceId))
+        when(accountService.findByAccountNumber(accountNumber))
                 .thenThrow(OptimisticLockException.class)
                 .thenThrow(OptimisticLockException.class)
-                .thenReturn(balance);
+                .thenReturn(account);
 
-        BalanceDto result = balanceService.withdrawAuthorized(balanceId, new BigDecimal("99.01"));
+        BalanceDto result = balanceService.withdrawAuthorized(accountNumber, new BigDecimal("99.01"));
 
-        verify(balanceRepository, times(3)).getReferenceById(balanceId);
+        verify(accountService, times(3)).findByAccountNumber(accountNumber);
         assertEquals(new BigDecimal("0.99"), result.authorizedBalance());
     }
 
@@ -105,14 +113,14 @@ class BalanceServiceIntegrationTest {
     @DisplayName("Retryable withdraw actual balance test: OptimisticLockException")
     void testWithdrawActual_Retryable() {
         balance.setActualBalance(new BigDecimal("100.00"));
-        when(balanceRepository.getReferenceById(balanceId))
+        when(accountService.findByAccountNumber(accountNumber))
                 .thenThrow(OptimisticLockException.class)
                 .thenThrow(OptimisticLockException.class)
-                .thenReturn(balance);
+                .thenReturn(account);
 
-        BalanceDto result = balanceService.withdrawActual(balanceId, new BigDecimal("99.01"));
+        BalanceDto result = balanceService.withdrawActual(accountNumber, new BigDecimal("99.01"));
 
-        verify(balanceRepository, times(3)).getReferenceById(balanceId);
+        verify(accountService, times(3)).findByAccountNumber(accountNumber);
         assertEquals(new BigDecimal("0.99"), result.actualBalance());
     }
 }

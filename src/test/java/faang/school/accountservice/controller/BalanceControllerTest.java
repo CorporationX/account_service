@@ -41,22 +41,16 @@ class BalanceControllerTest {
     private UserContext userContext;
 
     private ObjectMapper objectMapper;
-
     private String accountNumber;
-
     private BalanceDto balanceDto;
-
     private BigDecimal amount;
-
-    private Long balanceId;
 
     @BeforeEach
     public void setUp() {
-        balanceId = 1L;
         accountNumber = "01234567891231232";
         objectMapper = new ObjectMapper();
         balanceDto = BalanceDto.builder()
-                .accountId(2L)
+                .accountNumber(accountNumber)
                 .authorizedBalance(new BigDecimal("1111.64"))
                 .actualBalance(new BigDecimal("2222.23"))
                 .build();
@@ -68,7 +62,7 @@ class BalanceControllerTest {
     void testAuthorizeBalance_Success() throws Exception {
         when(balanceService.authorize(accountNumber)).thenReturn(balanceDto);
 
-        mockMvc.perform(post("/balances")
+        mockMvc.perform(post("/accounts/balances")
                         .param("accountNumber", accountNumber))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(balanceDto)))
@@ -81,10 +75,10 @@ class BalanceControllerTest {
     void testAuthorizeBalance_TextAccountNumber() throws Exception {
         accountNumber = "TEXT-NUMBER1234";
 
-        mockMvc.perform(post("/balances")
+        mockMvc.perform(post("/accounts/balances")
                         .param("accountNumber", accountNumber))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.accountNumber").value("Account number must be numeric"));
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be numeric positive value"));
     }
 
     @Test
@@ -92,7 +86,7 @@ class BalanceControllerTest {
     void testAuthorizeBalance_SizeMismatch() throws Exception {
         accountNumber = "1234";
 
-        mockMvc.perform(post("/balances")
+        mockMvc.perform(post("/accounts/balances")
                         .param("accountNumber", accountNumber))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.accountNumber")
@@ -103,14 +97,14 @@ class BalanceControllerTest {
     @DisplayName("Deposit authorized balance: success case")
     void testDepositAuthorizedBalance_Success() throws Exception {
 
-        when(balanceService.depositAuthorized(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.depositAuthorized(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/authorized/deposit")
-                .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/authorized/deposit")
+                .param("accountNumber", accountNumber)
                 .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(balanceDto)))
-                .andExpect(jsonPath("$.accountId").value(2L))
+                .andExpect(jsonPath("$.accountNumber").value("01234567891231232"))
                 .andExpect(jsonPath("$.authorizedBalance").value(1111.64))
                 .andExpect(jsonPath("$.actualBalance").value(2222.23));
     }
@@ -118,15 +112,29 @@ class BalanceControllerTest {
     @Test
     @DisplayName("Deposit authorized balance: negative balance value")
     void testDepositAuthorizedBalance_NegativeBalanceValue() throws Exception {
-        balanceId = -1L;
+        accountNumber = "-1000000000000";
 
-        when(balanceService.depositAuthorized(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.depositAuthorized(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/authorized/deposit")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/authorized/deposit")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.balanceId").value("Balance ID must be positive value"));
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be numeric positive value"));
+    }
+
+    @Test
+    @DisplayName("Deposit authorized balance: account number size mismatch")
+    void testDepositAuthorizedBalance_SizeMismatch() throws Exception {
+        accountNumber = "100000";
+
+        when(balanceService.depositAuthorized(accountNumber, amount)).thenReturn(balanceDto);
+
+        mockMvc.perform(put("/accounts/balances/authorized/deposit")
+                        .param("accountNumber", accountNumber)
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be between 12 and 20 characters"));
     }
 
     @Test
@@ -134,10 +142,10 @@ class BalanceControllerTest {
     void testDepositAuthorizedBalance_NegativeAmountValue() throws Exception {
         amount = BigDecimal.valueOf(-0.01);
 
-        when(balanceService.depositAuthorized(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.depositAuthorized(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/authorized/deposit")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/authorized/deposit")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.amount").value("Amount must be positive value"));
@@ -147,41 +155,55 @@ class BalanceControllerTest {
     @DisplayName("Withdraw authorized balance: success case")
     void testWithdrawAuthorizedBalance_Success() throws Exception {
 
-        when(balanceService.withdrawAuthorized(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.withdrawAuthorized(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/authorized/withdraw")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/authorized/withdraw")
+                        .param("accountNumber", String.valueOf(accountNumber))
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(balanceDto)))
-                .andExpect(jsonPath("$.accountId").value(2L))
+                .andExpect(jsonPath("$.accountNumber").value("01234567891231232"))
                 .andExpect(jsonPath("$.authorizedBalance").value(1111.64))
                 .andExpect(jsonPath("$.actualBalance").value(2222.23));
     }
 
     @Test
-    @DisplayName("Withdraw authorized balance - negative balance value")
-    void testWithdrawAuthorizedBalance_negativeBalanceValue() throws Exception {
-        balanceId = -1L;
+    @DisplayName("Withdraw authorized balance: negative account number")
+    void testWithdrawAuthorizedBalance_NegativeAccountNumber() throws Exception {
+        accountNumber = "-1000000000000";
 
-        when(balanceService.withdrawAuthorized(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.withdrawAuthorized(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/authorized/withdraw")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/authorized/withdraw")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.balanceId").value("Balance ID must be positive value"));
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be numeric positive value"));
     }
 
     @Test
-    @DisplayName("Deposit authorized balance - success case")
-    void testWithdrawAuthorizedBalance_negativeAmountValue() throws Exception {
+    @DisplayName("Withdraw authorized balance: account number size mismatch")
+    void testWithdrawAuthorizedBalance_SizeMismatch() throws Exception {
+        accountNumber = "10000";
+
+        when(balanceService.withdrawAuthorized(accountNumber, amount)).thenReturn(balanceDto);
+
+        mockMvc.perform(put("/accounts/balances/authorized/withdraw")
+                        .param("accountNumber", accountNumber)
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be between 12 and 20 characters"));
+    }
+
+    @Test
+    @DisplayName("Deposit authorized balance: negative amount value")
+    void testWithdrawAuthorizedBalance_NegativeAmountValue() throws Exception {
         amount = BigDecimal.valueOf(-0.01);
 
-        when(balanceService.withdrawAuthorized(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.withdrawAuthorized(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/authorized/withdraw")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/authorized/withdraw")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.amount").value("Amount must be positive value"));
@@ -191,41 +213,56 @@ class BalanceControllerTest {
     @DisplayName("Deposit actual balance: success case")
     void testDepositActualBalance_Success() throws Exception {
 
-        when(balanceService.depositActual(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.depositActual(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/actual/deposit")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/actual/deposit")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(balanceDto)))
-                .andExpect(jsonPath("$.accountId").value(2L))
+                .andExpect(jsonPath("$.accountNumber").value("01234567891231232"))
                 .andExpect(jsonPath("$.authorizedBalance").value(1111.64))
                 .andExpect(jsonPath("$.actualBalance").value(2222.23));
     }
 
     @Test
-    @DisplayName("Deposit actual balance - negative balance value")
-    void testDepositActualBalance_negativeBalanceValue() throws Exception {
-        balanceId = -1L;
+    @DisplayName("Deposit actual balance: negative account number")
+    void testDepositActualBalance_NegativeAccountNumber() throws Exception {
+        accountNumber = "-100000000000";
 
-        when(balanceService.depositActual(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.depositActual(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/actual/deposit")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/actual/deposit")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.balanceId").value("Balance ID must be positive value"));
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be numeric positive value"));
+    }
+
+
+    @Test
+    @DisplayName("Deposit actual balance: account number size mismatch")
+    void testDepositActualBalance_SizeMismatch() throws Exception {
+        accountNumber = "1000";
+
+        when(balanceService.depositActual(accountNumber, amount)).thenReturn(balanceDto);
+
+        mockMvc.perform(put("/accounts/balances/actual/deposit")
+                        .param("accountNumber", accountNumber)
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be between 12 and 20 characters"));
     }
 
     @Test
-    @DisplayName("Deposit actual balance - success case")
-    void testDepositActualBalance_negativeAmountValue() throws Exception {
+    @DisplayName("Deposit actual balance: negative amount value")
+    void testDepositActualBalance_NegativeAmountValue() throws Exception {
         amount = BigDecimal.valueOf(-0.01);
 
-        when(balanceService.depositActual(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.depositActual(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/actual/deposit")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/actual/deposit")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.amount").value("Amount must be positive value"));
@@ -235,41 +272,55 @@ class BalanceControllerTest {
     @DisplayName("Withdraw actual balance: success case")
     void testWithdrawActualBalance_Success() throws Exception {
 
-        when(balanceService.withdrawActual(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.withdrawActual(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/actual/withdraw")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/actual/withdraw")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(balanceDto)))
-                .andExpect(jsonPath("$.accountId").value(2L))
+                .andExpect(jsonPath("$.accountNumber").value("01234567891231232"))
                 .andExpect(jsonPath("$.authorizedBalance").value(1111.64))
                 .andExpect(jsonPath("$.actualBalance").value(2222.23));
     }
 
     @Test
-    @DisplayName("Withdraw actual balance - negative balance value")
-    void testWithdrawActualBalance_negativeBalanceValue() throws Exception {
-        balanceId = -1L;
+    @DisplayName("Withdraw actual balance: negative account value")
+    void testWithdrawActualBalance_NegativeAccountValue() throws Exception {
+        accountNumber = "-100000000000";
 
-        when(balanceService.withdrawActual(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.withdrawActual(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/actual/withdraw")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/actual/withdraw")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.balanceId").value("Balance ID must be positive value"));
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be numeric positive value"));
     }
 
     @Test
-    @DisplayName("Withdraw actual balance - success case")
-    void testWithdrawActualBalance_negativeAmountValue() throws Exception {
+    @DisplayName("Withdraw actual balance: account number size mismatch")
+    void testWithdrawActualBalance_SizeMismatch() throws Exception {
+        accountNumber = "100000";
+
+        when(balanceService.withdrawActual(accountNumber, amount)).thenReturn(balanceDto);
+
+        mockMvc.perform(put("/accounts/balances/actual/withdraw")
+                        .param("accountNumber", accountNumber)
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.accountNumber").value("Account number must be between 12 and 20 characters"));
+    }
+
+    @Test
+    @DisplayName("Withdraw actual balance: negative amount value")
+    void testWithdrawActualBalance_NegativeAmountValue() throws Exception {
         amount = BigDecimal.valueOf(-0.01);
 
-        when(balanceService.withdrawActual(balanceId, amount)).thenReturn(balanceDto);
+        when(balanceService.withdrawActual(accountNumber, amount)).thenReturn(balanceDto);
 
-        mockMvc.perform(put("/balances/actual/withdraw")
-                        .param("balanceId", String.valueOf(balanceId))
+        mockMvc.perform(put("/accounts/balances/actual/withdraw")
+                        .param("accountNumber", accountNumber)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.amount").value("Amount must be positive value"));

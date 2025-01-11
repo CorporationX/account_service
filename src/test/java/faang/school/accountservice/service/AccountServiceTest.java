@@ -47,12 +47,10 @@ class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
-    private CreateAccountDto createDto;
-
     @Test
     @DisplayName("Create account success")
     void testCreateAccount_Success() {
-        createDto = new CreateAccountDto(AccountOwnerType.PROJECT, "Project owner", AccountType.CURRENT, Currency.USD);
+        CreateAccountDto createDto = new CreateAccountDto(AccountOwnerType.PROJECT, "Project owner", AccountType.CURRENT, Currency.USD);
         Long ownerId = 10L;
 
         AccountDto result = accountService.createAccount(createDto, ownerId);

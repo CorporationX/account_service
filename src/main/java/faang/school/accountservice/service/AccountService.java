@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -84,6 +85,7 @@ public class AccountService {
         account.setOwnerId(ownerId);
         account.setAccountNumber(generateAccountNumber());
         account.setStatus(AccountStatus.ACTIVE);
+        account.setBalanceStatus(BalanceStatus.NEW);
         return account;
     }
 

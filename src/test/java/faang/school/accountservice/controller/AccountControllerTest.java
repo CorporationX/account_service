@@ -7,6 +7,7 @@ import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.exception.GlobalExceptionHandler;
 import faang.school.accountservice.service.AccountService;
@@ -70,7 +71,7 @@ class AccountControllerTest {
                  }
                 """;
         createDto = objectMapper.readValue(jsonCreateDto, CreateAccountDto.class);
-        accountDto = new AccountDto(1L, "ACC123456", AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, AccountStatus.ACTIVE);
+        accountDto = new AccountDto(1L, "ACC123456", AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, AccountStatus.ACTIVE, BalanceStatus.NEW);
 
         when(userContext.getUserId()).thenReturn(10L);
         when(accountService.createAccount(createDto, 10L)).thenReturn(accountDto);
@@ -129,7 +130,7 @@ class AccountControllerTest {
     @DisplayName("Get accounts information success: valid input")
     void testGetAccounts_Success() throws Exception {
         String accountOwnerType = "project";
-        accountDto = new AccountDto(1L, "ACC123456", AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, AccountStatus.ACTIVE);
+        accountDto = new AccountDto(1L, "ACC123456", AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, AccountStatus.ACTIVE, BalanceStatus.NEW);
         AccountOwnerType ownerType = AccountOwnerType.toValue(accountOwnerType);
 
         when(userContext.getUserId()).thenReturn(10L);
@@ -185,7 +186,7 @@ class AccountControllerTest {
         String accountNumber = "ACC0123456789";
         String accountStatus = "INACTIVE";
         AccountStatus newStatus = AccountStatus.toValue(accountStatus);
-        accountDto = new AccountDto(1L, accountNumber, AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, newStatus);
+        accountDto = new AccountDto(1L, accountNumber, AccountOwnerType.PROJECT, 10L, "Project owner", AccountType.CURRENT, Currency.USD, newStatus, BalanceStatus.NEW);
 
         when(userContext.getUserId()).thenReturn(10L);
         when(accountService.updateAccountStatus(accountNumber, 10L, newStatus)).thenReturn(accountDto);

@@ -3,6 +3,7 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,6 +45,10 @@ public class Account {
     @Column(name = "account_number", nullable = false, unique = true)
     @Size(min = 12, max = 20)
     private String accountNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "balance_status", nullable = false)
+    private BalanceStatus balanceStatus = BalanceStatus.NEW;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private Balance balance;
