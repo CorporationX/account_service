@@ -21,7 +21,7 @@ public class AccountNumberSequence {
     private AccountType type;
 
     @Column(name = "counter")
-    private long counter = 0L;
+    private long counter;
 
     @Version
     private Long version;

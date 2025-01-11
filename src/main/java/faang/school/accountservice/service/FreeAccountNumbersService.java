@@ -10,6 +10,7 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -23,10 +24,15 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 @Slf4j
 public class FreeAccountNumbersService {
-    private final int single = 1;
-    private final long divisor = 1_000_000_000_000_000L;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
     private final FreeAccountNumberRepository freeAccountNumberRepository;
+
+    @Value("${accounts.generated.single-account}")
+    private int single;
+
+    @Value("${accounts.generated.divisor}")
+    private long divisor;
+
 
     @Transactional
     public void processAndDeleteFreeAccNumber(AccountType type, Consumer<FreeAccountNumber> consumer) {
