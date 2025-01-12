@@ -60,6 +60,9 @@ class AccountServiceTest {
     @Mock
     private AccountEventPublisher accountEventPublisher;
 
+    @Mock
+    private BalanceAuditService balanceAuditService;
+
     @InjectMocks
     private AccountService accountService;
 
