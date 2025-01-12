@@ -1,3 +1,4 @@
+ALTER TABLE balance DROP CONSTRAINT IF EXISTS balance_fk;
 DROP TABLE IF EXISTS account;
 DROP TYPE IF EXISTS status;
 DROP TYPE IF EXISTS owner;
@@ -24,3 +25,7 @@ CREATE TABLE IF NOT EXISTS account (
 
 CREATE INDEX idx_user_owner_id ON account (user_owner_id);
 CREATE INDEX idx_project_owner_id ON account (project_owner_id);
+
+ALTER TABLE balance
+    ALTER COLUMN account_number TYPE BIGINT USING account_number::BIGINT;
+ALTER TABLE balance ADD CONSTRAINT balance_fk FOREIGN KEY(account_number) REFERENCES account(number);
