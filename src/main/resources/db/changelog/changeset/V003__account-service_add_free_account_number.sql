@@ -12,4 +12,3 @@ CREATE TABLE IF NOT EXISTS account_number_sequence (
 INSERT INTO account_number_sequence (type)
 VALUES ('DEBIT'),
        ('SAVINGS');
-

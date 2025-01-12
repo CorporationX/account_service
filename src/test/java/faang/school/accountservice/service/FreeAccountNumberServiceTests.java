@@ -85,7 +85,7 @@ public class FreeAccountNumberServiceTests {
         long number = 5536_0000_0000_0000L;
         FreeAccountId freeAccountId = new FreeAccountId(accountType, number);
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
-        RequestAccount requestAccount = new RequestAccount(1L, 2L, AccountType.DEBIT, Owner.user, Currency.RUB, 3L);
+        RequestAccount requestAccount = new RequestAccount(1L, 2L, AccountType.DEBIT, Owner.USER, Currency.RUB, 3L);
         FreeAccountRepository freeAccountRepository = mock(FreeAccountRepository.class);
         AccountRepository accountRepository = mock(AccountRepository.class);
         Consumer<FreeAccountNumber> numberConsumer = mock(Consumer.class);

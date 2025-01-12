@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS account (
     closed_at TIMESTAMPTZ,
     version BIGINT NOT NULL,
 
-    CONSTRAINT check_number CHECK (number::TEXT ~ '^[[:digit:]]{12,20}$'),
-    CONSTRAINT check_user_owner_id CHECK (user_owner_id IS NULL AND owner_account = 'project'),
-    CONSTRAINT check_project_owner_id CHECK (project_owner_id IS NULL AND owner_account = 'user')
+    CONSTRAINT check_number CHECK (number LIKE '^[0-9]{12-20}$'),
+    CONSTRAINT check_user_owner_id CHECK (user_owner_id = NULL AND owner_account = 'project'),
+    CONSTRAINT check_project_owner_id CHECK (project_owner_id = NULL AND owner_account = 'user')
 );
 
 CREATE INDEX idx_user_owner_id ON account (user_owner_id);

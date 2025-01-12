@@ -11,7 +11,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class RequestAccount {
 
-
     Long userOwnerId;
 
     Long projectOwnerId;
