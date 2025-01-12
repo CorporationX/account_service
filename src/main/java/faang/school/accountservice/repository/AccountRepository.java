@@ -41,4 +41,12 @@ public class AccountRepository {
                 () -> new EntityNotFoundException("Account not found by number: " + accountNumber)
         );
     }
+
+    public Long countByOwnerId(Long ownerId) {
+        return accountJpaRepository.countByOwnerId(ownerId);
+    }
+
+    public void deleteById(Long accountId) {
+        accountJpaRepository.deleteById(accountId);
+    }
 }

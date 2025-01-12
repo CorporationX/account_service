@@ -62,5 +62,4 @@ public class AccountController {
     public AccountDtoResponse block(@RequestBody @Valid AccountDtoCloseBlock dtoCloseBlock) {
         return accountService.blockAccount(dtoCloseBlock);
     }
-
 }

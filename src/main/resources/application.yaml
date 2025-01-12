@@ -17,6 +17,14 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        account_create_channel:
+          name: account_create_channel
+
 server:
   port: 8090
 
@@ -31,3 +39,21 @@ services:
   project-service:
     host: localhost
     port: 8082
+
+
+executor:
+  core-pool-size: 4
+  max-pool-size: 10
+  queue-capacity: 30
+  keep-alive-time: 60
+
+scheduler:
+  request:
+    initial-delay: 0
+    period: 500
+
+
+
+
+account-service:
+  max-accounts: 5

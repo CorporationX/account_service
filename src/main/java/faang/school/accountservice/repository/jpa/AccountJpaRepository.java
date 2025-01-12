@@ -21,4 +21,6 @@ public interface AccountJpaRepository extends JpaRepository<Account, Long>, JpaS
     List<Account> findAccountsByOwnerIds(@Param("ownerIds") List<Long> ownerIds);
 
     List<Account> findAccountsByStatus(AccountStatus accountStatus);
+
+    Long countByOwnerId(Long ownerId);
 }
