@@ -4,11 +4,18 @@ import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.BalanceCreateRequest;
 import faang.school.accountservice.dto.balance.BalanceUpdateRequest;
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.account.Status;
+import faang.school.accountservice.enums.PaymentStatus;
+import faang.school.accountservice.event.AuthorizationMessageEvent;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.balance.BalanceService;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,4 +60,9 @@ public class BalanceController {
 
         return ResponseEntity.ok(balanceDto);
     }
+
+//    @PutMapping("/{accountNumber}")
+//    public PaymentStatus reserveMoney(AuthorizationMessageEvent authorizationMessageEvent){
+//        return balanceService.reserveMoneyOnAuthorisationBalance(authorizationMessageEvent);
+//    }
 }

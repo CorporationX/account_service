@@ -79,8 +79,8 @@ public class AccountService {
         return accountMapper.toDto(account);
     }
 
-    public Status reserveMoney(String accountNumber){
-
+    public Account getAccountByNumber(String accountNumber){
+        return accountRepository.findByAccountNumber(accountNumber);
     }
 
     private Account getAccountById(long accountId) {

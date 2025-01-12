@@ -23,6 +23,7 @@ spring:
       host: localhost
       channels:
         payment: payment_topic
+        payment-result: payment_result_topic
 
 server:
   port: 8090

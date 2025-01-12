@@ -42,9 +42,4 @@ public class AccountController {
     public AccountDto changeStatus(@PathVariable @Positive  long accountId, @RequestParam Status status) {
         return accountService.changeStatus(accountId, status);
     }
-
-    @PutMapping("/{accountNumber}")
-    public Status reserveMoney(@PathVariable @NotNull @NotBlank String accountNumber){
-        accountService
-    }
 }

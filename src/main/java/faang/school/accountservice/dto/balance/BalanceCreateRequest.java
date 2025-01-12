@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BalanceCreateRequest {
     private Long accountId;
-    private Long authorisationBalance;
-    private Long actualBalance;
+    private BigDecimal authorisationBalance;
+    private BigDecimal actualBalance;
 }

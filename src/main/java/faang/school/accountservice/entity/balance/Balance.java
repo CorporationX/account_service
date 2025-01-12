@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,10 +24,10 @@ public class Balance {
     private long accountId;
 
     @Column(name = "authorisation_balance", nullable = false)
-    private long authorisationBalance;
+    private BigDecimal authorisationBalance;
 
     @Column(name = "actual_balance", nullable = false)
-    private long actualBalance;
+    private BigDecimal actualBalance;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -34,7 +35,8 @@ public class Balance {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "version")
+    @Version
+    @Column(nullable = false)
     private long version;
 
     @OneToOne
