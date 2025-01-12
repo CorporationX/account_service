@@ -40,11 +40,11 @@ public class ExecutorConfig {
 
     private ThreadPoolExecutor createThreadPoolExecutor() {
         return new ThreadPoolExecutor(
-                executorProperties.getCorePoolSize(),
-                executorProperties.getMaxPoolSize(),
-                executorProperties.getKeepAliveTime(),
+                executorProperties.corePoolSize(),
+                executorProperties.maxPoolSize(),
+                executorProperties.keepAliveTime(),
                 TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(executorProperties.getQueueCapacity())
+                new ArrayBlockingQueue<>(executorProperties.queueCapacity())
         );
     }
 }

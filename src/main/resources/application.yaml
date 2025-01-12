@@ -47,6 +47,13 @@ executor:
   queue-capacity: 30
   keep-alive-time: 60
 
+scheduler:
+  request:
+    initial-delay: 0
+    period: 500
+
+
+
 
 account-service:
   max-accounts: 5

@@ -17,17 +17,21 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class RequestSchedulerService {
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final RequestRepository requestRepository;
     private final RequestExecutorService executor;
+    private final SchedulerProperties schedulerProperties;
 
     @PostConstruct
     public void scheduledTasks() {
         scheduler.scheduleAtFixedRate(() -> {
-            List<Request> requests = requestRepository.findPendingRequests(RequestStatus.PENDING ,LocalDateTime.now());
-            for (Request request : requests) {
-                executor.executeRequest(request.getId());
-            }
-        }, 0, 500, TimeUnit.MILLISECONDS);
+                    List<Request> requests = requestRepository.findPendingRequests(RequestStatus.PENDING, LocalDateTime.now());
+                    for (Request request : requests) {
+                        executor.executeRequest(request.getId());
+                    }
+                },
+                schedulerProperties.initialDelay(),
+                schedulerProperties.period(),
+                TimeUnit.MILLISECONDS);
     }
 }
