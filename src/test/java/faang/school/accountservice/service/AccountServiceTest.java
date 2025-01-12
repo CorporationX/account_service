@@ -266,6 +266,7 @@ class AccountServiceTest {
                 .transactions(new ArrayList<>())
                 .build();
 
+
         when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
 
         BalanceChangeDto result = accountService.withdraw(1L, transactionRequestDto);

@@ -96,13 +96,11 @@ public class AccountService {
 
         increaseActualBalance(account, amount);
 
-        createDepositTransaction(account, amount);
-
         Transaction transaction = createDepositTransaction(account, amount);
 
         accountRepository.save(account);
 
-        balanceAuditService.createBalanceAudit(account, transaction.getId());
+        balanceAuditService.createAuditEntry(account, transaction);
 
         log.debug("Account {} deposit of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
         return createBalanceChangeDto(account, amount);
@@ -121,13 +119,11 @@ public class AccountService {
 
         increaseAuthorizedBalance(account, amount);
 
-        createWithdrawalTransaction(account, amount);
-
         Transaction transaction = createWithdrawalTransaction(account, amount);
 
         accountRepository.save(account);
 
-        balanceAuditService.createBalanceAudit(account, transaction.getId());
+        balanceAuditService.createAuditEntry(account, transaction);
 
         log.debug("Account {} withdrawal of {} completed. New balance: {}", account.getAccountNumber(), amount, account.getBalance().getActualBalance());
         return createBalanceChangeDto(account, amount);
@@ -147,7 +143,6 @@ public class AccountService {
 
         log.debug("Transaction approved: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
-        balanceAuditService.createBalanceAudit(account, transactionId);
     }
 
     @Transactional
@@ -166,8 +161,6 @@ public class AccountService {
 
         log.debug("Transaction canceled: account number: {}, amount: {}", account.getAccountNumber(), amount);
         accountRepository.save(account);
-
-        balanceAuditService.createBalanceAudit(account, transactionId);
     }
 
     public AccountBalanceDto getAccountBalance(Long ownerId, String accountNumber) {

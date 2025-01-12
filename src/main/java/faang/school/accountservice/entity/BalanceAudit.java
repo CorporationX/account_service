@@ -8,12 +8,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,22 +30,27 @@ public class BalanceAudit {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "balance_id", nullable = false)
     Account account;
 
-    @Column(name = "account_version")
-    private int balanceVersion;
+    @Column(name = "balance_version", nullable = false)
+    private Integer balanceVersion;
 
-    @Column(name = "authorization_amount", nullable = false, precision = 19, scale = 4)
+    @Column(name = "authorized_balance", nullable = false, precision = 19, scale = 4)
     private BigDecimal authorizedBalance;
 
-    @Column(name = "actual_amount", nullable = false, precision = 19, scale = 4)
-    private BigDecimal actualBalance;
+    @Column(name = "operation_amount", nullable = false, precision = 19, scale = 4)
+    private BigDecimal operationAmount;
 
-    @Column(name = "operation_id")
-    private long transactionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transaction transaction;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = transaction.getCreatedAt();
+    }
 }
