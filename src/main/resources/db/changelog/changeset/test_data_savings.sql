@@ -1,4 +1,4 @@
-TRUNCATE TABLE account, balance, savings_account RESTART IDENTITY;
+TRUNCATE TABLE balance, savings_account RESTART IDENTITY;
 
 --
 INSERT INTO tariff (title, rate_history) VALUES

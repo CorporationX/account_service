@@ -39,9 +39,4 @@ public class SavingsAccountController {
     return savingsAccountService.getSavingsDtoByOwner(userId, ownerId);
   }
 
-  @PostMapping("/test-pay")
-  public void testPay(@RequestHeader("x-user-id") Long userId) {
-    savingsAccountService.payToCustomers();
-  }
-
 }

@@ -61,5 +61,4 @@ public class SavingsAccount {
     return Long.valueOf(str[index].trim().replaceAll("[\\[%\\]]", ""));
   }
 
-
 }

@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.savings.TariffDto;
-import faang.school.accountservice.service.savings.TariffService;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +33,7 @@ class TariffControllerMockMvcIT {
   @Autowired
   private MockMvc mockMvc;
 
-  @Autowired
-  private TariffService tariffService;
-
-  @Autowired
-  private ObjectMapper objectMapper;
+  private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Container
   public static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER = new PostgreSQLContainer<>(
@@ -50,13 +45,13 @@ class TariffControllerMockMvcIT {
     registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
     registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
     registry.add("spring.liquibase.contexts", () -> "test");
+
     try {
       Thread.sleep(1000);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
   }
-
 
   @Test
   void testInitPayAtAppStartScheduled() {
@@ -90,12 +85,12 @@ class TariffControllerMockMvcIT {
     mockMvc.perform(MockMvcRequestBuilders.put(url)
             .header("x-user-id", 1L)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(dto)))
+            .content(OBJECT_MAPPER.writeValueAsString(dto)))
         .andExpect(status().isOk());
   }
 
   @Test
-  void addTariff() throws Exception {
+  void testAddTariff() throws Exception {
     String url = URL_BASE + URL_SUFFIX_ADD;
     TariffDto dto = TariffDto.builder()
         .title("Added new tariff")
@@ -105,7 +100,7 @@ class TariffControllerMockMvcIT {
     mockMvc.perform(MockMvcRequestBuilders.post(url)
             .header("x-user-id", 1L)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(dto)))
+            .content(OBJECT_MAPPER.writeValueAsString(dto)))
         .andExpect(status().isOk());
   }
 }
