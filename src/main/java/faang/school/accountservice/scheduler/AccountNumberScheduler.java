@@ -17,12 +17,12 @@ public class AccountNumberScheduler {
 
     private final FreeAccountNumberService freeAccountNumberService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *")//запускает задачу каждый день в полночь (00:00:00)
     public void generateDebit() {
         freeAccountNumberService.generateAccountNumbers(AccountType.DEBIT, batchSize);
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *")//запускает задачу каждый день в полночь (00:00:00)
     public void generateCredit() {
         freeAccountNumberService.generateAccountNumbers(AccountType.SAVINGS,batchSize);
     }

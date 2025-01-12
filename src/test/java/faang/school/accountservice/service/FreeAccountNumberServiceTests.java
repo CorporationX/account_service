@@ -5,11 +5,13 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.AccountType;
 import faang.school.accountservice.entity.FreeAccountId;
 import faang.school.accountservice.entity.FreeAccountNumber;
-import faang.school.accountservice.entity.Owner;
+import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.AccountSeqRepository;
 import faang.school.accountservice.repository.FreeAccountRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
@@ -23,8 +25,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -78,8 +85,18 @@ public class FreeAccountNumberServiceTests {
         long number = 5536_0000_0000_0000L;
         FreeAccountId freeAccountId = new FreeAccountId(accountType, number);
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber(freeAccountId);
-        RequestAccount requestAccount = new RequestAccount(1, AccountType.SAVINGS, Owner.USER);
-        freeAccountNumberService.createAccountWithFreeNumber(requestAccount, freeAccountNumber);
+        RequestAccount requestAccount = new RequestAccount(1L, 2L, AccountType.DEBIT, Owner.user, Currency.RUB, 3L);
+        FreeAccountRepository freeAccountRepository = mock(FreeAccountRepository.class);
+        AccountRepository accountRepository = mock(AccountRepository.class);
+        Consumer<FreeAccountNumber> numberConsumer = mock(Consumer.class);
+        when(freeAccountRepository.retrieveFirst(accountType.name())).thenReturn(freeAccountNumber);
+        doAnswer(invocation -> {
+            FreeAccountNumber arg = invocation.getArgument(0);
+            assertEquals(freeAccountNumber, arg);
+            return null;
+        }).when(numberConsumer).accept(freeAccountNumber);
+        FreeAccountNumberService freeAccountNumberService = new FreeAccountNumberService(accountSeqRepository,freeAccountRepository,accountRepository);
+        freeAccountNumberService.createAccountWithFreeNumber(requestAccount);
         verify(accountRepository, times(1)).saveAndFlush(any(Account.class));
     }
 }
