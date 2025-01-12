@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BalanceAuditService {
     private final BalanceAuditRepository balanceAuditRepository;
+
     @Transactional
     public void createAuditEntry(Account account, Transaction transaction) {
         BalanceAudit balanceAudit = createBalanceAuditEntity(account, transaction);
