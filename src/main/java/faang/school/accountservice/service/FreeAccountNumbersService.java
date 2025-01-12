@@ -33,7 +33,6 @@ public class FreeAccountNumbersService {
     @Value("${accounts.generated.divisor}")
     private long divisor;
 
-
     @Transactional
     public void processAndDeleteFreeAccNumber(AccountType type, Consumer<FreeAccountNumber> consumer) {
         FreeAccountNumber freeAccNum = deleteReturning(type);
