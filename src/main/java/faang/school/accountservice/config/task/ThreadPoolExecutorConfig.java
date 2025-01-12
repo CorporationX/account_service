@@ -8,11 +8,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 public class ThreadPoolExecutorConfig {
-    @Value("${task.savings-account.pool.max-size}")
+    @Value("${task.saving-accounts.pool.max-size}")
     private int poolMaxSize;
-    @Value("${task.savings-account.pool.core-size}")
+    @Value("${task.saving-accounts.pool.core-size}")
     private int poolCoreSize;
-    @Value("${task.savings-account.pool.queue-capacity}")
+    @Value("${task.saving-accounts.pool.queue-capacity}")
     private int queueCapacity;
 
     @Bean

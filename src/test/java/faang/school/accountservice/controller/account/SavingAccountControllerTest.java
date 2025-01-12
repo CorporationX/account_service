@@ -51,7 +51,7 @@ class SavingAccountControllerTest {
         Mockito.when(savingAccountService.findById(1L))
                 .thenReturn(provideSavingAccountDto(1L, 2L, 3L));
 
-        mockMvc.perform(get("/accounts/saving/1"))
+        mockMvc.perform(get("/saving-accounts/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.tariff.id").value("2"))
@@ -74,7 +74,7 @@ class SavingAccountControllerTest {
                         )
                 );
 
-        mockMvc.perform(get("/accounts/saving?userId=1"))
+        mockMvc.perform(get("/saving-accounts?userId=1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("1"))
                 .andExpect(jsonPath("$[0].tariff.id").value("2"))
@@ -110,7 +110,7 @@ class SavingAccountControllerTest {
                 .account(provideAccountDto(3L))
                 .build();
 
-        mockMvc.perform(post("/accounts/saving")
+        mockMvc.perform(post("/saving-accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto))
                 )
@@ -133,7 +133,7 @@ class SavingAccountControllerTest {
                 .account(provideAccountDto(3L))
                 .build();
 
-        mockMvc.perform(post("/accounts/saving")
+        mockMvc.perform(post("/saving-accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto))
                 )

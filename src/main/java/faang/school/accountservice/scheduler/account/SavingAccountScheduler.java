@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class SavingAccountScheduler {
     private final SavingAccountService savingAccountService;
 
-    @Scheduled(cron = "${task.savings-account.cron}")
+    @Scheduled(cron = "${task.saving-accounts.cron}")
     public void paySavingsAccountInterest() {
         savingAccountService.payOffInterests();
     }

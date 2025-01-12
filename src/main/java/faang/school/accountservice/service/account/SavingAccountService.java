@@ -34,9 +34,9 @@ public class SavingAccountService {
     private final TariffService tariffService;
     private final ObjectMapper objectMapper;
 
-    @Value("${task.savings-account.batch-size}")
+    @Value("${task.saving-accounts.batch-size}")
     private int batchSize;
-    @Value("${task.savings-account.payment-interval}")
+    @Value("${task.saving-accounts.payment-interval}")
     private int paymentIntervalInDays;
 
     public SavingAccountDto findById(Long id) {
