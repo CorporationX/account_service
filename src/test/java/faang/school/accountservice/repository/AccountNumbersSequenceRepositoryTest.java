@@ -1,6 +1,6 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.entity.AccountNumbersSequence;
+import faang.school.accountservice.model.AccountNumbersSequence;
 import faang.school.accountservice.util.BaseContextTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;

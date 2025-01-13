@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.entity.AccountNumbersSequence;
+import faang.school.accountservice.model.AccountNumbersSequence;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.services.FreeAccountNumbersService;
 import faang.school.accountservice.util.BaseContextTest;
