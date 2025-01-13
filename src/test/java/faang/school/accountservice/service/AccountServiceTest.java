@@ -60,6 +60,9 @@ class AccountServiceTest {
     @Mock
     private AccountEventPublisher accountEventPublisher;
 
+    @Mock
+    private BalanceAuditService balanceAuditService;
+
     @InjectMocks
     private AccountService accountService;
 
@@ -262,6 +265,7 @@ class AccountServiceTest {
                         .build())
                 .transactions(new ArrayList<>())
                 .build();
+
 
         when(accountRepository.findByAccountNumber(transactionRequestDto.accountNumber())).thenReturn(Optional.of(account));
 
