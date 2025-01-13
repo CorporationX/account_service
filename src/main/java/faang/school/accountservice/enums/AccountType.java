@@ -18,3 +18,4 @@ public enum AccountType {
 
     private final Integer prefix;
 }
+
