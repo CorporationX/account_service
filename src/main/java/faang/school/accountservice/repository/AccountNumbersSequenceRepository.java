@@ -1,6 +1,6 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.entity.AccountNumbersSequence;
+import faang.school.accountservice.model.AccountNumbersSequence;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
