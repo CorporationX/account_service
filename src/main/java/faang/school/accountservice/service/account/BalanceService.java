@@ -17,6 +17,7 @@ public class BalanceService {
     private final AccountRepository accountRepository;
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditService balanceAuditService;
 
     public BalanceDto getBalanceByAccount(Long accountId) {
         Balance balance = balanceRepository.findByAccount_Id(accountId)
@@ -29,6 +30,7 @@ public class BalanceService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account doesn't exist"));
         Balance savedBalance = balanceRepository.save(new Balance().setAccount(account));
+        balanceAuditService.create(savedBalance);
         return balanceMapper.toDto(savedBalance);
     }
 
@@ -39,6 +41,7 @@ public class BalanceService {
         balance.setAuthorisationBalance(balanceDto.getAuthorisationBalance());
         balance.setActualBalance(balanceDto.getActualBalance());
         balanceRepository.save(balance);
+        balanceAuditService.create(balance);
         return balanceMapper.toDto(balance);
     }
 }
