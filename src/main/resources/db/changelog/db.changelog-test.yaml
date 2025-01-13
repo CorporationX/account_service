@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/test_data__insert_owner_account.sql
+  - include:
+      file: db/changelog/changeset/account_V004__account_number_prefix.sql

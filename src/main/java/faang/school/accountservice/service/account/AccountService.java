@@ -12,6 +12,7 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import faang.school.accountservice.repository.account.freeaccounts.FreeAccountRepository;
 import faang.school.accountservice.repository.jpa.AccountJpaRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -42,7 +43,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
-    private final AccountJpaRepository accountJpaRepository;
+    private final FreeAccountNumberService freeAccountNumberService;
+        private final AccountJpaRepository accountJpaRepository;
     private final List<FilterSpecification<Account, AccountDtoFilter>> filters;
 
     private final Set<String> accountNumbers = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -51,7 +53,7 @@ public class AccountService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public AccountDtoResponse open(@NotNull @Valid AccountDtoOpen dto) {
         Account account = accountMapper.toAccount(dto);
-        String accountNumber = getAccountNumber();
+        String accountNumber = freeAccountNumberService.processAccountNumber(dto.getAccountType());
         account.setAccountNumber(accountNumber);
         Owner owner = ownerRepository.findOwnerByIdAndType(dto.getOwnerId(), dto.getOwnerType())
                 .orElseGet(() -> ownerRepository.save(
