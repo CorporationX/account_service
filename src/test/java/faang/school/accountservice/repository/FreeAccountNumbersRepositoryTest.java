@@ -16,7 +16,7 @@ public class FreeAccountNumbersRepositoryTest extends BaseContextTest {
 
     @Test
     void saveNewFreeAccountNumberSuccessTest() {
-        String accountType = "SAVING";
+        String accountType = "SAVINGS";
         Long accountNumber = 523600000000001L;
 
         freeAccountNumbersRepository.saveNewFreeAccountNumber(accountType, accountNumber);
@@ -28,7 +28,7 @@ public class FreeAccountNumbersRepositoryTest extends BaseContextTest {
 
     @Test
     void getAndRemoveFreeAccountNumbersSuccessTest() {
-        String accountType = "SAVING";
+        String accountType = "SAVINGS";
         Long accountNumber1 = 523600000000001L;
         Long accountNumber2 = 523600000000002L;
         freeAccountNumbersRepository.saveNewFreeAccountNumber(accountType, accountNumber1);

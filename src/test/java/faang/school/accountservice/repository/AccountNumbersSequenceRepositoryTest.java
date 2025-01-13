@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
@@ -26,11 +25,11 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
     @Test
     void createAccountTypeCounterSuccessTest() {
-        accountNumbersSequenceRepository.createAccountTypeCounter("SAVING");
+        accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGS");
 
-        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVING");
+        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
         assertNotNull(sequence);
-        assertEquals("SAVING", sequence.getAccountType());
+        assertEquals("SAVINGS", sequence.getAccountType());
         assertEquals(0L, sequence.getCurrent());
     }
 
@@ -44,43 +43,43 @@ public class AccountNumbersSequenceRepositoryTest extends BaseContextTest {
 
     @Test
     void incrementCounter_incrementsCounterWhenExpectedValueMatches() {
-        accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGS");
-        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
+        accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGSS");
+        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGSS");
         assertNotNull(sequence);
 
-        boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVINGS", 0L);
+        boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVINGSS", 0L);
 
         Assertions.assertTrue(incremented);
-        AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
+        AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVINGSS");
         assertEquals(1L, updatedSequence.getCurrent());
     }
 
     @Test
     void incrementCounter_doesNotIncrementWhenExpectedValueDoesNotMatch() {
-        accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGS");
-        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
+        accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGSS");
+        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGSS");
         assertNotNull(sequence);
 
-        boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVINGS", 1L);
+        boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVINGSS", 1L);
 
         assertFalse(incremented);
-        AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
+        AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVINGSS");
         assertEquals(0L, updatedSequence.getCurrent());
     }
 
 
     @Test
     void incrementCounterWithOptimisticLockExceptionSuccessTest() {
-        accountNumbersSequenceRepository.createAccountTypeCounter("SAVING");
-        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVING");
+        accountNumbersSequenceRepository.createAccountTypeCounter("SAVINGS");
+        AccountNumbersSequence sequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
         assertNotNull(sequence);
         sequence.setCurrent(1L);
         accountNumbersSequenceRepository.save(sequence);
 
-        boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVING", 1L);
+        boolean incremented = accountNumbersSequenceRepository.incrementCounter("SAVINGS", 1L);
 
         Assertions.assertTrue(incremented);
-        AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVING");
+        AccountNumbersSequence updatedSequence = accountNumbersSequenceRepository.findByAccountType("SAVINGS");
         assertEquals(2L, updatedSequence.getCurrent());
     }
 }

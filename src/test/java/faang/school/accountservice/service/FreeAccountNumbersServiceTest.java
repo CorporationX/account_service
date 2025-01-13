@@ -25,7 +25,7 @@ public class FreeAccountNumbersServiceTest extends BaseContextTest {
 
     @Test
     void testGetFreeAccountNumberSuccessTest() {
-        String accountType = "SAVING";
+        String accountType = "SAVINGS";
         Long existingAccountNumber = 523600000000000L;
         freeAccountNumbersService.createNewAccountNumbersSequence(accountType);
         Consumer<Long> action = mock(Consumer.class);
@@ -67,7 +67,7 @@ public class FreeAccountNumbersServiceTest extends BaseContextTest {
     @Test
     void getFreeAccountNumberWithTransactionSuccessTest() {
 
-        String accountType = "SAVING";
+        String accountType = "SAVINGS";
         Consumer<Long> action = mock(Consumer.class);
         freeAccountNumbersService.createNewAccountNumbersSequence(accountType);
         freeAccountNumbersService.getFreeAccountNumberWithTransaction(accountType, action);
