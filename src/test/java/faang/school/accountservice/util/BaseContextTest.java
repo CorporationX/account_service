@@ -14,7 +14,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
@@ -35,18 +34,20 @@ public class BaseContextTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    @Container
-    public static PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
-            new PostgreSQLContainer<>("postgres:13.6");
-    @Container
-    private static final RedisContainer REDIS_CONTAINER =
-            new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"));
+    private static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER;
+    private static final RedisContainer REDIS_CONTAINER;
+
+    static {
+        POSTGRESQL_CONTAINER = new PostgreSQLContainer<>("postgres:13.6")
+                .withReuse(true);
+        REDIS_CONTAINER = new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"))
+                .withReuse(true);
+        POSTGRESQL_CONTAINER.start();
+        REDIS_CONTAINER.start();
+    }
 
     @DynamicPropertySource
     static void postgresqlProperties(DynamicPropertyRegistry registry) {
-        POSTGRESQL_CONTAINER.start();
-        REDIS_CONTAINER.start();
-
         registry.add("spring.datasource.url", POSTGRESQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
