@@ -75,6 +75,11 @@ public class AccountService {
         log.debug("Account deleted: number: {}", account.getAccountNumber());
     }
 
+    public Account findByAccountNumberWithLock(String accountNumber) {
+        return accountRepository.findByAccountNumberWithLock(accountNumber)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Account with number %s not found", accountNumber)));
+    }
+
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Account with number %s not found", accountNumber)));
@@ -101,7 +106,7 @@ public class AccountService {
     }
 
     private Account getAccountByNumber(String accountNumber) {
-        Optional<Account> account = accountRepository.findByAccountNumber(accountNumber);
+        Optional<Account> account = accountRepository.findByAccountNumberWithLock(accountNumber);
         if (account.isEmpty()) {
             throw new EntityNotFoundException(
                     String.format("Account with number %s doesn't exist", accountNumber)

@@ -109,11 +109,11 @@ class AccountServiceTest {
         Long ownerId = 10L;
         Account account = Account.builder().accountNumber(accountNumber).status(AccountStatus.ACTIVE).ownerId(ownerId).build();
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.of(account));
 
         AccountDto result = accountService.updateAccountStatus(accountNumber, ownerId, newStatus);
 
-        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+        verify(accountRepository, times(1)).findByAccountNumberWithLock(accountNumber);
         verify(accountRepository, times(1)).save(account);
         verify(accountEventPublisher, times(1)).publish(any(AccountDto.class));
 
@@ -128,12 +128,12 @@ class AccountServiceTest {
         AccountStatus newStatus = AccountStatus.INACTIVE;
         Long ownerId = 10L;
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.empty());
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.empty());
 
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () ->
                 accountService.updateAccountStatus(accountNumber, ownerId, newStatus));
 
-        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+        verify(accountRepository, times(1)).findByAccountNumberWithLock(accountNumber);
         verify(accountRepository, times(0)).save(any(Account.class));
 
         assertEquals(String.format("Account with number %s doesn't exist", accountNumber), ex.getMessage());
@@ -147,13 +147,13 @@ class AccountServiceTest {
         Long ownerId = 10L;
         Account account = Account.builder().accountNumber(accountNumber).status(AccountStatus.ACTIVE).ownerId(1L).build();
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.of(account));
 
         IllegalAccountAccessException ex = assertThrows(IllegalAccountAccessException.class, () ->
                 accountService.updateAccountStatus(accountNumber, ownerId, newStatus)
         );
 
-        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+        verify(accountRepository, times(1)).findByAccountNumberWithLock(accountNumber);
         verify(accountRepository, times(0)).save(any(Account.class));
 
         assertEquals(String.format("Owner with id %d doesn't have access to the account %s", ownerId, account.getAccountNumber()), ex.getMessage());
@@ -167,13 +167,13 @@ class AccountServiceTest {
         Long ownerId = 10L;
         Account account = Account.builder().accountNumber(accountNumber).status(AccountStatus.ACTIVE).ownerId(10L).build();
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.of(account));
 
         InvalidAccountStatusException ex = assertThrows(InvalidAccountStatusException.class, () ->
                 accountService.updateAccountStatus(accountNumber, ownerId, newStatus)
         );
 
-        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+        verify(accountRepository, times(1)).findByAccountNumberWithLock(accountNumber);
         verify(accountRepository, times(0)).save(any(Account.class));
 
         assertEquals(String.format("Account with number %s already has status %s", accountNumber, account.getStatus()), ex.getMessage());
@@ -187,34 +187,34 @@ class AccountServiceTest {
         Long ownerId = 10L;
         Account account = Account.builder().id(accountId).accountNumber(accountNumber).status(AccountStatus.ACTIVE).ownerId(ownerId).build();
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.of(account));
 
         accountService.deleteAccount(accountNumber, ownerId);
 
-        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
+        verify(accountRepository, times(1)).findByAccountNumberWithLock(accountNumber);
         verify(accountRepository, times(1)).deleteById(account.getId());
     }
 
     @Test
     @DisplayName("Find by account number: success")
-    void testFindByAccountNumber_Success() {
+    void testFindByAccountNumber_WithLock_Success() {
         String accountNumber = "ACC0123456789";
         Account account = Account.builder().accountNumber(accountNumber).build();
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.of(account));
 
-        Account result = accountService.findByAccountNumber(accountNumber);
+        Account result = accountService.findByAccountNumberWithLock(accountNumber);
         assertEquals(account, result);
     }
 
     @Test
     @DisplayName("Find by account number: not found")
-    void testFindByAccountNumber_NotFound() {
+    void testFindByAccountNumber_WithLock_NotFound() {
         String accountNumber = "ACC0123456789";
 
-        when(accountRepository.findByAccountNumber(accountNumber)).thenReturn(Optional.empty());
+        when(accountRepository.findByAccountNumberWithLock(accountNumber)).thenReturn(Optional.empty());
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> accountService.findByAccountNumber(accountNumber));
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> accountService.findByAccountNumberWithLock(accountNumber));
         assertEquals(String.format("Account with number %s not found", accountNumber), ex.getMessage());
     }
 }

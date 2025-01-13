@@ -8,11 +8,8 @@ import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.InsufficientBalanceException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +31,7 @@ public class BalanceService {
         validateBalanceNotAuthorized(account);
 
         Balance balance = new Balance();
+
         balance.setAccount(account);
         account.setBalanceStatus(BalanceStatus.ACTIVE);
 
@@ -42,13 +40,10 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    @Retryable(retryFor = OptimisticLockException.class,
-            maxAttemptsExpression = "@retryProperties.maxAttempts",
-            backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
     public BalanceDto depositAuthorized(String accountNumber, BigDecimal amount) {
         log.debug("Attempting to deposit authorized balance. Account Number: {}, Amount: {}", accountNumber, amount);
-        Account account = accountService.findByAccountNumber(accountNumber);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
         validateBalanceIsAuthorized(account);
 
         Balance balance = account.getBalance();
@@ -58,13 +53,10 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    @Retryable(retryFor = OptimisticLockException.class,
-            maxAttemptsExpression = "@retryProperties.maxAttempts",
-            backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
     public BalanceDto withdrawAuthorized(String accountNumber, BigDecimal amount) {
         log.debug("Attempting to withdraw authorized balance. Account Number: {}, Amount: {}", accountNumber, amount);
-        Account account = accountService.findByAccountNumber(accountNumber);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
         validateBalanceIsAuthorized(account);
 
         Balance balance = account.getBalance();
@@ -76,13 +68,10 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    @Retryable(retryFor = OptimisticLockException.class,
-            maxAttemptsExpression = "@retryProperties.maxAttempts",
-            backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
     public BalanceDto depositActual(String accountNumber, BigDecimal amount) {
         log.debug("Attempting to deposit actual balance. Account Number: {}, Amount: {}", accountNumber, amount);
-        Account account = accountService.findByAccountNumber(accountNumber);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
         validateBalanceIsAuthorized(account);
 
         Balance balance = account.getBalance();
@@ -92,13 +81,10 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    @Retryable(retryFor = OptimisticLockException.class,
-            maxAttemptsExpression = "@retryProperties.maxAttempts",
-            backoff = @Backoff(multiplierExpression = "@retryProperties.multiplier"))
     @Transactional
     public BalanceDto withdrawActual(String accountNumber, BigDecimal amount) {
         log.debug("Attempting to withdraw actual balance. Balance ID: {}, Amount: {}", accountNumber, amount);
-        Account account = accountService.findByAccountNumber(accountNumber);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
         validateBalanceIsAuthorized(account);
 
         Balance balance = account.getBalance();

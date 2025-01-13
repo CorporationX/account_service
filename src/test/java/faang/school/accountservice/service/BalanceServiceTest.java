@@ -99,11 +99,11 @@ class BalanceServiceTest {
     @Test
     @DisplayName("Deposit authorized balance: success")
     void testDepositAuthorized_Success() {
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         BalanceDto result = balanceService.depositAuthorized(accountNumber, new BigDecimal("100.00"));
 
-        verify(accountService, times(1)).findByAccountNumber(accountNumber);
+        verify(accountService, times(1)).findByAccountNumberWithLock(accountNumber);
         assertEquals(new BigDecimal("100.00"), result.authorizedBalance());
     }
 
@@ -112,7 +112,7 @@ class BalanceServiceTest {
     void testDepositAuthorized_BalanceNotAuthorized() {
         BigDecimal amount = new BigDecimal("100.00");
         account.setBalanceStatus(BalanceStatus.NEW);
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         DataValidationException ex = assertThrows(DataValidationException.class, () -> balanceService.depositAuthorized(accountNumber, amount));
         assertEquals("Balance not authorized on this account", ex.getMessage());
@@ -121,11 +121,11 @@ class BalanceServiceTest {
     @Test
     @DisplayName("Deposit actual balance: success")
     void testDepositActual_Success() {
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         BalanceDto result = balanceService.depositActual(accountNumber, new BigDecimal("100.00"));
 
-        verify(accountService, times(1)).findByAccountNumber(accountNumber);
+        verify(accountService, times(1)).findByAccountNumberWithLock(accountNumber);
         assertEquals(new BigDecimal("100.00"), result.actualBalance());
     }
 
@@ -134,7 +134,7 @@ class BalanceServiceTest {
     void testDepositActual_BalanceNotAuthorized() {
         BigDecimal amount = new BigDecimal("100.00");
         account.setBalanceStatus(BalanceStatus.NEW);
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         DataValidationException ex = assertThrows(DataValidationException.class, () -> balanceService.depositActual(accountNumber, amount));
         assertEquals("Balance not authorized on this account", ex.getMessage());
@@ -144,11 +144,11 @@ class BalanceServiceTest {
     @DisplayName("Withdraw authorized balance: success")
     void testWithdrawAuthorized_Success() {
         balance.setAuthorizedBalance(new BigDecimal("100.00"));
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         BalanceDto result = balanceService.withdrawAuthorized(accountNumber, new BigDecimal("99.01"));
 
-        verify(accountService, times(1)).findByAccountNumber(accountNumber);
+        verify(accountService, times(1)).findByAccountNumberWithLock(accountNumber);
         assertEquals(new BigDecimal("0.99"), result.authorizedBalance());
     }
 
@@ -157,7 +157,7 @@ class BalanceServiceTest {
     void testWithdrawAuthorized_BalanceNotAuthorized() {
         BigDecimal amount = new BigDecimal("100.00");
         account.setBalanceStatus(BalanceStatus.NEW);
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         DataValidationException ex = assertThrows(DataValidationException.class, () -> balanceService.withdrawAuthorized(accountNumber, amount));
         assertEquals("Balance not authorized on this account", ex.getMessage());
@@ -168,7 +168,7 @@ class BalanceServiceTest {
     void testWithdrawAuthorized_InsufficientFunds() {
         BigDecimal amount = new BigDecimal("0.01");
         balance.setAuthorizedBalance(new BigDecimal("0.00"));
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         InsufficientBalanceException ex = assertThrows(InsufficientBalanceException.class, () -> balanceService.withdrawAuthorized(accountNumber, amount));
         assertEquals("Balance is not enough for withdrawal", ex.getMessage());
@@ -178,11 +178,11 @@ class BalanceServiceTest {
     @DisplayName("Withdraw actual balance: success")
     void testWithdrawActual_Success() {
         balance.setActualBalance(new BigDecimal("100.00"));
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         BalanceDto result = balanceService.withdrawActual(accountNumber, new BigDecimal("99.01"));
 
-        verify(accountService, times(1)).findByAccountNumber(accountNumber);
+        verify(accountService, times(1)).findByAccountNumberWithLock(accountNumber);
         assertEquals(new BigDecimal("0.99"), result.actualBalance());
     }
 
@@ -191,7 +191,7 @@ class BalanceServiceTest {
     void testWithdrawActual_BalanceNotAuthorized() {
         BigDecimal amount = new BigDecimal("100.00");
         account.setBalanceStatus(BalanceStatus.NEW);
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         DataValidationException ex = assertThrows(DataValidationException.class, () -> balanceService.withdrawActual(accountNumber, amount));
         assertEquals("Balance not authorized on this account", ex.getMessage());
@@ -202,7 +202,7 @@ class BalanceServiceTest {
     void testWithdrawActual_InsufficientFunds() {
         BigDecimal amount = new BigDecimal("0.01");
         balance.setAuthorizedBalance(new BigDecimal("0.00"));
-        when(accountService.findByAccountNumber(accountNumber)).thenReturn(account);
+        when(accountService.findByAccountNumberWithLock(accountNumber)).thenReturn(account);
 
         InsufficientBalanceException ex = assertThrows(InsufficientBalanceException.class, () -> balanceService.withdrawActual(accountNumber, amount));
         assertEquals("Balance is not enough for withdrawal", ex.getMessage());
