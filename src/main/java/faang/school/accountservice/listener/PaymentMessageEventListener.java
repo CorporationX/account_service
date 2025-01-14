@@ -19,7 +19,7 @@ public class PaymentMessageEventListener implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        log.info("Received new Redis message. Channel: {}", new String(message.getChannel()));
+        log.info("Received new Redis message. Channel: {}", message.getChannel());
 
         Jackson2JsonRedisSerializer<RedisMessage> serializer =
                 new Jackson2JsonRedisSerializer<>(RedisMessage.class);
