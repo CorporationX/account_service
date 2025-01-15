@@ -12,6 +12,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -26,6 +27,7 @@ public class CreateRecordAccountHandler implements RequestTaskHandler {
         return RequestHandler.CREATE_ACCOUNT;
     }
 
+    @Async("createRecordAccountHandlerExecutor")
     @Override
     public void execute(Request request, RequestTask task) {
         log.info("Try create account for user with id: {}", request.getInputData().get("ownerId"));

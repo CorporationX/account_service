@@ -7,6 +7,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -24,6 +25,7 @@ public class CheckAccountLimitHandler implements RequestTaskHandler {
         return RequestHandler.CHECK_MAX_ACCOUNTS;
     }
 
+    @Async("checkAccountLimitHandlerExecutor")
     @Override
     public void execute(Request request, RequestTask task) {
         log.info("Trying to check account limit for user with id: {}", request.getInputData().get("ownerId"));

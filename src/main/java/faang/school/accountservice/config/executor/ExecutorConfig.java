@@ -13,27 +13,27 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorConfig {
     private final ExecutorProperties executorProperties;
 
-    @Bean
+    @Bean(name = "checkAccountLimitHandlerExecutor")
     public ThreadPoolExecutor checkAccountLimitHandlerExecutor(){
         return createThreadPoolExecutor();
     }
 
-    @Bean
+    @Bean(name = "recordAccountHandlerExecutor")
     public ThreadPoolExecutor createRecordAccountHandlerExecutor(){
         return createThreadPoolExecutor();
     }
 
-    @Bean
+    @Bean(name= "recordBalanceHandlerExecutor")
     public ThreadPoolExecutor createRecordBalanceHandlerExecutor(){
         return createThreadPoolExecutor();
     }
 
-    @Bean
+    @Bean(name = "recordCashBackHandlerExecutor")
     public ThreadPoolExecutor createRecordCashBackHandlerExecutor(){
         return createThreadPoolExecutor();
     }
 
-    @Bean
+    @Bean(name = "sendNotificationHandlerExecutor")
     public ThreadPoolExecutor sendNotificationHandlerExecutor(){
         return createThreadPoolExecutor();
     }

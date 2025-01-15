@@ -9,6 +9,7 @@ import faang.school.accountservice.publisher.account.AccountCreateEventPublisher
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class SendNotificationHandler implements RequestTaskHandler {
         return RequestHandler.SEND_NOTIFICATION;
     }
 
+    @Async("sendNotificationHandlerExecutor")
     @Override
     public void execute(Request request, RequestTask task) {
         Long accountId = (Long) request.getContext().get("accountId");
