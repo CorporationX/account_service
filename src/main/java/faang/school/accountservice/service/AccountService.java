@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -74,11 +75,22 @@ public class AccountService {
         log.debug("Account deleted: number: {}", account.getAccountNumber());
     }
 
+    public Account findByAccountNumberWithLock(String accountNumber) {
+        return accountRepository.findByAccountNumberWithLock(accountNumber)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Account with number %s not found", accountNumber)));
+    }
+
+    public Account findByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Account with number %s not found", accountNumber)));
+    }
+
     private Account generateNewAccount(CreateAccountDto dto, Long ownerId) {
         Account account = accountMapper.toEntity(dto);
         account.setOwnerId(ownerId);
         account.setAccountNumber(generateAccountNumber());
         account.setStatus(AccountStatus.ACTIVE);
+        account.setBalanceStatus(BalanceStatus.NEW);
         return account;
     }
 
@@ -94,7 +106,7 @@ public class AccountService {
     }
 
     private Account getAccountByNumber(String accountNumber) {
-        Optional<Account> account = accountRepository.findByAccountNumber(accountNumber);
+        Optional<Account> account = accountRepository.findByAccountNumberWithLock(accountNumber);
         if (account.isEmpty()) {
             throw new EntityNotFoundException(
                     String.format("Account with number %s doesn't exist", accountNumber)

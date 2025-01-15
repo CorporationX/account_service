@@ -4,4 +4,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V002_account-service_added_account_currency_table.sql
   - include:
-      file: db/changelog/changeset/V003_account-service_added_balance_table.sql
+      file: db/changelog/changeset/V003_account-service_added_balance_table_add_balance_status_in_account.sql

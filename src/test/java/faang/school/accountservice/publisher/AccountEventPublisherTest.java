@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.BalanceStatus;
 import faang.school.accountservice.enums.Currency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +50,8 @@ class AccountEventPublisherTest {
                 "Bruce Wayne",
                 AccountType.SAVINGS,
                 Currency.USD,
-                AccountStatus.ACTIVE
+                AccountStatus.ACTIVE,
+                BalanceStatus.NEW
         );
     }
 

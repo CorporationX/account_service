@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI userServiceOpenApi() {
+    public OpenAPI accountServiceOpenApi() {
         return new OpenAPI()
                 .info(new Info().title("Account service API")
                         .description("Welcome to API documentation for account service")

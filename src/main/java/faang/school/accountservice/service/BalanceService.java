@@ -1,0 +1,116 @@
+package faang.school.accountservice.service;
+
+import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.enums.BalanceStatus;
+import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.exception.InsufficientBalanceException;
+import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.repository.BalanceRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class BalanceService {
+
+    private final AccountService accountService;
+    private final BalanceRepository balanceRepository;
+    private final BalanceMapper balanceMapper;
+
+    public BalanceDto authorize(String accountNumber) {
+        log.info("Request to authorize balance for account number: {}", accountNumber);
+        Account account = accountService.findByAccountNumber(accountNumber);
+        validateBalanceNotAuthorized(account);
+
+        Balance balance = new Balance();
+
+        balance.setAccount(account);
+        account.setBalanceStatus(BalanceStatus.ACTIVE);
+
+        balance = balanceRepository.save(balance);
+        log.info("Balance for account number '{}' authorize at {}", accountNumber, LocalDateTime.now());
+        return balanceMapper.toDto(balance);
+    }
+
+    @Transactional
+    public BalanceDto depositAuthorized(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to deposit authorized balance. Account Number: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
+        validateBalanceIsAuthorized(account);
+
+        Balance balance = account.getBalance();
+        balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
+
+        log.info("Authorized balance for account number '{}' deposit at {}", accountNumber, LocalDateTime.now());
+        return balanceMapper.toDto(balance);
+    }
+
+    @Transactional
+    public BalanceDto withdrawAuthorized(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to withdraw authorized balance. Account Number: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
+        validateBalanceIsAuthorized(account);
+
+        Balance balance = account.getBalance();
+        BigDecimal authorizedBalance = balance.getAuthorizedBalance();
+        validateWithdrawal(authorizedBalance, amount);
+        balance.setAuthorizedBalance(authorizedBalance.subtract(amount));
+
+        log.info("Authorized balance for account number '{}' withdraw at {}", accountNumber, LocalDateTime.now());
+        return balanceMapper.toDto(balance);
+    }
+
+    @Transactional
+    public BalanceDto depositActual(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to deposit actual balance. Account Number: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
+        validateBalanceIsAuthorized(account);
+
+        Balance balance = account.getBalance();
+        balance.setActualBalance(balance.getActualBalance().add(amount));
+
+        log.info("Actual balance for account number '{}' deposit at {}", accountNumber, LocalDateTime.now());
+        return balanceMapper.toDto(balance);
+    }
+
+    @Transactional
+    public BalanceDto withdrawActual(String accountNumber, BigDecimal amount) {
+        log.debug("Attempting to withdraw actual balance. Balance ID: {}, Amount: {}", accountNumber, amount);
+        Account account = accountService.findByAccountNumberWithLock(accountNumber);
+        validateBalanceIsAuthorized(account);
+
+        Balance balance = account.getBalance();
+        BigDecimal actualBalance = balance.getActualBalance();
+        validateWithdrawal(actualBalance, amount);
+        balance.setActualBalance(actualBalance.subtract(amount));
+
+        log.info("Actual balance for account number '{}' withdraw at {}", accountNumber, LocalDateTime.now());
+        return balanceMapper.toDto(balance);
+    }
+
+    private void validateBalanceNotAuthorized(Account account) {
+        if (account.getBalanceStatus() == BalanceStatus.ACTIVE || account.getBalance() != null) {
+            throw new DataValidationException("Balance already authorized on this account");
+        }
+    }
+
+    private void validateBalanceIsAuthorized(Account account) {
+        if (account.getBalanceStatus() != BalanceStatus.ACTIVE) {
+            throw new DataValidationException("Balance not authorized on this account");
+        }
+    }
+
+    private void validateWithdrawal(BigDecimal currentAmount, BigDecimal withdrawalAmount) {
+        if (currentAmount.subtract(withdrawalAmount).compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientBalanceException("Balance is not enough for withdrawal");
+        }
+    }
+}
