@@ -17,6 +17,13 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      channel:
+        create-account: create-account-channel
+
 server:
   port: 8090
 
@@ -25,6 +32,11 @@ logging:
     root: info
 
 account:
+  max-accounts-quantity: 4
+  savings:
+    accruing-interest:
+      cron: "0 0 0 * * ?"
+      batch-size: 2500
   number:
     identity-by-type:
       individual: 3222
@@ -43,3 +55,14 @@ account:
         LEGAL: 6
         SAVINGS: 7
         DEBIT: 8
+
+async:
+  thread-name-prefix: AsyncThread-
+  core-pool-size: 5
+  max-pool-size: 10
+  queue_capacity: 100
+  create-account-pool:
+    core-pool-size: 2
+    max-pool-size: 4
+    queue-capacity: 500
+    name-prefix: create-account-

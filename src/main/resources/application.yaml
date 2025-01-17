@@ -33,6 +33,10 @@ logging:
 
 account:
   max-accounts-quantity: 4
+  savings:
+    accruing-interest:
+      cron: "0 0 0 * * ?"
+      batch-size: 2500
   number:
     identity-by-type:
       individual: 3222
@@ -47,16 +51,16 @@ account:
     generation:
       cron: "0 0 0 * * ?"
       max-amount-by-type:
-        INDIVIDUAL: 30
-        LEGAL: 40
-        SAVINGS: 60
-        DEBIT: 70
+        INDIVIDUAL: 1000
+        LEGAL: 500
+        SAVINGS: 800
+        DEBIT: 1500
 
 async:
   thread-name-prefix: AsyncThread-
   core-pool-size: 5
   max-pool-size: 10
-  queue_capacity: 25
+  queue_capacity: 100
   create-account-pool:
     core-pool-size: 2
     max-pool-size: 4
