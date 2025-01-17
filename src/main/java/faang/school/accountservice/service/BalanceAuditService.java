@@ -39,4 +39,9 @@ public class BalanceAuditService {
     ) {
         return balanceAuditRepository.findMinimalActualBalanceByAccountAndPeriod(accountId, startDate, endDate);
     }
+
+    public void deleteAudit(long auditId) {
+        balanceAuditRepository.deleteById(auditId);
+        log.info("Balance audit with Id: {} deleted",auditId);
+    }
 }

@@ -26,8 +26,8 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AccountResponse> openAccount(@RequestBody AccountRequest request) {
-        return ResponseEntity.ok(accountService.openAccount(request));
+    public void openAccount(@RequestBody AccountRequest request) {
+        accountService.createAccountRequest(request);
     }
 
     @PutMapping("/{id}/block")

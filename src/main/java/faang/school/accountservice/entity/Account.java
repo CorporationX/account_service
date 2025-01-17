@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -73,6 +74,7 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnore
     private AccountOwner owner;
 
     @OneToOne(mappedBy = "account")
