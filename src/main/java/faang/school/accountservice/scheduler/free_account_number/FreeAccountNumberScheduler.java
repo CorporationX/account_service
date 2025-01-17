@@ -1,9 +1,8 @@
 package faang.school.accountservice.scheduler.free_account_number;
 
-import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.properties.FreeAccountNumbersGenerationProperties;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +10,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FreeAccountNumberScheduler {
 
-    @Value("${free-account-number.batch-size}")
-    private int freeAccountNumberBatchSize;
-
+    private final FreeAccountNumbersGenerationProperties numbersProperties;
     private final FreeAccountNumbersService freeAccountNumbersService;
 
-    @Scheduled(cron = "${free-account-number.cron}")
-    public void generateFreeSavingsAccountNumbers() {
-        freeAccountNumbersService.generateFreeAccountNumbers(AccountType.SAVINGS, freeAccountNumberBatchSize);
+    @Scheduled(cron = "${account.number.generation.cron}")
+    public void ensureFreeAccountNumbers() {
+        numbersProperties.getMaxAmountByType().forEach(freeAccountNumbersService::ensureFreeAccountNumbers);
     }
 }

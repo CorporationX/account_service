@@ -2,6 +2,7 @@ package faang.school.accountservice.scheduler;
 
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import faang.school.accountservice.scheduler.free_account_number.FreeAccountNumberScheduler;
 import faang.school.accountservice.util.BaseContextTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
