@@ -51,6 +51,7 @@ public class FreeAccountNumbersService {
         log.info("Finished generating free account numbers for account type: {}", accountType);
     }
 
+
     @Transactional
     public String getFreeAccountNumber(AccountType accountType) {
         log.info("Start getting free account number for account type: {}", accountType);
