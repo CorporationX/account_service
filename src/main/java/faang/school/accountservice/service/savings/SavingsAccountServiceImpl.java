@@ -144,7 +144,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
   @Retryable(retryFor = {
       OptimisticLockException.class}, backoff = @Backoff(delay = 3000, multiplier = 2))
   public void payToClients() {
-    List<SavingsAccountToPay> savingsAccountToPay = savingsAccountRepository.getSavingsWithRates();
+//    List<SavingsAccountToPay> savingsAccountToPay = savingsAccountRepository.getSavingsWithRates();
 //    List<List<SavingsAccountToPay>> batches = splitIntoBatches(savingsAccountToPay);
     List<List<SavingsAccountToPay>> batches = readByBatchesFromDB();
     List<CompletableFuture<Void>> futures = batches
