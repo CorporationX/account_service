@@ -37,3 +37,13 @@ free-account-generation:
   accountNumberCount: 10
   cron:
     expression: "0 0 0 * * *"
+cron:
+  savings-payment: 0 0 * * * *
+
+executor-service:
+  core-pool-size: 5
+  threads:
+    number: 100
+
+db-fetch-data:
+  max-batch-size: 1

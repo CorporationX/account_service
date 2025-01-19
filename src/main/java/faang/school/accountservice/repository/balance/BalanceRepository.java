@@ -14,4 +14,6 @@ public interface BalanceRepository extends JpaRepository<Balance, Long> {
       VALUES (?1, ?2, ?2, NOW(), NOW()) RETURNING *
       """)
   Balance create(long accountId, BigDecimal value);
+
+  Balance findByAccountId(Long id);
 }

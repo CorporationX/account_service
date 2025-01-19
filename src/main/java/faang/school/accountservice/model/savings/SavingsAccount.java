@@ -1,9 +1,10 @@
-package faang.school.accountservice.model.balance;
+package faang.school.accountservice.model.savings;
 
 import faang.school.accountservice.model.account.Account;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,22 +26,26 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "balance")
-public class Balance {
+@Table(name = "savings_account", schema = "public")
+public class SavingsAccount {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "account_id", referencedColumnName = "id")
   private Account account;
 
-  @Column(name = "authorized_value")
-  private BigDecimal authorizedValue;
+  @Column(name = "tariff_history", nullable = false)
+  private String tariffHistory;
 
-  @Column(name = "actual_value")
-  private BigDecimal actualValue;
+  @Column(name = "last_income_at")
+  private LocalDate lastIncomeAt;
+
+  @Column(name = "version", nullable = false)
+  @Version
+  private Long version;
 
   @CreationTimestamp
   @Column(name = "created_at")
@@ -50,23 +55,10 @@ public class Balance {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  @Column(name = "version", nullable = false)
-  @Version
-  private long version;
-
-  public void authorizePayment(BigDecimal value) {
-    authorizedValue = authorizedValue.subtract(value);
-    version++;
+  public Long getCurrentTariffId() {
+    String [] str = tariffHistory.split(",");
+    int index = str.length - 1;
+    return Long.valueOf(str[index].trim().replaceAll("[\\[%\\]]", ""));
   }
 
-  public void clearPayment(BigDecimal value) {
-    actualValue = actualValue.subtract(value);
-    version++;
-  }
-
-  public void upBalance(BigDecimal value) {
-    actualValue = actualValue.add(value);
-    authorizedValue = authorizedValue.add(value);
-    version++;
-  }
 }
