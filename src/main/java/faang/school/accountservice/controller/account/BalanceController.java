@@ -13,22 +13,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/accounts/balances")
+@RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class BalanceController {
     private final BalanceService balanceService;
 
-    @GetMapping("/{accountId}")
+    @GetMapping("/{accountId}/balances")
     public BalanceDto getBalanceByAccount(@PathVariable Long accountId) {
         return balanceService.getBalanceByAccount(accountId);
     }
 
-    @PostMapping("/{accountId}")
+    @PostMapping("/{accountId}/balances")
     public BalanceDto createBalanceForAccount(@PathVariable Long accountId) {
         return balanceService.createBalanceForAccount(accountId);
     }
 
-    @PatchMapping
+    @PatchMapping("/balances")
     public BalanceDto updateBalanceForAccount(@RequestBody @Valid BalanceDto balanceDto) {
         return balanceService.updateBalanceForAccount(balanceDto);
     }
