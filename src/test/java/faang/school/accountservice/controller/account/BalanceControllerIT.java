@@ -77,7 +77,7 @@ class BalanceControllerIT {
         Balance balance = getBalance(account);
         balanceRepository.save(balance);
 
-        mockMvc.perform(get("/accounts/balances/{accountId}", account.getId()))
+        mockMvc.perform(get("/accounts/{accountId}/balances", account.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(balance.getId()))
                 .andExpect(jsonPath("$.authorisationBalance").value(balance.getAuthorisationBalance()))
@@ -89,7 +89,7 @@ class BalanceControllerIT {
         Account account = getAccount();
         accountRepository.save(account);
 
-        mockMvc.perform(post("/accounts/balances/{accountId}", account.getId()))
+        mockMvc.perform(post("/accounts/{accountId}/balances", account.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authorisationBalance").value(BigDecimal.ZERO))
                 .andExpect(jsonPath("$.actualBalance").value(BigDecimal.ZERO));
