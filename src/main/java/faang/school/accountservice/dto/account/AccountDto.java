@@ -14,9 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountDto {
-
+    private Long id;
     private String paymentNumber;
-
     @NotNull
     private AccountType type;
     @NotNull
