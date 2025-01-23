@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.entity.account.Balance;
 import faang.school.accountservice.entity.account.SavingAccount;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.repository.account.SavingAccountRepository;
@@ -31,9 +32,9 @@ public class SavingAccountPaymentService {
         for (var account : accounts) {
             account.setIncreasedAt(now);
             BigDecimal rate = account.getTariff().getRate();
-            BigDecimal oldBalance = account.getAccount().getBalance();
-            BigDecimal newBalance = oldBalance.add(oldBalance.multiply(rate));
-            account.getAccount().setBalance(newBalance);
+            Balance oldBalance = account.getAccount().getBalance();
+            BigDecimal newBalance = oldBalance.getActualBalance().add(oldBalance.getActualBalance().multiply(rate));
+            account.getAccount().getBalance().setActualBalance(newBalance);
             log.info("Balance increased for saving account '{}'", account.getAccount().getPaymentNumber());
         }
         accountRepository.saveAll(accounts.stream().map(SavingAccount::getAccount).toList());
