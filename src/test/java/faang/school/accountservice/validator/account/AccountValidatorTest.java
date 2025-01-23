@@ -8,7 +8,6 @@ import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.enums.account.AccountType;
 import faang.school.accountservice.enums.currency.Currency;
-import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.exception.account.AccountNotValidException;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;

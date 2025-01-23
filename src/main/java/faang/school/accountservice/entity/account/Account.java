@@ -40,8 +40,8 @@ public class Account {
     @Column(name = "project_id")
     private Long ownerProjectId;
 
-    @Column(name = "balance", nullable = false)
-    private Long balance;
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
