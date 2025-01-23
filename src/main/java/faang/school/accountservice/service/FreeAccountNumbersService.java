@@ -28,7 +28,7 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumberRepository freeAccountNumberRepository;
 
     @Value("${accounts.generated.single-account}")
-    private int single;
+        private int single;
 
     @Value("${accounts.generated.divisor}")
     private long divisor;
@@ -61,7 +61,7 @@ public class FreeAccountNumbersService {
     }
 
     @Transactional
-    private FreeAccountNumber deleteReturning(AccountType type) {
+    public FreeAccountNumber deleteReturning(AccountType type) {
         FreeAccountNumber freeAccNum = freeAccountNumberRepository.findFirstByIdType(type);
         if (freeAccNum == null) {
             freeAccNum = generateFreeAccountNumber(type, single).get(0);
