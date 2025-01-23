@@ -59,7 +59,7 @@ public class AccountService {
         return mapper.toDto(accountRepo.findByOwnerProjectId(projectId));
     }
 
-    private Account getAccount(Long id) {
+    public Account getAccount(Long id) {
         return accountRepo.findById(id)
                 .orElseThrow(() ->
                         {

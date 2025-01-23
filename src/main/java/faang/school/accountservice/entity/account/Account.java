@@ -14,6 +14,7 @@ import org.hibernate.annotations.Check;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -41,7 +42,7 @@ public class Account {
     private Long ownerProjectId;
 
     @Column(name = "balance", nullable = false)
-    private Long balance;
+    private BigDecimal balance;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)

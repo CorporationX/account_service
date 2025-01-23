@@ -7,3 +7,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V003_storing_free_account_numbers.sql
   - include:
       file: db/changelog/changeset/V004_initial_account_sequences.sql
+  - include:
+      file: db/changelog/changeset/V005_saving_account.sql
+  - include:
+      file: db/changelog/changeset/V006_account_balance_type.sql
