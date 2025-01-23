@@ -1,20 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountBalanceDto;
-import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.dto.BalanceChangeDto;
-import faang.school.accountservice.dto.CreateAccountDto;
-import faang.school.accountservice.dto.TransactionDto;
-import faang.school.accountservice.dto.TransactionRequestDto;
-import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.entity.Transaction;
-import faang.school.accountservice.enums.AccountOwnerType;
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.TransactionStatus;
-import faang.school.accountservice.enums.TransactionType;
+import faang.school.accountservice.dto.*;
+import faang.school.accountservice.entity.*;
+import faang.school.accountservice.enums.*;
 import faang.school.accountservice.exception.AccountWithdrawalException;
 import faang.school.accountservice.exception.IllegalAccountAccessException;
 import faang.school.accountservice.exception.InvalidAccountStatusException;
@@ -36,14 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -60,25 +43,31 @@ class AccountServiceTest {
     @Mock
     private AccountEventPublisher accountEventPublisher;
 
+    @Mock
+    private FreeAccountNumbersService freeAccountNumbersService;
+
     @InjectMocks
     private AccountService accountService;
-
-    private CreateAccountDto createDto;
 
     @Test
     @DisplayName("Create account success")
     void testCreateAccount_Success() {
-        createDto = new CreateAccountDto(AccountOwnerType.PROJECT, "Project owner", AccountType.CURRENT, Currency.USD);
+        CreateAccountDto createDto = new CreateAccountDto(AccountOwnerType.PROJECT, "Project owner", AccountType.CURRENT, Currency.USD);
         Long ownerId = 10L;
+        Account account = setAccount();
+        when(accountMapper.toEntity(createDto)).thenReturn(account);
+        when(accountRepository.save(account)).thenReturn(account);
 
         AccountDto result = accountService.createAccount(createDto, ownerId);
 
         verify(accountRepository, times(1)).save(any(Account.class));
         verify(accountEventPublisher, times(1)).publish(any(AccountDto.class));
 
+
         assertNotNull(result);
         assertEquals(AccountStatus.ACTIVE, result.status());
-        assertEquals(20, result.accountNumber().length());
+        assertEquals("12345", result.accountNumber());
+        assertEquals("John Doe", result.ownerName());
     }
 
     @Test
@@ -413,5 +402,14 @@ class AccountServiceTest {
         List<TransactionDto> result = accountService.getTransactions(ownerId, accountNumber);
 
         assertEquals(expected, result);
+    }
+
+    private Account setAccount() {
+        return Account.builder()
+                .accountNumber("12345")
+                .ownerId(10L)
+                .ownerName("John Doe")
+                .status(AccountStatus.ACTIVE)
+                .build();
     }
 }

@@ -1,11 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountBalanceDto;
-import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.dto.BalanceChangeDto;
-import faang.school.accountservice.dto.CreateAccountDto;
-import faang.school.accountservice.dto.TransactionDto;
-import faang.school.accountservice.dto.TransactionRequestDto;
+import faang.school.accountservice.dto.*;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.Transaction;
@@ -28,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,6 +32,7 @@ public class AccountService {
     private final AccountEventPublisher accountEventPublisher;
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Transactional
     public AccountDto createAccount(CreateAccountDto dto, Long ownerId) {
@@ -183,26 +177,14 @@ public class AccountService {
     private Account generateNewAccount(CreateAccountDto dto, Long ownerId) {
         Account account = accountMapper.toEntity(dto);
         account.setOwnerId(ownerId);
-        account.setAccountNumber(generateAccountNumber());
+        freeAccountNumbersService.processAndDeleteFreeAccNumber(dto.accountType(),
+                freeAccountNumber -> account.setAccountNumber(
+                        freeAccountNumber.getId().getAccountNumber().toString()));
         account.setStatus(AccountStatus.ACTIVE);
-
         Balance balance = new Balance();
-
         account.setBalance(balance);
         balance.setAccount(account);
-
         return account;
-    }
-
-    private String generateAccountNumber() {
-        String accountNumber;
-        do {
-            accountNumber = ThreadLocalRandom.current()
-                    .ints(20, 0, 10)
-                    .mapToObj(String::valueOf)
-                    .collect(Collectors.joining());
-        } while (accountRepository.existsByAccountNumber(accountNumber));
-        return accountNumber;
     }
 
     private Account getAccountByNumber(String accountNumber) {

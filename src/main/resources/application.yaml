@@ -38,3 +38,14 @@ server:
 logging:
   level:
     root: info
+
+cron:
+  expression:
+    every-midnight: "0 0 0 * * *"
+
+accounts:
+  generated:
+    amount: 100
+    single-account: 1
+    divisor: 1000000000000000
+
