@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,5 +50,15 @@ public class FreeAccountNumberServiceIT extends BaseContextTest {
             assertNotNull(result);
             assertTrue(expectedAccountNumbers.contains(result.getAccountNumber()));
         }
+    }
+
+    @Test
+    void ensureFreeAccountNumbersTest() {
+        freeAccountNumbersService.generateFreeAccountNumbers(AccountType.INDIVIDUAL, 1);
+        long threshold = 4;
+        assertDoesNotThrow(() -> freeAccountNumbersService.ensureFreeAccountNumbers(AccountType.INDIVIDUAL, threshold));
+
+        long individualNumbersAmount = accountNumbersRepository.countByAccountType(AccountType.INDIVIDUAL);
+        assertEquals(threshold, individualNumbersAmount);
     }
 }

@@ -28,9 +28,9 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumberValidator freeAccountNumberValidator;
 
     @Transactional
-    public void generateFreeAccountNumbers(AccountType accountType, int batchSize) {
+    public void generateFreeAccountNumbers(AccountType accountType, long accountNumbersAmount) {
         log.info("Start generating free account numbers for account type: {}", accountType);
-        AccountNumberSequence sequence = accountNumbersSequenceRepository.incrementCounter(accountType.name(), batchSize);
+        AccountNumberSequence sequence = accountNumbersSequenceRepository.incrementCounter(accountType.name(), accountNumbersAmount);
         long numberSequence = sequence.getCurrentSequenceValue();
         int accountNumberLength = getLengthByAccountType(accountType);
         int accountTypeIdentity = getNumberIdentityByAccountType(accountType);
@@ -39,7 +39,7 @@ public class FreeAccountNumbersService {
                 accountNumberLength, accountTypeIdentity);
 
         List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
-        for (long tempSequence = numberSequence - batchSize + 1; tempSequence <= numberSequence; tempSequence++) {
+        for (long tempSequence = numberSequence - accountNumbersAmount + 1; tempSequence <= numberSequence; tempSequence++) {
             String accountNumber = buildAccountNumber(accountTypeIdentity, tempSequence, accountNumberLength);
             freeAccountNumbers.add(FreeAccountNumber.builder()
                     .accountType(accountType)
@@ -50,6 +50,7 @@ public class FreeAccountNumbersService {
         freeAccountNumbersRepository.saveAll(freeAccountNumbers);
         log.info("Finished generating free account numbers for account type: {}", accountType);
     }
+
 
     @Transactional
     public String getFreeAccountNumber(AccountType accountType) {
@@ -64,6 +65,22 @@ public class FreeAccountNumbersService {
         }
         log.info("Finished getting free account number for account type: {}", accountType);
         return freeAccountNumber.getAccountNumber();
+    }
+
+    @Transactional
+    public void ensureFreeAccountNumbers(AccountType accountType, long threshold) {
+        log.info("Ensuring free account numbers for account type: {}. Threshold: {}", accountType, threshold);
+        long existingNumbersAmount = freeAccountNumbersRepository.countByAccountType(accountType);
+
+        long amountDifference = threshold - existingNumbersAmount;
+        if (amountDifference > 0) {
+            generateFreeAccountNumbers(accountType, amountDifference);
+            log.info("Generated {} new free account numbers for account type '{}'. Total now: {}",
+                    amountDifference, accountType, threshold);
+        } else {
+            log.info("No new account numbers generated for account type '{}'. Threshold: {}, Existing: {}",
+                    accountType, threshold, existingNumbersAmount);
+        }
     }
 
     private int getLengthByAccountType(AccountType accountType) {

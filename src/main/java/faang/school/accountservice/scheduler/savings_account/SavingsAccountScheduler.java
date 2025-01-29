@@ -23,11 +23,11 @@ public class SavingsAccountScheduler {
     private final AsyncSavingsAccountService asyncSavingsAccountService;
     private final SavingsAccountRepository savingsAccountRepository;
 
-    @Value("${savings-account.accruing-interest.batch-size}")
+    @Value("${account.savings.accruing-interest.batch-size}")
     private int accruingInterestBatchSize;
 
     @Transactional
-    @Scheduled(cron = "${savings-account.accruing-interest.cron}")
+    @Scheduled(cron = "${account.savings.accruing-interest.cron}")
     public void startAccruingInterest() {
         log.info("Starting accruing interest for savings accounts...");
         List<SavingsAccount> savingsAccounts = savingsAccountRepository.getSavingsAccountsByStatus(AccountStatus.ACTIVE);

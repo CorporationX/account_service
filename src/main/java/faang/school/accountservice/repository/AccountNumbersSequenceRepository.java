@@ -15,5 +15,5 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
         WHERE account_type = :accountType
         RETURNING account_type, current_value"""
     )
-    AccountNumberSequence incrementCounter(@Param("accountType") String accountType, @Param("batchSize") int batchSize);
+    AccountNumberSequence incrementCounter(@Param("accountType") String accountType, @Param("batchSize") long batchSize);
 }
