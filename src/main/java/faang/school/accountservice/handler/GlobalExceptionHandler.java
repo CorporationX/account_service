@@ -55,6 +55,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
 
+    @ExceptionHandler(BalanceException.class)
+    public ResponseEntity<ErrorResponse> handleBalanceException(BalanceException ex, HttpServletRequest request) {
+        String errorMessage = ex.getMessage();
+        log.error("{}: {}", ex.getClass(), errorMessage);
+        ErrorResponse errorResponse = getErrorResponse(request, HttpStatus.BAD_REQUEST, errorMessage);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
     private static ErrorResponse getErrorResponse(HttpServletRequest request, HttpStatus status, String errorMessage) {
         return ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

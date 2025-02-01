@@ -38,7 +38,7 @@ public class BalanceServiceImpl implements BalanceService {
       try {
           accountService.getAccount(accountId);
       } catch (AccountNotFoundException e) {
-          throw new RuntimeException(e);
+        throw new BalanceException("Cannot create balance for non-existent account with id: " + accountId, e);
       }
       Balance balance = balanceRepository.create(accountId,
         balanceCreateDto.authorizedValue());

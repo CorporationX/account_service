@@ -12,6 +12,7 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -73,9 +74,11 @@ public class AccountService {
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public AccountDtoResponse verify(@NotNull @Valid AccountDtoVerify dto) {
-        Optional<Account> account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING);
-        account.ifPresent(value -> value.setStatus(AccountStatus.ACTIVE));
-        return accountMapper.toDto(accountRepository.save(account.get()));
+        Account account = accountRepository.getAccountByIdAndStatus(dto.getId(), AccountStatus.PENDING)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + dto.getId()));
+
+        account.setStatus(AccountStatus.ACTIVE);
+        return accountMapper.toDto(accountRepository.save(account));
     }
 
     public AccountDtoResponse getAccount(@NotNull @Positive Long id) throws AccountNotFoundException {
@@ -99,7 +102,7 @@ public class AccountService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
     public AccountDtoResponse closeAccount(@NotNull @Valid AccountDtoCloseBlock dtoClose) {
         Account account = dtoClose.getId() != null
-                ? accountRepository.getAccountById((dtoClose.getId()))
+                ? accountRepository.getAccountById(dtoClose.getId())
                 : accountRepository.getAccountByAccountNumber(dtoClose.getAccountNumber());
         checkAccountClosedBlocked(account);
         account.setStatus(AccountStatus.CLOSED);

@@ -1,6 +1,10 @@
 package faang.school.accountservice.service.cashback;
 
-import faang.school.accountservice.model.cashback.*;
+import faang.school.accountservice.model.cashback.CashbackId;
+import faang.school.accountservice.model.cashback.CashbackTariff;
+import faang.school.accountservice.model.cashback.MerchantCashback;
+import faang.school.accountservice.model.cashback.Operation;
+import faang.school.accountservice.model.cashback.OperationCashback;
 import faang.school.accountservice.repository.cashback.MerchantCashbackRepository;
 import faang.school.accountservice.repository.cashback.OperationCashbackRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,7 @@ import java.util.Optional;
 public class CashbackCalculationService {
     private final OperationCashbackRepository operationCashbackRepository;
     private final MerchantCashbackRepository merchantCashbackRepository;
+    private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     public BigDecimal calculateCashbackAmount(Operation operation, CashbackTariff tariff) {
         Double cashbackPercentage = findCashbackPercentage(operation, tariff);
@@ -45,8 +50,9 @@ public class CashbackCalculationService {
     }
 
     private BigDecimal calculateAmount(BigDecimal operationAmount, Double percentage) {
+        BigDecimal percentageDecimal = BigDecimal.valueOf(percentage);
         return operationAmount
-                .multiply(BigDecimal.valueOf(percentage))
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                .divide(HUNDRED, 4, RoundingMode.HALF_UP)
+                .multiply(percentageDecimal);
     }
 }

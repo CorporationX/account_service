@@ -39,7 +39,7 @@ public class FailedOperationsService {
     @Transactional
     public void retryFailedOperation(Operation operation) {
         try {
-            processOperation(operation);
+            log.debug("Processing operation: {}", operation.getId());
             operation.setCashbackProcessed(true);
             operation.setCashbackProcessedAt(LocalDateTime.now());
             operation.setRetryCount(operation.getRetryCount() + 1);
@@ -51,10 +51,6 @@ public class FailedOperationsService {
             handleOperationError(operation, e);
             throw e;
         }
-    }
-
-    private void processOperation(Operation operation) {
-        log.debug("Processing operation: {}", operation.getId());
     }
 
     private void handleOperationError(Operation operation, Exception e) {
