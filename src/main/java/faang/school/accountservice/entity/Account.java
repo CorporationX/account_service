@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ import java.util.UUID;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @Size(min = 12, max = 20, message = "Account number length must be between 12 and 20 characters")
@@ -45,7 +46,7 @@ public class Account {
 
     @NotNull
     @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;
+    private BigInteger ownerId;
 
     @Enumerated(EnumType.STRING)
     @NotNull
