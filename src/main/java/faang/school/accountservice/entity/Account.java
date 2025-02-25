@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "account")
+@Table(name = "accounts")
 public class Account {
 
     /** Уникальный идентификатор счета */
@@ -39,6 +39,7 @@ public class Account {
     private String account;
 
     /** Баланс счета */
+    @Builder.Default
     @Column(name = "balance", precision = 15, scale = 2, nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
