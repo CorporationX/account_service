@@ -1,6 +1,7 @@
 package faang.school.accountservice.controller.handler;
 
 import faang.school.accountservice.dto.ErrorModel;
+import faang.school.accountservice.exception.AccountAccessDeniedException;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
     public ErrorModel handleEntityNotFoundException(EntityNotFoundException ex) {
         log.error("Entity not found exception", ex);
         return createError(ex.getMessage(), HttpStatus.NOT_FOUND.value());
+    }
+
+    @ExceptionHandler(AccountAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorModel handleAccountAccessDeniedException(AccountAccessDeniedException ex) {
+        log.error("Account access denied exception", ex);
+        return createError(ex.getMessage(), HttpStatus.FORBIDDEN.value());
     }
 
     @ExceptionHandler(FeignException.class)
