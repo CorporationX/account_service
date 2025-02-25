@@ -36,7 +36,6 @@ domain:
   path: /api/v1
 
 account:
-  start-bonus: 10
   validity-period: 3 # years
   number:
     min-digits: 12
