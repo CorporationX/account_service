@@ -16,6 +16,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,7 @@ public class Account {
     private UUID id;
 
     @NotNull
+    @Size(min = 12, max = 20, message = "Account number length must be between 12 and 20 characters")
     @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
