@@ -1,8 +1,7 @@
 package faang.school.accountservice.enums;
 
-public enum Currency {
+public enum CurrencyType {
     USD,
     EUR,
-    RUB,
-    ;
+    RUB
 }
