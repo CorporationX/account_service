@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5432/account-service
     username: user
     password: password
 
@@ -16,9 +16,20 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  cloud:
+    openfeign:
+      client:
+        config:
+          user-service:
+            url: http://localhost:8080/users/api/v1
+          project-service:
+            url: http://localhost:8082/projects/api/v1
 
 server:
   port: 8090
+  servlet:
+    context-path: /accounts/api/
+
 
 logging:
   level:
