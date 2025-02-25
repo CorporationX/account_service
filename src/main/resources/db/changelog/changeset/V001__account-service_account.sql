@@ -1,26 +1,20 @@
 -- Write your sql migration here!
-CREATE TABLE account (
-    id         bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    number     varchar(20) UNIQUE NOT NULL CHECK( LENGTH(number) BETWEEN 12 AND  20 ),
-    project_id bigint,
-    user_id    bigint,
-    type       smallint    NOT NULL,
-    currency   smallint    NOT NULL,
-    status     smallint    NOT NULL,
-    created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamptz DEFAULT CURRENT_TIMESTAMP,
-    closed_at  timestamptz DEFAULT CURRENT_TIMESTAMP,
-    version    smallint    NOT NULL DEFAULT 0
-);
+DROP TABLE IF EXISTS account;
 
---Платежный счет имеет следующие параметры:
---номер - строка от 12 до 20 цифр
---владельца - учесть, что владельцем может быть как пользователь, таки. проект
---тип - можно придумать несколько, например, расчетный счет для физ./юр. лиц, валютный счёт, и т.д
---валюта - RUB, EUR, USD, …
---статус - аккаунт может быть действующим, замороженным, закрытым
---время создания
---время изменения
---время закрытия
---версия счёта
+CREATE TABLE account (
+    id              BIGSERIAL   PRIMARY KEY,
+    account_number  varchar(20) UNIQUE NOT NULL CHECK( LENGTH(account_number) BETWEEN 12 AND  20 ),
+    owner_id        BIGSERIAL   NOT NULL,
+    owner_type      VARCHAR(10) NOT NULL,
+    account_type    VARCHAR(50) NOT NULL,
+    currency        VARCHAR(5)  NOT NULL,
+    account_status  VARCHAR(10) NOT NULL,
+    created_at      timestamptz DEFAULT CURRENT_TIMESTAMP,
+    updated_at      timestamptz,
+    closed_at       timestamptz,
+    version         INT         NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS account_number_idx ON account(account_number);
+CREATE INDEX IF NOT EXISTS account_owner_idx  ON account(owner_id, owner_type);
+CREATE INDEX IF NOT EXISTS account_status_idx ON account(account_status);
 
