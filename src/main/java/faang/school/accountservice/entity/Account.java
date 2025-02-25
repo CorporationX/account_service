@@ -49,22 +49,22 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "owner_type", nullable = false)
+    @Column(name = "owner_type", nullable = false, length = 10)
     private AccountOwnerType ownerType;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "account_type", nullable = false, length = 50)
     private AccountType type;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "currency", nullable = false)
+    @Column(name = "currency", nullable = false, length = 5)
     private Currency currency;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "account_status", nullable = false)
+    @Column(name = "account_status", nullable = false, length = 10)
     private AccountStatus accountStatus;
 
     @CreationTimestamp
