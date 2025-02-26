@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/api/balances")
+@RequestMapping("/api/v1/balances")
 public class BalanceController {
-
     private final BalanceService balanceService;
     private final BalanceMapper balanceMapper;
 

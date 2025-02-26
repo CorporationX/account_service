@@ -81,6 +81,21 @@ public class BalanceService {
     }
 
     @Transactional
+    public AuthPayment rejectPayment(UUID authPaymentId) {
+        AuthPayment payment = findAuthPaymentById(authPaymentId);
+        balanceValidator.checkAuthPaymentForReject(payment);
+
+        Balance balance = payment.getBalance();
+        BigDecimal newAuthBalance = balance.getAuthBalance().subtract(payment.getAmount());
+        balance.setAuthBalance(newAuthBalance);
+
+        payment.setStatus(AuthPaymentStatus.REJECTED);
+
+        balanceRepository.save(balance);
+        return authPaymentRepository.save(payment);
+    }
+
+    @Transactional
     public Balance topUpCurrentBalance(UUID balanceId, Money money) {
         Balance balance = findById(balanceId);
         BigDecimal currentBalance = balance.getCurrentBalance();

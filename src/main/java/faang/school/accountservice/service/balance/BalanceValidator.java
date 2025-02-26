@@ -23,17 +23,17 @@ public class BalanceValidator {
     public void checkAuthPaymentForAccept(Money money, AuthPayment payment) {
 
         if (!payment.getStatus().equals(AuthPaymentStatus.ACTIVE)) {
-            throw new ValidationException("AuthPayment with id : %s will not accepted current status: %s",
-                    payment.getAmount(), payment.getId());
+            throw new ValidationException("AuthPayment with id : %s will not accepted, current status: %s",
+                    payment.getId(), payment.getStatus());
         } else if (money.amount().doubleValue() > payment.getAmount().doubleValue()) {
-            throw new ValidationException("Money has amount more then limit: %s of payment with id: %s",
+            throw new ValidationException("Money has amount more than limit: %s of payment with id: %s",
                     payment.getAmount(), payment.getId());
         }
     }
 
     public void checkAuthPaymentForReject(AuthPayment payment) {
         if (!payment.getStatus().equals(AuthPaymentStatus.ACTIVE)) {
-            throw new ValidationException("AuthPayment with id: %s will not rejected, current status %s",
+            throw new ValidationException("AuthPayment with id: %s will not rejected, current status: %s",
                     payment.getId(), payment.getStatus());
         }
     }

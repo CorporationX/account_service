@@ -11,8 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-
-
 @Entity
 @Builder
 @AllArgsConstructor
@@ -54,5 +52,4 @@ public class AuthPayment {
     protected void onUpdated() {
         updatedAt = LocalDateTime.now();
     }
-
 }
