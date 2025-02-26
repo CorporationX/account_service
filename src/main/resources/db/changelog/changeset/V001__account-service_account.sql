@@ -1,6 +1,4 @@
 -- Write your sql migration here!
-DROP TABLE IF EXISTS account;
-
 CREATE TABLE account (
     id              BIGSERIAL   PRIMARY KEY,
     account_number  varchar(20) UNIQUE NOT NULL CHECK( LENGTH(account_number) BETWEEN 12 AND  20 ),
@@ -12,7 +10,7 @@ CREATE TABLE account (
     created_at      timestamptz DEFAULT CURRENT_TIMESTAMP,
     updated_at      timestamptz,
     closed_at       timestamptz,
-    version         INT         NOT NULL DEFAULT 1
+    version         INT         NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS account_number_idx ON account(account_number);
 CREATE INDEX IF NOT EXISTS account_owner_idx  ON account(owner_id, owner_type);
