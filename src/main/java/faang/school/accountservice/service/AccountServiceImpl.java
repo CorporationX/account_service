@@ -5,7 +5,7 @@ import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.ProjectDto;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.AccountAccessDeniedException;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 
 @Slf4j
 @Service
@@ -33,6 +32,7 @@ public class AccountServiceImpl implements AccountService {
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
     private final AccountProperties accountProperties;
+    private final FreeAccountNumberService freeAccountNumberService;
 
     @Override
     public AccountDto getAccountById(long id) {
@@ -60,11 +60,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional
     @Override
-    public AccountDto createAccount(AccountDto dto) {
+    public void createAccount(AccountDto dto) {
         Account account = accountMapper.toEntity(dto);
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
-        Account newAccount = accountRepository.save(buildNewAccount(account));
-        return accountMapper.toDto(newAccount);
+        String accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType().toString(), this::saveAccount);
+        log.info("Created account with number: {}", accountNumber);
     }
 
     @Transactional
@@ -76,6 +76,7 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(AccountStatus.FROZEN);
         account.setUpdatedAt(LocalDateTime.now());
         accountRepository.save(account);
+        log.info("Account with id = {} was blocked", id);
     }
 
     @Transactional
@@ -87,18 +88,22 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(AccountStatus.CLOSED);
         account.setUpdatedAt(LocalDateTime.now());
         accountRepository.save(account);
+        log.info("Account with id = {} was closed", id);
     }
 
     private void checkAccessOwner(long ownerId, OwnerType ownerType) {
         checkExistsOwner(ownerId, ownerType);
         long currentUserId = userContext.getUserId();
         if (OwnerType.USER.equals(ownerType) && ownerId != currentUserId) {
+            log.error("User with id = {} access denied", currentUserId);
             throw new AccountAccessDeniedException(
                     String.format("User with id = %d access denied", currentUserId));
         }
         if (OwnerType.PROJECT.equals(ownerType)) {
             ProjectDto project = projectServiceClient.getProjectById(currentUserId);
             if (project.ownerId() != currentUserId) {
+                log.error("User with id = {} access denied to account of project with id = {}",
+                        currentUserId, project.id());
                 throw new AccountAccessDeniedException(
                         String.format("User with id = %d access denied to account of project with id = %d",
                                 currentUserId, project.id()));
@@ -109,44 +114,27 @@ public class AccountServiceImpl implements AccountService {
     private void checkExistsOwner(long ownerId, OwnerType ownerType) {
         if (OwnerType.USER.equals(ownerType)) {
             if (userServiceClient.getUserById(ownerId) == null) {
+                log.error("User with id = {} not found", ownerId);
                 throw new IllegalArgumentException(String.format("User with id = %d not found", ownerId));
             }
         }
         if (OwnerType.PROJECT.equals(ownerType)) {
             if (projectServiceClient.getProjectById(ownerId) == null) {
+                log.error("Project with id = {} not found", ownerId);
                 throw new IllegalArgumentException(String.format("Project with id = %d not found", ownerId));
             }
         }
     }
 
-    private Account buildNewAccount(Account account) {
-        String number = String.valueOf(generateUniqueNumber(
-                accountProperties.getNumber().getMinDigits(),
-                accountProperties.getNumber().getMaxDigits()));
-        account.setNumber(number);
-        account.setStatus(AccountStatus.ACTIVE);
-        account.setCreatedAt(LocalDateTime.now());
-        account.setUpdatedAt(LocalDateTime.now());
-        account.setClosedDate(LocalDateTime.now().plusYears(accountProperties.getValidityPeriod()));
-        account.setVersion(1L);
-        return account;
-    }
-
-    private long generateUniqueNumber(int minDigits, int maxDigits) {
-        long number;
-        boolean isExists;
-        do {
-            number = generateRandomNumber(minDigits, maxDigits);
-            isExists = accountRepository.existsByNumber(String.valueOf(number));
-        } while (isExists);
-
-        return number;
-    }
-
-    private long generateRandomNumber(int minDigits, int maxDigits) {
-        Random random = new Random();
-        long min = (long) Math.pow(10, minDigits - 1);
-        long max = (long) Math.pow(10, maxDigits) - 1;
-        return min + Math.abs(random.nextLong()) % (max - min + 1);
+    private void saveAccount(String number) {
+        Account account = Account.builder()
+                .number(number)
+                .status(AccountStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .closedDate(LocalDateTime.now().plusYears(accountProperties.getValidityPeriod()))
+                .version(1L)
+                .build();
+        accountRepository.save(account);
     }
 }

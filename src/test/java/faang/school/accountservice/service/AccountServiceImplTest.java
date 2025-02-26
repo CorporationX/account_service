@@ -5,7 +5,7 @@ import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.UserDto;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.account.AccountMapperImpl;
@@ -96,11 +96,8 @@ class AccountServiceImplTest {
         when(numberProperties.getMaxDigits()).thenReturn(20);
         when(accountRepository.save(any(Account.class))).thenReturn(account);
 
-        AccountDto result = accountService.createAccount(accountDto);
+        accountService.createAccount(accountDto);
 
-        assertNotNull(result);
-        assertEquals(1L, result.id());
-        assertEquals("123456789012", result.number());
         verify(accountRepository).save(any(Account.class));
     }
 
