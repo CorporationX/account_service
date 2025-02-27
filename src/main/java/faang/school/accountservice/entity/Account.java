@@ -11,8 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -58,9 +56,10 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
+    @Builder.Default
     @Column(name = "account_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private AccountStatus accountStatus;
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -78,17 +77,4 @@ public class Account {
     @Version
     @Column(name = "version", nullable = false)
     private Integer version;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.accountStatus == null) {
-            this.accountStatus = AccountStatus.ACTIVE;
-        }
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

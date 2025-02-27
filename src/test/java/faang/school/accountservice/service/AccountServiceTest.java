@@ -4,7 +4,6 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.util.AccountNumberGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +16,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,9 +28,6 @@ class AccountServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
-
-    @Mock
-    private AccountNumberGenerator numberGenerator;
 
     @InjectMocks
     private AccountService accountService;
@@ -87,16 +81,15 @@ class AccountServiceTest {
 
     @Test
     void testOpenAccountGenerateNumberAndSaveAccount() {
-        String generatedNumber = "00001234567890123457";
-        when(numberGenerator.generate()).thenReturn(generatedNumber);
-        when(accountRepository.existsAccountByAccountNumber(generatedNumber)).thenReturn(false);
+        Long generatedNumber = 1234567890123457L;
+        when(accountRepository.getNextAccountNumber()).thenReturn(generatedNumber);
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         testAccount.setAccountNumber(null);
         Account result = accountService.openAccount(testAccount);
 
         assertNotNull(result);
-        assertEquals(generatedNumber, result.getAccountNumber());
+        assertEquals(generatedNumber.toString(), result.getAccountNumber());
         verify(accountRepository).save(testAccount);
     }
 
@@ -120,26 +113,6 @@ class AccountServiceTest {
 
         assertEquals(AccountStatus.CLOSED, result.getAccountStatus());
         assertNotNull(result.getClosedAt());
-        verify(accountRepository).save(testAccount);
-    }
-
-    @Test
-    void testOpenAccountRetryGeneratingNumberIfExists() {
-        String existingNumber = "00001234567890123456";
-        String newNumber = "00001234567890123457";
-
-        when(numberGenerator.generate()).thenReturn(existingNumber, newNumber);
-        when(accountRepository.existsAccountByAccountNumber(existingNumber)).thenReturn(true);
-        when(accountRepository.existsAccountByAccountNumber(newNumber)).thenReturn(false);
-        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        testAccount.setAccountNumber(null);
-        Account result = accountService.openAccount(testAccount);
-
-        assertNotNull(result);
-        assertEquals(newNumber, result.getAccountNumber());
-        verify(numberGenerator, times(2)).generate();
-        verify(accountRepository, times(2)).existsAccountByAccountNumber(anyString());
         verify(accountRepository).save(testAccount);
     }
 }
