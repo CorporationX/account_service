@@ -15,3 +15,5 @@ CREATE TABLE IF NOT EXISTS account
 );
 
 CREATE INDEX IF NOT EXISTS idx_owner ON account (owner_id, owner_type);
+CREATE INDEX IF NOT EXISTS idx_account_number ON account (account_number);
+CREATE SEQUENCE IF NOT EXISTS account_number_seq START WITH 100000000000 INCREMENT BY 1;

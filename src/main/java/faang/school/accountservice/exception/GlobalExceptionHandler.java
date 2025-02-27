@@ -1,12 +1,12 @@
 package faang.school.accountservice.exception;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Map<Class<? extends Exception>, HttpStatus> EXCEPTION_STATUS_MAP = Map.of(
+            ObjectOptimisticLockingFailureException.class, HttpStatus.CONFLICT,
             MethodArgumentTypeMismatchException.class, HttpStatus.BAD_REQUEST,
             EnumConstantNotPresentException.class, HttpStatus.BAD_REQUEST,
             MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST,
@@ -28,15 +29,14 @@ public class GlobalExceptionHandler {
             IllegalArgumentException.class, HttpStatus.BAD_REQUEST,
             ConstraintViolationException.class, HttpStatus.BAD_REQUEST,
             NoSuchElementException.class, HttpStatus.NOT_FOUND,
-            EntityNotFoundException.class, HttpStatus.NOT_FOUND,
-            OptimisticLockException.class, HttpStatus.CONFLICT
+            EntityNotFoundException.class, HttpStatus.NOT_FOUND
     );
 
     private static final Map<Class<? extends Exception>, String> EXCEPTION_DEFAULT_MESSAGE_MAP = Map.of(
+            ObjectOptimisticLockingFailureException.class, "The account was updated by another process. Please try again.",
             MethodArgumentTypeMismatchException.class, "Invalid request parameter. Please provide the correct format.",
             EnumConstantNotPresentException.class, "Invalid request parameter. Please provide the correct format.",
-            HttpMessageNotReadableException.class, "Cannot parse JSON data. Please check it again.",
-            OptimisticLockException.class, "The account was updated by another process. Please try again."
+            HttpMessageNotReadableException.class, "Cannot parse JSON data. Please check it again."
     );
 
     @ExceptionHandler(Exception.class)
