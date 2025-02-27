@@ -1,8 +1,9 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.CurrencyType;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.enums.StatusType;
+import faang.school.accountservice.enums.AccountStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.Version;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -46,28 +50,30 @@ public class Account {
     /** Владелец счета */
     @Enumerated(EnumType.STRING)
     @Column(name = "owner", nullable = false)
-    private OwnerType owner;
+    private OwnerType ownerType;
 
     /** Тип счета */
     @Column(name = "type", nullable = false)
-    private String type;
+    private AccountType accountType;
 
     /** Код валюты */
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
-    private CurrencyType currencyType;
+    private Currency currency;
 
     /** Статус: действующий, замороженный или закрытый */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private StatusType status;
+    private AccountStatus accountStatus;
 
     /** Время создания счета */
     @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     /** Время изменения счета */
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     /** Время закрытия счета */
@@ -75,6 +81,7 @@ public class Account {
     private LocalDateTime closedAt;
 
     /** Версия счета */
+    @Version
     @Column(name = "account_version")
     private String accountVersion;
 }
