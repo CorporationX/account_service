@@ -3,7 +3,7 @@ CREATE TYPE account_status AS ENUM ('ACTIVE', 'CLOSED', 'FROZEN');
 CREATE TABLE IF NOT EXISTS account
 (
     id SERIAL PRIMARY KEY,
-    number VARCHAR(255) NOT NULL,
+    number BIGINT NOT NULL,
     user_id BIGINT REFERENCES users(id),
     project_id BIGINT REFERENCES project(id),
     type VARCHAR(255) NOT NULL,
