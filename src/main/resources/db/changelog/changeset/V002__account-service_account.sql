@@ -1,8 +1,3 @@
-CREATE TABLE account
-(
-  id UUID PRIMARY KEY NOT NULL
-);
-
 CREATE TABLE balance
 (
     id              UUID PRIMARY KEY NOT NULL,

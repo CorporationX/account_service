@@ -25,7 +25,7 @@ public class Balance {
     private UUID id;
 
     @OneToOne
-    @JoinColumn(name = "account-id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
     @Builder.Default
