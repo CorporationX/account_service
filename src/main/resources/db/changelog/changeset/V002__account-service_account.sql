@@ -1,7 +1,7 @@
 CREATE TABLE balance
 (
     id              UUID PRIMARY KEY NOT NULL,
-    account_id      UUID             NOT NULL,
+    account_id      bigint             NOT NULL,
     auth_balance    bigint      DEFAULT 0,
     current_balance bigint      DEFAULT 0,
     created_at      timestamptz DEFAULT current_timestamp,
