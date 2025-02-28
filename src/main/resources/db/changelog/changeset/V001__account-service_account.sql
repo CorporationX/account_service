@@ -1,6 +1,6 @@
 CREATE TYPE account_status AS ENUM ('ACTIVE', 'CLOSED', 'FROZEN');
 
-CREATE TABLE account
+CREATE TABLE IF NOT EXISTS account
 (
     id SERIAL PRIMARY KEY,
     number VARCHAR(255) NOT NULL,
@@ -14,6 +14,9 @@ CREATE TABLE account
     closed_at TIMESTAMP WITH TIME ZONE,
     version INTEGER
 );
+
+CREATE INDEX IF NOT EXISTS idx_account_user_id ON account (user_id);
+CREATE INDEX IF NOT EXISTS idx_account_project_id ON account (project_id);
 
 ALTER TABLE account
 ADD CONSTRAINT owner_check CHECK (
