@@ -9,11 +9,7 @@ CREATE TABLE IF NOT EXISTS account(
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closed_date TIMESTAMP NOT NULL,
-    version bigint NOT NULL DEFAULT 0,
-    CONSTRAINT account_owner_check CHECK (owner_type IN ('USER', 'PROJECT')),
-    CONSTRAINT account_status_check CHECK (status IN ('ACTIVE', 'FROZEN', 'CLOSED')),
-    CONSTRAINT account_type_check CHECK (type IN ('INDIVIDUAL', 'LEGAL', 'CURRENCY'))
-
+    version bigint NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_account_number ON account(number);

@@ -54,7 +54,7 @@ public class Account {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "closed_date")
+    @Column(name = "closed_date", nullable = false)
     private LocalDateTime closedDate;
 
     @Version
