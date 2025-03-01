@@ -8,7 +8,11 @@ public class AccountNumberValidator implements ConstraintValidator<AccountNumber
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        String number = value.replaceAll(" ", "");
-        return number.length() >= 12 && number.length() <= 20;
+        if (value == null || value.isBlank()) {
+            return false;
+        } else {
+            String number = value.replaceAll(" ", "");
+            return number.length() >= 12 && number.length() <= 20;
+        }
     }
 }

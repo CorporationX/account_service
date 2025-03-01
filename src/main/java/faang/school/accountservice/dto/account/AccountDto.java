@@ -1,5 +1,9 @@
 package faang.school.accountservice.dto.account;
 
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -18,15 +22,15 @@ public record AccountDto(
         long ownerId,
 
         @NotNull(message = "Owner type can't be null")
-        String ownerType,
+        OwnerType ownerType,
 
         @NotNull(message = "Currency can't be null")
-        String currency,
+        Currency currency,
 
         @NotNull(message = "Account type can't be null")
-        String type,
+        AccountType type,
 
-        String status,
+        AccountStatus status,
 
         LocalDateTime createdAt,
 
