@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum AccountType {
 
-    INDIVIDUAL("4520"),
-    LEGAL("4280"),
-    CURRENCY("6540");
+    INDIVIDUAL("4525"),
+    LEGAL("4288"),
+    CURRENCY("6544");
 
     private final String value;
 

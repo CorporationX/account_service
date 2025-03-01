@@ -5,29 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
-public interface FreeAccountNumberRepository extends JpaRepository<FreeAccountNumber, String> {
+public interface FreeAccountNumberRepository extends JpaRepository<FreeAccountNumber, FreeAccountNumber.FreeAccountNumberId> {
+
+    @Query(nativeQuery = true, value = """
+            SELECT account_number FROM free_account_numbers
+            WHERE account_type = :accountType ORDER BY account_number ASC LIMIT 1""")
+    Optional<BigInteger> findFirstFreeAccountNumber(String accountType);
 
     @Modifying
-    @Query(nativeQuery = true, value = """
-            WITH selected AS (
-            SELECT account_number FROM free_account_numbers WHERE type = :type LIMIT 1
-            FOR UPDATE SKIP LOCKED
-            ),
-            deleted AS (
-            DELETE FROM free_account_numbers WHERE id in (SELECT FROM selected)
-            RETURNING *
-            )
-            SELECT * account_number, account_type FROM deleted;
-            """)
-    Optional<String> deleteAndReturnFreeAccountNumber(String type);
+    @Query(value = "DELETE FROM FreeAccountNumber f WHERE f.id.accountNumber = :accountNumber")
+    void deleteFreeAccountNumberByAccountNumber(BigInteger accountNumber);
 
-    @Modifying
-    @Query(nativeQuery = true, value = """
-            INSERT INTO free_account_number (account_type, account_number) VALUES (:accountType, :accountNumber)
-            """)
-    void saveFreeAccountNumber(String accountType, String accountNumber);
-
-    long countByAccountType(String accountType);
 }

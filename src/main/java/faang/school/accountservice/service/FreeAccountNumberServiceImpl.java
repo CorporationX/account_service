@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Slf4j
 @Service
@@ -21,40 +21,24 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
 
     @Transactional
     @Override
-    public void generateAndSaveFreeAccountNumbers(String type, int count) {
-        for (int i = 0; i < count; i++) {
-            String accountNumber = generateFreeAccountNumber(type);
-            freeAccountNumberRepository.saveFreeAccountNumber(type, accountNumber);
-        }
+    public BigInteger getFreeAccountNumber(AccountType accountType) {
+        Optional<BigInteger> accountNumberOpt = freeAccountNumberRepository.findFirstFreeAccountNumber(accountType.name());
+        accountNumberOpt.ifPresent(freeAccountNumberRepository::deleteFreeAccountNumberByAccountNumber);
+        return accountNumberOpt.orElseGet(() -> generateFreeAccountNumber(accountType));
     }
 
-    @Transactional
-    @Override
-    public String getFreeAccountNumber(String accountType, Consumer<String> accountCreation) {
-        Optional<String> accountNumber = freeAccountNumberRepository.deleteAndReturnFreeAccountNumber(accountType);
-        if (accountNumber.isPresent()) {
-            accountCreation.accept(accountNumber.get());
-            return accountNumber.get();
-        } else {
-            String newAccountNumber = generateFreeAccountNumber(accountType);
-            accountCreation.accept(newAccountNumber);
-            return newAccountNumber;
-        }
-    }
-
-    @Override
-    public long countByAccountType(String accountType) {
-        return freeAccountNumberRepository.countByAccountType(accountType);
-    }
-
-    private String generateFreeAccountNumber(String type) {
-        String code = AccountType.valueOf(type).getValue();
-        Optional<Long> currentValueOpt = accountNumberSequenceRepository.incrementSequence(type, 0L);
+    private BigInteger generateFreeAccountNumber(AccountType accountType) {
+        String code = accountType.getValue();
+        accountNumberSequenceRepository.incrementSequence(accountType.name(), 0L);
+        Optional<Long> currentValueOpt = accountNumberSequenceRepository.getCurrentValue(accountType.name());
         if (currentValueOpt.isEmpty()) {
-            accountNumberSequenceRepository.createSequence(type);
-            currentValueOpt = accountNumberSequenceRepository.incrementSequence(type, 0L);
+            accountNumberSequenceRepository.createSequence(accountType.name(), 0L);
+            accountNumberSequenceRepository.incrementSequence(accountType.name(), 0L);
+        } else {
+            accountNumberSequenceRepository.incrementSequence(accountType.name(), currentValueOpt.get());
         }
-        long currentValue = currentValueOpt.orElseThrow(() -> new RuntimeException("Failed to generate account number"));
-        return code + currentValue;
+        long currentValue = accountNumberSequenceRepository.getCurrentValue(accountType.name())
+                .orElseThrow(() -> new RuntimeException("Failed to generate account number"));
+        return new BigInteger(code + String.format("%016d", currentValue));
     }
 }

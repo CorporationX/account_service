@@ -1,12 +1,11 @@
 package faang.school.accountservice.service;
 
-import java.util.function.Consumer;
+import faang.school.accountservice.enums.AccountType;
+
+import java.math.BigInteger;
 
 public interface FreeAccountNumberService {
 
-    void generateAndSaveFreeAccountNumbers(String type, int count);
+    BigInteger getFreeAccountNumber(AccountType accountType);
 
-    String getFreeAccountNumber(String accountType, Consumer<String> accountCreation);
-
-    long countByAccountType(String accountType);
 }

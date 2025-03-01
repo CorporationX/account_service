@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -64,8 +65,7 @@ public class AccountServiceImpl implements AccountService {
     public void createAccount(AccountDto dto) {
         Account account = accountMapper.toEntity(dto);
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
-        String accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType().toString(), this::saveAccount);
-        log.info("Created account with number: {}", accountNumber);
+        buildAndSaveAccount(account);
     }
 
     @Transactional
@@ -127,15 +127,21 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private void saveAccount(String number) {
-        Account account = Account.builder()
-                .number(number)
+    private void buildAndSaveAccount(Account account) {
+        BigInteger accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType());
+        Account newAccount = Account.builder()
+                .number(accountNumber)
                 .status(AccountStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .closedDate(LocalDateTime.now().plusYears(accountProperties.getValidityPeriod()))
                 .version(1L)
+                .ownerId(account.getOwnerId())
+                .ownerType(account.getOwnerType())
+                .type(account.getType())
+                .currency(account.getCurrency())
                 .build();
-        accountRepository.save(account);
+        accountRepository.save(newAccount);
+        log.info("Created account with number: {}", accountNumber);
     }
 }
