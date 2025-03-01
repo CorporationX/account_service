@@ -3,10 +3,14 @@ package faang.school.accountservice.model;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@Data
 @Table(name = "account")
 public class Account {
 
@@ -19,10 +23,10 @@ public class Account {
     private Long number;
 
     @Column(name = "user_id")
-    private Long user_id;
+    private Long userId;
 
     @Column(name = "project_id")
-    private Long project_id;
+    private Long projectId;
 
     @Column(name = "type")
     private String type;
@@ -34,14 +38,18 @@ public class Account {
     private AccountStatus status;
 
     @Column(name = "created_at")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "closed_at")
-    private LocalDateTime closed_at;
+    private LocalDateTime closedAt;
 
     @Column(name = "version")
     private int version;
+
+    public Account() {
+
+    }
 }
