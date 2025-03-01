@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,7 +132,7 @@ class AccountServiceImplTest {
     private Account getAccount() {
         return Account.builder()
                 .id(1L)
-                .number("123456789012")
+                .number(new BigInteger("123456789012"))
                 .ownerId(1L)
                 .ownerType(OwnerType.USER)
                 .status(AccountStatus.ACTIVE)
@@ -143,8 +144,8 @@ class AccountServiceImplTest {
                 .id(1L)
                 .number("123456789012")
                 .ownerId(1L)
-                .ownerType("USER")
-                .status("ACTIVE")
+                .ownerType(OwnerType.USER)
+                .status(AccountStatus.ACTIVE)
                 .build();
     }
 

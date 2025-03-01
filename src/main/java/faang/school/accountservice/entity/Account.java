@@ -9,6 +9,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,13 +23,13 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 20)
-    private String number;
+    private BigInteger number;
 
     @Column(name = "owner_id", nullable = false)
-    private long ownerId;
+    private Long ownerId;
 
     @Column(name = "owner_type", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
@@ -59,5 +60,5 @@ public class Account {
 
     @Version
     @Column(nullable = false)
-    private long version;
+    private Long version;
 }
