@@ -54,7 +54,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto getAccountByNumber(String number) {
         String formattedNumber = number.replaceAll(" ", "");
-        Account account = accountRepository.findByNumber(formattedNumber).orElseThrow(() ->
+        Account account = accountRepository.findByNumber(new BigInteger(formattedNumber)).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Account with number = %s not found", number)));
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
         return accountMapper.toDto(account);
