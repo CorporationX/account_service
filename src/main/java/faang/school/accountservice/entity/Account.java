@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Table(name = "accounts")
 public class Account {
@@ -45,7 +46,10 @@ public class Account {
     /** Баланс счета */
     @Builder.Default
     @Column(name = "balance", precision = 15, scale = 2, nullable = false)
-    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal accountBalance = BigDecimal.ZERO;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     /**
      * Идентификатор владельца счета.
