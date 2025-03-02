@@ -55,6 +55,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Transactional
     public BalanceResponseDto writeOffFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
@@ -64,6 +65,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Transactional
     public BalanceResponseDto holdFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         Balance savedBalance;
@@ -80,6 +82,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Transactional
     public BalanceResponseDto releaseFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         Balance savedBalance;
@@ -96,6 +99,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Transactional
     public BalanceResponseDto writeOffHeldFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         Balance savedBalance;
@@ -111,11 +115,14 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Transactional
     public boolean hasSufficientFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         return balance.getActualBalance().compareTo(amount) >= 0;
     }
 
+    @Override
+    @Transactional
     public BalanceResponseDto resetBalance(Long balanceId) {
         Balance balance = getBalanceById(balanceId);
         BigDecimal totalBalance = balance.getActualBalance().add(balance.getAuthorizedBalance());
