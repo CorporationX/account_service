@@ -28,9 +28,9 @@ public class AccountNumberSequence {
     private String accountType;
     @Column(name = "current_counter")
     private long currentCounter;
+    @Version
     @Column(name = "version")
     private long version;
-    @Version
     @Column(name = "updated_at")
     private LocalDateTime updateAt;
 }
