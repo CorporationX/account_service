@@ -36,7 +36,6 @@ domain:
   path: /api/v1
 
 account:
-  validity-period: 3 # years
   number:
     min-digits: 12
     max-digits: 20
