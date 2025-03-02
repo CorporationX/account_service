@@ -22,31 +22,31 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorModel handleEntityNotFoundException(EntityNotFoundException ex) {
         log.error("Entity not found exception", ex);
-        return createError(ex.getMessage(), HttpStatus.NOT_FOUND.value());
+        return buildError(ex.getMessage(), HttpStatus.NOT_FOUND.value());
     }
 
     @ExceptionHandler(AccountAccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorModel handleAccountAccessDeniedException(AccountAccessDeniedException ex) {
         log.error("Account access denied exception", ex);
-        return createError(ex.getMessage(), HttpStatus.FORBIDDEN.value());
+        return buildError(ex.getMessage(), HttpStatus.FORBIDDEN.value());
     }
 
     @ExceptionHandler(FeignException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public ErrorModel handleFeignException(FeignException ex) {
         log.error("Feign exception", ex);
-        return createError(ex.getMessage(), HttpStatus.BAD_GATEWAY.value());
+        return buildError(ex.getMessage(), HttpStatus.BAD_GATEWAY.value());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorModel handleGenericException(Exception ex) {
         log.error("Internal server error exception", ex);
-        return createError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return buildError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
-    private ErrorModel createError(String message, int statusCode) {
+    private ErrorModel buildError(String message, int statusCode) {
         return new ErrorModel(message, statusCode, serviceName);
     }
 }

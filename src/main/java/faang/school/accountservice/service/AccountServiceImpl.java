@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -46,7 +47,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountDto> getOwnerAccounts(long ownerId, String ownerType) {
         checkAccessOwner(ownerId, OwnerType.valueOf(ownerType));
-        return accountRepository.findAllByOwnerIdAndOwnerType(ownerId, ownerType).stream()
+        return accountRepository.findAllByOwnerIdAndOwnerType(ownerId, OwnerType.valueOf(ownerType)).stream()
                 .map(accountMapper::toDto)
                 .toList();
     }
@@ -88,6 +89,7 @@ public class AccountServiceImpl implements AccountService {
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
         account.setStatus(AccountStatus.CLOSED);
         account.setUpdatedAt(LocalDateTime.now());
+        account.setClosedDate(LocalDateTime.now());
         accountRepository.save(account);
         log.info("Account with id = {} was closed", id);
     }
@@ -135,7 +137,6 @@ public class AccountServiceImpl implements AccountService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .closedDate(LocalDateTime.now().plusYears(accountProperties.getValidityPeriod()))
-                .version(1L)
                 .ownerId(account.getOwnerId())
                 .ownerType(account.getOwnerType())
                 .type(account.getType())
