@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.annotation.AccountNumberConstraint;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${domain.path}/accounts")
+@RequestMapping("${base-url}/accounts")
 @Validated
 public class AccountController {
 

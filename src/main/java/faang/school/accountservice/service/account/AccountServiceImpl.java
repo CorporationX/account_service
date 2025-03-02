@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
@@ -10,7 +10,6 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.AccountAccessDeniedException;
 import faang.school.accountservice.mapper.account.AccountMapper;
-import faang.school.accountservice.properties.AccountProperties;
 import faang.school.accountservice.repository.account.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 
 @Slf4j
 @Service
@@ -33,7 +31,6 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient;
-    private final AccountProperties accountProperties;
     private final FreeAccountNumberService freeAccountNumberService;
 
     @Override
@@ -130,13 +127,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void buildAndSaveAccount(Account account) {
-        BigInteger accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType());
+        String accountNumber = freeAccountNumberService.getFreeAccountNumber(account.getType());
         Account newAccount = Account.builder()
                 .number(accountNumber)
                 .status(AccountStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .closedDate(LocalDateTime.now().plusYears(accountProperties.getValidityPeriod()))
                 .ownerId(account.getOwnerId())
                 .ownerType(account.getOwnerType())
                 .type(account.getType())

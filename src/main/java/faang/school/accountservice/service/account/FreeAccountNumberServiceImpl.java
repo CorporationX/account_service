@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.account.AccountNumberSequenceRepository;
@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.util.Optional;
 
 @Slf4j
@@ -21,13 +20,13 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
 
     @Transactional
     @Override
-    public BigInteger getFreeAccountNumber(AccountType accountType) {
-        Optional<BigInteger> accountNumberOpt = freeAccountNumberRepository.findFirstFreeAccountNumber(accountType.name());
+    public String getFreeAccountNumber(AccountType accountType) {
+        Optional<String> accountNumberOpt = freeAccountNumberRepository.findFirstFreeAccountNumber(accountType.name());
         accountNumberOpt.ifPresent(freeAccountNumberRepository::deleteFreeAccountNumberByAccountNumber);
         return accountNumberOpt.orElseGet(() -> generateFreeAccountNumber(accountType));
     }
 
-    private BigInteger generateFreeAccountNumber(AccountType accountType) {
+    private String generateFreeAccountNumber(AccountType accountType) {
         String code = accountType.getValue();
         accountNumberSequenceRepository.incrementSequence(accountType.name(), 0L);
         Optional<Long> currentValueOpt = accountNumberSequenceRepository.getCurrentValue(accountType.name());
@@ -39,6 +38,6 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
         }
         long currentValue = accountNumberSequenceRepository.getCurrentValue(accountType.name())
                 .orElseThrow(() -> new RuntimeException("Failed to generate account number"));
-        return new BigInteger(code + String.format("%016d", currentValue));
+        return code + String.format("%016d", currentValue);
     }
 }
