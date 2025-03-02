@@ -183,4 +183,5 @@ class BalanceServiceImplTest {
         assertEquals(0, positiveBalanceAmount.compareTo(capturedBalance.getActualBalance()));
         assertEquals(0, BigDecimal.ZERO.compareTo(capturedBalance.getAuthorizedBalance()));
     }
+
 }
