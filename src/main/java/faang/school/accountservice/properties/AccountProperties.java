@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "account")
 public class AccountProperties {
 
-    private int validityPeriod;
-
     private Number number;
 
     @Data

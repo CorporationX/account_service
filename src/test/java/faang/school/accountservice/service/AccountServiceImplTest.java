@@ -79,14 +79,14 @@ class AccountServiceImplTest {
 
     @Test
     void testGetOwnerAccounts() {
-        when(accountRepository.findAllByOwnerIdAndOwnerType(1L, "USER")).thenReturn(List.of(account));
+        when(accountRepository.findAllByOwnerIdAndOwnerType(1L, OwnerType.USER)).thenReturn(List.of(account));
 
         List<AccountDto> result = accountService.getOwnerAccounts(1L, "USER");
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).id());
-        verify(accountRepository).findAllByOwnerIdAndOwnerType(1L, "USER");
+        verify(accountRepository).findAllByOwnerIdAndOwnerType(1L, OwnerType.USER);
         verify(accountMapper).toDto(account);
     }
 
@@ -132,7 +132,7 @@ class AccountServiceImplTest {
     private Account getAccount() {
         return Account.builder()
                 .id(1L)
-                .number(new BigInteger("123456789012"))
+                .number("123456789012")
                 .ownerId(1L)
                 .ownerType(OwnerType.USER)
                 .status(AccountStatus.ACTIVE)

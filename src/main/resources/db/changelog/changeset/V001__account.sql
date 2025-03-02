@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS account(
     id bigserial PRIMARY KEY,
-    number NUMERIC NOT NULL UNIQUE,
+    number VARCHAR(20) NOT NULL UNIQUE,
     owner_id bigint NOT NULL,
     owner_type VARCHAR(10) NOT NULL,
     type VARCHAR(20) NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS account(
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    closed_date TIMESTAMP NOT NULL,
+    closed_date TIMESTAMP,
     version bigint NOT NULL DEFAULT 0
 );
 
