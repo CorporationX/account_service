@@ -26,7 +26,7 @@ public class Account {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 20)
-    private BigInteger number;
+    private String number;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
@@ -55,7 +55,7 @@ public class Account {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "closed_date", nullable = false)
+    @Column(name = "closed_date")
     private LocalDateTime closedDate;
 
     @Version

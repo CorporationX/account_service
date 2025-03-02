@@ -11,8 +11,7 @@ public class AccountNumberValidator implements ConstraintValidator<AccountNumber
         if (value == null || value.isBlank()) {
             return false;
         } else {
-            String number = value.replaceAll(" ", "");
-            return number.length() >= 12 && number.length() <= 20;
+            return value.length() >= 12 && value.length() <= 20;
         }
     }
 }

@@ -46,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountDto> getOwnerAccounts(long ownerId, String ownerType) {
         checkAccessOwner(ownerId, OwnerType.valueOf(ownerType));
-        return accountRepository.findAllByOwnerIdAndOwnerType(ownerId, ownerType).stream()
+        return accountRepository.findAllByOwnerIdAndOwnerType(ownerId, OwnerType.valueOf(ownerType)).stream()
                 .map(accountMapper::toDto)
                 .toList();
     }
@@ -54,7 +54,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto getAccountByNumber(String number) {
         String formattedNumber = number.replaceAll(" ", "");
-        Account account = accountRepository.findByNumber(new BigInteger(formattedNumber)).orElseThrow(() ->
+        Account account = accountRepository.findByNumber(formattedNumber).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Account with number = %s not found", number)));
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
         return accountMapper.toDto(account);
@@ -88,6 +88,7 @@ public class AccountServiceImpl implements AccountService {
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
         account.setStatus(AccountStatus.CLOSED);
         account.setUpdatedAt(LocalDateTime.now());
+        account.setClosedDate(LocalDateTime.now());
         accountRepository.save(account);
     }
 
@@ -122,20 +123,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Account buildNewAccount(Account account) {
-        BigInteger number = generateUniqueNumber(
+        String number = generateUniqueNumber(
                 accountProperties.getNumber().getMinDigits(),
                 accountProperties.getNumber().getMaxDigits());
         account.setNumber(number);
         account.setStatus(AccountStatus.ACTIVE);
+        account.setOwnerId(account.getOwnerId());
+        account.setOwnerType(account.getOwnerType());
+        account.setCurrency(account.getCurrency());
+        account.setType(account.getType());
         account.setCreatedAt(LocalDateTime.now());
         account.setUpdatedAt(LocalDateTime.now());
         account.setClosedDate(LocalDateTime.now().plusYears(accountProperties.getValidityPeriod()));
-        account.setVersion(1L);
         return account;
     }
 
-    private BigInteger generateUniqueNumber(int minDigits, int maxDigits) {
-        BigInteger number;
+    private String generateUniqueNumber(int minDigits, int maxDigits) {
+        String number;
         boolean isExists;
         do {
             number = generateRandomNumber(minDigits, maxDigits);
@@ -145,10 +149,10 @@ public class AccountServiceImpl implements AccountService {
         return number;
     }
 
-    private BigInteger generateRandomNumber(int minDigits, int maxDigits) {
+    private String generateRandomNumber(int minDigits, int maxDigits) {
         Random random = new Random();
         long min = (long) Math.pow(10, minDigits - 1);
         long max = (long) Math.pow(10, maxDigits) - 1;
-        return BigInteger.valueOf(min + Math.abs(random.nextLong()) % (max - min + 1));
+        return String.valueOf(min + Math.abs(random.nextLong()) % (max - min + 1));
     }
 }
