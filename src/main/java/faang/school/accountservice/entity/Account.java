@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
@@ -90,6 +91,7 @@ public class Account {
     private Integer version;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // TODO
+    @JsonIgnore
     private Balance balance;
 
 }
