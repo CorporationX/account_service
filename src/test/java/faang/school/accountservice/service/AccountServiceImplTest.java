@@ -9,7 +9,6 @@ import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.account.AccountMapperImpl;
-import faang.school.accountservice.properties.AccountProperties;
 import faang.school.accountservice.repository.account.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,10 +48,7 @@ class AccountServiceImplTest {
     private ProjectServiceClient projectServiceClient;
 
     @Mock
-    private AccountProperties accountProperties;
-
-    @Mock
-    private AccountProperties.Number numberProperties;
+    private FreeAccountNumberService freeAccountNumberService;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -95,9 +91,6 @@ class AccountServiceImplTest {
 
     @Test
     void testCreateAccount() {
-        when(accountProperties.getNumber()).thenReturn(numberProperties);
-        when(numberProperties.getMinDigits()).thenReturn(12);
-        when(numberProperties.getMaxDigits()).thenReturn(20);
         when(accountRepository.save(any(Account.class))).thenReturn(account);
 
         accountService.createAccount(accountDto);

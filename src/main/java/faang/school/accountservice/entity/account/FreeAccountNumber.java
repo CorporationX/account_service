@@ -13,7 +13,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 
 @Data
 @AllArgsConstructor
@@ -34,7 +33,7 @@ public class FreeAccountNumber {
         private AccountType accountType;
 
         @Column(name = "account_number", nullable = false, length = 20)
-        private BigInteger accountNumber;
+        private String accountNumber;
     }
 
 }
