@@ -17,9 +17,9 @@ public class UserService {
         try {
             return userServiceClient.getUser(id);
         } catch (FeignException.BadRequest e) {
-            throw new EntityNotFoundException("User not found");
+            throw new EntityNotFoundException("Пользователь не найден");
         } catch (FeignException e) {
-            throw new ExternalServiceException("User service is unavailable");
+            throw new ExternalServiceException("User service недоступен");
         }
     }
 }

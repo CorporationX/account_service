@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountReadDto {
     private long id;
-    private String invoice;
+    private String accountNumber;
     private Long authorId;
     private Long projectId;
     private InvoiceType invoiceType;

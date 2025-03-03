@@ -44,7 +44,7 @@ public class AccountService {
             projectService.getProjectById(dto.getProjectId());
             account.setProjectId(dto.getProjectId());
         }
-        account.setInvoice(UUID.randomUUID().toString());
+        account.setAccountNumber(UUID.randomUUID().toString());
 
         return accountMapper.toDto(accountRepository.save(account));
     }
@@ -56,9 +56,7 @@ public class AccountService {
     )
     public AccountReadDto freezeInvoice(String invoice) {
         Account account = findByInvoice(invoice);
-        if (account.getStatus().equals(AccountStatus.CLOSE)) {
-            throw new BusinessException("Нельзя заморозить закрытый счёт");
-        }
+        validateAccountFreezing(account);
         account.setStatus(AccountStatus.FROZEN);
         return accountMapper.toDto(account);
     }
@@ -70,6 +68,7 @@ public class AccountService {
     )
     public AccountReadDto closeInvoice(String invoice) {
         Account account = findByInvoice(invoice);
+        validateAccountClosing(account);
         account.setStatus(AccountStatus.CLOSE);
         account.setClosedAt(LocalDateTime.now());
         return accountMapper.toDto(account);
@@ -80,6 +79,21 @@ public class AccountService {
                 .orElseThrow(() ->
                         new EntityNotFoundException("Такой счёт не найден")
                 );
+    }
+
+    private void validateAccountClosing(Account account) {
+        if (account.getStatus().equals(AccountStatus.CLOSE)) {
+            throw new BusinessException("Счёт уже закрыт");
+        }
+    }
+
+    private void validateAccountFreezing(Account account) {
+        if (account.getStatus().equals(AccountStatus.CLOSE)) {
+            throw new BusinessException("Нельзя заморозить закрытый счёт");
+        }
+        if (account.getStatus().equals(AccountStatus.FROZEN)) {
+            throw new BusinessException("Счёт уже заморожен");
+        }
     }
 
     private void validateAccountCreationOwner(

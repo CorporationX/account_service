@@ -17,9 +17,9 @@ public class ProjectService {
         try {
             return projectServiceClient.getProject(id);
         } catch (FeignException.BadRequest e) {
-            throw new EntityNotFoundException("Project not found");
+            throw new EntityNotFoundException("Проект не найден");
         } catch (FeignException e) {
-            throw new ExternalServiceException("Project service is unavailable");
+            throw new ExternalServiceException("Project service недоступен");
         }
     }
 }
