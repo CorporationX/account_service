@@ -16,9 +16,20 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  cloud:
+    openfeign:
+      client:
+        config:
+          user-service:
+            url: http://localhost:8080/users/api/v1
+          project-service:
+            url: http://localhost:8082/projects/api/v1
 
 server:
   port: 8090
+  servlet:
+    context-path: /accounts/api/
+
 
 logging:
   level:
