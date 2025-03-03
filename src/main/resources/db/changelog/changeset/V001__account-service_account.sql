@@ -1,7 +1,7 @@
 CREATE TABLE account
 (
     id BIGSERIAL PRIMARY KEY,
-    number VARCHAR(255) NOT NULL UNIQUE,
+    number VARCHAR(20) NOT NULL UNIQUE,
     owner_id BIGINT NOT NULL,
     owner_type VARCHAR(32) NOT NULL,
     type VARCHAR(32) NOT NULL,

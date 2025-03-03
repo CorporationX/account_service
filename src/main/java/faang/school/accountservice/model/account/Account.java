@@ -5,8 +5,10 @@ import faang.school.accountservice.model.account.enums.AccountType;
 import faang.school.accountservice.model.account.enums.Currency;
 import faang.school.accountservice.model.account.enums.OwnerType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,11 +19,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Builder
-@Table(name = "account")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Table(name = "account")
 public class Account {
 
     @Id
@@ -30,6 +32,7 @@ public class Account {
     private Long id;
 
     @Column(name = "number", nullable = false, unique = true)
+    @Size(min = 12, max = 20)
     private String number;
 
     @Column(name = "owner_id", nullable = false)
