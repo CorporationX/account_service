@@ -83,5 +83,5 @@ public class Account {
     /** Версия счета */
     @Version
     @Column(name = "account_version")
-    private String accountVersion;
+    private Long accountVersion;
 }
