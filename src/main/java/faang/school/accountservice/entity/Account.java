@@ -53,6 +53,7 @@ public class Account {
     private OwnerType ownerType;
 
     /** Тип счета */
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private AccountType accountType;
 
