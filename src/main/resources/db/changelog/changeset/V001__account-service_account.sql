@@ -2,7 +2,7 @@
 CREATE TABLE account (
     id              BIGSERIAL   PRIMARY KEY,
     account_number  varchar(20) UNIQUE NOT NULL CHECK( LENGTH(account_number) BETWEEN 12 AND  20 ),
-    owner_id        BIGINT   NOT NULL,
+    owner_id        BIGINT      NOT NULL,
     owner_type      VARCHAR(10) NOT NULL,
     account_type    VARCHAR(50) NOT NULL,
     currency        VARCHAR(3)  NOT NULL,
