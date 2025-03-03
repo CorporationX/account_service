@@ -5,11 +5,11 @@ CREATE TABLE account (
     owner_id        BIGINT   NOT NULL,
     owner_type      VARCHAR(10) NOT NULL,
     account_type    VARCHAR(50) NOT NULL,
-    currency        VARCHAR(5)  NOT NULL,
+    currency        VARCHAR(3)  NOT NULL,
     account_status  VARCHAR(10) NOT NULL,
-    created_at      timestamptz DEFAULT CURRENT_TIMESTAMP,
-    updated_at      timestamptz,
-    closed_at       timestamptz,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP,
+    closed_at       TIMESTAMP,
     version         INT         NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS account_number_idx ON account(account_number);
