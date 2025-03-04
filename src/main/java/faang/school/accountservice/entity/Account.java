@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,7 +34,7 @@ public class Account {
     private String number;
 
     @Column(name = "project_account", nullable = false)
-    private Boolean project_account;
+    private Boolean projectAccount;
 
     @Column(name = "owner_id", nullable = false)
     private Long owner;
@@ -43,7 +44,7 @@ public class Account {
     private Type type;
 
     @Column(name = "currency", length = 3, nullable = false)
-    private String currency;
+    private Currency currency;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
