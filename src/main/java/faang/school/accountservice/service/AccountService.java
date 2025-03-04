@@ -75,7 +75,7 @@ public class AccountService {
     }
 
     private Account findByInvoice(String invoice) {
-        return accountRepository.findByInvoice(invoice)
+        return accountRepository.findByAccountNumber(invoice)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Такой счёт не найден")
                 );

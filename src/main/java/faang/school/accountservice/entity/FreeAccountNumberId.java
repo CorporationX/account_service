@@ -23,5 +23,5 @@ public class FreeAccountNumberId implements Serializable {
     private AccountType accountType;
 
     @Column(name = "account_number", length = 20, nullable = false)
-    private long accountNumber;
+    private String accountNumber;
 }
