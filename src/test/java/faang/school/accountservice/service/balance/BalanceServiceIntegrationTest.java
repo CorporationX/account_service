@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Testcontainers
 public class BalanceServiceIntegrationTest {
 
-
     @Container
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:13")
             .withDatabaseName("testdb")
