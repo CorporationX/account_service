@@ -15,3 +15,4 @@ CREATE TABLE account (
 CREATE INDEX IF NOT EXISTS account_number_idx ON account(account_number);
 CREATE INDEX IF NOT EXISTS account_owner_idx  ON account(owner_id, owner_type);
 CREATE INDEX IF NOT EXISTS account_status_idx ON account(account_status);
+
