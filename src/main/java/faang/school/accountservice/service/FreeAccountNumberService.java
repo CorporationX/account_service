@@ -38,7 +38,7 @@ public class FreeAccountNumberService {
 
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
-        try{
+        try {
             long prefix = ACCOUNT_PREFIXES.getOrDefault(type, 0L);
             if (prefix == 0L) {
                 throw new InvalidAccountTypeException("Неопознанный тип счета" + type);
@@ -79,5 +79,4 @@ public class FreeAccountNumberService {
             throw new RuntimeException("Ошибка при получении свободного номера счета", e);
         }
     }
-
 }
