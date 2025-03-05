@@ -24,12 +24,17 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public Account createAccount(AccountDto accountDto) {
 //        TODO сделать проверку на пользоватея и проект
+        validateDataBeforeCreate(accountDto);
         Account account = accountMapper.toEntity(accountDto);
         account.setAccountStatus(AccountStatus.ACTIVE);
         log.info("");
         return accountRepositoryAdapter.save(account);
     }
-//TODO идепотентность
+
+    private void validateDataBeforeCreate(AccountDto accountDto) {
+    }
+
+    //TODO идепотентность
     @Override
     @Transactional
     public Account blockAccount(Long id) {
