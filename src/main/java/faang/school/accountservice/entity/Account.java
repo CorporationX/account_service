@@ -1,6 +1,8 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.entity.enums.Currency;
+import faang.school.accountservice.entity.enums.Status;
+import faang.school.accountservice.entity.enums.Type;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -63,16 +65,4 @@ public class Account {
 
     @Version
     private Long version;
-
-    public enum Status {
-        ACTIVE,
-        INACTIVE,
-        CLOSED,
-    }
-
-    public enum Type {
-        INDIVIDUAL,
-        LEGAL,
-        CURRENCY
-    }
 }
