@@ -6,8 +6,12 @@ import faang.school.accountservice.error.InsufficientFundsException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +42,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto updateBalance(Long balanceId, BigDecimal authorizedBalance, BigDecimal actualBalance) {
         log.info("Updating balance {}", balanceId);
@@ -45,6 +51,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto topUpBalance(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -55,6 +63,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto writeOffFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -65,6 +75,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto holdFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -82,6 +94,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto releaseFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -99,6 +113,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto writeOffHeldFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -115,6 +131,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public boolean hasSufficientFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -122,6 +140,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2.0))
     @Transactional
     public BalanceResponseDto resetBalance(Long balanceId) {
         Balance balance = getBalanceById(balanceId);
@@ -131,6 +151,12 @@ public class BalanceServiceImpl implements BalanceService {
         Balance savedBalance = balanceRepository.save(balance);
         log.info("Resetting balance {}", balanceId);
         return balanceMapper.toBalanceResponseDto(savedBalance);
+    }
+
+    @Recover
+    public BalanceResponseDto recoverUpdatingBalance(OptimisticLockException e) {
+        log.error("Version conflict occured updating balance: {}", e.getMessage());
+        return BalanceResponseDto.builder().build();
     }
 
     private BalanceResponseDto updateBalanceById(Long balanceId, BigDecimal authorizedBalance, BigDecimal actualBalance) {
