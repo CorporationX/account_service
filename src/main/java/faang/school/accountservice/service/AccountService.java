@@ -26,8 +26,8 @@ public class AccountService {
     private final UserService userService;
     private final ProjectService projectService;
 
-    public AccountReadDto getAccount(String invoice) {
-        Account account = findByInvoice(invoice);
+    public AccountReadDto getAccount(String accountNumber) {
+        Account account = findByAccountNumber(accountNumber);
         return accountMapper.toDto(account);
     }
 
@@ -54,8 +54,8 @@ public class AccountService {
             retryFor = OptimisticLockException.class,
             backoff = @Backoff(delay = 100)
     )
-    public AccountReadDto freezeInvoice(String invoice) {
-        Account account = findByInvoice(invoice);
+    public AccountReadDto freezeInvoice(String accountNumber) {
+        Account account = findByAccountNumber(accountNumber);
         validateAccountFreezing(account);
         account.setStatus(AccountStatus.FROZEN);
         return accountMapper.toDto(account);
@@ -66,16 +66,16 @@ public class AccountService {
             retryFor = OptimisticLockException.class,
             backoff = @Backoff(delay = 100)
     )
-    public AccountReadDto closeInvoice(String invoice) {
-        Account account = findByInvoice(invoice);
+    public AccountReadDto closeInvoice(String accountNumber) {
+        Account account = findByAccountNumber(accountNumber);
         validateAccountClosing(account);
         account.setStatus(AccountStatus.CLOSE);
         account.setClosedAt(LocalDateTime.now());
         return accountMapper.toDto(account);
     }
 
-    private Account findByInvoice(String invoice) {
-        return accountRepository.findByInvoice(invoice)
+    private Account findByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Такой счёт не найден")
                 );
