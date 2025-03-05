@@ -19,15 +19,15 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
     @Query(nativeQuery = true,
             value = """
                     DELETE FROM free_account_numbers
-                    WHERE account_type =:accountType
-                    AND account_type = (
+                    WHERE invoice_type =:invoiceType
+                    AND account_number = (
                       SELECT account_number
                       FROM free_account_numbers
-                      WHERE account_type = :accountType
+                      WHERE invoice_type = :invoiceType
                       ORDER BY account_number
                       LIMIT 1
                     )
-                    RETURNING account_type, account_number;
+                    RETURNING invoice_type, account_number;
                     """)
-    Optional<FreeAccountNumberId> getAndDeleteFirstFreeAccountNumber(@Param("accountType") String accountType);
+    Optional<FreeAccountNumberId> getAndDeleteFirstFreeAccountNumber(@Param("invoiceType") String invoiceType);
 }

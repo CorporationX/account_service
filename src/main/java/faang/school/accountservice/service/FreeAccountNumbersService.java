@@ -3,10 +3,11 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entity.AccountNumberSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
-import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.InvoiceType;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,58 +22,62 @@ public class FreeAccountNumbersService {
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
 
-    @Transactional
-    public void addFreeAccountNumber(AccountType accountType, String accountNumber) {
+    public void addFreeAccountNumber(InvoiceType invoiceType, String accountNumber) {
         FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
-                .id(new FreeAccountNumberId(accountType, accountNumber))
+                .id(new FreeAccountNumberId(invoiceType, accountNumber))
                 .build();
         freeAccountNumbersRepository.save(freeAccountNumber);
     }
 
-    @Transactional
-    public AccountNumberSequence createCounterForAccountType(AccountType accountType) {
-        return accountNumbersSequenceRepository.getByAccountType(accountType.name())
+    @PostConstruct
+    public void initAccountCounters() {
+        for (InvoiceType invoiceType : InvoiceType.values()) {
+            createCounterForAccountType(invoiceType);
+        }
+    }
+
+    public AccountNumberSequence createCounterForAccountType(InvoiceType invoiceType) {
+        return accountNumbersSequenceRepository.findByInvoiceType(invoiceType)
                 .orElseGet(() -> accountNumbersSequenceRepository
                         .save(AccountNumberSequence.builder()
-                                .accountType(accountType)
+                                .invoiceType(invoiceType)
                                 .currentCounter(0L)
                                 .updateAt(LocalDateTime.now())
                                 .build())
                 );
     }
 
-    @Transactional
-    public boolean incrementCounterIfMatches(AccountType accountType, long expectedValue) {
+    public boolean incrementCounterIfMatches(InvoiceType invoiceType, long expectedValue) {
         Optional<Long> newCounterValue = accountNumbersSequenceRepository
-                .incrementCounter(accountType.name(), expectedValue);
+                .incrementCounter(invoiceType.name(), expectedValue);
         return newCounterValue.isPresent();
     }
 
     @Transactional
-    public void executeWithNewAccountNumber(AccountType accountType, Consumer<String> executeLambda) {
+    public void executeWithNewAccountNumber(InvoiceType invoiceType, Consumer<String> executeLambda) {
         Optional<String> freeAccountNumber = freeAccountNumbersRepository
-                .getAndDeleteFirstFreeAccountNumber(accountType.name())
+                .getAndDeleteFirstFreeAccountNumber(invoiceType.name())
                 .map(FreeAccountNumberId::getAccountNumber);
 
         freeAccountNumber.ifPresentOrElse(executeLambda,
                 () -> {
-                    String newAccountNumber = incrementAndGet(accountType);
+                    String newAccountNumber = incrementAndGet(invoiceType);
                     executeLambda.accept(newAccountNumber);
                 });
     }
 
     @Transactional
-    private String incrementAndGet(AccountType accountType) {
+    private String incrementAndGet(InvoiceType invoiceType) {
         AccountNumberSequence accountNumber = accountNumbersSequenceRepository
-                .getByAccountType(accountType.name())
+                .findByInvoiceType(invoiceType)
                 .orElseThrow(() -> new IllegalStateException(
-                        String.format("Счетчик для типа счета: %s не найден", accountType.name())));
+                        String.format("Счетчик для типа счета: %s не найден", invoiceType.name())));
         accountNumbersSequenceRepository
-                .incrementCounter(accountType.name(), accountNumber.getCurrentCounter());
+                .incrementCounter(invoiceType.name(), accountNumber.getCurrentCounter());
         FreeAccountNumberId freeAccountNumberId = freeAccountNumbersRepository
-                .getAndDeleteFirstFreeAccountNumber(accountType.name())
+                .getAndDeleteFirstFreeAccountNumber(invoiceType.name())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("Свободный номер для типа счета: %s не найден", accountType.name())));
+                        String.format("Свободный номер для типа счета: %s не найден", invoiceType.name())));
 
         return freeAccountNumberId.getAccountNumber();
     }

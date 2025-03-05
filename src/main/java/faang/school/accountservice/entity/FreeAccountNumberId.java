@@ -1,6 +1,6 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.InvoiceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -18,10 +18,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FreeAccountNumberId implements Serializable {
-    @Column(name = "account_type", length = 32, nullable = false)
+    @Column(name = "invoice_type", length = 32, nullable = false)
     @Enumerated(EnumType.STRING)
-    private AccountType accountType;
-
+    private InvoiceType invoiceType;
     @Column(name = "account_number", length = 20, nullable = false)
     private String accountNumber;
 }
