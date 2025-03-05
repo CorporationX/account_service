@@ -37,7 +37,7 @@ public class BalanceService {
     @Transactional
     public BalanceReadDto increaseBalance(long balanceId, @Positive BigDecimal amount) {
         Balance balance = getBalance(balanceId);
-        balance.setActualBalance(balance.getAuthorizedBalance().add(amount));
+        balance.setActualBalance(balance.getActualBalance().add(amount));
         balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
@@ -48,7 +48,7 @@ public class BalanceService {
         if (balance.getActualBalance().compareTo(amount) < 0) {
             throw new BusinessException("Невозможно списать средства превышающие текущий баланс");
         }
-        balance.setActualBalance(balance.getAuthorizedBalance().subtract(amount));
+        balance.setActualBalance(balance.getActualBalance().subtract(amount));
         balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
@@ -59,8 +59,9 @@ public class BalanceService {
         if (balance.getActualBalance().compareTo(amount) < 0) {
             throw new BusinessException("Невозможно зарезервировать средства превышающие текущий баланс");
         }
-        balance.setActualBalance(balance.getAuthorizedBalance().subtract(amount));
+        balance.setActualBalance(balance.getActualBalance().subtract(amount));
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
+        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -71,6 +72,7 @@ public class BalanceService {
             throw new BusinessException("Невозможно освободить больше средств, чем зарезервировано");
         }
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(amount));
+        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -79,6 +81,7 @@ public class BalanceService {
         Balance balance = getBalance(balanceId);
         balance.setActualBalance(balance.getActualBalance().add(balance.getAuthorizedBalance()));
         balance.setAuthorizedBalance(BigDecimal.ZERO);
+        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
