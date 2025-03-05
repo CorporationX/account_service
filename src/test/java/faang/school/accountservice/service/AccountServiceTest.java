@@ -45,7 +45,7 @@ public class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
-    private final String invoice = "243a4621-18ad-48db-bf9a-326fda297e18";
+    private final String accountNumber = "243a4621-18ad-48db-bf9a-326fda297e18";
     private Account account;
     private AccountCreateDto accountCreateDto;
     private final long userId = 1L;
@@ -54,7 +54,7 @@ public class AccountServiceTest {
     @BeforeEach
     void setUp() {
         account = Account.builder()
-                .invoice(invoice)
+                .accountNumber(accountNumber)
                 .build();
         accountCreateDto = AccountCreateDto.builder()
                 .invoiceType(InvoiceType.DEBIT)
@@ -64,19 +64,19 @@ public class AccountServiceTest {
 
     @Test
     void testGetAccount_NotFound() {
-        when(accountRepository.findByInvoice(anyString())).thenReturn(Optional.empty());
+        when(accountRepository.findByAccountNumber(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> accountService.getAccount(invoice));
+        assertThrows(EntityNotFoundException.class, () -> accountService.getAccount(accountNumber));
     }
 
     @Test
     void testGetAccount_SuccessCase() {
-        when(accountRepository.findByInvoice(anyString())).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumber(anyString())).thenReturn(Optional.of(account));
 
-        AccountReadDto accountReadDto = accountService.getAccount(invoice);
+        AccountReadDto accountReadDto = accountService.getAccount(accountNumber);
 
-        verify(accountRepository, atLeastOnce()).findByInvoice(invoice);
-        assertEquals(invoice, accountReadDto.getInvoice());
+        verify(accountRepository, atLeastOnce()).findByAccountNumber(accountNumber);
+        assertEquals(accountNumber, accountReadDto.getAccountNumber());
     }
 
     @Test
@@ -122,17 +122,17 @@ public class AccountServiceTest {
     @Test
     void testFreezeInvoice_WithAccountStatusClose() {
         account.setStatus(AccountStatus.CLOSE);
-        when(accountRepository.findByInvoice(anyString())).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumber(anyString())).thenReturn(Optional.of(account));
 
-        assertThrows(BusinessException.class, () -> accountService.freezeInvoice(invoice));
+        assertThrows(BusinessException.class, () -> accountService.freezeInvoice(accountNumber));
     }
 
     @Test
     void testFreezeInvoice_SuccessCase() {
         account.setStatus(AccountStatus.OPEN);
-        when(accountRepository.findByInvoice(anyString())).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumber(anyString())).thenReturn(Optional.of(account));
 
-        var readDto = accountService.freezeInvoice(invoice);
+        var readDto = accountService.freezeInvoice(accountNumber);
 
         assertEquals(AccountStatus.FROZEN, readDto.getStatus());
     }
@@ -140,9 +140,9 @@ public class AccountServiceTest {
     @Test
     void testCloseInvoice_SuccessCase() {
         account.setStatus(AccountStatus.OPEN);
-        when(accountRepository.findByInvoice(anyString())).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNumber(anyString())).thenReturn(Optional.of(account));
 
-        var readDto = accountService.closeInvoice(invoice);
+        var readDto = accountService.closeInvoice(accountNumber);
 
         assertEquals(AccountStatus.CLOSE, readDto.getStatus());
         assertNotNull(readDto.getClosedAt());
