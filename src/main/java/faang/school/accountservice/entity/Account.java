@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Builder
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "accounts")
 public class Account {
