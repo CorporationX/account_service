@@ -23,8 +23,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public Account createAccount(AccountDto accountDto) {
+//        TODO сделать проверку на пользоватея и проект
         Account account = accountMapper.toEntity(accountDto);
         account.setAccountStatus(AccountStatus.ACTIVE);
+        log.info("");
         return accountRepositoryAdapter.save(account);
     }
 //TODO идепотентность
@@ -33,8 +35,7 @@ public class AccountServiceImpl implements AccountService {
     public Account blockAccount(Long id) {
         Account account = accountRepositoryAdapter.findById(id);
         account.setAccountStatus(AccountStatus.FROZEN);
-        int version = account.getVersion();
-        account.setVersion(version++);
+        log.info("");
         return accountRepositoryAdapter.save(account);
     }
 
@@ -44,8 +45,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepositoryAdapter.findById(id);
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
-        int version = account.getVersion();
-        account.setVersion(version++);
+        log.info("");
         return accountRepositoryAdapter.save(account);
     }
 }
