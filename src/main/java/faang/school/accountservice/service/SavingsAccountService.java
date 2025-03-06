@@ -10,16 +10,25 @@ import faang.school.accountservice.model.tariff.Tariff;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SavingsAccountService {
@@ -83,5 +92,48 @@ public class SavingsAccountService {
 
         savingsAccount.getTariffHistoryIds().add(tariff.getId());
         return savingsAccountMapper.toSavingsAccountDto(savingsAccount, tariff.getActualRate());
+    }
+
+    @Retryable(
+            retryFor = OptimisticLockException.class,
+            maxAttempts = Integer.MAX_VALUE,
+            backoff = @Backoff(delay = 500, multiplier = 2)
+    )
+    @Transactional
+    public void applyAccruedInterest(Long savingsAccountId) {
+        SavingsAccount savingsAccount = findById(savingsAccountId);
+
+        LocalDate lastInterestDate = savingsAccount.getLastInterestDate() != null
+                ? savingsAccount.getLastInterestDate().toLocalDate()
+                : savingsAccount.getCreatedAt().toLocalDate();
+
+        LocalDate today = LocalDate.now();
+        long daysBetween = ChronoUnit.DAYS.between(lastInterestDate, today);
+        if (daysBetween <= 0) {
+            return;
+        }
+
+        Tariff tariff =  tariffService.getTariffById(savingsAccount.getActualTariffId());
+
+        BigDecimal balance = savingsAccount.getBalance();
+        BigDecimal totalInterest = balance
+                .multiply(getDailyRate(tariff.getActualRate()))
+                .multiply(BigDecimal.valueOf(daysBetween))
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal newBalance = balance.add(totalInterest);
+        savingsAccount.setBalance(newBalance);
+        savingsAccount.setLastInterestDate(today.atStartOfDay());
+    }
+
+    @Recover
+    public void recoverAfterOptimisticLock(OptimisticLockException e, Long savingsAccountId) {
+        log.error("Could not update account with id {}", savingsAccountId, e);
+    }
+
+    private BigDecimal getDailyRate(BigDecimal yearlyRate) {
+        return yearlyRate
+                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(365), 10, RoundingMode.HALF_UP);
     }
 }
