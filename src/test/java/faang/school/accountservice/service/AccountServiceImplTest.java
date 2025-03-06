@@ -11,6 +11,7 @@ import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.account.AccountMapperImpl;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.account.AccountServiceImpl;
+import faang.school.accountservice.service.account.FreeAccountNumberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
