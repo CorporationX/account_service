@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 public record SavingsAccountDto(Long id,
                                 Long accountId,
                                 BigDecimal balance,
-                                Long tariffId,
                                 BigDecimal actualRate,
                                 LocalDateTime lastInterestDate) {
 }

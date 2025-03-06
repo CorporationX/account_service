@@ -9,7 +9,6 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy =  ReportingPolicy.IGNORE,
@@ -19,12 +18,5 @@ public interface SavingsAccountMapper {
     SavingsAccount toEntity(CreateSavingsAccountRequest createSavingsAccountRequest);
 
     @Mapping(source = "savingsAccount.account.id", target = "accountId")
-    @Mapping(target = "tariffId", expression = "java(getActualTariffId(savingsAccount))")
-    @Mapping(target = "actualRate", source = "actualRate")
     SavingsAccountDto toSavingsAccountDto(SavingsAccount savingsAccount, BigDecimal actualRate);
-
-    default Long getActualTariffId(SavingsAccount savingsAccount) {
-        List<Long> tariffHistoryIds = savingsAccount.getTariffHistoryIds();
-        return tariffHistoryIds.get(tariffHistoryIds.size()-1);
-    }
 }
