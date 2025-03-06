@@ -30,6 +30,13 @@ server:
   servlet:
     context-path: /accounts/api/
 
+user-service:
+  host: localhost
+  port: 8080
+project-service:
+  host: localhost
+  port: 8082
+
 
 logging:
   level:
