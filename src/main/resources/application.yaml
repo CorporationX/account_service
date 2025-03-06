@@ -33,8 +33,3 @@ project-service:
   url: localhost:8082/api/v1
 
 base-url: /api/v1
-
-account:
-  number:
-    min-digits: 12
-    max-digits: 20

@@ -48,6 +48,9 @@ class AccountServiceImplTest {
     @Mock
     private ProjectServiceClient projectServiceClient;
 
+    @Mock
+    private FreeAccountNumberService freeAccountNumberService;
+
     @InjectMocks
     private AccountServiceImpl accountService;
 

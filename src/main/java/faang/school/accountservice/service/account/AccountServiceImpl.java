@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -51,8 +50,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getAccountByNumber(String number) {
-        String formattedNumber = number.replaceAll(" ", "");
-        Account account = accountRepository.findByNumber(new BigInteger(formattedNumber)).orElseThrow(() ->
+        Account account = accountRepository.findByNumber(number).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Account with number = %s not found", number)));
         checkAccessOwner(account.getOwnerId(), account.getOwnerType());
         return accountMapper.toDto(account);
