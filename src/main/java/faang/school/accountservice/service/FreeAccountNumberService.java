@@ -43,9 +43,9 @@ public class FreeAccountNumberService {
             if (prefix == 0L) {
                 throw new InvalidAccountTypeException("Неопознанный тип счета" + type);
             }
-            AccountSeq period = accountSeqRepository.incrementCounter(type.name(), batchSize);
+            accountSeqRepository.incrementCounter(type.name(), batchSize);
             List<FreeAccountNumber> numbers = new ArrayList<>();
-            for (long i = period.getInitialValue(); i < period.getCounter(); i++) {
+            for (long i = 0; i < batchSize; i++) {
                 numbers.add(new FreeAccountNumber(new FreeAccountId(type, prefix + i)));
             }
             freeAccountRepository.saveAll(numbers);
@@ -56,27 +56,22 @@ public class FreeAccountNumberService {
 
     @Transactional
     public void retrieveFreeAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
-        try {
-            FreeAccountNumber freeAccountNumber = freeAccountRepository.retrieveFirst(accountType.name());
+        FreeAccountNumber freeAccountNumber = freeAccountRepository.findFirst(accountType.name());
+        if (freeAccountNumber == null) {
+            throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " + accountType);
+        }
+        freeAccountRepository.deleteByAccountTypeAndAccountNumber(accountType.name(),
+                freeAccountNumber.getId().getAccountNumber());
 
-            if (freeAccountNumber == null) {
-                throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " + accountType);
-            }
+        numberConsumer.accept(freeAccountNumber);
+        numberConsumer.accept(freeAccountNumber);
 
-            numberConsumer.accept(freeAccountNumber);
-
-            AccountSeq accountSeq = accountSeqRepository.incrementCounter(accountType.name(), 1);
-
-            if (accountSeq == null) {
-                accountSeq = new AccountSeq();
-                accountSeq.setType(accountType);
-                accountSeq.setCounter(1);
-                accountSeqRepository.save(accountSeq);
-            }
-        } catch (NoFreeAccountNumbersException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении свободного номера счета", e);
+        AccountSeq accountSeq = accountSeqRepository.findByType(accountType);
+        if (accountSeq == null) {
+            accountSeq = new AccountSeq();
+            accountSeq.setType(accountType);
+            accountSeq.setCounter(1);
+            accountSeqRepository.save(accountSeq);
         }
     }
 }

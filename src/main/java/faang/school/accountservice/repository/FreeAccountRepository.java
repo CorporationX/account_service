@@ -10,18 +10,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FreeAccountRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
-    @Query(nativeQuery = true, value = """
-    DELETE FROM free_account_numbers 
-    WHERE type = :type 
-    AND account_number = (
-        SELECT account_number 
-        FROM free_account_numbers 
-        WHERE type = :type 
-        LIMIT 1
-    )
-    RETURNING account_number, type
-""")
-    @Modifying
-    FreeAccountNumber retrieveFirst(String type);
+    @Query(nativeQuery = true,
+            value = """
+                    SELECT account_number, type
+                    FROM free_account_numbers
+                    WHERE type = :accountType
+                    LIMIT 1
+                    """)
+    FreeAccountNumber findFirst(String accountType);
 
+    @Modifying
+    @Query(nativeQuery = true,
+            value = """
+                    DELETE FROM free_account_numbers
+                    WHERE type = :accountType AND account_number = :accountNumber
+                    """)
+    void deleteByAccountTypeAndAccountNumber(String accountType, long accountNumber);
 }

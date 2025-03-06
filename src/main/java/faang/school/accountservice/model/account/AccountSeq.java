@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class AccountSeq {
     @Id
     @Column(name = "type", nullable = false, length = 32)
+    @Enumerated(EnumType.STRING)
     private AccountType type;
 
     @Column(name = "counter", nullable = false)

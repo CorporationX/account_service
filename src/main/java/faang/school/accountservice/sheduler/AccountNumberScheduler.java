@@ -18,6 +18,8 @@ public class AccountNumberScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void generateDebitAccountNumber() {
-        freeAccountNumberService.generateAccountNumbers(AccountType.CREDIT, batchSize);
+        for (AccountType accountType : AccountType.values()) {
+            freeAccountNumberService.generateAccountNumbers(accountType, batchSize);
+        }
     }
 }
