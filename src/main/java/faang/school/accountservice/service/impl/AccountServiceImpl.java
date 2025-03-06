@@ -9,9 +9,15 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountNumberGenerator;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
@@ -36,21 +42,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void block(Long id) {
+    @Retryable(
+            retryFor = {OptimisticLockingFailureException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void deactivate(Long id, AccountStatus accountStatus) {
         Account account = accountRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("There is no account with id = %d in the database".formatted(id)));
-        account.setAccountStatus(AccountStatus.FROZEN);
-        Long accountVersion = account.getAccountVersion();
-        account.setAccountVersion(++accountVersion);
+        account.setAccountStatus(accountStatus);
     }
 
-    @Override
-    @Transactional
-    public void close(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("There is no account with id = %d in the database".formatted(id)));
-        account.setAccountStatus(AccountStatus.CLOSED);
-        Long accountVersion = account.getAccountVersion();
-        account.setAccountVersion(++accountVersion);
+    @Recover
+    public void recoverDeactivate(OptimisticLockingFailureException e, Long id, AccountStatus accountStatus) {
+        log.error("Failed to deactivate account with id = {} after multiple attempts", id, e);
+        throw new RuntimeException("Failed to deactivate account due to concurrent modification", e);
     }
 }

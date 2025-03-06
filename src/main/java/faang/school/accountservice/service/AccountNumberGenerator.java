@@ -1,12 +1,13 @@
 package faang.school.accountservice.service;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-@Service
+//todo выпилить данный класс, когда будет реализована задача "управление уникальными номерами счетов"
+@Component
 public class AccountNumberGenerator {
     private final Random random = new Random();
     private final Set<String> generatedNumbers = new HashSet<>();
