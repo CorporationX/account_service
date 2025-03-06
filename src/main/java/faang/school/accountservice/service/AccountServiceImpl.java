@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.adapter.AccountRepositoryAdapter;
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.AccountFilterDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -52,5 +54,10 @@ public class AccountServiceImpl implements AccountService {
         account.setClosedAt(LocalDateTime.now());
         log.info("");
         return accountRepositoryAdapter.save(account);
+    }
+
+    @Override
+    public List<AccountDto> getAccountsWithFilters(AccountFilterDto accountFilterDto) {
+        return List.of();
     }
 }

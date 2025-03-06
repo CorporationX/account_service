@@ -1,17 +1,21 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.AccountFilterDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +40,11 @@ public class AccountController {
     @PutMapping("/{id}/close")
     public ResponseEntity<Account> closeAccount(@PathVariable Long id) {
         return ResponseEntity.ok(accountService.closeAccount(id));
+    }
+
+    @GetMapping("/filter")
+    public List<AccountDto> getAccountsWithFilters(AccountFilterDto accountFilterDto) {
+        return accountService.getAccountsWithFilters(accountFilterDto);
     }
 }
 //Exception Handler - для контроллера Specification - фильтры
