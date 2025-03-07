@@ -2,7 +2,7 @@ package faang.school.accountservice.mapper;
 
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountReadDto;
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
