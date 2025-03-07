@@ -45,7 +45,7 @@ public class SavingsAccount {
     private BigDecimal balance;
 
     @Type(JsonType.class)
-    @Column(name = "tariff_history", columnDefinition = "json", nullable = false)
+    @Column(name = "tariff_history", columnDefinition = "jsonb", nullable = false)
     private List<Long> tariffHistoryIds;
 
     @Column(name = "last_interest_date")

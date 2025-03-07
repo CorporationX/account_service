@@ -37,7 +37,7 @@ public class Tariff {
     private TariffType type;
 
     @Type(JsonType.class)
-    @Column(name = "rate_history", nullable = false, columnDefinition = "json")
+    @Column(name = "rate_history", nullable = false, columnDefinition = "jsonb")
     private List<BigDecimal> rateHistory;
 
     public BigDecimal getActualRate() {
