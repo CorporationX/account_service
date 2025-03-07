@@ -41,10 +41,6 @@ public class SavingsAccountService {
     public SavingsAccountDto create(@Valid CreateSavingsAccountRequest createSavingsAccountRequest) {
         SavingsAccount savingsAccount = savingsAccountMapper.toEntity(createSavingsAccountRequest);
 
-        if (savingsAccount.getBalance() == null) {
-            savingsAccount.setBalance(new BigDecimal(0));
-        }
-
         Tariff tariff = tariffService.getTariffById(createSavingsAccountRequest.startTariffId());
         Account account = accountService.getAccountById(createSavingsAccountRequest.accountId());
 

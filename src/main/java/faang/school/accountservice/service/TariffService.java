@@ -32,8 +32,7 @@ public class TariffService {
 
     @Transactional(readOnly = true)
     public TariffDto getTariffDtoById(Long tariffId) {
-        return tariffMapper.toTariffDto(tariffRepository.findById(tariffId)
-                .orElseThrow(() -> new EntityNotFoundException("Tariff id " + tariffId + " not found")));
+        return tariffMapper.toTariffDto(getTariffById(tariffId));
     }
 
     @Transactional
@@ -52,8 +51,7 @@ public class TariffService {
 
     @Transactional(readOnly = true)
     public BigDecimal getActualRate(@Valid @NotNull @Positive Long tariffId) {
-        Tariff tariff = getTariffById(tariffId);
-        return tariff.getRateHistory().get(tariff.getRateHistory().size() - 1);
+        return getTariffById(tariffId).getActualRate();
     }
 
     @Transactional(readOnly = true)

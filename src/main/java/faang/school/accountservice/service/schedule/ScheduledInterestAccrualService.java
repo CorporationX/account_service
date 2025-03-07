@@ -24,7 +24,7 @@ public class ScheduledInterestAccrualService {
     private final ExecutorService interestPool;
     private final SavingsAccountService savingsAccountService;
 
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "${config.schedule-daily-interest-accrual-cron}")
     public void scheduleDailyInterestAccrual() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Page<SavingsAccount> page;

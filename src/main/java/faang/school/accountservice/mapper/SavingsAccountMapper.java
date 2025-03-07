@@ -15,6 +15,7 @@ import java.math.BigDecimal;
         componentModel = MappingConstants.ComponentModel.SPRING)
 public interface SavingsAccountMapper {
     @Mapping(source = "accountId", target = "account.id")
+    @Mapping(source = "balance", target = "balance", defaultExpression = "java(BigDecimal.ZERO)")
     SavingsAccount toEntity(CreateSavingsAccountRequest createSavingsAccountRequest);
 
     @Mapping(source = "savingsAccount.account.id", target = "accountId")
