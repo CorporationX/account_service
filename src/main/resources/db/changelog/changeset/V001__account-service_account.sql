@@ -10,7 +10,7 @@ CREATE TABLE account
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     closed_at TIMESTAMP,
-    version INT DEFAULT 0
+    version INT NOT NULL
 );
 
 CREATE INDEX idx_account_owner ON account (owner_id, owner_type);
