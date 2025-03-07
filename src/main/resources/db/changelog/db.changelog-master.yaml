@@ -2,10 +2,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account-service_account.sql
   - include:
+      file: db/changelog/changeset/V001_fix_account-service-account_add_default_version.sql
+  - include:
       file: db/changelog/changeset/V002__tariff.sql
   - include:
       file: db/changelog/changeset/V003__savings_account.sql
   - include:
       file: db/changelog/changeset/V004_test_accounts.sql
-  - include:
-      file: db/changelog/changeset/V005_account-service-account_add_default_version.sql

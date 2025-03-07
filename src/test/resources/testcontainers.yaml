@@ -1,3 +1,0 @@
-testcontainers:
-  reuse:
-    enable: true

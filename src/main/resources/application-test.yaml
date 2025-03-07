@@ -1,8 +1,0 @@
-spring:
-  datasource:
-    hikari:
-      maxLifetime: 30000       # 30 секунд
-      idleTimeout: 10000       # 10 секунд
-      validationTimeout: 5000
-      connectionTimeout: 20000
-      maximumPoolSize: 5
