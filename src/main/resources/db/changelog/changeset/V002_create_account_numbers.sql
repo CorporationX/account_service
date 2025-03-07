@@ -13,7 +13,7 @@ CREATE TABLE if NOT EXISTS account_numbers_sequence (
    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO account_numbers_sequence (invoice_type, current_counter)
+INSERT INTO account_numbers_sequence (invoice_type)
 VALUES
       ('DEBIT'),
       ('CREDIT'),
