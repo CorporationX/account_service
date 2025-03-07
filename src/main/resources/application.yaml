@@ -26,3 +26,9 @@ server:
 logging:
   level:
     root: info
+
+retry:
+  maxAttempts: 3
+  backoff:
+    delay: 1000
+    multiplier: 2.0
