@@ -23,3 +23,8 @@ server:
 logging:
   level:
     root: info
+
+retry:
+  attempts: 3
+  delay: 1000
+  multiplier: 2

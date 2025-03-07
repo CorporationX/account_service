@@ -44,8 +44,10 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Retryable(
             retryFor = {OptimisticLockingFailureException.class},
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000, multiplier = 2)
+            maxAttemptsExpression = "${retry.attempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.delay}",
+                    multiplierExpression = "${retry.multiplier")
     )
     public void deactivate(Long id, AccountStatus accountStatus) {
         Account account = accountRepository.findById(id).orElseThrow(

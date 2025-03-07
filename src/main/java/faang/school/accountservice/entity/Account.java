@@ -47,6 +47,13 @@ public class Account {
     @Column(name = "balance", precision = 15, scale = 2, nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    /**
+     * Идентификатор владельца счета.
+     * Владелец счета - либо существующий юзер (из user_service), либо существующий проект (из project_service)
+     */
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
+
     /** Владелец счета */
     @Enumerated(EnumType.STRING)
     @Column(name = "owner", nullable = false)
