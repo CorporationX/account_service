@@ -5,8 +5,8 @@ import faang.school.accountservice.entity.AccountNumberSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.InvoiceType;
-import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
-import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import faang.school.accountservice.repository.AccountNumberSequenceRepository;
+import faang.school.accountservice.repository.FreeAccountNumberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,14 +29,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class FreeAccountNumbersServiceTest {
+class FreeAccountNumberServiceTest {
     @Mock
-    private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
+    private AccountNumberSequenceRepository accountNumberSequenceRepository;
     @Mock
-    private FreeAccountNumbersRepository freeAccountNumbersRepository;
+    private FreeAccountNumberRepository freeAccountNumberRepository;
 
     @InjectMocks
-    private FreeAccountNumbersService freeAccountNumbersService;
+    private FreeAccountNumberService freeAccountNumberService;
 
     private InvoiceType invoiceType;
     private String accountNumber;
@@ -68,76 +68,76 @@ class FreeAccountNumbersServiceTest {
                 .id(new FreeAccountNumberId(invoiceType, accountNumber))
                 .build();
 
-        freeAccountNumbersService.addFreeAccountNumber(invoiceType, accountNumber);
-        verify(freeAccountNumbersRepository).save(freeAccountNumber);
+        freeAccountNumberService.addFreeAccountNumber(invoiceType, accountNumber);
+        verify(freeAccountNumberRepository).save(freeAccountNumber);
     }
 
     @Test
     void testCreateCounterForAccountType_CounterExists() {
-        when(accountNumbersSequenceRepository.findByInvoiceType(invoiceType))
+        when(accountNumberSequenceRepository.findByInvoiceType(invoiceType))
                 .thenReturn(Optional.of(existingCounter));
 
-        AccountNumberSequence result = freeAccountNumbersService.createCounterForAccountType(invoiceType);
+        AccountNumberSequence result = freeAccountNumberService.createCounterForAccountType(invoiceType);
 
         assertNotNull(result);
         assertEquals(existingCounter, result);
-        verify(accountNumbersSequenceRepository, never()).save(any());
+        verify(accountNumberSequenceRepository, never()).save(any());
     }
 
     @Test
     void testCreateCounterForAccountType_CounterDoesNotExist() {
-        when(accountNumbersSequenceRepository.findByInvoiceType(invoiceType)).thenReturn(Optional.empty());
-        when(accountNumbersSequenceRepository.save(any())).thenAnswer(invoice -> invoice.getArgument(0));
+        when(accountNumberSequenceRepository.findByInvoiceType(invoiceType)).thenReturn(Optional.empty());
+        when(accountNumberSequenceRepository.save(any())).thenAnswer(invoice -> invoice.getArgument(0));
 
-        AccountNumberSequence result = freeAccountNumbersService.createCounterForAccountType(invoiceType);
+        AccountNumberSequence result = freeAccountNumberService.createCounterForAccountType(invoiceType);
 
         assertNotNull(result);
         assertEquals(invoiceType, result.getInvoiceType());
         assertEquals(0L, result.getCurrentCounter());
-        verify(accountNumbersSequenceRepository).save(any());
+        verify(accountNumberSequenceRepository).save(any());
     }
 
     @Test
     void testIncrementCounterIfMatches_True() {
-        when(accountNumbersSequenceRepository.incrementCounter(invoiceType.name(), expectedValue))
+        when(accountNumberSequenceRepository.incrementCounter(invoiceType.name(), expectedValue))
                 .thenReturn(Optional.of(expectedValue + 1));
 
-        boolean result = freeAccountNumbersService.incrementCounterIfMatches(invoiceType, expectedValue);
+        boolean result = freeAccountNumberService.incrementCounterIfMatches(invoiceType, expectedValue);
 
         assertTrue(result);
-        verify(accountNumbersSequenceRepository).incrementCounter(invoiceType.name(), expectedValue);
+        verify(accountNumberSequenceRepository).incrementCounter(invoiceType.name(), expectedValue);
     }
 
     @Test
     void testIncrementCounterIfMatches_False() {
-        when(accountNumbersSequenceRepository.incrementCounter(invoiceType.name(), expectedValue))
+        when(accountNumberSequenceRepository.incrementCounter(invoiceType.name(), expectedValue))
                 .thenReturn(Optional.empty());
 
-        boolean result = freeAccountNumbersService.incrementCounterIfMatches(invoiceType, expectedValue);
+        boolean result = freeAccountNumberService.incrementCounterIfMatches(invoiceType, expectedValue);
 
         assertFalse(result);
     }
 
     @Test
     void testExecuteWithNewAccountNumber_FreeAccountExists() {
-        when(freeAccountNumbersRepository.getAndDeleteFirstFreeAccountNumber(invoiceType.name()))
+        when(freeAccountNumberRepository.getAndDeleteFirstFreeAccountNumber(invoiceType.name()))
                 .thenReturn(Optional.of(freeAccountNumberId));
 
-        freeAccountNumbersService.executeWithNewAccountNumber(invoiceType, a -> assertEquals(accountNumber, a));
+        freeAccountNumberService.executeWithNewAccountNumber(invoiceType, a -> assertEquals(accountNumber, a));
     }
 
     @Test
     void testExecuteWithNewAccountNumber_NoFreeAccount() {
-        when(freeAccountNumbersRepository.getAndDeleteFirstFreeAccountNumber(invoiceType.name()))
+        when(freeAccountNumberRepository.getAndDeleteFirstFreeAccountNumber(invoiceType.name()))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(FreeAccountNumberId.builder()
                         .invoiceType(invoiceType)
                         .accountNumber("4040")
                         .build()));
-        when(accountNumbersSequenceRepository.findByInvoiceType(invoiceType))
+        when(accountNumberSequenceRepository.findByInvoiceType(invoiceType))
                 .thenReturn(Optional.of(existingCounter));
 
-        freeAccountNumbersService.executeWithNewAccountNumber(invoiceType, a -> assertEquals("4040", a));
-        verify(freeAccountNumbersRepository, times(2)).getAndDeleteFirstFreeAccountNumber(anyString());
+        freeAccountNumberService.executeWithNewAccountNumber(invoiceType, a -> assertEquals("4040", a));
+        verify(freeAccountNumberRepository, times(2)).getAndDeleteFirstFreeAccountNumber(anyString());
     }
 }

@@ -15,9 +15,9 @@ CREATE TABLE if NOT EXISTS account_numbers_sequence (
 
 INSERT INTO account_numbers_sequence (invoice_type, current_counter)
 VALUES
-      ('DEBIT', 1),
-      ('CREDIT', 1),
-      ('SAVINGS', 1),
-      ('MORTGAGE', 1),
-      ('CORPORATE', 1),
-      ('TRADING', 1);
+      ('DEBIT'),
+      ('CREDIT'),
+      ('SAVINGS'),
+      ('MORTGAGE'),
+      ('CORPORATE'),
+      ('TRADING');

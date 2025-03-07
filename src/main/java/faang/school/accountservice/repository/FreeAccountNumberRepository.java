@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountNumberId> {
+public interface FreeAccountNumberRepository extends JpaRepository<FreeAccountNumber, FreeAccountNumberId> {
 
     @Modifying
     @Transactional

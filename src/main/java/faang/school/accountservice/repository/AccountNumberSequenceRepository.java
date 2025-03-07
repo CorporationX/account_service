@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface AccountNumbersSequenceRepository extends JpaRepository<AccountNumberSequence, Long> {
+public interface AccountNumberSequenceRepository extends JpaRepository<AccountNumberSequence, Long> {
 
     Optional<AccountNumberSequence> findByInvoiceType(InvoiceType invoiceType);
 
