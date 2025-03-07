@@ -28,6 +28,7 @@ logging:
     root: info
 
 retry:
-  attempts: 3
-  delay: 1000
-  multiplier: 2
+  maxAttempts: 3
+  backoff:
+    delay: 1000
+    multiplier: 2.0
