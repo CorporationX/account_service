@@ -5,8 +5,12 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @Embeddable
+@NoArgsConstructor
 @AllArgsConstructor
 public class FreeAccountId {
     @Column(name = "type", nullable = false, length = 16)

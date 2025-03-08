@@ -28,12 +28,16 @@ public class FreeAccountNumberService {
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
         long accountPattern = 0L;
+        log.info("Generating account numbers for type: {}", type);
         switch (type) {
             case DEBIT -> accountPattern = DEBIT_ACCOUNT_PATTERN;
             case CREDIT -> accountPattern = CREDIT_ACCOUNT_PATTERN;
             default -> throw new RuntimeException(String.format("Unknown type %s ", type.name()));
         }
         AccountSeq period = accountSeqRepository.incrementCounter(type.name(), batchSize);
+        if (period == null) {
+            throw new RuntimeException(String.format("No sequence found for type: %s ", type));
+        }
         if (period.getCounter() >= MAX_ACCOUNT_PATTERN) {
             throw new RuntimeException("The maximum account number has been reached");
         }

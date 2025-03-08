@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.entity.AccountSeq;
 import faang.school.accountservice.entity.AccountType;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.repository.AccountSeqRepository;
@@ -9,15 +10,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.concurrent.atomic.AtomicReference;
-
+import java.util.function.Consumer;
+import static faang.school.accountservice.entity.AccountType.CREDIT;
+import static faang.school.accountservice.entity.AccountType.DEBIT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional
 public class FreeAccountNumberServiceIntegrationTest {
 
     @Autowired
@@ -33,50 +33,97 @@ public class FreeAccountNumberServiceIntegrationTest {
     void setUp() {
         freeAccountRepository.deleteAll();
         accountSeqRepository.deleteAll();
+
+        AccountSeq initialSeq = new AccountSeq();
+        initialSeq.setType(DEBIT);
+        initialSeq.setCounter(0);
+        accountSeqRepository.save(initialSeq);
+
+        initialSeq = new AccountSeq();
+        initialSeq.setType(CREDIT);
+        initialSeq.setCounter(0);
+        accountSeqRepository.save(initialSeq);
     }
 
     @Test
-    void testGenerateAccountNumbersDebitSuccessful() {
-        freeAccountNumberService.generateAccountNumbers(AccountType.DEBIT, 10);
-
+    void testGenerateDebitAccountNumbersSuccessful() {
+        freeAccountNumberService.generateAccountNumbers(DEBIT, 10);
         var accountNumbers = freeAccountRepository.findAll();
         assertEquals(10, accountNumbers.size());
-        /* accountNumbers.forEach(accountNumber -> {
+        accountNumbers.forEach(accountNumber -> {
             assertEquals(AccountType.DEBIT, accountNumber.getId().getType());
             assertTrue(accountNumber.getId().getAccountNumber() >= 4200_0000_0000_0000L);
             assertTrue(accountNumber.getId().getAccountNumber() < 4200_0000_0000_0010L);
-        }); */
-    }
-
-    @Test
-    void testGenerateAccountNumbersCreditSuccessful() {
-        freeAccountNumberService.generateAccountNumbers(AccountType.CREDIT, 5);
-
-        var accountNumbers = freeAccountRepository.findAll();
-        assertEquals(5, accountNumbers.size());
-        /*accountNumbers.forEach(accountNumber -> {
-            assertEquals(AccountType.CREDIT, accountNumber.getId().getType());
-            assertTrue(accountNumber.getId().getAccountNumber() >= 5236_0000_0000_0000L);
-            assertTrue(accountNumber.getId().getAccountNumber() < 5236_0000_0000_0005L);
-        });*/
-    }
-
-    @Test
-    void testGenerateAccountNumbersMaxLimitReached() {
-        assertThrows(RuntimeException.class, () -> {
-            freeAccountNumberService.generateAccountNumbers(AccountType.DEBIT, Integer.MAX_VALUE);
         });
     }
 
     @Test
-    void testRetrieveAccountNumberSuccessful() {
-        freeAccountNumberService.generateAccountNumbers(AccountType.DEBIT, 1);
+    void testGenerateCreditAccountNumbersSuccessful() {
+        freeAccountNumberService.generateAccountNumbers(AccountType.CREDIT, 5);
 
-        AtomicReference<FreeAccountNumber> retrievedAccountNumber = new AtomicReference<>();
-        freeAccountNumberService.retrieveAccountNumber(AccountType.DEBIT, retrievedAccountNumber::set);
+        var accountNumbers = freeAccountRepository.findAll();
+        assertEquals(5, accountNumbers.size());
+        accountNumbers.forEach(accountNumber -> {
+            assertEquals(AccountType.CREDIT, accountNumber.getId().getType());
+            assertTrue(accountNumber.getId().getAccountNumber() >= 5236_0000_0000_0000L);
+            assertTrue(accountNumber.getId().getAccountNumber() < 5236_0000_0000_0005L);
+        });
+    }
 
-        assertNotNull(retrievedAccountNumber.get());
-        //assertEquals(AccountType.DEBIT, retrievedAccountNumber.get().getId().getType());
-        //assertEquals(4200_0000_0000_0000L, retrievedAccountNumber.get().getId().getAccountNumber());
+    @Test
+    void testRetrieveDebitAccountNumberSuccessful() {
+        freeAccountNumberService.generateAccountNumbers(DEBIT, 5);
+        AtomicReference<FreeAccountNumber> result = new AtomicReference<>();
+        Consumer<FreeAccountNumber> numberConsumer = result::set;
+
+        freeAccountNumberService.retrieveAccountNumber(DEBIT, numberConsumer);
+
+        FreeAccountNumber retrievedAccountNumber = result.get();
+        assertNotNull(retrievedAccountNumber, "Retrieved account number should not be null");
+        assertEquals(DEBIT, retrievedAccountNumber.getId().getType());
+        assertEquals(4200_0000_0000_0000L, retrievedAccountNumber.getId().getAccountNumber(),
+                "Retrieved account number should match the test data");
+    }
+
+    @Test
+    void testRetrieveCreditAccountNumberSuccessful() {
+        freeAccountNumberService.generateAccountNumbers(CREDIT, 5);
+        AtomicReference<FreeAccountNumber> result = new AtomicReference<>();
+        Consumer<FreeAccountNumber> numberConsumer = result::set;
+
+        freeAccountNumberService.retrieveAccountNumber(CREDIT, numberConsumer);
+
+        FreeAccountNumber retrievedAccountNumber = result.get();
+        assertNotNull(retrievedAccountNumber, "Retrieved account number should not be null");
+        assertEquals(CREDIT, retrievedAccountNumber.getId().getType());
+        assertEquals(5236_0000_0000_0000L, retrievedAccountNumber.getId().getAccountNumber(),
+                "Retrieved account number should match the test data");
+    }
+
+    @Test
+    void testGenerateAccountNumbersForUnknownTypeException() {
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            freeAccountNumberService.generateAccountNumbers(AccountType.valueOf("UNKNOWN"), 10);
+        });
+
+        String expectedMessage = "No enum constant faang.school.accountservice.entity.AccountType.UNKNOWN";
+        String actualMessage = exception.getMessage();
+        assertEquals(actualMessage, expectedMessage);
+    }
+
+    @Test
+    void testGenerateAccountNumbers_MaxAccountNumberReached() {
+        AccountSeq accountSeq = new AccountSeq();
+        accountSeq.setType(DEBIT);
+        accountSeq.setCounter(1_0000_0000_0000L);
+        accountSeqRepository.save(accountSeq);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            freeAccountNumberService.generateAccountNumbers(DEBIT, 10);
+        });
+
+        String expectedMessage = "The maximum account number has been reached";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }

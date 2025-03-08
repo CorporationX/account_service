@@ -3,7 +3,6 @@ package faang.school.accountservice.repository;
 import faang.school.accountservice.entity.FreeAccountId;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +20,5 @@ public interface FreeAccountRepository extends JpaRepository<FreeAccountNumber, 
                 )
                 RETURNING fan.account_number, fan.type
                 """)
-    @Modifying
     FreeAccountNumber retrieveFirst(String type);
 }
