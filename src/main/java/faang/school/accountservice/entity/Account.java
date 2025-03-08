@@ -1,9 +1,9 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.enums.AccountStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +46,10 @@ public class Account {
     /** Баланс счета */
     @Builder.Default
     @Column(name = "balance", precision = 15, scale = 2, nullable = false)
-    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal accountBalance = BigDecimal.ZERO;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     /** Владелец счета */
     @Enumerated(EnumType.STRING)
@@ -53,6 +57,7 @@ public class Account {
     private OwnerType ownerType;
 
     /** Тип счета */
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private AccountType accountType;
 
