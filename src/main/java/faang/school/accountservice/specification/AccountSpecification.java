@@ -1,6 +1,7 @@
 package faang.school.accountservice.specification;
 
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountOwnerType;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +19,12 @@ public class AccountSpecification {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("ownerId"), ownerId);
     }
+
+    public static Specification<Account> hasOwnerType(AccountOwnerType type) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ownerType"), type);
+    }
+
 
     public static Specification<Account> hasType(AccountType type) {
         return (root, query, criteriaBuilder) ->

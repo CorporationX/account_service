@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface AccountService {
-    Account createAccount(AccountDto accountDto);
+    AccountDto createAccount(AccountDto accountDto);
 
-    Account blockAccount(Long id);
+    AccountDto blockAccount(Long id);
 
-    Account closeAccount(Long id);
+    AccountDto closeAccount(Long id);
 
     List<AccountDto> getAccountsWithFilters(AccountFilterDto accountFilterDto);
 }

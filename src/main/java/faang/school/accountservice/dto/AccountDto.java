@@ -6,6 +6,7 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigInteger;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 @Validated
 @Getter
+@Setter
 public class AccountDto {
     private Long id;
 
