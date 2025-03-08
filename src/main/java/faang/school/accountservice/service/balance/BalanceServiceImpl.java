@@ -54,9 +54,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier"))
     @Transactional
     public BalanceResponseDto topUpBalance(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);

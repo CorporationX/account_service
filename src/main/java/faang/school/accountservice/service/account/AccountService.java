@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;

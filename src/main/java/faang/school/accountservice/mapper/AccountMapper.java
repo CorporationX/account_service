@@ -12,7 +12,7 @@ public interface AccountMapper {
 
     AccountResponseDto toAccountResponseDto(Account account);
 
-    @Mapping(target = "balance", constant = "0.00")
+    @Mapping(target = "accountBalance", constant = "0.00")
     @Mapping(target = "accountStatus", constant = "ACTIVE")
     Account toAccountEntity(AccountRequestDto accountRequestDto);
 }

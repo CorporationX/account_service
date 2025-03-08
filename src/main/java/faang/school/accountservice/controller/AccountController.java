@@ -3,7 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package faang.school.accountservice.service.impl;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
@@ -7,7 +7,6 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountNumberGenerator;
-import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -44,10 +43,10 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Retryable(
             retryFor = {OptimisticLockingFailureException.class},
-            maxAttemptsExpression = "${retry.attempts}",
+            maxAttemptsExpression = "${retry.maxAttempts}",
             backoff = @Backoff(
-                    delayExpression = "${retry.delay}",
-                    multiplierExpression = "${retry.multiplier")
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier")
     )
     public void deactivate(Long id, AccountStatus accountStatus) {
         Account account = accountRepository.findById(id).orElseThrow(
