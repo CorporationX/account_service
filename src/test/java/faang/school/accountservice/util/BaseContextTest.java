@@ -3,6 +3,7 @@ package faang.school.accountservice.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
 import faang.school.accountservice.AccountServiceApplication;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,7 +57,11 @@ public class BaseContextTest {
         registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
 
-        registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
-        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.data.redis.port", REDIS_CONTAINER::getRedisPort);
+        registry.add("spring.data.redis.host", REDIS_CONTAINER::getRedisHost);
+    }
+
+    @Test
+    void contextLoads() {
     }
 }

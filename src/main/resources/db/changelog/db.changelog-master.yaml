@@ -2,4 +2,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account_initial.sql
   - include:
-      file: db/changelog/changeset/V002__init_cashback.sql
+      file: db/changelog/changeset/V002__create_account_numbers.sql
+  - include:
+      file: db/changelog/changeset/V003__init_cashback.sql
