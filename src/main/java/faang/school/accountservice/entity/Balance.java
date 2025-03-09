@@ -35,10 +35,10 @@ public class Balance {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "authorized_balance", precision = 15, scale = 2)
+    @Column(name = "authorized_balance", precision = 15, scale = 2, nullable = false)
     private BigDecimal authorizedBalance;
 
-    @Column(name = "actual_balance", precision = 15, scale = 2)
+    @Column(name = "actual_balance", precision = 15, scale = 2, nullable = false)
     private BigDecimal actualBalance;
 
     @CreationTimestamp

@@ -38,7 +38,6 @@ public class BalanceService {
     public BalanceReadDto increaseBalance(long balanceId, @Positive BigDecimal amount) {
         Balance balance = getBalance(balanceId);
         balance.setActualBalance(balance.getActualBalance().add(amount));
-        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -49,7 +48,6 @@ public class BalanceService {
             throw new BusinessException("Невозможно списать средства превышающие текущий баланс");
         }
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
-        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -61,7 +59,6 @@ public class BalanceService {
         }
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
-        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -72,7 +69,6 @@ public class BalanceService {
             throw new BusinessException("Невозможно освободить больше средств, чем зарезервировано");
         }
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(amount));
-        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
@@ -81,12 +77,10 @@ public class BalanceService {
         Balance balance = getBalance(balanceId);
         balance.setActualBalance(balance.getActualBalance().add(balance.getAuthorizedBalance()));
         balance.setAuthorizedBalance(BigDecimal.ZERO);
-        balance = balanceRepository.save(balance);
         return balanceMapper.toDto(balance);
     }
 
-    @Transactional
-    public Balance getBalance(long balanceId) {
+    private Balance getBalance(long balanceId) {
         return balanceRepository.getReferenceById(balanceId);
     }
 }

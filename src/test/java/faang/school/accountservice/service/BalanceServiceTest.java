@@ -54,7 +54,6 @@ public class BalanceServiceTest {
     @Test
     public void testIncreaseBalanceSuccessCase() {
         Mockito.when(balanceRepository.getReferenceById(1L)).thenReturn(balance);
-        Mockito.when(balanceRepository.save(balance)).thenReturn(balance);
 
         BigDecimal resultActualBalance = balanceService.increaseBalance(1L, BigDecimal.valueOf(100))
                 .getActualBalance();
@@ -66,7 +65,6 @@ public class BalanceServiceTest {
     @Test
     public void testDecreaseBalanceSuccessCase() {
         Mockito.when(balanceRepository.getReferenceById(1L)).thenReturn(balance);
-        Mockito.when(balanceRepository.save(balance)).thenReturn(balance);
 
         BigDecimal resultActualBalance = balanceService.decreaseBalance(1L, BigDecimal.valueOf(100))
                 .getActualBalance();
@@ -86,7 +84,6 @@ public class BalanceServiceTest {
     @Test
     public void testReserveBalanceSuccessCase() {
         Mockito.when(balanceRepository.getReferenceById(1L)).thenReturn(balance);
-        Mockito.when(balanceRepository.save(balance)).thenReturn(balance);
 
         BalanceReadDto readDto = balanceService.reserveBalance(1L, BigDecimal.valueOf(100));
         BigDecimal resultActualBalance = readDto.getActualBalance();
@@ -110,7 +107,6 @@ public class BalanceServiceTest {
     @Test
     public void testReleaseReservedBalanceSuccessCase() {
         Mockito.when(balanceRepository.getReferenceById(1L)).thenReturn(balance);
-        Mockito.when(balanceRepository.save(balance)).thenReturn(balance);
 
         BigDecimal resultAuthorizedBalance = balanceService.releaseReservedBalance(1L, BigDecimal.valueOf(50))
                 .getAuthorizedBalance();
@@ -130,7 +126,6 @@ public class BalanceServiceTest {
     @Test
     public void testCancelBalanceReservation() {
         Mockito.when(balanceRepository.getReferenceById(1L)).thenReturn(balance);
-        Mockito.when(balanceRepository.save(balance)).thenReturn(balance);
 
         BalanceReadDto readDto = balanceService.cancelBalanceReservation(1L);
         BigDecimal resultActualBalance = readDto.getActualBalance();

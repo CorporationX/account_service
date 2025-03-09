@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Getter
 public class BalanceReadDto {
     private long id;
-    private long account_id;
+    private long accountId;
     private BigDecimal authorizedBalance;
     private BigDecimal actualBalance;
 }
