@@ -18,16 +18,16 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/account")
+@RequestMapping("/api/v1/accounts")
 @Slf4j
 public class AccountController {
     private final AccountService accountService;
     private final AccountValidator accountValidator;
 
-    @PostMapping("/open")
+    @PostMapping()
     public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
         accountValidator.validateAccountOwner(accountDto);
-        return ResponseEntity.ok(accountService.createAccount(accountDto));
+        return ResponseEntity.ok(accountService.createAccount(accountDto));//create status 201
     }
 
     @PutMapping("/{id}/block")
