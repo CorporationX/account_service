@@ -1,6 +1,6 @@
 package faang.school.accountservice.exception;
 
-import jakarta.persistence.EntityNotFoundException;
+import faang.school.accountservice.exception.non_retryable.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
