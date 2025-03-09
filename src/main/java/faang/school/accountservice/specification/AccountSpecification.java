@@ -25,7 +25,6 @@ public class AccountSpecification {
                 criteriaBuilder.equal(root.get("ownerType"), type);
     }
 
-
     public static Specification<Account> hasType(AccountType type) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("type"), type);
@@ -35,4 +34,5 @@ public class AccountSpecification {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("accountStatus"), accountStatus);
     }
+
 }
