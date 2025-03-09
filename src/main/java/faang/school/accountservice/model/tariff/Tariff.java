@@ -41,6 +41,6 @@ public class Tariff {
     private List<BigDecimal> rateHistory;
 
     public BigDecimal getActualRate() {
-        return rateHistory.get(rateHistory.size()-1);
+        return rateHistory.get(rateHistory.size() - 1);
     }
 }

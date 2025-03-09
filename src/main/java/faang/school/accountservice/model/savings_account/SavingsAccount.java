@@ -64,6 +64,6 @@ public class SavingsAccount {
     private int version;
 
     public Long getActualTariffId() {
-        return tariffHistoryIds.get(tariffHistoryIds.size()-1);
+        return tariffHistoryIds.get(tariffHistoryIds.size() - 1);
     }
 }

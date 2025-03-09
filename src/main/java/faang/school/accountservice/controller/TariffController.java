@@ -37,7 +37,7 @@ public class TariffController {
     }
 
     @GetMapping("/rate/{tariffId}")
-    public BigDecimal getActualRate(@Valid @NotNull @Positive @PathVariable Long tariffId){
+    public BigDecimal getActualRate(@Valid @NotNull @Positive @PathVariable Long tariffId) {
         return tariffService.getActualRate(tariffId);
     }
 

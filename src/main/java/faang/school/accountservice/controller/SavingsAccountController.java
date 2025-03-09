@@ -24,13 +24,13 @@ public class SavingsAccountController {
     private final SavingsAccountService savingsAccountService;
 
     @PostMapping
-    public SavingsAccountDto createSavingsAccount(@Valid @RequestBody CreateSavingsAccountRequest createSavingsAccountRequest) {
-        return savingsAccountService.create(createSavingsAccountRequest);
+    public SavingsAccountDto createSavingsAccount(@Valid @RequestBody CreateSavingsAccountRequest request) {
+        return savingsAccountService.create(request);
     }
 
     @PatchMapping("/tariff")
-    public SavingsAccountDto addTariffAccount(@Valid @RequestBody UpdateTariffSavingsAccountRequest updateTariffSavingsAccountRequest){
-        return savingsAccountService.addTariff(updateTariffSavingsAccountRequest);
+    public SavingsAccountDto addTariffAccount(@Valid @RequestBody UpdateTariffSavingsAccountRequest request) {
+        return savingsAccountService.addTariff(request);
     }
 
     @GetMapping("/{id}")

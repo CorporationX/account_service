@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 public class ThreadConfig {
 
     @Bean
-    public ExecutorService interestCalculationPool(){
+    public ExecutorService interestCalculationPool() {
         return Executors.newFixedThreadPool(5);
     }
 }
