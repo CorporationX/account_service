@@ -3,15 +3,7 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.InvoiceType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -68,4 +60,7 @@ public class Account {
 
     @Version
     private int version;
+
+    @OneToOne(mappedBy = "account")
+    private SavingsAccount savingsAccount;
 }
