@@ -12,37 +12,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FreeAccountNumberService {
-    private static final long MAX_ACCOUNT_PATTERN = 1_0000_0000_0000L;
-    private static final long DEBIT_ACCOUNT_PATTERN = 4200_0000_0000_0000L;
-    private static final long CREDIT_ACCOUNT_PATTERN = 5236_0000_0000_0000L;
+    private static final long MAX_ACCOUNT_COUNTER = 1_0000_0000_0000L;
     private final AccountSeqRepository accountSeqRepository;
     private final FreeAccountRepository freeAccountRepository;
+    private final Map<AccountType, Long> accountTypes = new HashMap<>();
+
+    public void addAccountType(AccountType type, Long pattern) {
+        accountTypes.put(type, pattern);
+    }
 
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
-        long accountPattern = 0L;
         log.info("Generating account numbers for type: {}", type);
-        switch (type) {
-            case DEBIT -> accountPattern = DEBIT_ACCOUNT_PATTERN;
-            case CREDIT -> accountPattern = CREDIT_ACCOUNT_PATTERN;
-            default -> throw new RuntimeException(String.format("Unknown type %s ", type.name()));
+        Long accountPattern = accountTypes.get(type);
+        if (accountPattern == null) {
+            throw new RuntimeException(String.format("Unknown type %s ", type.name()));
         }
-        AccountSeq period = accountSeqRepository.incrementCounter(type.name(), batchSize);
-        if (period == null) {
-            throw new RuntimeException(String.format("No sequence found for type: %s ", type));
-        }
-        if (period.getCounter() >= MAX_ACCOUNT_PATTERN) {
+        AccountSeq sequence = accountSeqRepository.incrementCounter(type.name(), batchSize);
+        if (sequence.getCounter() >= MAX_ACCOUNT_COUNTER) {
             throw new RuntimeException("The maximum account number has been reached");
         }
         List<FreeAccountNumber> numbers = new ArrayList<>();
-        for (long i = period.getInitialValue(); i < period.getCounter(); i++) {
+        for (long i = sequence.getInitialValue(); i < sequence.getCounter(); i++) {
             numbers.add(new FreeAccountNumber(new FreeAccountId(type, accountPattern + i)));
         }
         freeAccountRepository.saveAll(numbers);

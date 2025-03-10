@@ -29,12 +29,18 @@ public class FreeAccountNumberServiceIntegrationTest {
     @Autowired
     private AccountSeqRepository accountSeqRepository;
 
+    private static final long DEBIT_ACCOUNT_PATTERN = 4200_0000_0000_0000L;
+    private static final long CREDIT_ACCOUNT_PATTERN = 5236_0000_0000_0000L;
+
     @BeforeEach
     void setUp() {
         freeAccountRepository.deleteAll();
         accountSeqRepository.deleteAll();
 
-        AccountSeq initialSeq = new AccountSeq();
+        freeAccountNumberService.addAccountType(DEBIT, DEBIT_ACCOUNT_PATTERN);
+        freeAccountNumberService.addAccountType(CREDIT, CREDIT_ACCOUNT_PATTERN);
+
+        /* AccountSeq initialSeq = new AccountSeq();
         initialSeq.setType(DEBIT);
         initialSeq.setCounter(0);
         accountSeqRepository.save(initialSeq);
@@ -42,7 +48,7 @@ public class FreeAccountNumberServiceIntegrationTest {
         initialSeq = new AccountSeq();
         initialSeq.setType(CREDIT);
         initialSeq.setCounter(0);
-        accountSeqRepository.save(initialSeq);
+        accountSeqRepository.save(initialSeq);*/
     }
 
     @Test
