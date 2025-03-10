@@ -38,4 +38,5 @@ public class AccountController {
     public AccountReadDto closeInvoice(@PathVariable String invoice) {
         return accountService.closeInvoice(invoice);
     }
+
 }
