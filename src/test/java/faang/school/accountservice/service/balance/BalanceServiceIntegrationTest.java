@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -28,8 +29,7 @@ public class BalanceServiceIntegrationTest {
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:13")
             .withDatabaseName("testdb")
             .withUsername("testuser")
-            .withPassword("testpass")
-            .withInitScript("initDB.sql");
+            .withPassword("testpass");
 
     @Autowired
     private BalanceService balanceService;
@@ -44,6 +44,8 @@ public class BalanceServiceIntegrationTest {
     }
 
     @Test
+    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql("/initDB.sql")
     @DisplayName("Test scenario 1")
     public void testScenario1() {
         BalanceResponseDto resultBalance;
@@ -104,6 +106,8 @@ public class BalanceServiceIntegrationTest {
     }
 
     @Test
+    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql("/initDB.sql")
     @DisplayName("Test optimistic lock")
     public void testOptimisticLock() {
         Balance balance1 = balanceRepository.findById(1L)
