@@ -22,7 +22,4 @@ public class AccountSeq {
 
     @Column(name = "counter", nullable = false)
     private long counter;
-
-    @Transient
-    private long initialValue;
 }

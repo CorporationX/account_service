@@ -35,14 +35,14 @@ public class FreeAccountNumberService {
         log.info("Generating account numbers for type: {}", type);
         Long accountPattern = accountTypes.get(type);
         if (accountPattern == null) {
-            throw new RuntimeException(String.format("Unknown type %s ", type.name()));
+            throw new RuntimeException(String.format("Unknown type %s", type.name()));
         }
         AccountSeq sequence = accountSeqRepository.incrementCounter(type.name(), batchSize);
         if (sequence.getCounter() >= MAX_ACCOUNT_COUNTER) {
             throw new RuntimeException("The maximum account number has been reached");
         }
         List<FreeAccountNumber> numbers = new ArrayList<>();
-        for (long i = sequence.getInitialValue(); i < sequence.getCounter(); i++) {
+        for (long i = (sequence.getCounter() - batchSize); i < sequence.getCounter(); i++) {
             numbers.add(new FreeAccountNumber(new FreeAccountId(type, accountPattern + i)));
         }
         freeAccountRepository.saveAll(numbers);

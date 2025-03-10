@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import static faang.school.accountservice.entity.AccountType.CREDIT;
 import static faang.school.accountservice.entity.AccountType.DEBIT;
+import static faang.school.accountservice.entity.AccountType.FOR_TEST;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -40,15 +41,10 @@ public class FreeAccountNumberServiceIntegrationTest {
         freeAccountNumberService.addAccountType(DEBIT, DEBIT_ACCOUNT_PATTERN);
         freeAccountNumberService.addAccountType(CREDIT, CREDIT_ACCOUNT_PATTERN);
 
-        /* AccountSeq initialSeq = new AccountSeq();
+        AccountSeq initialSeq = new AccountSeq();
         initialSeq.setType(DEBIT);
         initialSeq.setCounter(0);
         accountSeqRepository.save(initialSeq);
-
-        initialSeq = new AccountSeq();
-        initialSeq.setType(CREDIT);
-        initialSeq.setCounter(0);
-        accountSeqRepository.save(initialSeq);*/
     }
 
     @Test
@@ -131,5 +127,16 @@ public class FreeAccountNumberServiceIntegrationTest {
         String expectedMessage = "The maximum account number has been reached";
         String actualMessage = exception.getMessage();
         assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void testGenerateAccountNumbersForNotAddedTypeException() {
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            freeAccountNumberService.generateAccountNumbers(FOR_TEST, 10);
+        });
+
+        String expectedMessage = "Unknown type FOR_TEST";
+        String actualMessage = exception.getMessage();
+        assertEquals(actualMessage, expectedMessage);
     }
 }

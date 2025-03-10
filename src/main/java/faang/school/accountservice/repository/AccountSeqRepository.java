@@ -21,50 +21,12 @@ public interface AccountSeqRepository extends JpaRepository<AccountSeq, String> 
         WHERE NOT EXISTS (SELECT 1 FROM updated)
         RETURNING type, counter
         )
-    SELECT type, counter, (counter - :batchSize) AS initialValue
+    SELECT type, counter
     FROM updated
     UNION ALL
-    SELECT type, counter, (counter - :batchSize) AS initialValue
+    SELECT type, counter
     FROM inserted;
     """)
     AccountSeq incrementCounter(@Param("type") String type, @Param("batchSize") int batchSize);
-/*
-@Query(nativeQuery = true, value = """
-    WITH updated AS (
-        UPDATE account_number_sequence
-        SET counter = counter + :batchSize
-        WHERE type = :type
-        RETURNING type, counter
-    ),
-    inserted AS (
-        INSERT INTO account_number_sequence (type, counter)
-        SELECT :type, :batchSize
-        WHERE NOT EXISTS (SELECT 1 FROM updated)
-        RETURNING type, counter
-    )
-    SELECT type, counter
-    FROM updated
-    UNION ALL
-    SELECT type, counter
-    FROM inserted;
-    """)
- */
-    /*
-    @Query(nativeQuery = true, value = """
-    WITH updated AS (
-        UPDATE account_number_sequence
-        SET counter = counter + :batchSize
-        WHERE type = :type
-        RETURNING type, counter
-    )
-    SELECT type, counter
-    FROM updated
-    WHERE EXISTS (SELECT 1 FROM updated)
-    UNION ALL
-    SELECT :type, 0
-    WHERE NOT EXISTS (SELECT 1 FROM updated)
-    AND :throwErrorIfNotFound = true;
-    """)
-     */
 }
 

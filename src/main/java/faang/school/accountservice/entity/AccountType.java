@@ -2,5 +2,6 @@ package faang.school.accountservice.entity;
 
 public enum AccountType {
     CREDIT,
-    DEBIT;
+    DEBIT,
+    FOR_TEST
 }
