@@ -7,13 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 public interface AccountSeqRepository extends CrudRepository<AccountSeq, String> {
-    @Query(nativeQuery = true, value = """
-                        UPDATE account_number_sequence SET counter = counter + :batchSize
-                        WHERE type = :type
-            """)
-    @Modifying
-    void incrementCounter(String type, int batchSize);
-
     AccountSeq findByType(AccountType type);
 
     @Query(value = "SELECT nextval('account_number_seq')", nativeQuery = true)

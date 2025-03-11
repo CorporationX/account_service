@@ -35,34 +35,41 @@ public class FreeAccountNumberService {
             AccountType.TRUST, 5100_0000_0000_0000L
     );
 
+    private static final int DEFAULT_BATCH_SIZE = 10; // Количество номеров для генерации при нехватке
+
     private final AccountSeqRepository accountSeqRepository;
     private final FreeAccountRepository freeAccountRepository;
 
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
-        try {
-            if (!ACCOUNT_PREFIXES.containsKey(type)) {
-                throw new InvalidAccountTypeException("Неопознанный тип счета: " + type);
-            }
-            long prefix = ACCOUNT_PREFIXES.get(type);
-            List<FreeAccountNumber> numbers = new ArrayList<>();
-            for (long i = 0; i < batchSize; i++) {
-                Long counterValue = accountSeqRepository.getNextCounterValue();
-                long accountNumber = prefix + counterValue;
-                numbers.add(new FreeAccountNumber(new FreeAccountId(type, accountNumber)));
-            }
-            freeAccountRepository.saveAll(numbers);
-        } catch (InvalidAccountTypeException e) {
-            log.error("Ошибка генерации номера счета: {}", e.getMessage(), e);
+        if (!ACCOUNT_PREFIXES.containsKey(type)) {
+            throw new InvalidAccountTypeException("Неопознанный тип счета: " + type);
         }
+        long prefix = ACCOUNT_PREFIXES.get(type);
+        List<FreeAccountNumber> numbers = new ArrayList<>();
+        for (long i = 0; i < batchSize; i++) {
+            Long counterValue = accountSeqRepository.getNextCounterValue();
+            long accountNumber = prefix + counterValue;
+            numbers.add(new FreeAccountNumber(new FreeAccountId(type, accountNumber)));
+        }
+        freeAccountRepository.saveAll(numbers);
+        log.info("Сгенерировано {} новых номеров для типа счета {}", batchSize, type);
     }
 
     @Transactional
     public void retrieveFreeAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
         FreeAccountNumber freeAccountNumber = freeAccountRepository.findFirst(accountType.name());
+
         if (freeAccountNumber == null) {
-            throw new NoFreeAccountNumbersException("Нет доступных свободных номеров для типа счета: " + accountType);
+            log.warn("Нет доступных свободных номеров для типа счета: {}. Запускаем генерацию...", accountType);
+            generateAccountNumbers(accountType, DEFAULT_BATCH_SIZE);
+            freeAccountNumber = freeAccountRepository.findFirst(accountType.name());
+
+            if (freeAccountNumber == null) {
+                throw new NoFreeAccountNumbersException("Ошибка: после генерации номеров они не появились.");
+            }
         }
+
         freeAccountRepository.deleteByAccountTypeAndAccountNumber(accountType.name(),
                 freeAccountNumber.getId().getAccountNumber());
 
