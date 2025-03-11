@@ -28,3 +28,6 @@ user-service:
 logging:
   level:
     root: info
+
+config:
+  schedule-daily-interest-accrual-cron: "0 0 1 * * *"

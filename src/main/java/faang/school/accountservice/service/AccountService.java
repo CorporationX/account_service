@@ -25,8 +25,12 @@ public class AccountService {
     private final AccountMapper mapper;
 
     @Transactional(readOnly = true)
+    public Account getAccountById(@Positive @NotNull Long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account with id " + accountId + " not found"));
+  
     public AccountResponse getDtoById(Long id) {
-        return mapper.toDto(findById(id));
+        return mapper.toDto(getAccountById(id));
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +63,7 @@ public class AccountService {
 
     @Transactional
     public void block(Long id) {
-        Account account = findById(id);
+        Account account = getAccountById(id);
         account.setStatus(AccountStatus.FROZEN);
         account.setUpdatedAt(LocalDateTime.now());
         accountRepository.save(account);
@@ -67,15 +71,10 @@ public class AccountService {
 
     @Transactional
     public void close(Long id) {
-        Account account = findById(id);
+        Account account = getAccountById(id);
         account.setStatus(AccountStatus.CLOSED);
         account.setUpdatedAt(LocalDateTime.now());
         account.setClosedAt(LocalDateTime.now());
         accountRepository.save(account);
-    }
-
-    private Account findById(Long id) {
-        return accountRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account with id " + id + " not found"));
     }
 }
