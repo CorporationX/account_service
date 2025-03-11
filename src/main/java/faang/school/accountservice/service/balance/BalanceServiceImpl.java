@@ -43,9 +43,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto updateBalance(Long balanceId, BigDecimal authorizedBalance, BigDecimal actualBalance) {
         log.info("Updating balance {}", balanceId);
@@ -54,9 +55,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto topUpBalance(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -68,9 +70,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto writeOffFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -82,9 +85,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto holdFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -103,9 +107,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto releaseFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -124,9 +129,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto writeOffHeldFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -144,9 +150,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public boolean hasSufficientFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
@@ -155,9 +162,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Retryable(retryFor = {OptimisticLockException.class},
-            maxAttemptsExpression = "#{@maxAttempts}",
-            backoff = @Backoff(delayExpression = "#{@backoffDelay}",
-                    multiplierExpression = "#{@backoffMultiplier}"))
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
     public BalanceResponseDto resetBalance(Long balanceId) {
         Balance balance = getBalanceById(balanceId);
