@@ -7,6 +7,9 @@ import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.account.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.utils.NumberGenerator;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +31,8 @@ public class AccountService {
     public Account getAccountById(@Positive @NotNull Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account with id " + accountId + " not found"));
-  
+    }
+
     public AccountResponse getDtoById(Long id) {
         return mapper.toDto(getAccountById(id));
     }
