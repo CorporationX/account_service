@@ -1,0 +1,2 @@
+ALTER TABLE account
+    ALTER COLUMN version SET DEFAULT 0;
