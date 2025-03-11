@@ -20,6 +20,11 @@ spring:
 server:
   port: 8090
 
+user-service:
+  host: localhost
+  port: 8080
+  api-prefix: api/v1
+
 logging:
   level:
     root: info
