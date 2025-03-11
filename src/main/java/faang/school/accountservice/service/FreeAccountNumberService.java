@@ -9,6 +9,7 @@ import faang.school.accountservice.model.account.enums.AccountType;
 import faang.school.accountservice.repository.AccountSeqRepository;
 import faang.school.accountservice.repository.FreeAccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FreeAccountNumberService {
     private static final Map<AccountType, Long> ACCOUNT_PREFIXES = Map.of(
             AccountType.CURRENT_INDIVIDUAL, 4200_0000_0000_0000L,
@@ -39,18 +41,19 @@ public class FreeAccountNumberService {
     @Transactional
     public void generateAccountNumbers(AccountType type, int batchSize) {
         try {
-            long prefix = ACCOUNT_PREFIXES.getOrDefault(type, 0L);
-            if (prefix == 0L) {
-                throw new InvalidAccountTypeException("Неопознанный тип счета" + type);
+            if (!ACCOUNT_PREFIXES.containsKey(type)) {
+                throw new InvalidAccountTypeException("Неопознанный тип счета: " + type);
             }
-            accountSeqRepository.incrementCounter(type.name(), batchSize);
+            long prefix = ACCOUNT_PREFIXES.get(type);
             List<FreeAccountNumber> numbers = new ArrayList<>();
             for (long i = 0; i < batchSize; i++) {
-                numbers.add(new FreeAccountNumber(new FreeAccountId(type, prefix + i)));
+                Long counterValue = accountSeqRepository.getNextCounterValue();
+                long accountNumber = prefix + counterValue;
+                numbers.add(new FreeAccountNumber(new FreeAccountId(type, accountNumber)));
             }
             freeAccountRepository.saveAll(numbers);
         } catch (InvalidAccountTypeException e) {
-            System.out.println(e.getMessage());
+            log.error("Ошибка генерации номера счета: {}", e.getMessage(), e);
         }
     }
 
@@ -63,7 +66,6 @@ public class FreeAccountNumberService {
         freeAccountRepository.deleteByAccountTypeAndAccountNumber(accountType.name(),
                 freeAccountNumber.getId().getAccountNumber());
 
-        numberConsumer.accept(freeAccountNumber);
         numberConsumer.accept(freeAccountNumber);
 
         AccountSeq accountSeq = accountSeqRepository.findByType(accountType);

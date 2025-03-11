@@ -15,4 +15,7 @@ public interface AccountSeqRepository extends CrudRepository<AccountSeq, String>
     void incrementCounter(String type, int batchSize);
 
     AccountSeq findByType(AccountType type);
+
+    @Query(value = "SELECT nextval('account_number_seq')", nativeQuery = true)
+    Long getNextCounterValue();
 }
