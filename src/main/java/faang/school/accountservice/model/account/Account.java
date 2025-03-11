@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.account;
 
+import faang.school.accountservice.model.savings_account.SavingsAccount;
 import faang.school.accountservice.model.account.enums.AccountStatus;
 import faang.school.accountservice.model.account.enums.AccountType;
 import faang.school.accountservice.model.account.enums.Currency;
@@ -40,6 +41,9 @@ public class Account {
     @Column(name = "owner_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private OwnerType ownerType;
+
+    @OneToOne(mappedBy = "account")
+    private SavingsAccount savingsAccount;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)

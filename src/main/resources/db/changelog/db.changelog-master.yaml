@@ -3,3 +3,11 @@ databaseChangeLog:
       file: db/changelog/changeset/init.sql
   - include:
       file: db/changelog/changeset/V001__account-service_account.sql
+  - include:
+      file: db/changelog/changeset/V002__tariff.sql
+  - include:
+      file: db/changelog/changeset/V003__savings_account.sql
+  - include:
+      file: db/changelog/changeset/V004__account-service-account_add_default_version.sql
+  - include:
+      file: db/changelog/changeset/V005__add_test_accounts.sql
