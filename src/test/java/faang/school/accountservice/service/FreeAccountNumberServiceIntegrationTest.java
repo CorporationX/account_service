@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import static faang.school.accountservice.entity.AccountType.CREDIT;
@@ -30,6 +32,9 @@ public class FreeAccountNumberServiceIntegrationTest {
     @Autowired
     private AccountSeqRepository accountSeqRepository;
 
+    @Autowired
+    private List<AccountNumber> accountNumbers;
+
     private static final long DEBIT_ACCOUNT_PATTERN = 4200_0000_0000_0000L;
     private static final long CREDIT_ACCOUNT_PATTERN = 5236_0000_0000_0000L;
 
@@ -37,14 +42,6 @@ public class FreeAccountNumberServiceIntegrationTest {
     void setUp() {
         freeAccountRepository.deleteAll();
         accountSeqRepository.deleteAll();
-
-        freeAccountNumberService.addAccountType(DEBIT, DEBIT_ACCOUNT_PATTERN);
-        freeAccountNumberService.addAccountType(CREDIT, CREDIT_ACCOUNT_PATTERN);
-
-        AccountSeq initialSeq = new AccountSeq();
-        initialSeq.setType(DEBIT);
-        initialSeq.setCounter(0);
-        accountSeqRepository.save(initialSeq);
     }
 
     @Test

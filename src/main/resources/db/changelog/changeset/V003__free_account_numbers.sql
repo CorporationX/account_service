@@ -7,5 +7,6 @@ CREATE TABLE free_account_numbers (
 
 CREATE TABLE account_number_sequence (
     type VARCHAR(16) NOT NULL PRIMARY KEY,
-    counter BIGINT NOT NULL DEFAULT 0
+    counter BIGINT NOT NULL DEFAULT 0,
+    version BIGINT NOT NULL DEFAULT 1
 );

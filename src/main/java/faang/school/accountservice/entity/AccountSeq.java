@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +24,7 @@ public class AccountSeq {
 
     @Column(name = "counter", nullable = false)
     private long counter;
+
+    @Version
+    private long version;
 }
