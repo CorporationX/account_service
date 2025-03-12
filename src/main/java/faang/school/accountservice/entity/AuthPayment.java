@@ -1,67 +1,66 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.auth_payment.AuthPaymentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@NoArgsConstructor
-@Setter
-@Getter
 @Entity
-@Table(name = "auth_payments")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Table(name = "auth_payment")
 public class AuthPayment {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_account_id", nullable = false)
-    private Account senderAccount;
+    @JoinColumn(name = "balance_id", nullable = false)
+    private Balance balance;
 
-    @ManyToOne
-    @JoinColumn(name = "receiver_account_id", nullable = false)
-    private Account receiverAccount;
-
-    @Column(nullable = false)
+    @Column(name = "amount")
     private BigDecimal amount;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Currency currency;
+    @Column(name = "status")
+    private AuthPaymentStatus status = AuthPaymentStatus.ACTIVE;
 
-    @Column(nullable = false)
-    private String paymentType;
-
-    @Enumerated(EnumType.STRING)
-    @Column
-    private AuthPaymentStatus status;
-
-    @Version
-    private Long version;
-
-    @CreationTimestamp
-    @Column(nullable = false)
+    @Builder.Default
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @UpdateTimestamp
-    @Column
-    private LocalDateTime updatedAt;
-}
+    @Builder.Default
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Version
+    @Column(name = "version")
+    private long version;
+
+    @PreUpdate
+    protected void onUpdated() {
+        updatedAt = LocalDateTime.now();
+    }
+}

@@ -11,7 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -26,7 +25,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -36,6 +34,7 @@ import java.util.List;
 @Entity
 @Table(name = "account")
 public class Account {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -65,12 +64,6 @@ public class Account {
     @Column(name = "account_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
-
-    @OneToMany(mappedBy = "senderAccount")
-    private List<AuthPayment> sentPayments;
-
-    @OneToMany(mappedBy = "receiverAccount")
-    private List<AuthPayment> receivedPayments;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
