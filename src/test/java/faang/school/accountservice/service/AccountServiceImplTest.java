@@ -32,14 +32,21 @@ public class AccountServiceImplTest {
     @Mock
     private AccountRepositoryAdapter accountRepositoryAdapter;
 
+    private static final String ACCOUNT_NUMBER = "12356789101112";
+    private static final BigInteger OWNER_ID = BigInteger.valueOf(1);
+    private static final AccountOwnerType OWNER_TYPE = AccountOwnerType.USER;
+    private static final AccountType ACCOUNT_TYPE = AccountType.CURRENCY_ACCOUNT;
+    private static final Currency CURRENCY = Currency.USD;
+    private static final Long ACCOUNT_ID = 1L;
+
     @Test
     public void testCreateAccountSuccess() {
         AccountDto accountDto = AccountDto.builder()
-                .accountNumber("12356789101112")
-                .ownerId(BigInteger.valueOf(1))
-                .ownerType(AccountOwnerType.USER)
-                .type(AccountType.CURRENCY_ACCOUNT)
-                .currency(Currency.USD)
+                .accountNumber(ACCOUNT_NUMBER)
+                .ownerId(OWNER_ID)
+                .ownerType(OWNER_TYPE)
+                .type(ACCOUNT_TYPE)
+                .currency(CURRENCY)
                 .build();
         Account account = accountMapper.toEntity(accountDto);
         account.setAccountStatus(AccountStatus.ACTIVE);
@@ -52,11 +59,11 @@ public class AccountServiceImplTest {
     @Test
     public void testCreateAccountFailed() {
         AccountDto accountDto = AccountDto.builder()
-                .accountNumber("12356789101112")
-                .ownerId(BigInteger.valueOf(1))
-                .ownerType(AccountOwnerType.USER)
-                .type(AccountType.CURRENCY_ACCOUNT)
-                .currency(Currency.USD)
+                .accountNumber(ACCOUNT_NUMBER)
+                .ownerId(OWNER_ID)
+                .ownerType(OWNER_TYPE)
+                .type(ACCOUNT_TYPE)
+                .currency(CURRENCY)
                 .build();
         Account account = accountMapper.toEntity(accountDto);
         account.setAccountStatus(AccountStatus.ACTIVE);
@@ -68,48 +75,66 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testBlockAccountSuccess() {
+    public void testBlockAccountAlready() {
         Account account = Account.builder()
-                .accountNumber("12356789101112")
-                .ownerId(BigInteger.valueOf(1))
-                .ownerType(AccountOwnerType.USER)
-                .type(AccountType.CURRENCY_ACCOUNT)
-                .currency(Currency.USD)
+                .accountNumber(ACCOUNT_NUMBER)
+                .ownerId(OWNER_ID)
+                .ownerType(OWNER_TYPE)
+                .type(ACCOUNT_TYPE)
+                .currency(CURRENCY)
                 .accountStatus(AccountStatus.FROZEN)
                 .build();
-        when(accountRepositoryAdapter.findById(1L)).thenReturn(account);
-        accountService.blockAccount(1L);
+        when(accountRepositoryAdapter.findById(ACCOUNT_ID)).thenReturn(account);
+        accountService.blockAccount(ACCOUNT_ID);
+        verify(accountRepositoryAdapter, times(1)).findById(ACCOUNT_ID);
+        verify(accountRepositoryAdapter, never()).save(any());
+    }
+
+    @Test
+    public void testBlockAccountSuccess() {
+        Account account = Account.builder()
+                .accountNumber(ACCOUNT_NUMBER)
+                .ownerId(OWNER_ID)
+                .ownerType(OWNER_TYPE)
+                .type(ACCOUNT_TYPE)
+                .currency(CURRENCY)
+                .build();
+        when(accountRepositoryAdapter.findById(ACCOUNT_ID)).thenReturn(account);
+        AccountDto accountDtoExpected = accountMapper.toDto(account);
+        accountDtoExpected.setAccountStatus(AccountStatus.FROZEN);
+        accountService.blockAccount(ACCOUNT_ID);
         verify(accountRepositoryAdapter, times(1)).save(account);
     }
 
     @Test
     public void testCloseAccountAlready() {
         Account account = Account.builder()
-                .accountNumber("12356789101112")
-                .ownerId(BigInteger.valueOf(1))
-                .ownerType(AccountOwnerType.USER)
-                .type(AccountType.CURRENCY_ACCOUNT)
-                .currency(Currency.USD)
+                .accountNumber(ACCOUNT_NUMBER)
+                .ownerId(OWNER_ID)
+                .ownerType(OWNER_TYPE)
+                .type(ACCOUNT_TYPE)
+                .currency(CURRENCY)
                 .accountStatus(AccountStatus.CLOSED)
                 .build();
-        when(accountRepositoryAdapter.findById(1L)).thenReturn(account);
-        accountService.closeAccount(1L);
-        verify(accountRepositoryAdapter, times(1)).save(account);
+        when(accountRepositoryAdapter.findById(ACCOUNT_ID)).thenReturn(account);
+        accountService.closeAccount(ACCOUNT_ID);
+        verify(accountRepositoryAdapter, times(1)).findById(1L);
+        verify(accountRepositoryAdapter, never()).save(any());
     }
 
     @Test
     public void testCloseAccountSuccess() {
         Account account = Account.builder()
-                .accountNumber("12356789101112")
-                .ownerId(BigInteger.valueOf(1))
-                .ownerType(AccountOwnerType.USER)
-                .type(AccountType.CURRENCY_ACCOUNT)
-                .currency(Currency.USD)
+                .accountNumber(ACCOUNT_NUMBER)
+                .ownerId(OWNER_ID)
+                .ownerType(OWNER_TYPE)
+                .type(ACCOUNT_TYPE)
+                .currency(CURRENCY)
                 .build();
-        when(accountRepositoryAdapter.findById(1L)).thenReturn(account);
+        when(accountRepositoryAdapter.findById(ACCOUNT_ID)).thenReturn(account);
         AccountDto accountDtoExpected = accountMapper.toDto(account);
         accountDtoExpected.setAccountStatus(AccountStatus.CLOSED);
-        accountService.closeAccount(1L);
+        accountService.closeAccount(ACCOUNT_ID);
         verify(accountRepositoryAdapter, times(1)).save(account);
     }
 }

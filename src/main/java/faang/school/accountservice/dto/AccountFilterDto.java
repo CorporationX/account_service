@@ -9,9 +9,11 @@ import java.math.BigInteger;
 
 @Data
 public class AccountFilterDto {
+
     private String accountNumber;
     private BigInteger ownerId;
     private AccountOwnerType ownerType;
     private AccountType type;
     private AccountStatus accountStatus;
+
 }

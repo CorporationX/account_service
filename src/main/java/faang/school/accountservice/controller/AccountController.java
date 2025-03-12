@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,7 +29,15 @@ public class AccountController {
     @PostMapping()
     public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
         accountValidator.validateAccountOwner(accountDto);
-        return ResponseEntity.ok(accountService.createAccount(accountDto));//create status 201
+
+        AccountDto createdAccount = accountService.createAccount(accountDto);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdAccount.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(createdAccount);
     }
 
     @PutMapping("/{id}/block")
