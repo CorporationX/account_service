@@ -51,6 +51,13 @@ public class Account {
     @OneToOne(mappedBy = "account")
     private Balance balance;
 
+    /**
+     * Идентификатор владельца счета.
+     * Владелец счета - либо существующий юзер (из user_service), либо существующий проект (из project_service)
+     */
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
+
     /** Владелец счета */
     @Enumerated(EnumType.STRING)
     @Column(name = "owner", nullable = false)
@@ -88,5 +95,5 @@ public class Account {
     /** Версия счета */
     @Version
     @Column(name = "account_version")
-    private String accountVersion;
+    private Long accountVersion;
 }
