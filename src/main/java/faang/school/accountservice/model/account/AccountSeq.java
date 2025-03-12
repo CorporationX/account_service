@@ -2,12 +2,14 @@ package faang.school.accountservice.model.account;
 
 import faang.school.accountservice.model.account.enums.AccountType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "account_number_sequence")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class AccountSeq {
     @Id

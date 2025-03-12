@@ -39,3 +39,4 @@ logging:
 
 config:
   schedule-daily-interest-accrual-cron: "0 0 1 * * *"
+  schedule-daily-generate-number-cron: "0 0 1 * * *"

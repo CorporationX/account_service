@@ -16,7 +16,7 @@ public class AccountNumberScheduler {
 
     private final FreeAccountNumberService freeAccountNumberService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${config.schedule-daily-generate-number-cron}")
     public void generateDebitAccountNumber() {
         for (AccountType accountType : AccountType.values()) {
             freeAccountNumberService.generateAccountNumbers(accountType, batchSize);
