@@ -1,6 +1,5 @@
 package faang.school.accountservice.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -61,7 +60,7 @@ public class Balance {
 
     @Version
     @Column(name = "version")
-    private Integer version;
+    private long version;
 
     @PreUpdate
     protected void onUpdate() {

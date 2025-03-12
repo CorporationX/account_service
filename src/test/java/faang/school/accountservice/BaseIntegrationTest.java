@@ -1,5 +1,6 @@
 package faang.school.accountservice;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -25,12 +26,16 @@ public abstract class BaseIntegrationTest {
                 .build();
     }
 
-    @Container
     private static final PostgreSQLContainer<?> POSTGRES_CONTAINER =
             new PostgreSQLContainer<>("postgres:13.3")
                     .withDatabaseName("postgres")
                     .withUsername("user")
                     .withPassword("password");
+
+    @BeforeAll
+    static void startContainer() {
+        POSTGRES_CONTAINER.start();
+    }
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
