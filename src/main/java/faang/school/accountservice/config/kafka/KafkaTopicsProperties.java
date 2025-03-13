@@ -10,11 +10,11 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties (prefix = "spring.kafka.topics")
 @Configuration
 public class KafkaTopicsProperties {
-    private String dlqAuthPayment;
-    private String authPaymentRequest;
-    private String authPaymentResponse;
-    private String authPaymentCancelRequest;
-    private String authPaymentCancelResponse;
-    private String authPaymentClearingRequest;
-    private String authPaymentClearingResponse;
+    private String dlqTransfer;
+    private String transferRequest;
+    private String transferResponse;
+    private String transferCancelRequest;
+    private String transferCancelResponse;
+    private String transferClearingRequest;
+    private String transferClearingResponse;
 }

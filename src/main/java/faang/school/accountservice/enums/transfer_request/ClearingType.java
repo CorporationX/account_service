@@ -1,4 +1,4 @@
-package faang.school.accountservice.enums.auth_payment.clearing;
+package faang.school.accountservice.enums.transfer_request;
 
 public enum ClearingType {
     SCHEDULER_CLEARING,

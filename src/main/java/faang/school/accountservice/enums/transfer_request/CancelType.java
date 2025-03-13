@@ -1,4 +1,4 @@
-package faang.school.accountservice.enums.auth_payment.cancel;
+package faang.school.accountservice.enums.transfer_request;
 
 public enum CancelType {
     CANCEL_BY_USER,

@@ -1,7 +1,7 @@
-package faang.school.accountservice.dto.auth_payment.cancel;
+package faang.school.accountservice.dto.transfer_request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import faang.school.accountservice.enums.auth_payment.cancel.CancelType;
+import faang.school.accountservice.enums.transfer_request.CancelType;
 
 import java.util.UUID;
 

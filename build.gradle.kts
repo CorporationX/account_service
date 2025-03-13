@@ -52,6 +52,8 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
+    testImplementation ("org.springframework.kafka:spring-kafka-test")
+    testImplementation("org.testcontainers:kafka")
 
     /**
      * Tests
@@ -107,7 +109,7 @@ tasks.jacocoTestCoverageVerification {
         rule {
             classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
             limit {
-//                minimum = BigDecimal.valueOf(0.7)
+                minimum = BigDecimal.valueOf(0.7)
             }
         }
     }

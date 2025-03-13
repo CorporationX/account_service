@@ -56,7 +56,7 @@ public class KafkaConfig {
     @Bean
     public DefaultErrorHandler kafkaErrorHandler(KafkaTemplate<String, Object> kafkaTemplate) {
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
-                (consumerRecord, e) -> new TopicPartition(topicsProperties.getDlqAuthPayment(), consumerRecord.partition()));
+                (consumerRecord, e) -> new TopicPartition(topicsProperties.getDlqTransfer(), consumerRecord.partition()));
 
         FixedBackOff backOff = new FixedBackOff(properties.getRetryIntervalMillis(), properties.getRetryMaxAttempts());
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);

@@ -31,13 +31,13 @@ spring:
       max-attempts: 5
       concurrent-threads-count: 3
     topics:
-      dlqAuthPayment: "auth-payment.DLT"
-      authPaymentRequest: "auth-message-request-topic"
-      authPaymentResponse: "auth-message-response-topic"
-      authPaymentCancelRequest: "cancel-message-request-topic"
-      authPaymentCancelResponse: "cancel-message-response-topic"
-      authPaymentClearingRequest: "clearing-message-request-topic"
-      authPaymentClearingResponse: "clearing-message-response-topic"
+      dlq-transfer: "auth-payment.DLT"
+      transfer-request: "auth-message-request-topic"
+      transfer-response: "auth-message-response-topic"
+      transfer-cancel-request: "cancel-message-request-topic"
+      transfer-cancel-response: "cancel-message-response-topic"
+      transfer-clearing-request: "clearing-message-request-topic"
+      transfer-clearing-response: "clearing-message-response-topic"
 
 scheduled:
   sendPaymentsToKafka:

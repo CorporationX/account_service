@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.AuthPaymentStatus;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.BalanceConflictException;
 import faang.school.accountservice.exception.ResourceNotFoundException;
+import faang.school.accountservice.exception.non_retryable.EntityNotFoundException;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.service.AccountService;
@@ -111,7 +112,6 @@ public class BalanceService {
 
         BigDecimal multiplier = BigDecimal.valueOf(value);
         BigDecimal newCurrentBalance = currentBalance.add(currentBalance.multiply(multiplier));
-
         balance.setCurrentBalance(newCurrentBalance);
 
         return saveBalanceWithOptimisticLockHandling(balance);
@@ -137,6 +137,59 @@ public class BalanceService {
         BigDecimal currentBalance = byId.getCurrentBalance();
 
         return currentBalance;
+    }
+
+    @Transactional
+    public AuthPayment freezeFundsForTransfer(UUID balanceId, Money money) throws EntityNotFoundException {
+        Balance balance = balanceRepository.findByIdForUpdateOrThrow(balanceId);
+        balanceValidator.checkFreeAmount(balance, money);
+
+        AuthPayment authPayment = AuthPayment.builder()
+                .balance(balance)
+                .amount(money.amount())
+                .status(AuthPaymentStatus.ACTIVE)
+                .build();
+
+        balance.setCurrentBalance(balance.getCurrentBalance().subtract(money.amount()));
+        balance.setAuthBalance(balance.getAuthBalance().add(money.amount()));
+
+        balanceRepository.save(balance);
+        return saveAuthPaymentWithOptimisticLockHandling(authPayment);
+    }
+
+    @Transactional
+    public void unfreezeFundsForTransfer(UUID balanceId, UUID authPaymentId) {
+        Balance balance = balanceRepository.findByIdForUpdateOrThrow(balanceId);
+
+        AuthPayment authPayment = authPaymentRepository.findByIdForUpdateOrThrow(authPaymentId);
+        balanceValidator.checkAuthPaymentForReject(authPayment);
+
+        balance.setAuthBalance(balance.getAuthBalance().subtract(authPayment.getAmount()));
+        balance.setCurrentBalance(balance.getCurrentBalance().add(authPayment.getAmount()));
+
+        authPayment.setStatus(AuthPaymentStatus.REJECTED);
+        balanceRepository.save(balance);
+        authPaymentRepository.save(authPayment);
+    }
+
+    @Transactional
+    public void finalizeTransfer(UUID balanceId, UUID authPaymentId) {
+        Balance balance = balanceRepository.findByIdForUpdateOrThrow(balanceId);
+
+        AuthPayment authPayment = authPaymentRepository.findByIdForUpdateOrThrow(authPaymentId);
+        balanceValidator.checkAuthPaymentForAccept(new Money(authPayment.getAmount(), null), authPayment);
+
+        balance.setAuthBalance(balance.getAuthBalance().subtract(authPayment.getAmount()));
+        authPayment.setStatus(AuthPaymentStatus.CLOSED);
+        balanceRepository.save(balance);
+        authPaymentRepository.save(authPayment);
+    }
+
+    public void increaseCurrentBalancePessimistic(UUID balanceId, BigDecimal amount){
+        Balance balance = balanceRepository.findByIdForUpdateOrThrow(balanceId);
+        BigDecimal updatedCurrentBalance = balance.getCurrentBalance().add(amount);
+        balance.setCurrentBalance(updatedCurrentBalance);
+        balanceRepository.save(balance);
     }
 
     private Balance saveBalanceWithOptimisticLockHandling(Balance balance) {
