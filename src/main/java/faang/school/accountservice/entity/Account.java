@@ -33,54 +33,43 @@ import java.time.LocalDateTime;
 @Table(name = "accounts")
 public class Account {
 
-    /** Уникальный идентификатор счета */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Номер счета */
     @Column(name = "account", nullable = false, unique = true)
     private String account;
 
-    /** Баланс счета */
     @Builder.Default
     @Column(name = "balance", precision = 15, scale = 2, nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    /** Владелец счета */
     @Enumerated(EnumType.STRING)
     @Column(name = "owner", nullable = false)
     private OwnerType ownerType;
 
-    /** Тип счета */
     @Column(name = "type", nullable = false)
     private AccountType accountType;
 
-    /** Код валюты */
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
     private Currency currency;
 
-    /** Статус: действующий, замороженный или закрытый */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private AccountStatus accountStatus;
 
-    /** Время создания счета */
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    /** Время изменения счета */
     @Column(name = "updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    /** Время закрытия счета */
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    /** Версия счета */
     @Version
     @Column(name = "account_version")
     private String accountVersion;

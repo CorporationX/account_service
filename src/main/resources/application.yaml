@@ -4,6 +4,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+  retry:
+    enabled: true
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
