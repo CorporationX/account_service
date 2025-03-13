@@ -4,12 +4,14 @@ import faang.school.accountservice.entity.AccountSeq;
 import faang.school.accountservice.entity.AccountType;
 import faang.school.accountservice.entity.FreeAccountId;
 import faang.school.accountservice.entity.FreeAccountNumber;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountSeqRepository;
 import faang.school.accountservice.repository.FreeAccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -68,6 +70,14 @@ public class FreeAccountNumberService {
         freeAccountRepository.saveAll(numbers);
     }
 
+    /*
+    @Recover
+    public void recoverGenerateAccountNumbers(OptimisticLockingFailureException e, AccountType type, int batchSize) {
+        log.error("Failed to GenerateAccountNumbers for type {} batchSize {} after multiple attempts", type.name(),
+                batchSize);
+        throw new RuntimeException("Failed to GenerateAccountNumbers due to concurrent modification", e);
+    }
+*/
     @Transactional
     public void retrieveAccountNumber(AccountType type, Consumer<FreeAccountNumber> numberConsumer) {
         numberConsumer.accept(freeAccountRepository.retrieveFirst(type.name()));
