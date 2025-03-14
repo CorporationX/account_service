@@ -1,5 +1,7 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.entity.account;
 
+import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.InvoiceType;
@@ -25,6 +27,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "accounts")
