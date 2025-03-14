@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS balance (
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL,
+    authorized_balance DECIMAL(15, 2) DEFAULT 0,
+    actual_balance DECIMAL(15, 2) DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    version INTEGER DEFAULT 0,
+
+    CONSTRAINT fk_accounts FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
+);
