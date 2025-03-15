@@ -8,6 +8,9 @@ import faang.school.accountservice.repository.AccountSeqRepository;
 import faang.school.accountservice.repository.FreeAccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,13 @@ public class FreeAccountNumberService {
     }
 
     @Transactional
+    @Retryable(
+            retryFor = {OptimisticLockingFailureException.class},
+            maxAttemptsExpression = "${retry.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.backoff.delay}",
+                    multiplierExpression = "${retry.backoff.multiplier}")
+    )
     public void generateAccountNumbers(AccountType type, int batchSize) {
         log.info("Generating account numbers for type: {}", type);
         Long accountPattern = accountTypesMap.get(type);
