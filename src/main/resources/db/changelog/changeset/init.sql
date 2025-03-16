@@ -1,5 +1,3 @@
-CREATE SEQUENCE account_number_seq START WITH 1 INCREMENT BY 1;
-
 CREATE TABLE free_account_numbers
 (
     type           VARCHAR(32) NOT NULL,
