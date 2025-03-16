@@ -3,7 +3,9 @@ package faang.school.accountservice.service.balance;
 import faang.school.accountservice.dto.BalanceResponseDto;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.error.InsufficientFundsException;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -24,6 +26,8 @@ public class BalanceServiceImpl implements BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditRepository balanceAuditRepository;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     @Override
     public BalanceResponseDto getBalance(Long balanceId) {
@@ -36,6 +40,8 @@ public class BalanceServiceImpl implements BalanceService {
                 .orElseGet(() -> {
                     Balance newBalance = balanceRepository.save(Balance.builder().build());
                     log.info("Created balance for account {}", accountId);
+                    balanceAuditRepository.save(balanceAuditMapper.toBalanceAuditFromBalance(newBalance));
+                    log.info("Save balance-audit after created balance for account {}", accountId);
                     return newBalance;
                 });
         return balanceMapper.toBalanceResponseDto(balance);
@@ -193,7 +199,10 @@ public class BalanceServiceImpl implements BalanceService {
             balance.setActualBalance(actualBalance);
         }
         validateBalance(balance);
-        return balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
+
+        BalanceResponseDto balanceResponseDto = balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
+        balanceAuditRepository.save(balanceAuditMapper.toBalanceAuditFromBalance(balance));
+        return balanceResponseDto;
     }
 
     private void validateBalance(Balance balance) {
