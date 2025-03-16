@@ -10,7 +10,7 @@ import java.util.concurrent.Executor;
 @EnableAsync
 @Configuration
 public class AsyncConfig {
-    @Bean(name = "captureBalanceExecutor")
+    @Bean(name = "auditBalanceExecutor")
     public Executor customTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);

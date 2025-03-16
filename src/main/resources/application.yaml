@@ -26,3 +26,7 @@ server:
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
