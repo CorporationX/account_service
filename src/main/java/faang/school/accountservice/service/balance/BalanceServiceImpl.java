@@ -2,6 +2,7 @@ package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.BalanceResponseDto;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.error.InsufficientFundsException;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
@@ -40,7 +41,7 @@ public class BalanceServiceImpl implements BalanceService {
                 .orElseGet(() -> {
                     Balance newBalance = balanceRepository.save(Balance.builder().build());
                     log.info("Created balance for account {}", accountId);
-                    balanceAuditRepository.save(balanceAuditMapper.toBalanceAuditFromBalance(newBalance));
+                    saveBalanceAudit(newBalance);
                     log.info("Save balance-audit after created balance for account {}", accountId);
                     return newBalance;
                 });
@@ -71,6 +72,7 @@ public class BalanceServiceImpl implements BalanceService {
         balance.setActualBalance(balance.getActualBalance().add(amount));
         validateBalance(balance);
         log.info("Top-up balance {}. +{}", balanceId, amount);
+        saveBalanceAudit(balance);
         return balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
     }
 
@@ -85,6 +87,7 @@ public class BalanceServiceImpl implements BalanceService {
         Balance balance = getBalanceById(balanceId);
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
         validateBalance(balance);
+        saveBalanceAudit(balance);
         log.info("Write-off from balance {}. -{}", balanceId, amount);
         return balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
     }
@@ -105,6 +108,7 @@ public class BalanceServiceImpl implements BalanceService {
             validateBalance(balance);
             savedBalance = balanceRepository.save(balance);
             log.info("Hold funds on balance {}. -{}", balanceId, amount);
+            saveBalanceAudit(savedBalance);
         } else {
             throw new InsufficientFundsException("Insufficient funds to hold! balanceId = " + balanceId);
         }
@@ -127,6 +131,7 @@ public class BalanceServiceImpl implements BalanceService {
             validateBalance(balance);
             savedBalance = balanceRepository.save(balance);
             log.info("Release funds on balance {}. +{}", balanceId, amount);
+            saveBalanceAudit(savedBalance);
         } else {
             throw new InsufficientFundsException("Insufficient held funds for release!");
         }
@@ -148,6 +153,7 @@ public class BalanceServiceImpl implements BalanceService {
             validateBalance(balance);
             savedBalance = balanceRepository.save(balance);
             log.info("Write-off held funds on balance {}. -{}", balanceId, amount);
+            saveBalanceAudit(savedBalance);
         } else {
             throw new InsufficientFundsException("Insufficient held funds for writing off!");
         }
@@ -179,6 +185,7 @@ public class BalanceServiceImpl implements BalanceService {
         balance.setActualBalance(totalBalance);
         balance.setAuthorizedBalance(BigDecimal.ZERO);
         Balance savedBalance = balanceRepository.save(balance);
+        saveBalanceAudit(savedBalance);
         log.info("Resetting balance {}", balanceId);
         return balanceMapper.toBalanceResponseDto(savedBalance);
     }
@@ -201,7 +208,7 @@ public class BalanceServiceImpl implements BalanceService {
         validateBalance(balance);
 
         BalanceResponseDto balanceResponseDto = balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
-        balanceAuditRepository.save(balanceAuditMapper.toBalanceAuditFromBalance(balance));
+        saveBalanceAudit(balance);
         return balanceResponseDto;
     }
 
@@ -221,5 +228,9 @@ public class BalanceServiceImpl implements BalanceService {
     private Balance getBalanceById(Long balanceId) {
         return balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with id = " + balanceId + " is not found"));
+    }
+
+    private BalanceAudit saveBalanceAudit(Balance balance) {
+        return balanceAuditRepository.save(balanceAuditMapper.toBalanceAuditFromBalance(balance));
     }
 }
