@@ -70,7 +70,7 @@ public class Account {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = true)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
