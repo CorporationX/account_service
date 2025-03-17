@@ -81,4 +81,7 @@ public class Account {
     @Version
     @Column(name = "version", nullable = false)
     private Integer version;
+
+    @OneToOne(mappedBy = "account")
+    private SavingsAccount savingsAccount;
 }
