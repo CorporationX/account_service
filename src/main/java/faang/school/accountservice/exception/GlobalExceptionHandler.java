@@ -3,6 +3,7 @@ package faang.school.accountservice.exception;
 import faang.school.accountservice.exception.non_retryable.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -27,6 +28,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST,
             HttpMessageNotReadableException.class, HttpStatus.BAD_REQUEST,
             IllegalArgumentException.class, HttpStatus.BAD_REQUEST,
+            DataIntegrityViolationException.class, HttpStatus.BAD_REQUEST,
             ConstraintViolationException.class, HttpStatus.BAD_REQUEST,
             NoSuchElementException.class, HttpStatus.NOT_FOUND,
             EntityNotFoundException.class, HttpStatus.NOT_FOUND
@@ -36,6 +38,7 @@ public class GlobalExceptionHandler {
             ObjectOptimisticLockingFailureException.class, "The account was updated by another process. Please try again.",
             MethodArgumentTypeMismatchException.class, "Invalid request parameter. Please provide the correct format.",
             EnumConstantNotPresentException.class, "Invalid request parameter. Please provide the correct format.",
+            DataIntegrityViolationException.class, "User not found.  Please check it again.",
             HttpMessageNotReadableException.class, "Cannot parse JSON data. Please check it again."
     );
 

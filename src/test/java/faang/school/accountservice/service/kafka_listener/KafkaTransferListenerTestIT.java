@@ -19,11 +19,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -41,8 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class KafkaTransferListenerIT extends BaseIntegrationTest {
+class KafkaTransferListenerTestIT extends BaseIntegrationTest {
 
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -55,7 +51,7 @@ class KafkaTransferListenerIT extends BaseIntegrationTest {
 
     private KafkaConsumer<String, Object> kafkaConsumer;
     private static final UUID FIRST_ID = UUID.fromString("5d14fdc1-8327-4cb0-b102-f59ff9cbf5d1");
-    private static final UUID SECOND_ID = UUID.fromString("5d14fdc1-8327-4cb0-b102-f59ff9cbf5d2");
+    private static final UUID AUTHORIZED_ID = UUID.fromString("5d14fdc1-8327-4cb0-b102-f59ff9cbf5d4");
 
     @BeforeAll
     void beforeAll() {
@@ -76,19 +72,17 @@ class KafkaTransferListenerIT extends BaseIntegrationTest {
 
     @Sql(scripts = "/cleanup-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/test-data-accounts-balances.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Order(1)
+    @Sql(scripts = "/cleanup-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Test
     void testListenNewAuthRequest() throws Exception {
         TransferRequestDto requestDto = createTransferRequestDto(FIRST_ID);
-        TransferRequestDto secondRequestDto = createTransferRequestDto(SECOND_ID);
         kafkaTemplate.send(topicsProperties.getTransferRequest(), FIRST_ID.toString(), requestDto).get();
-        kafkaTemplate.send(topicsProperties.getTransferRequest(), SECOND_ID.toString(), secondRequestDto).get();
 
         Awaitility.await()
                 .atMost(30, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofMillis(500))
                 .until(() -> checkExistsInDb(FIRST_ID, TransferStatus.AUTHORIZED)
-                        && checkExistsInDb(SECOND_ID, TransferStatus.AUTHORIZED));
+                );
 
         transferResponseSender.retryUnsentPayments();
 
@@ -101,37 +95,39 @@ class KafkaTransferListenerIT extends BaseIntegrationTest {
                         if (checkIdAndStatus(record, FIRST_ID, topicsProperties.getTransferResponse(), TransferStatus.AUTHORIZED)) {
                             return true;
                         }
-                        if (checkIdAndStatus(record, SECOND_ID, topicsProperties.getTransferResponse(), TransferStatus.AUTHORIZED)) {
-                            return true;
-                        }
                     }
                     return false;
                 });
     }
 
-    @Order(2)
+    @Sql(scripts = {"/cleanup-test-data.sql",
+            "/test-data-accounts-balances.sql",
+            "/test-data-auth-payments.sql",
+            "/test-data-transfer-requests.sql",
+    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/cleanup-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Test
     void testListenCancelRequest() throws Exception {
-        CancelMessageRequest cancelRequestFirst = new CancelMessageRequest(FIRST_ID, CancelType.TIMEOUT_CANCEL);
-        kafkaTemplate.send(topicsProperties.getTransferCancelRequest(), FIRST_ID.toString(), cancelRequestFirst).get();
+        CancelMessageRequest cancelRequestFirst = new CancelMessageRequest(AUTHORIZED_ID, CancelType.TIMEOUT_CANCEL);
+        kafkaTemplate.send(topicsProperties.getTransferCancelRequest(), AUTHORIZED_ID.toString(), cancelRequestFirst).get();
 
         Awaitility.await()
                 .atMost(30, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofMillis(500))
-                .until(() -> checkExistsInDb(FIRST_ID, TransferStatus.CANCELLED));
+                .until(() -> checkExistsInDb(AUTHORIZED_ID, TransferStatus.CANCELLED));
 
         transferResponseSender.retryUnsentPayments();
 
-        CancelMessageRequest cancelRequestSecond = new CancelMessageRequest(FIRST_ID, CancelType.TIMEOUT_CANCEL);
-        kafkaTemplate.send(topicsProperties.getTransferCancelRequest(), FIRST_ID.toString(), cancelRequestSecond).get();
+        CancelMessageRequest cancelRequestSecond = new CancelMessageRequest(AUTHORIZED_ID, CancelType.TIMEOUT_CANCEL);
+        kafkaTemplate.send(topicsProperties.getTransferCancelRequest(), AUTHORIZED_ID.toString(), cancelRequestSecond).get();
 
         Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> {
             ConsumerRecords<String, Object> records = kafkaConsumer.poll(Duration.ofMillis(500));
             for (ConsumerRecord<String, Object> record : records) {
-                if (checkIdAndStatus(record, FIRST_ID, topicsProperties.getTransferCancelResponse(), TransferStatus.CANCELLED)) {
+                if (checkIdAndStatus(record, AUTHORIZED_ID, topicsProperties.getTransferCancelResponse(), TransferStatus.CANCELLED)) {
                     return true;
                 }
-                if (checkIdAndStatus(record, FIRST_ID, topicsProperties.getTransferCancelResponse(), TransferStatus.PAYMENT_ALREADY_CANCELLED)) {
+                if (checkIdAndStatus(record, AUTHORIZED_ID, topicsProperties.getTransferCancelResponse(), TransferStatus.PAYMENT_ALREADY_CANCELLED)) {
                     return true;
                 }
             }
@@ -139,29 +135,34 @@ class KafkaTransferListenerIT extends BaseIntegrationTest {
         });
     }
 
-    @Order(3)
+    @Sql(scripts = {"/cleanup-test-data.sql",
+            "/test-data-accounts-balances.sql",
+            "/test-data-auth-payments.sql",
+            "/test-data-transfer-requests.sql",
+    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/cleanup-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Test
     void testListenClearRequest() throws Exception {
-        ClearingMessageRequest clearRequestFirst = new ClearingMessageRequest(SECOND_ID, ClearingType.CLEARING_BY_USER);
-        kafkaTemplate.send(topicsProperties.getTransferClearingRequest(), SECOND_ID.toString(), clearRequestFirst).get();
+        ClearingMessageRequest clearRequestFirst = new ClearingMessageRequest(AUTHORIZED_ID, ClearingType.CLEARING_BY_USER);
+        kafkaTemplate.send(topicsProperties.getTransferClearingRequest(), AUTHORIZED_ID.toString(), clearRequestFirst).get();
 
         Awaitility.await()
                 .atMost(30, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofMillis(500))
-                .until(() -> checkExistsInDb(SECOND_ID, TransferStatus.CLEARED));
+                .until(() -> checkExistsInDb(AUTHORIZED_ID, TransferStatus.CLEARED));
 
         transferResponseSender.retryUnsentPayments();
 
-        ClearingMessageRequest clearRequestSecond = new ClearingMessageRequest(SECOND_ID, ClearingType.CLEARING_BY_USER);
-        kafkaTemplate.send(topicsProperties.getTransferClearingRequest(), SECOND_ID.toString(), clearRequestSecond).get();
+        ClearingMessageRequest clearRequestSecond = new ClearingMessageRequest(AUTHORIZED_ID, ClearingType.CLEARING_BY_USER);
+        kafkaTemplate.send(topicsProperties.getTransferClearingRequest(), AUTHORIZED_ID.toString(), clearRequestSecond).get();
 
         Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> {
             ConsumerRecords<String, Object> records = kafkaConsumer.poll(Duration.ofMillis(500));
             for (ConsumerRecord<String, Object> record : records) {
-                if (checkIdAndStatus(record, SECOND_ID, topicsProperties.getTransferClearingResponse(), TransferStatus.CLEARED)) {
+                if (checkIdAndStatus(record, AUTHORIZED_ID, topicsProperties.getTransferClearingResponse(), TransferStatus.CLEARED)) {
                     return true;
                 }
-                if (checkIdAndStatus(record, SECOND_ID, topicsProperties.getTransferClearingResponse(), TransferStatus.PAYMENT_ALREADY_CLEARED)) {
+                if (checkIdAndStatus(record, AUTHORIZED_ID, topicsProperties.getTransferClearingResponse(), TransferStatus.PAYMENT_ALREADY_CLEARED)) {
                     return true;
                 }
             }
@@ -169,8 +170,6 @@ class KafkaTransferListenerIT extends BaseIntegrationTest {
         });
     }
 
-    @Sql(scripts = "/cleanup-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @Order(4)
     @Test
     void testValidationErrorHandled() throws Exception {
         TransferRequestDto invalidRequest = TransferRequestDto.builder()
@@ -222,11 +221,11 @@ class KafkaTransferListenerIT extends BaseIntegrationTest {
         return props;
     }
 
-    private boolean checkIdAndStatus(ConsumerRecord<String, Object> record, UUID firstId, String topicsProperties, TransferStatus authorized) {
+    private boolean checkIdAndStatus(ConsumerRecord<String, Object> record, UUID firstId, String topicsProperties, TransferStatus status) {
         if (record.key().equals(firstId.toString()) && record.topic().equals(topicsProperties)) {
             TransferResponse response = (TransferResponse) record.value();
             assertEquals(firstId, response.paymentId());
-            assertEquals(authorized, response.result());
+            assertEquals(status, response.result());
             kafkaConsumer.commitSync();
             return true;
         }

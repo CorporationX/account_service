@@ -41,7 +41,7 @@ spring:
 
 scheduled:
   sendPaymentsToKafka:
-    cron: "0 * * * * *"
+    cron: "*/10 * * * * *"
     batchSize: 100
 
 server:
