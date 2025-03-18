@@ -1,20 +1,34 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.RateChangeRequestDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.RateChangeRequest;
+import faang.school.accountservice.entity.Tariff;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.enums.RateChangeRequestStatus;
+import faang.school.accountservice.exception.ValidationException;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.RateChangeRequestRepository;
+import faang.school.accountservice.repository.TariffRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
+
+    private final RateChangeRequestRepository rateChangeRequestRepository;
+    private final TariffRepository tariffRepository;
 
     @Transactional(readOnly = true)
     public Account getAccountById(Long id) {
@@ -51,5 +65,46 @@ public class AccountService {
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
         return accountRepository.save(account);
+    }
+
+    @Transactional
+    public RateChangeRequest createPlannedRateChange(RateChangeRequestDto changeRequestDto) {
+
+        validateDateChange(changeRequestDto);
+        checkingIdempotenceChange(changeRequestDto);
+
+        Tariff tariff = tariffRepository.findById(changeRequestDto.tariffId()).orElseThrow();
+
+        RateChangeRequest changeRequest = new RateChangeRequest();
+        changeRequest.setTariff(tariff);
+        changeRequest.setNewRate(changeRequestDto.newRate());
+        changeRequest.setStatus(RateChangeRequestStatus.PENDING);
+        changeRequest.setProcessed(false);
+        changeRequest.setEffectiveDate(changeRequestDto.effectiveDate());
+        changeRequest.setRequestDate(LocalDate.now());
+
+        return rateChangeRequestRepository.save(changeRequest);
+    }
+
+    private void validateDateChange(RateChangeRequestDto changeRequestDto) {
+
+        if (changeRequestDto.effectiveDate().isBefore(LocalDate.now().plusDays(1))) {
+            throw new ValidationException("Rate change must be scheduled at least one day in advance.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    private void checkingIdempotenceChange(RateChangeRequestDto changeRequestDto) {
+
+        Optional<RateChangeRequest> existingRequest = rateChangeRequestRepository
+                .findByTariffIdAndEffectiveDate(changeRequestDto.tariffId(), changeRequestDto.effectiveDate());
+
+        if (existingRequest.isPresent()) {
+            if (existingRequest.get().isProcessed()) {
+                throw new ValidationException("Rate change already scheduled and processed.");
+            } else {
+                throw new ValidationException("Rate change already scheduled, processing will be retried.");
+            }
+        }
     }
 }

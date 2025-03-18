@@ -7,11 +7,12 @@ import faang.school.accountservice.entity.Tariff;
 import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.repository.TariffRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @Service
@@ -22,11 +23,11 @@ public class TariffService {
     public Tariff create(TariffRequestDto tariffDto) {
         checkExistTariff(tariffDto.name());
         Tariff tariff = Tariff.builder()
-            .name(tariffDto.name())
-            .rate(tariffDto.rate())
-            .updatedAt(null)
-            .history(new ArrayList<>())
-            .build();
+                .name(tariffDto.name())
+                .rate(tariffDto.rate())
+                .updatedAt(null)
+                .history(new ArrayList<>())
+                .build();
 
         return tariffRepository.save(tariff);
     }
@@ -48,7 +49,7 @@ public class TariffService {
     @Transactional(readOnly = true)
     public Tariff getTariff(TariffType tariffName) {
         return tariffRepository.findByName(tariffName)
-            .orElseThrow(() -> new EntityNotFoundException("Tariff not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Tariff not found"));
     }
 
     public void checkExistTariff(TariffType name) {
@@ -59,19 +60,19 @@ public class TariffService {
 
     public Tariff getExistingTariff(TariffType name) {
         return tariffRepository.findByName(name)
-            .orElseThrow(() -> new EntityNotFoundException("Tariff '%s' not found".formatted(name)));
+                .orElseThrow(() -> new EntityNotFoundException("Tariff '%s' not found".formatted(name)));
     }
 
     private HistoryDto createHistory(Tariff tariff, LocalDateTime now) {
         LocalDateTime activeFrom = !tariff.getHistory().isEmpty() ?
-            tariff.getUpdatedAt() :
-            tariff.getCreatedAt();
+                tariff.getUpdatedAt() :
+                tariff.getCreatedAt();
 
         return HistoryDto.builder()
-            .name(tariff.getName())
-            .oldRate(String.format("%.2f%%", tariff.getRate()))
-            .activeFrom(activeFrom)
-            .activeTo(now)
-            .build();
+                .name(tariff.getName())
+                .oldRate(String.format("%.2f%%", tariff.getRate()))
+                .activeFrom(activeFrom)
+                .activeTo(now)
+                .build();
     }
 }

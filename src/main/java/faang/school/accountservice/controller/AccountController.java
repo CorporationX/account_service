@@ -2,9 +2,12 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountCreateDto;
 import faang.school.accountservice.dto.AccountResponseDto;
+import faang.school.accountservice.dto.RateChangeRequestDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.RateChangeRequest;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.RateChangeRequestMapper;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -31,6 +34,8 @@ import java.util.List;
 public class AccountController {
     private final AccountService accountService;
     private final AccountMapper accountMapper;
+
+    private final RateChangeRequestMapper changeRequestMapper;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
@@ -81,5 +86,13 @@ public class AccountController {
     public AccountResponseDto closeAccount(@PathVariable Long id) {
         Account account = accountService.closeAccount(id);
         return accountMapper.toDto(account);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/schedule")
+    public RateChangeRequestDto createPlannedRateChange(@Valid @RequestBody RateChangeRequestDto changeRequestDto) {
+        RateChangeRequest changeRequest =  accountService.createPlannedRateChange(changeRequestDto);
+
+        return changeRequestMapper.toDto(changeRequest);
     }
 }

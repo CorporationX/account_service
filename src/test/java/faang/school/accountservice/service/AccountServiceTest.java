@@ -1,9 +1,16 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.RateChangeRequestDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.RateChangeRequest;
+import faang.school.accountservice.entity.Tariff;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.enums.RateChangeRequestStatus;
+import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.RateChangeRequestRepository;
+import faang.school.accountservice.repository.TariffRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,9 +18,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -26,13 +37,23 @@ class AccountServiceTest {
     private static final Long OWNER_ID = 100L;
     private static final OwnerType OWNER_TYPE = OwnerType.USER;
 
+    private final UUID tariffId = UUID.randomUUID();
+
+    private Account testAccount;
+
+    private RateChangeRequestDto changeRequestDto;
+    private Tariff tariff;
+
+    @Mock
+    private TariffRepository tariffRepository;
+
+    @Mock
+    private RateChangeRequestRepository rateChangeRequestRepository;
     @Mock
     private AccountRepository accountRepository;
 
     @InjectMocks
     private AccountService accountService;
-
-    private Account testAccount;
 
     @BeforeEach
     void setUp() {
@@ -42,6 +63,18 @@ class AccountServiceTest {
                 .ownerId(OWNER_ID)
                 .ownerType(OWNER_TYPE)
                 .accountStatus(AccountStatus.ACTIVE)
+                .build();
+
+        tariff = Tariff.builder()
+                .id(tariffId)
+                .name(TariffType.BASE)
+                .rate(30.0)
+                .build();
+
+        changeRequestDto = RateChangeRequestDto.builder()
+                .tariffId(tariff.getId())
+                .newRate(25.0)
+                .effectiveDate(LocalDate.now().plusDays(1))
                 .build();
     }
 
@@ -114,5 +147,31 @@ class AccountServiceTest {
         assertEquals(AccountStatus.CLOSED, result.getAccountStatus());
         assertNotNull(result.getClosedAt());
         verify(accountRepository).save(testAccount);
+    }
+
+    @Test
+    public void testCreatePlannedRateChangeSuccess() {
+
+        when(tariffRepository.findById(changeRequestDto.tariffId()))
+                .thenReturn(Optional.of(tariff));
+
+        when(rateChangeRequestRepository.findByTariffIdAndEffectiveDate(any(UUID.class), any(LocalDate.class)))
+                .thenReturn(Optional.empty());
+
+        when(rateChangeRequestRepository.save(any(RateChangeRequest.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        RateChangeRequest result = accountService.createPlannedRateChange(changeRequestDto);
+
+        assertNotNull(result);
+
+        assertEquals(tariff, result.getTariff());
+        assertEquals(changeRequestDto.newRate(), result.getNewRate());
+        assertEquals(RateChangeRequestStatus.PENDING, result.getStatus());
+        assertFalse(result.isProcessed());
+        assertEquals(changeRequestDto.effectiveDate(), result.getEffectiveDate());
+        assertEquals(LocalDate.now(), result.getRequestDate());
+
+        verify(rateChangeRequestRepository).save(result);
     }
 }

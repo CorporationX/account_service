@@ -8,11 +8,19 @@ spring:
     username: user
     password: password
 
+  kafka:
+    bootstrap:
+      server:
+        address: localhost:9092
+    topics:
+      notification-topics:
+        rate-change-event-topic-name: "rate-change-event"
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
