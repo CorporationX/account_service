@@ -2,7 +2,11 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.exception.non_retryable.CurrencyMismatchException;
+import faang.school.accountservice.exception.non_retryable.EntityNotFoundException;
+import faang.school.accountservice.exception.non_retryable.NotActiveAccountException;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,5 +55,25 @@ public class AccountService {
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
         return accountRepository.save(account);
+    }
+
+    @Transactional(readOnly = true)
+    public void checkCurrencyMismatch(String accountNumber, Currency inputCurrency) throws CurrencyMismatchException, EntityNotFoundException {
+        Account account = accountRepository.findByAccountNumberOrThrow(accountNumber);
+        if (!inputCurrency.equals(account.getCurrency())) {
+            throw new CurrencyMismatchException(
+                    String.format("Currency of accountId %d doesn't match input currency %s",
+                            account.getId(), inputCurrency)
+            );
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void checkAccountIsActive(String accountNumber) throws NotActiveAccountException, EntityNotFoundException {
+        Account account = accountRepository.findByAccountNumberOrThrow(accountNumber);
+        if (account.getAccountStatus() != AccountStatus.ACTIVE) {
+            throw new NotActiveAccountException(String.format(
+                    "Account with id %d has not OPEN status", account.getId()));
+        }
     }
 }
