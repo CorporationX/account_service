@@ -68,9 +68,7 @@ public class RequestService {
     public RequestReadDto startRequest(String idempotentKey) {
         try {
             Request request = getRequestByIdempotentKey(idempotentKey);
-            if (!request.isOpen()) {
-                throw new BusinessException("Запрос закрыт");
-            }
+            validateIsOpenRequest(request);
             if (request.isLock()) {
                 throw new BusinessException("Запрос уже выполняется");
             }
@@ -93,11 +91,9 @@ public class RequestService {
     )
     public RequestReadDto closeRequest(String idempotentKey) {
         Request request = getRequestByIdempotentKey(idempotentKey);
-        if (!request.isOpen()) {
-            throw new BusinessException("Request уже закрыт");
-        }
+        validateIsOpenRequest(request);
         if (!request.isLock()) {
-            throw new BusinessException("Request не выполняется");
+            throw new BusinessException("Запрос не выполняется");
         }
         request.setLock(false);
         request.setOpen(false);
@@ -109,8 +105,14 @@ public class RequestService {
         return requestMapper.toDto(getRequestByIdempotentKey(idempotentKey));
     }
 
+    private void validateIsOpenRequest(Request request) {
+        if (!request.isOpen()) {
+            throw new BusinessException("Запрос уже закрыт");
+        }
+    }
+
     private Request getRequestByIdempotentKey(String key) {
         return requestRepository.findByIdempotentKey(key)
-                .orElseThrow(() -> new EntityNotFoundException("Request не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Запрос не найден"));
     }
 }
