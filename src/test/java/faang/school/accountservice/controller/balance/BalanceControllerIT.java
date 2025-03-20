@@ -3,9 +3,6 @@ package faang.school.accountservice.controller.balance;
 import faang.school.accountservice.BaseIntegrationTest;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.balance.AuthPaymentRepository;
-import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,6 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -35,22 +31,11 @@ class BalanceControllerIT extends BaseIntegrationTest {
     @Autowired
     private BalanceService balanceService;
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private BalanceRepository balanceRepository;
-
-    @Autowired
-    private AuthPaymentRepository authPaymentRepository;
-
     @Test
-    @Sql(scripts = "/test-data-accept-payment.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void testAcceptPayment_OptimisticLockException() throws InterruptedException, ExecutionException, BrokenBarrierException {
-        final long ACCOUNT_ID = 1L;
-        final UUID BALANCE_ID = UUID.fromString("baa4fdc1-8327-4cb0-b102-f59ff9cbf5d1");
-        final UUID AUTH_PAYMENT_ID = UUID.fromString("2f04fdc1-8327-4cb0-b102-f59ff9cbf5d7");
-        final AuthPaymentRepository authPaymentRepository;
+    @Sql(scripts = {"/test-data-accounts-balances.sql", "/test-data-auth-payments.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/cleanup-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void testAcceptPayment_OptimisticLockException() throws InterruptedException, ExecutionException {
+        final UUID paymentId = UUID.fromString("2f04fdc1-8327-4cb0-b102-f59ff9cbf5d7");
         Money money = new Money(BigDecimal.valueOf(20), Currency.USD);
         Money moneyParal = new Money(BigDecimal.valueOf(50), Currency.USD);
 
@@ -63,7 +48,7 @@ class BalanceControllerIT extends BaseIntegrationTest {
             try {
                 barrier.await();
 
-                balanceService.acceptPayment(AUTH_PAYMENT_ID, money);
+                balanceService.acceptPayment(paymentId, money);
             } catch (ObjectOptimisticLockingFailureException e) {
 
                 logger.info("OptimisticLockException caught in thread 1 ");
@@ -76,7 +61,7 @@ class BalanceControllerIT extends BaseIntegrationTest {
             try {
                 barrier.await();
 
-                balanceService.acceptPayment(AUTH_PAYMENT_ID, moneyParal);
+                balanceService.acceptPayment(paymentId, moneyParal);
             } catch (OptimisticLockingFailureException e) {
 
                 logger.info("OptimisticLockException caught in thread 2 ");

@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: test
-
   datasource:
     driver-class-name: org.postgresql.Driver
 
@@ -15,8 +12,13 @@ spring:
         format_sql: true
 
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+    change-log: classpath:db/changelog/db.changelog-test.yaml
     enabled: true
+
+scheduled:
+  sendPaymentsToKafka:
+    cron: "*/5 * * * * *"
+    batchSize: 100
 
 server:
   port: 8090

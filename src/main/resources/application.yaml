@@ -28,6 +28,30 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      acks: all
+      retries: 3
+    consumer:
+      group-id: "account-group"
+      retry-interval-ms: 5000
+      max-attempts: 5
+      concurrent-threads-count: 3
+    topics:
+      dlq-transfer: "auth-payment.DLT"
+      transfer-request: "auth-message-request-topic"
+      transfer-response: "auth-message-response-topic"
+      transfer-cancel-request: "cancel-message-request-topic"
+      transfer-cancel-response: "cancel-message-response-topic"
+      transfer-clearing-request: "clearing-message-request-topic"
+      transfer-clearing-response: "clearing-message-response-topic"
+
+scheduled:
+  sendPaymentsToKafka:
+    cron: "*/10 * * * * *"
+    batchSize: 100
+
 server:
   port: 8090
 

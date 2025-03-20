@@ -5,6 +5,7 @@ import faang.school.accountservice.entity.AuthPayment;
 import faang.school.accountservice.entity.AuthPaymentStatus;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.ValidationException;
+import faang.school.accountservice.exception.non_retryable.NotEnoughFundsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class BalanceValidator {
     public void checkFreeAmount(Balance balance, Money money) {
         double freeAmount = balance.getCurrentBalance().subtract(balance.getAuthBalance()).doubleValue();
         if (money.amount().doubleValue() > freeAmount) {
-            throw new ValidationException("Not enough funds to authorize the amount: %s", money.amount());
+            throw new NotEnoughFundsException("Not enough funds to authorize the amount: " + money.amount());
         }
     }
 

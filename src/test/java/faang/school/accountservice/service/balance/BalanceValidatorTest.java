@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.exception.ValidationException;
 import faang.school.accountservice.entity.AuthPayment;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.exception.non_retryable.NotEnoughFundsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,7 @@ class BalanceValidatorTest {
         Money money = buildMoney(moneyAmount);
 
         assertThatThrownBy(() -> balanceValidator.checkFreeAmount(balance, money))
-                .isInstanceOf(ValidationException.class)
+                .isInstanceOf(NotEnoughFundsException.class)
                 .hasMessageContaining("Not enough funds to authorize the amount: %s", money.amount());
     }
 
