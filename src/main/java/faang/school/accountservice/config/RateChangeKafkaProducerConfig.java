@@ -52,13 +52,13 @@ public class RateChangeKafkaProducerConfig {
         return rateChangeEventTopicName;
     }
 
-    @Bean
+    @Bean("kafkaAdminRate")
     public KafkaAdmin  kafkaAdmin() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 bootstrapAddress);
-        return new KafkaAdmin(configProps);
+        return new KafkaAdmin (configProps);
     }
 
     @Bean

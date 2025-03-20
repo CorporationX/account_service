@@ -109,7 +109,6 @@ public class AccountService {
                     "Account with id %d has not OPEN status", account.getId()));
         }
     }
-}
 
     private void validateDateChange(RateChangeRequestDto changeRequestDto) {
 
