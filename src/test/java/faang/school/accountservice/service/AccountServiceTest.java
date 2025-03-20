@@ -4,7 +4,7 @@ import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountReadDto;
 import faang.school.accountservice.dto.project.ProjectReadDto;
 import faang.school.accountservice.dto.user.UserDto;
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.InvoiceType;

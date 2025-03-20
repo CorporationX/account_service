@@ -1,4 +1,4 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.entity.account;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

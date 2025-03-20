@@ -2,7 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.balance.BalanceReadDto;
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.BusinessException;
 import faang.school.accountservice.mapper.BalanceMapperImpl;

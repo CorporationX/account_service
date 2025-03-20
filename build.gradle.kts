@@ -44,6 +44,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springframework.retry:spring-retry:2.0.11")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-60:3.9.3")
 
     /**
      * Test containers

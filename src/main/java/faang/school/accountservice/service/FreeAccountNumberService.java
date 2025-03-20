@@ -1,8 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.entity.AccountNumberSequence;
-import faang.school.accountservice.entity.FreeAccountNumber;
-import faang.school.accountservice.entity.FreeAccountNumberId;
+import faang.school.accountservice.entity.account.AccountNumberSequence;
+import faang.school.accountservice.entity.account.FreeAccountNumber;
+import faang.school.accountservice.entity.account.FreeAccountNumberId;
 import faang.school.accountservice.enums.InvoiceType;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.repository.AccountNumberSequenceRepository;
@@ -63,7 +63,7 @@ public class FreeAccountNumberService {
     }
 
     @Transactional
-    private String incrementAndGet(InvoiceType invoiceType) {
+    public String incrementAndGet(InvoiceType invoiceType) {
         AccountNumberSequence accountNumber = accountNumberSequenceRepository
                 .findByInvoiceType(invoiceType)
                 .orElseThrow(() -> new IllegalStateException(
