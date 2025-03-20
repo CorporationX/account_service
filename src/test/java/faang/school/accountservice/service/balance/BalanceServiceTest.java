@@ -6,9 +6,11 @@ import faang.school.accountservice.entity.AuthPayment;
 import faang.school.accountservice.entity.AuthPaymentStatus;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.ResourceNotFoundException;
+import faang.school.accountservice.exception.non_retryable.EntityNotFoundException;
 import faang.school.accountservice.repository.balance.AuthPaymentRepository;
 import faang.school.accountservice.repository.balance.BalanceRepository;
 import faang.school.accountservice.service.AccountService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,10 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +57,24 @@ class BalanceServiceTest {
     @InjectMocks
     private BalanceService balanceService;
 
+    private Balance balance;
+    private AuthPayment authPayment;
+
+    @BeforeEach
+    void setUp() {
+        balance = Balance.builder()
+                .id(BALANCE_ID)
+                .authBalance(BigDecimal.ZERO)
+                .currentBalance(BigDecimal.valueOf(1000))
+                .build();
+
+        authPayment = AuthPayment.builder()
+                .id(AUTH_PAYMENT_ID)
+                .balance(balance)
+                .amount(BigDecimal.valueOf(100))
+                .build();
+    }
+
     @Test
     @DisplayName("Create balance successful")
     void testCreateBalanceForAccountSuccessful() {
@@ -60,7 +84,7 @@ class BalanceServiceTest {
 
         balanceService.createBalanceForAccount(ACCOUNT_ID);
 
-        Mockito.verify(balanceRepository).save(Mockito.any(Balance.class));
+        verify(balanceRepository).save(any(Balance.class));
     }
 
     @Test
@@ -83,8 +107,8 @@ class BalanceServiceTest {
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
 
-        Mockito.verify(balanceRepository).save(balanceCaptor.capture());
-        Mockito.verify(authPaymentRepository).save(paymentCaptor.capture());
+        verify(balanceRepository).save(balanceCaptor.capture());
+        verify(authPaymentRepository).save(paymentCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getAuthBalance().doubleValue())
@@ -112,8 +136,8 @@ class BalanceServiceTest {
         ArgumentCaptor<AuthPayment> paymentCaptor = ArgumentCaptor.forClass(AuthPayment.class);
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        Mockito.verify(balanceRepository).save(balanceCaptor.capture());
-        Mockito.verify(authPaymentRepository).save(paymentCaptor.capture());
+        verify(balanceRepository).save(balanceCaptor.capture());
+        verify(authPaymentRepository).save(paymentCaptor.capture());
 
         AuthPayment resultPayment = paymentCaptor.getValue();
         assertThat(resultPayment.getStatus())
@@ -139,7 +163,7 @@ class BalanceServiceTest {
 
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        Mockito.verify(balanceRepository).save(balanceCaptor.capture());
+        verify(balanceRepository).save(balanceCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getCurrentBalance().doubleValue())
@@ -159,7 +183,7 @@ class BalanceServiceTest {
 
         ArgumentCaptor<Balance> balanceCaptor = ArgumentCaptor.forClass(Balance.class);
 
-        Mockito.verify(balanceRepository).save(balanceCaptor.capture());
+        verify(balanceRepository).save(balanceCaptor.capture());
 
         Balance resultBalance = balanceCaptor.getValue();
         assertThat(resultBalance.getCurrentBalance().doubleValue())
@@ -204,5 +228,108 @@ class BalanceServiceTest {
 
         assertThat(balanceService.findById(BALANCE_ID))
                 .isEqualTo(balance);
+    }
+
+    @Test
+    void testCheckBalanceFindByIdPositive() {
+        when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.of(balance));
+
+        BigDecimal result = balanceService.checkBalanceFindById(BALANCE_ID);
+
+        assertEquals(BigDecimal.valueOf(1000), result);
+    }
+
+    @Test
+    void testCheckBalanceFindByIdThrowsResourceNotFoundException() {
+        when(balanceRepository.findById(BALANCE_ID)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> balanceService.checkBalanceFindById(BALANCE_ID));
+    }
+
+    @Test
+    void testFreezeFundsForTransferPositive() {
+        Balance updatedBalance = Balance.builder()
+                .id(BALANCE_ID)
+                .authBalance(BigDecimal.valueOf(100))
+                .currentBalance(BigDecimal.valueOf(900))
+                .build();
+        Money money = new Money(BigDecimal.valueOf(100), null);
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenReturn(balance);
+        when(balanceRepository.save(balance)).thenReturn(updatedBalance);
+        when(authPaymentRepository.save(any(AuthPayment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AuthPayment result = balanceService.freezeFundsForTransfer(BALANCE_ID, money);
+
+        assertEquals(money.amount(), result.getAmount());
+        assertEquals(balance, result.getBalance());
+        verify(balanceValidator).checkFreeAmount(balance, money);
+        verify(balanceRepository).save(balance);
+    }
+
+    @Test
+    void testFreezeFundsForTransferThrowsEntityNotFoundException() {
+        Money money = new Money(BigDecimal.valueOf(100), null);
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenThrow(EntityNotFoundException.class);
+
+        assertThrows(EntityNotFoundException.class, () -> balanceService.freezeFundsForTransfer(BALANCE_ID, money));
+    }
+
+    @Test
+    void testUnfreezeFundsForTransferPositive() {
+        balance.setAuthBalance(BigDecimal.valueOf(100));
+
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenReturn(balance);
+        when(authPaymentRepository.findByIdForUpdateOrThrow(AUTH_PAYMENT_ID)).thenReturn(authPayment);
+
+        balanceService.unfreezeFundsForTransfer(BALANCE_ID, AUTH_PAYMENT_ID);
+
+        assertEquals(BigDecimal.ZERO, balance.getAuthBalance());
+        assertEquals(BigDecimal.valueOf(1100), balance.getCurrentBalance());
+        verify(authPaymentRepository).save(authPayment);
+    }
+
+    @Test
+    void testUnfreezeFundsForTransferThrowsEntityNotFoundException() {
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenThrow(EntityNotFoundException.class);
+
+        assertThrows(EntityNotFoundException.class, () -> balanceService.unfreezeFundsForTransfer(BALANCE_ID, AUTH_PAYMENT_ID));
+    }
+
+    @Test
+    void testFinalizeTransferPositive() {
+        balance.setAuthBalance(BigDecimal.valueOf(100));
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenReturn(balance);
+        when(authPaymentRepository.findByIdForUpdateOrThrow(AUTH_PAYMENT_ID)).thenReturn(authPayment);
+
+        balanceService.finalizeTransfer(BALANCE_ID, AUTH_PAYMENT_ID);
+
+        assertEquals(BigDecimal.ZERO, balance.getAuthBalance());
+        assertEquals(AuthPaymentStatus.CLOSED, authPayment.getStatus());
+        verify(balanceRepository).save(balance);
+        verify(authPaymentRepository).save(authPayment);
+    }
+
+    @Test
+    void testFinalizeTransferThrowsEntityNotFoundException() {
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenThrow(EntityNotFoundException.class);
+
+        assertThrows(EntityNotFoundException.class, () -> balanceService.finalizeTransfer(BALANCE_ID, AUTH_PAYMENT_ID));
+    }
+
+    @Test
+    void testIncreaseCurrentBalancePessimisticPositive() {
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenReturn(balance);
+
+        balanceService.increaseCurrentBalancePessimistic(BALANCE_ID, BigDecimal.valueOf(500));
+
+        assertEquals(BigDecimal.valueOf(1500), balance.getCurrentBalance());
+        verify(balanceRepository).save(balance);
+    }
+
+    @Test
+    void testIncreaseCurrentBalancePessimisticThrowsEntityNotFoundException() {
+        when(balanceRepository.findByIdForUpdateOrThrow(BALANCE_ID)).thenThrow(EntityNotFoundException.class);
+
+        assertThrows(EntityNotFoundException.class, () -> balanceService.increaseCurrentBalancePessimistic(BALANCE_ID, BigDecimal.valueOf(500)));
     }
 }
