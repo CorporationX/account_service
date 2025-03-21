@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/audits")
 @Validated
 @RestController
-public class AuditController {
+public class BalanceAuditController {
     private final AsyncAuditService auditService;
     private final BalanceAuditMapper mapper;
 

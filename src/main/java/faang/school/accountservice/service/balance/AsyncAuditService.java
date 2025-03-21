@@ -14,6 +14,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @RequiredArgsConstructor
 @Service
 public class AsyncAuditService {
@@ -70,6 +72,8 @@ public class AsyncAuditService {
         BalanceAudit failedBalanceAudit = BalanceAudit.builder()
                 .initiator(initiator)
                 .eventType(eventType)
+                .currentAuthAmount(BigDecimal.ZERO)
+                .currentFactAmount(BigDecimal.ZERO)
                 .auditStatus(BalanceAuditStatus.FAILED)
                 .build();
 

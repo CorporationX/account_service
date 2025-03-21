@@ -38,14 +38,10 @@ public class BalanceAudit {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "auth_payment_id", nullable = false)
-    private AuthPayment authPayment;
-
-    @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
     private User initiator;
 
-    @Column
+    @Column(name = "audit_event_type", nullable = false, length = 16)
     @Enumerated(EnumType.STRING)
     private AuditEventType eventType;
 
@@ -61,7 +57,7 @@ public class BalanceAudit {
     @Column(name = "previous_fact_amount", precision = 19, scale = 2)
     private BigDecimal previousFactAmount;
 
-    @Column
+    @Column(name = "audit_status", nullable = false, length = 16)
     @Enumerated(EnumType.STRING)
     private BalanceAuditStatus auditStatus;
 

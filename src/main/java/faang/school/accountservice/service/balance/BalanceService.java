@@ -177,6 +177,7 @@ public class BalanceService {
         authPaymentRepository.save(authPayment);
     }
 
+    @AuditBalanceChange
     @Transactional
     public void finalizeTransfer(UUID balanceId, UUID authPaymentId) {
         Balance balance = balanceRepository.findByIdForUpdateOrThrow(balanceId);

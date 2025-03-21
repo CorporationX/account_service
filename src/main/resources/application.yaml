@@ -12,7 +12,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -43,6 +43,12 @@ scheduled:
   sendPaymentsToKafka:
     cron: "*/10 * * * * *"
     batchSize: 100
+
+audit-threadpool:
+  core-size: 5
+  max-size: 10
+  queue-capacity: 25
+  threadpool-name: "BalanceAuditWorker-"
 
 server:
   port: 8090
