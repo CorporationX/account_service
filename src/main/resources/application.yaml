@@ -44,11 +44,18 @@ spring:
       server:
         address: localhost:9092
 
-
 scheduled:
   sendPaymentsToKafka:
     cron: "*/10 * * * * *"
     batchSize: 100
+  sendRateChangeApplier:
+    cron: "0 0 0 * * *"
+
+rate-change:
+  executor:
+    core-pool-size: 4
+    max-pool-size: 8
+    queue-capacity: 100
 
 server:
   port: 8090

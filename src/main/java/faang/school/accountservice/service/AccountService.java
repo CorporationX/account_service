@@ -117,7 +117,6 @@ public class AccountService {
         }
     }
 
-    @Transactional(readOnly = true)
     private void checkingIdempotenceChange(RateChangeRequestDto changeRequestDto) {
 
         Optional<RateChangeRequest> existingRequest = rateChangeRequestRepository

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -37,7 +36,6 @@ public class RateChangeKafkaProducerConfig {
         configProps.put(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 JsonSerializer.class.getName());
-    //    configProps.put(JsonSerializer.TYPE_MAPPINGS, ("LikeEvent:faang.school.postservice.event.LikeEvent"));
 
         return new DefaultKafkaProducerFactory<>(configProps);
     }
@@ -48,21 +46,7 @@ public class RateChangeKafkaProducerConfig {
     }
 
     @Bean
-    public String rateChangeEventTopicName() {
-        return rateChangeEventTopicName;
-    }
-
-    @Bean("kafkaAdminRate")
-    public KafkaAdmin  kafkaAdmin() {
-        Map<String, Object> configProps = new HashMap<>();
-        configProps.put(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootstrapAddress);
-        return new KafkaAdmin (configProps);
-    }
-
-    @Bean
     public NewTopic rateChangeEventTopic() {
-        return new NewTopic("rate-change-event",3,(short) 1);
+        return new NewTopic(rateChangeEventTopicName, 3, (short) 1);
     }
 }

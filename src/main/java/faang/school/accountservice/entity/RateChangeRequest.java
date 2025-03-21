@@ -48,7 +48,7 @@ public class RateChangeRequest {
     @Column(name = "status", nullable = false)
     private RateChangeRequestStatus status;
 
-    @Column(name = "processed", nullable = false)
-    private boolean processed;
+    @Column(name = "is_processed", nullable = false)
+    private boolean isProcessed;
 
 }

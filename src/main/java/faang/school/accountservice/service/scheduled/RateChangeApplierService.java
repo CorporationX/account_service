@@ -26,8 +26,7 @@ public class RateChangeApplierService {
     private final RateChangeRequestRepository rateChangeRequestRepository;
     private final TariffRepository tariffRepository;
 
-    @Scheduled(cron = "0 0 0 * * *")
-    @Async("rateChange")
+    @Scheduled(cron = "${scheduled.sendRateChangeApplier.cron}")
     @Transactional
     public void applyRateChanges() {
         LocalDate effectiveDate = LocalDate.now();
@@ -36,18 +35,17 @@ public class RateChangeApplierService {
                 RateChangeRequestStatus.PROCESSING);
         log.info("Found {} rate change requests to apply", requests.size());
 
-        for (RateChangeRequest changeRequest : requests) {
+        requests.forEach(changeRequest -> {
             try {
                 update(changeRequest.getTariff().getId(), changeRequest.getNewRate());
-
             } catch (Exception e) {
                 log.error("Error applying rate change for tariff {}", changeRequest.getId(), e);
                 changeRequest.setStatus(RateChangeRequestStatus.FAILED);
                 rateChangeRequestRepository.save(changeRequest);
             }
-        }
+        });
     }
-    @Transactional
+
     private RateChangeRequest update(UUID id, Double rate) {
         Tariff tariff = tariffRepository.findById(id).orElseThrow();
         tariff.setRate(rate);
