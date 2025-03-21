@@ -34,8 +34,3 @@ project-service:
 
 domain:
   path: /api/v1
-
-account:
-  number:
-    min-digits: 12
-    max-digits: 20

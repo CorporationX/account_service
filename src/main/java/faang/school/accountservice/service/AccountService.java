@@ -12,7 +12,7 @@ public interface AccountService {
 
     AccountDto getAccountByNumber(String number);
 
-    AccountDto createAccount(AccountDto dto);
+    void createAccount(AccountDto dto);
 
     void blockAccount(long id);
 
