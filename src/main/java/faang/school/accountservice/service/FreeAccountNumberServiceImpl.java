@@ -28,7 +28,6 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
 
     private String generateFreeAccountNumber(AccountType accountType) {
         String code = accountType.getValue();
-        accountNumberSequenceRepository.incrementSequence(accountType.name(), 0L);
         Optional<Long> currentValueOpt = accountNumberSequenceRepository.getCurrentValue(accountType.name());
         if (currentValueOpt.isEmpty()) {
             accountNumberSequenceRepository.createSequence(accountType.name(), 0L);

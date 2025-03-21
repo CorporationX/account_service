@@ -36,8 +36,6 @@ public record AccountDto(
 
         LocalDateTime updatedAt,
 
-        LocalDateTime closedDate,
-
-        long version
+        LocalDateTime closedDate
 ) {
 }
