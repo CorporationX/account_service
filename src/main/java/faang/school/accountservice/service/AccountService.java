@@ -2,7 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountReadDto;
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.BusinessException;
 import faang.school.accountservice.exception.EntityNotFoundException;
@@ -74,7 +74,7 @@ public class AccountService {
         return accountMapper.toDto(account);
     }
 
-    private Account findByAccountNumber(String accountNumber) {
+    public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Такой счёт не найден")

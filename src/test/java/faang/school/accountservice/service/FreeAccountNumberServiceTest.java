@@ -1,9 +1,9 @@
 package faang.school.accountservice.service;
 
 
-import faang.school.accountservice.entity.AccountNumberSequence;
-import faang.school.accountservice.entity.FreeAccountNumber;
-import faang.school.accountservice.entity.FreeAccountNumberId;
+import faang.school.accountservice.entity.account.AccountNumberSequence;
+import faang.school.accountservice.entity.account.FreeAccountNumber;
+import faang.school.accountservice.entity.account.FreeAccountNumberId;
 import faang.school.accountservice.enums.InvoiceType;
 import faang.school.accountservice.repository.AccountNumberSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumberRepository;

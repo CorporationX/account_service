@@ -1,6 +1,6 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.entity.AccountNumberSequence;
+import faang.school.accountservice.entity.account.AccountNumberSequence;
 import faang.school.accountservice.enums.InvoiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
