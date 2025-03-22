@@ -5,6 +5,7 @@ spring:
     username: user
     password: password
 
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -20,10 +21,17 @@ spring:
 server:
   port: 8090
 
+
+account:
+  number:
+    batch:
+      size: 100
+
 user-service:
   host: localhost
   port: 8080
   api-prefix: api/v1
+
 
 logging:
   level:
@@ -31,3 +39,4 @@ logging:
 
 config:
   schedule-daily-interest-accrual-cron: "0 0 1 * * *"
+  schedule-daily-generate-number-cron: "0 0 1 * * *"
