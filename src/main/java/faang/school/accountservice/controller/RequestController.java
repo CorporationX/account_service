@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.RequestCreateDto;
-import faang.school.accountservice.dto.RequestGetDto;
+import faang.school.accountservice.dto.request.RequestCreateDto;
+import faang.school.accountservice.dto.request.RequestGetDto;
 import faang.school.accountservice.service.request.RequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

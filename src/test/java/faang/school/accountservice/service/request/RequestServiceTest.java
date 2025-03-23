@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.request;
 
-import faang.school.accountservice.dto.RequestCreateDto;
-import faang.school.accountservice.dto.RequestGetDto;
+import faang.school.accountservice.dto.request.RequestCreateDto;
+import faang.school.accountservice.dto.request.RequestGetDto;
 import faang.school.accountservice.exception.DuplicateIdempotencyKeyException;
 import faang.school.accountservice.exception.LockedRequestException;
 import faang.school.accountservice.mapper.RequestMapperImpl;
