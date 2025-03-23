@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V004_account-service_transfer_requests.sql
   - include:
       file: db/changelog/changeset/V005_account-service_account_user_id_foreign_key.sql
+  - include:
+      file: db/changelog/changeset/V006__account-service_account.sql
