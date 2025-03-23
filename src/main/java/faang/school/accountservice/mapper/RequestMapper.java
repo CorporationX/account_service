@@ -8,8 +8,6 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RequestMapper {
-
-    //    @Mapping(source = "request.inputParams", target = "inputParams", qualifiedBy = )
     RequestGetDto toDto(Request entity);
 
     Request toEntity(RequestCreateDto requestCreateDto);
