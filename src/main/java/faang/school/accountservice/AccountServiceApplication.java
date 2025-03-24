@@ -6,6 +6,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
