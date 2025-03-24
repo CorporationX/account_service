@@ -9,9 +9,13 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BalanceAuditMapper {
-    @Mapping(target = "balanceId", source = "balance.id")
+    @Mapping(target = "balanceId", source = "id")
     BalanceAuditResponseDto toBalanceAuditResponseDto(BalanceAudit balanceAudit);
 
-    @Mapping(target = "operationId", expression = "java(123456)")
+    @Mapping(target = "operationId", expression = "java(123555)")
+    @Mapping(target = "balanceId", source = "id")
     BalanceAudit toBalanceAuditFromBalance(Balance balance);
+
+    @Mapping(target = "operationId", expression = "java(123456)")
+    BalanceAuditResponseDto toBalanceAuditResponseDtoFromBalance(Balance balance);
 }

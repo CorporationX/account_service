@@ -1,8 +1,6 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.BalanceAuditResponseDto;
-import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.entity.BalanceAudit;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +15,5 @@ public class BalanceAuditServiceImpl implements BalanceAuditService {
     @Override
     public BalanceAuditResponseDto getBalanceAudit(Long id) {
         return balanceAuditMapper.toBalanceAuditResponseDto(balanceAuditRepository.findByBalanceId(id));
-    }
-
-    @Override
-    public BalanceAuditResponseDto getBalanceAuditForBalance(Balance balance) {
-        BalanceAudit balanceAudit = balanceAuditMapper.toBalanceAuditFromBalance(balance);
-        return balanceAuditMapper.toBalanceAuditResponseDto(balanceAudit);
     }
 }

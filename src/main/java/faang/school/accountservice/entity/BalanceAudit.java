@@ -32,9 +32,8 @@ public class BalanceAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
     @JoinColumn(name = "balance_id")
-    private Balance balance;
+    private Long balanceId;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
@@ -57,6 +56,4 @@ public class BalanceAudit {
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
-
-
 }
