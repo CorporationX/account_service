@@ -1,5 +1,6 @@
 package faang.school.accountservice.aspect;
 
+import faang.school.accountservice.annotation.AuditBalanceChange;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.AuditEventType;
 import faang.school.accountservice.service.balance.AsyncAuditService;
@@ -21,15 +22,10 @@ public class ChangeBalanceAspect {
     private final AsyncAuditService auditService;
     private final BalanceService balanceService;
 
-    @Around("@annotation(faang.school.accountservice.annotation.AuditBalanceChange)")
-    public void doAudit(ProceedingJoinPoint pjp) {
+    @Around("@annotation(auditBalanceChange)")
+    public void doAudit(ProceedingJoinPoint pjp, AuditBalanceChange auditBalanceChange) {
         Object[] args = pjp.getArgs();
-        String methodName = pjp.getSignature().getName();
-        AuditEventType eventType = AuditEventType.BALANCE_ADDITION;
-
-        if (methodName.equals("finalizeTransfer")) {
-            eventType = AuditEventType.BALANCE_TRANSITION;
-        }
+        AuditEventType eventType = auditBalanceChange.eventType();
 
         UUID balanceId = (UUID) args[0];
         Balance previousBalance = balanceService.findById(balanceId);
@@ -39,9 +35,8 @@ public class ChangeBalanceAspect {
         try {
             result = pjp.proceed();
         } catch (Throwable e) {
-            log.error("Audit balance with id {} failed", balanceId);
-        } finally {
             auditService.saveFailedBalanceAudit(eventType);
+            log.error("Audit balance with id {} failed", balanceId);
         }
 
         Balance actualBalance = (Balance) result;

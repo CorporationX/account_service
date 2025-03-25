@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BalanceAuditMapper {
 
-   public ResponseAuditDto toDto(BalanceAudit audit) {
+   public static ResponseAuditDto toDto(BalanceAudit audit) {
        User user = audit.getInitiator();
 
        return ResponseAuditDto.builder()

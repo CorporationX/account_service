@@ -1,5 +1,6 @@
 package faang.school.accountservice.aspect;
 
+import faang.school.accountservice.annotation.AuditBalanceCreation;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.service.balance.AsyncAuditService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Component;
 public class CreationBalanceAspect {
     private final AsyncAuditService auditService;
 
-    @AfterReturning(pointcut = "@annotation(faang.school.accountservice.annotation.AuditBalanceCreation)",
-            returning = "balance")
-    public void doAudit(Balance balance) {
+    @AfterReturning(pointcut = "@annotation(auditBalanceCreation)",
+                    returning = "balance")
+    public void doAudit(Balance balance, AuditBalanceCreation auditBalanceCreation) {
 
         auditService.auditBalanceCreation(balance);
     }

@@ -24,7 +24,6 @@ public class AsyncAuditService {
     private final UserService userService;
 
     @Async("auditBalanceExecutor")
-    @Transactional
     public void auditBalanceCreation(Balance balance) {
         User initiator = getInitiator();
 
@@ -38,11 +37,10 @@ public class AsyncAuditService {
                 .auditStatus(BalanceAuditStatus.SUCCEED)
                 .build();
 
-        repository.save(newBalanceAudit);
+        saveBalanceAudit(newBalanceAudit);
     }
 
     @Async("auditBalanceExecutor")
-    @Transactional
     public void auditBalanceChange(Balance prevBalance, Balance actualBalance, AuditEventType eventType) {
         User initiator = getInitiator();
 
@@ -56,7 +54,7 @@ public class AsyncAuditService {
                 .auditStatus(BalanceAuditStatus.SUCCEED)
                 .build();
 
-        repository.save(newBalanceAudit);
+        saveBalanceAudit(newBalanceAudit);
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +63,7 @@ public class AsyncAuditService {
                 .orElseThrow(() -> new BalanceAuditException(String.format("BalanceAudit with id %d not found", id)));
     }
 
-    @Transactional
+    @Async("auditBalanceExecutor")
     public void saveFailedBalanceAudit(AuditEventType eventType) {
         User initiator = getInitiator();
 
@@ -77,7 +75,12 @@ public class AsyncAuditService {
                 .auditStatus(BalanceAuditStatus.FAILED)
                 .build();
 
-        repository.save(failedBalanceAudit);
+        saveBalanceAudit(failedBalanceAudit);
+    }
+
+    @Transactional
+    public void saveBalanceAudit(BalanceAudit audit) {
+        repository.save(audit);
     }
 
     private User getInitiator() {

@@ -1,9 +1,7 @@
 package faang.school.accountservice;
 
-import faang.school.accountservice.config.context.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -17,8 +15,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.when;
-
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
@@ -29,9 +25,6 @@ public abstract class BaseIntegrationTest {
     @LocalServerPort
     protected int port;
 
-    @MockBean
-    protected UserContext userContext;
-
     protected WebTestClient webTestClient;
 
     @BeforeEach
@@ -40,8 +33,6 @@ public abstract class BaseIntegrationTest {
                 .baseUrl("http://localhost:" + port)
                 .defaultHeader("x-user-id", "1")
                 .build();
-
-            when(userContext.getUserId()).thenReturn(1L);
     }
 
     static {

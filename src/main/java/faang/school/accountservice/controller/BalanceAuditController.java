@@ -19,13 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class BalanceAuditController {
     private final AsyncAuditService auditService;
-    private final BalanceAuditMapper mapper;
 
     @GetMapping("/{auditId}")
     public ResponseEntity<ResponseAuditDto> getAudit(@PathVariable @Positive long auditId) {
 
         BalanceAudit balanceAudit = auditService.getBalanceAudit(auditId);
-        ResponseAuditDto dto = mapper.toDto(balanceAudit);
+        ResponseAuditDto dto = BalanceAuditMapper.toDto(balanceAudit);
         return ResponseEntity.ok(dto);
     }
 }
