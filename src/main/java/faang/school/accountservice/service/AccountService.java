@@ -111,4 +111,9 @@ public class AccountService {
         int length = Math.min(res.length(), 20);
         return res.substring(0, length);
     }
+
+    public Account getAccountByNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found by accountNumber: " + accountNumber));
+    }
 }
