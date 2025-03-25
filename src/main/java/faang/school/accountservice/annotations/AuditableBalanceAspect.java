@@ -1,21 +1,21 @@
 package faang.school.accountservice.annotations;
 
 import faang.school.accountservice.dto.BalanceResponseDto;
-import faang.school.accountservice.service.balance.BalanceServiceImpl;
+import faang.school.accountservice.service.balance.BalanceService;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class BalanceAuditAspect {
+@RequiredArgsConstructor
+public class AuditableBalanceAspect {
 
-    @Autowired
-    private BalanceServiceImpl balanceService;
+    private final BalanceService balanceService;
 
-    @AfterReturning(pointcut = "@annotation(balanceAudit)", returning = "result")
-    public void afterCallSaveBalanceAudit(BalanceAudit balanceAudit, Object result) {
+    @AfterReturning(pointcut = "@annotation(auditableBalance)", returning = "result")
+    public void afterCallSaveBalanceAudit(AuditableBalance auditableBalance, Object result) {
 
         if (result instanceof BalanceResponseDto) {
             BalanceResponseDto auditedBalance = (BalanceResponseDto) result;
