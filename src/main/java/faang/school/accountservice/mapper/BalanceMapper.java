@@ -11,4 +11,7 @@ public interface BalanceMapper {
 
     @Mapping(target = "accountId", source = "account.id")
     BalanceResponseDto toBalanceResponseDto(Balance balance);
+
+    @Mapping(target = "account.id", source = "accountId")
+    Balance toBalanceEntity(BalanceResponseDto balanceResponseDto);
 }

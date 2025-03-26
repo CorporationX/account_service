@@ -15,3 +15,12 @@ VALUES
     (3, 3, 50000.00, 45000.75, NOW(), NOW()),
     (4, 4, 2000.00, 1800.00, NOW(), NOW()),
     (5, 5, 0.01, 0.01, NOW(), NOW());
+
+INSERT INTO balance_audit (id, balance_id, account_id, auth_balance, actual_balance, version, operation_id, created_at)
+OVERRIDING SYSTEM VALUE
+VALUES
+    (1, 1, 1, 0.00, 0.00, 1, 1, NOW()),
+    (2, 2, 2, 1000.50, 950.25,1 , 1, NOW()),
+    (3, 3, 3, 50000.00, 45000.75, 1, 1, NOW()),
+    (4, 4, 4, 2000.00, 1800.00, 1, 1, NOW()),
+    (5, 5, 4, 0.01, 0.01, 1, 1, NOW());
