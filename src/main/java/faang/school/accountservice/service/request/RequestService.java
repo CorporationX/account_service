@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,18 +42,22 @@ public class RequestService {
         try {
             return requestMapper.toDto(requestRepository.save(request));
         } catch (DataIntegrityViolationException e) {
-            if (e.getMessage().contains("idx_request_user_id")) {
-                String errorMessage = "Запрос с таким ключом идемпотентности уже существует";
-                log.error(errorMessage);
-                throw new DuplicateIdempotencyKeyException("Запрос в обработке");
-            } else if (e.getMessage().contains("idx_request_lock_value_open")) {
-                String errorMessage = "Запрос с таким значением блокировки уже открыт";
-                log.error(errorMessage);
-                throw new LockedRequestException("Запрос в обработке");
-            } else {
-                log.error(e.getMessage(), e);
-                throw new RuntimeException("Невозможно создать запрос");
-            }
+            throw getExceptionByMessage(e);
+        }
+    }
+
+    private RuntimeException getExceptionByMessage(DataIntegrityViolationException e) {
+        if (e.getMessage().contains("idx_request_user_id")) {
+            String errorMessage = "Запрос с таким ключом идемпотентности уже существует";
+            log.error(errorMessage);
+            return new DuplicateIdempotencyKeyException("Запрос в обработке");
+        } else if (e.getMessage().contains("idx_request_lock_value_open")) {
+            String errorMessage = "Запрос с таким значением блокировки уже открыт";
+            log.error(errorMessage);
+            return new LockedRequestException("Запрос в обработке");
+        } else {
+            log.error(e.getMessage(), e);
+            return new RuntimeException("Невозможно создать запрос");
         }
     }
 
@@ -68,9 +71,9 @@ public class RequestService {
         eventPublisher.publish(request);
     }
 
-    @Async("threadPool")
     @Scheduled(cron = "${account-service.process-request-cron}")
     public void processRequests() {
+        log.info("тред {}", Thread.currentThread().getName());
         List<Request> requests = requestRepository.findByRequestStatus(TODO);
         requests.forEach(request -> {
             requestHandlerFactory.getHandler(request.getRequestType()).handle(request);

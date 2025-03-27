@@ -16,6 +16,6 @@ public class TransferRequestHandler implements RequestHandler {
 
     @Override
     public void handle(Request request) {
-        log.info("Funds transfer");
+        log.info("Перевод средств");
     }
 }

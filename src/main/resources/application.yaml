@@ -21,6 +21,11 @@ spring:
       channels:
         transfer: transfer_channel
 
+  task:
+    scheduling:
+      pool:
+        size: 5
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
@@ -32,5 +37,4 @@ logging:
     root: info
 
 account-service:
-  thread-pool-size: 5
   process-request-cron: "0 */5 * * * *"

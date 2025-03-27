@@ -16,6 +16,4 @@ public class RequestGetDto {
     private Map<String, Object> inputParams;
     private RequestStatus requestStatus;
     private String description;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
