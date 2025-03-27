@@ -14,6 +14,18 @@ spring:
       hibernate:
         format_sql: true
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        transfer: transfer_channel
+
+  task:
+    scheduling:
+      pool:
+        size: 5
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
@@ -23,3 +35,6 @@ server:
 logging:
   level:
     root: info
+
+account-service:
+  process-request-cron: "0 */5 * * * *"
