@@ -3,6 +3,8 @@ package faang.school.accountservice.service.balance;
 import faang.school.accountservice.dto.BalanceResponseDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,10 @@ public class BalanceServiceIntegrationTest {
     private BalanceService balanceService;
     @Autowired
     private BalanceRepository balanceRepository;
+    @Autowired
+    BalanceAuditRepository balanceAuditRepository;
+    @Autowired
+    BalanceAuditMapper balanceAuditMapper;
 
     @DynamicPropertySource
     static void postgresProperties(DynamicPropertyRegistry registry) {

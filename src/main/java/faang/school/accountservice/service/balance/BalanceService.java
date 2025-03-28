@@ -23,6 +23,5 @@ public interface BalanceService {
 
     BalanceResponseDto resetBalance(Long balanceId);
 
-
-
+    void saveBalanceAudit(BalanceResponseDto balanceResponseDto);
 }

@@ -1,9 +1,12 @@
 package faang.school.accountservice.service.balance;
 
+import faang.school.accountservice.annotations.AuditableBalance;
 import faang.school.accountservice.dto.BalanceResponseDto;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.error.InsufficientFundsException;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -24,6 +27,8 @@ public class BalanceServiceImpl implements BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditRepository balanceAuditRepository;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     @Override
     public BalanceResponseDto getBalance(Long balanceId) {
@@ -31,6 +36,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @AuditableBalance()
     public BalanceResponseDto getOrCreateBalance(Long accountId) {
         Balance balance = balanceRepository.findByAccountId(accountId)
                 .orElseGet(() -> {
@@ -48,6 +54,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public BalanceResponseDto updateBalance(Long balanceId, BigDecimal authorizedBalance, BigDecimal actualBalance) {
         log.info("Updating balance {}", balanceId);
         return updateBalanceById(balanceId, authorizedBalance, actualBalance);
@@ -60,6 +67,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public BalanceResponseDto topUpBalance(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         balance.setActualBalance(balance.getActualBalance().add(amount));
@@ -75,6 +83,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public BalanceResponseDto writeOffFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
@@ -90,6 +99,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public BalanceResponseDto holdFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         Balance savedBalance;
@@ -112,6 +122,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public BalanceResponseDto releaseFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         Balance savedBalance;
@@ -134,6 +145,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public BalanceResponseDto writeOffHeldFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         Balance savedBalance;
@@ -155,6 +167,7 @@ public class BalanceServiceImpl implements BalanceService {
                     delayExpression = "${retry.backoff.delay}",
                     multiplierExpression = "${retry.backoff.multiplier}"))
     @Transactional
+    @AuditableBalance()
     public boolean hasSufficientFunds(Long balanceId, BigDecimal amount) {
         Balance balance = getBalanceById(balanceId);
         return balance.getActualBalance().compareTo(amount) >= 0;
@@ -183,6 +196,7 @@ public class BalanceServiceImpl implements BalanceService {
         throw new RuntimeException("A version conflict occurred while updating a record: {}", e);
     }
 
+    @AuditableBalance()
     private BalanceResponseDto updateBalanceById(Long balanceId, BigDecimal authorizedBalance, BigDecimal actualBalance) {
         Balance balance = balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with id = " + balanceId + " is not found"));
@@ -193,7 +207,9 @@ public class BalanceServiceImpl implements BalanceService {
             balance.setActualBalance(actualBalance);
         }
         validateBalance(balance);
-        return balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
+
+        BalanceResponseDto balanceResponseDto = balanceMapper.toBalanceResponseDto(balanceRepository.save(balance));
+        return balanceResponseDto;
     }
 
     private void validateBalance(Balance balance) {
@@ -212,5 +228,12 @@ public class BalanceServiceImpl implements BalanceService {
     private Balance getBalanceById(Long balanceId) {
         return balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with id = " + balanceId + " is not found"));
+    }
+
+    public void saveBalanceAudit(BalanceResponseDto balanceResponseDto) {
+        faang.school.accountservice.entity.BalanceAudit balanceAudit = balanceAuditRepository.save(balanceAuditMapper.
+                toBalanceAuditFromBalance(balanceMapper.toBalanceEntity(balanceResponseDto)));
+        log.info("Save balance-audit for accountId = {}, balance_audit.id = {}"
+                , balanceResponseDto.accountId(), balanceAudit.getId());
     }
 }
