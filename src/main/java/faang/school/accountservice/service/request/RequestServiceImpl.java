@@ -33,7 +33,7 @@ public class RequestServiceImpl implements RequestService {
             request = requestRepository.save(request);
         } catch (DataIntegrityViolationException ex) {
             throw new DuplicateKeyException("Request with created_by="
-                    + requestDto.getCreatedBy() + " already exists.", ex);
+                    + requestDto.createdBy() + " already exists.", ex);
         }
 
         requestDto = requestMapper.toDto(request);
@@ -44,12 +44,12 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public RequestDto updateRequest(RequestDto updateDto) {
-        Request request = getRequest(updateDto.getId());
+        Request request = getRequest(updateDto.id());
         requestMapper.updateEntityFromDto(updateDto, request);
 
         RequestDto requestDto = requestMapper.toDto(requestRepository.save(request));
 
-        if (updateDto.getRequestStatus() != null) {
+        if (request.getRequestStatus() != null) {
             requestStatusPublisher.publish(requestMapper.toEvent(requestDto));
         }
         return requestDto;

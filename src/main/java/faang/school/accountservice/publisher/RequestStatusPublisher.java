@@ -3,6 +3,7 @@ package faang.school.accountservice.publisher;
 import faang.school.accountservice.config.redis.RedisProperties;
 import faang.school.accountservice.dto.RequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -10,13 +11,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RequestStatusPublisher implements EventPublisher<RequestDto> {
 
-    public static final String REQUEST_STATUS_CHANNEL = "request-status";
+    @Value("${spring.data.redis.channels.request-status}")
+    private final String channel;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisProperties redisProperties;
 
     @Override
     public void publish(RequestDto event) {
-        String channel = redisProperties.getChannels().get(REQUEST_STATUS_CHANNEL);
         redisTemplate.convertAndSend(channel, event);
     }
 }

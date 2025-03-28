@@ -3,36 +3,31 @@ package faang.school.accountservice.dto;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.UUID;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RequestDto {
+public record RequestDto (
 
-    private UUID id;
+    UUID id,
 
     @NotNull(message = "createdBy cannot be null")
-    private Long createdBy;
+    Long createdBy,
 
     @NotNull(message = "type cannot be null")
-    private RequestType type;
+    RequestType type,
 
-    private Map<String, Object> inputData;
+    Map<String, Object> inputData,
 
     @NotNull(message = "requestStatus cannot be null")
-    private RequestStatus requestStatus;
+    RequestStatus requestStatus,
 
     @NotNull(message = "lockValue cannot be null")
-    private Long lockValue;
+    Long lockValue,
 
-    private String statusDescription;
+    String statusDescription
+    ){
 }
 
