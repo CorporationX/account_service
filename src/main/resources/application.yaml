@@ -38,11 +38,24 @@ spring:
       transfer-cancel-response: "cancel-message-response-topic"
       transfer-clearing-request: "clearing-message-request-topic"
       transfer-clearing-response: "clearing-message-response-topic"
+      notification-topics:
+        rate-change-event-topic-name: "rate-change-event"
+    bootstrap:
+      server:
+        address: localhost:9092
 
 scheduled:
   sendPaymentsToKafka:
     cron: "*/10 * * * * *"
     batchSize: 100
+  sendRateChangeApplier:
+    cron: "0 0 0 * * *"
+
+rate-change:
+  executor:
+    core-pool-size: 4
+    max-pool-size: 8
+    queue-capacity: 100
 
 audit-threadpool:
   core-size: 5
