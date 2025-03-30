@@ -68,7 +68,7 @@ public class TransferRequest {
 
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column

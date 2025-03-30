@@ -1,10 +1,13 @@
 package faang.school.accountservice.service.balance;
 
+import faang.school.accountservice.annotation.AuditBalanceChange;
+import faang.school.accountservice.annotation.AuditBalanceCreation;
 import faang.school.accountservice.dto.Money;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.AuthPayment;
 import faang.school.accountservice.entity.AuthPaymentStatus;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.enums.AuditEventType;
 import faang.school.accountservice.exception.BalanceConflictException;
 import faang.school.accountservice.exception.ResourceNotFoundException;
 import faang.school.accountservice.exception.non_retryable.EntityNotFoundException;
@@ -31,6 +34,7 @@ public class BalanceService {
     private final AccountService accountService;
 
 
+    @AuditBalanceCreation
     @Transactional
     public Balance createBalanceForAccount(Long id) {
         Account account = accountService.getAccountById(id);
@@ -95,6 +99,7 @@ public class BalanceService {
         return authPaymentRepository.save(authPayment);
     }
 
+    @AuditBalanceChange(eventType = AuditEventType.BALANCE_ADDITION)
     @Transactional
     public Balance topUpCurrentBalance(UUID balanceId, Money money) {
         Balance balance = findById(balanceId);
@@ -112,6 +117,7 @@ public class BalanceService {
 
         BigDecimal multiplier = BigDecimal.valueOf(value);
         BigDecimal newCurrentBalance = currentBalance.add(currentBalance.multiply(multiplier));
+
         balance.setCurrentBalance(newCurrentBalance);
 
         return saveBalanceWithOptimisticLockHandling(balance);
@@ -172,6 +178,7 @@ public class BalanceService {
         authPaymentRepository.save(authPayment);
     }
 
+    @AuditBalanceChange(eventType = AuditEventType.BALANCE_TRANSITION)
     @Transactional
     public void finalizeTransfer(UUID balanceId, UUID authPaymentId) {
         Balance balance = balanceRepository.findByIdForUpdateOrThrow(balanceId);

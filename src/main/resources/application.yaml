@@ -57,9 +57,19 @@ rate-change:
     max-pool-size: 8
     queue-capacity: 100
 
+audit-threadpool:
+  core-size: 5
+  max-size: 10
+  queue-capacity: 25
+  threadpool-name: "BalanceAuditWorker-"
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
