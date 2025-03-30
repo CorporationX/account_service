@@ -10,7 +10,8 @@ CREATE TABLE request
     status             SMALLINT NOT NULL DEFAULT 0,
     status_description VARCHAR(512),  
     created_at         TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at         TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at         TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    version            INT DEFAULT 1
 );
 
 CREATE UNIQUE INDEX ON request (created_by) WHERE status = 0;

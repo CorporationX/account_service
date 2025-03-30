@@ -25,6 +25,7 @@ spring:
         request-status: request_status_notification_channel
 
   liquibase:
+    enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 server:
