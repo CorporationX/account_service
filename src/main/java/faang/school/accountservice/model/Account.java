@@ -3,15 +3,7 @@ package faang.school.accountservice.model;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.enums.Type;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -45,6 +37,9 @@ public class Account {
 
     @Column(name = "project_id")
     private Long projectId;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @Enumerated(EnumType.STRING)
     private Type type;
