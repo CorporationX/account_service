@@ -7,11 +7,11 @@ CREATE TABLE account (
     type varchar(32) NOT NULL,
     currency varchar(3) NOT NULL,
     status varchar(32) NOT NULL,
-    created_at timestampz DEFAULT current_timestamp,
-    updated_at timestampz DEFAULT current_timestamp,
+    created_at timestamptz DEFAULT current_timestamp,
+    updated_at timestamptz DEFAULT current_timestamp,
     closed_at timestamp,
-    version int DEFAULT 0,
-)
+    version int DEFAULT 0
+);
 
 CREATE INDEX IF NOT EXISTS owner_type_and_id_idx ON account(owner_type, owner_id);
 CREATE INDEX IF NOT EXISTS number_idx ON account(number);
