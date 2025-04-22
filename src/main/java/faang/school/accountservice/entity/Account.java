@@ -33,11 +33,11 @@ import java.time.LocalDateTime;
 public class Account {
 
     @Id
-    @Column(name = "account_number")
+    @Column(name = "account_number", nullable = false, unique = true)
     private String accountNumber;
 
-    @Column(name = "owner_id")
-    private Long userId;
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
 
     @Column(name = "owner_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -47,26 +47,26 @@ public class Account {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private Status status;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "currency")
+    @Column(name = "currency", nullable = false)
     private Currency currency;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type")
+    @Column(name = "account_type", nullable = false)
     private AccountType accountType;
 
     @Version

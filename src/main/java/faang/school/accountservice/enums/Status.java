@@ -2,6 +2,6 @@ package faang.school.accountservice.enums;
 
 public enum Status {
     ACTIVE,
-    FROZEN,
+    BLOCKED,
     CLOSED
 }
