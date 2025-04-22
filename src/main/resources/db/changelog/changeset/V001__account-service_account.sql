@@ -1,5 +1,5 @@
 -- Write your sql migration here!
-CREATE TABLE account (
+CREATE TABLE IF NOT EXISTS account (
     id bigint PRIMARY KEY GENERATED ALWAYS as IDENTITY UNIQUE,
     number varchar(20) NOT NULL UNIQUE CHECK(LENGTH(number) BETWEEN 12 AND 20),
     owner_type varchar(32) NOT NULL,
