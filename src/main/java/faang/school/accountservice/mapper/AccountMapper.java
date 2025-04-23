@@ -2,26 +2,27 @@ package faang.school.accountservice.mapper;
 
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
+import faang.school.accountservice.dto.AccountStatusDto;
 import faang.school.accountservice.dto.AccountTypeDto;
 import faang.school.accountservice.dto.CurrencyDto;
 import faang.school.accountservice.dto.OwnerTypeDto;
-import faang.school.accountservice.dto.StatusDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.enums.Status;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
 
     @Mapping(source = "currency", target = "currency", qualifiedByName = "mapCurrencyToCurrencyDto")
     @Mapping(source = "accountType", target = "accountType", qualifiedByName = "mapAccountTypeToAccountTypeDto")
     @Mapping(source = "ownerType", target = "ownerType", qualifiedByName = "mapOwnerTypeToOwnerTypeDto")
-    @Mapping(source = "status", target = "status", qualifiedByName = "mapStatusToStatusDto")
+    @Mapping(source = "accountStatus", target = "accountStatus", qualifiedByName = "mapStatusToStatusDto")
     AccountResponseDto toAccountResponseDto(Account account);
 
     @Mapping(source = "currency", target = "currency", qualifiedByName = "mapCurrencyDtoToCurrency")
@@ -60,8 +61,8 @@ public interface AccountMapper {
     }
 
     @Named("mapStatusToStatusDto")
-    default StatusDto mapStatusToStatusDto(Status status) {
-        return status == null ? null : StatusDto.valueOf(status.name());
+    default AccountStatusDto mapStatusToStatusDto(AccountStatus accountStatus) {
+        return accountStatus == null ? null : AccountStatusDto.valueOf(accountStatus.name());
     }
 }
 

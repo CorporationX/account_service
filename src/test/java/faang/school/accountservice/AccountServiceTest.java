@@ -5,11 +5,11 @@ import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.dto.AccountTypeDto;
 import faang.school.accountservice.dto.CurrencyDto;
 import faang.school.accountservice.dto.OwnerTypeDto;
-import faang.school.accountservice.dto.StatusDto;
+import faang.school.accountservice.dto.AccountStatusDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
@@ -94,7 +94,7 @@ public class AccountServiceTest {
         assertEquals(accountRequest.getCurrency().name(), result.getCurrency().name());
         assertEquals(accountRequest.getAccountType().name(), result.getAccountType().name());
         assertEquals(accountRequest.getDescription(), result.getDescription());
-        assertEquals(Status.ACTIVE, result.getStatus());
+        assertEquals(AccountStatus.ACTIVE, result.getAccountStatus());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class AccountServiceTest {
 
         AccountResponseDto result = accountService.blockAccount(accountNumber);
 
-        assertEquals(StatusDto.BLOCKED, result.getStatus());
+        assertEquals(AccountStatusDto.BLOCKED, result.getAccountStatus());
     }
 
     @Test
@@ -134,6 +134,6 @@ public class AccountServiceTest {
 
         AccountResponseDto result = accountService.closeAccount(accountNumber);
 
-        assertEquals(StatusDto.CLOSED, result.getStatus());
+        assertEquals(AccountStatusDto.CLOSED, result.getAccountStatus());
     }
 }

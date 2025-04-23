@@ -3,7 +3,7 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.Status;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
@@ -35,32 +35,37 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponseDto createAccount(AccountRequestDto accountRequest) {
         String accountNumber = generateAccountNumber();
         Account account = accountMapper.toAccount(accountRequest);
+        log.info("Creating account with number {} for user owner ID {}", accountNumber, accountRequest.getOwnerId());
         account.setAccountNumber(accountNumber);
-        account.setStatus(Status.ACTIVE);
+        account.setAccountStatus(AccountStatus.ACTIVE);
         return accountMapper.toAccountResponseDto(accountRepository.save(account));
     }
 
     @Retryable(
             retryFor = {OptimisticLockException.class},
+            maxAttemptsExpression = "${app.optimistic-lock-max-attempts}",
             backoff = @Backoff(delayExpression = "${app.optimistic-lock-backoff-delay}")
     )
     @Override
     @Transactional
     public AccountResponseDto blockAccount(String accountNumber) {
         Account account = findAccount(accountNumber);
-        account.setStatus(Status.BLOCKED);
+        account.setAccountStatus(AccountStatus.BLOCKED);
+        log.info("Account with number {} blocked", accountNumber);
         return accountMapper.toAccountResponseDto(account);
     }
 
     @Retryable(
             retryFor = {OptimisticLockException.class},
+            maxAttemptsExpression = "${app.optimistic-lock-max-attempts}",
             backoff = @Backoff(delayExpression = "${app.optimistic-lock-backoff-delay}")
     )
     @Override
     @Transactional
     public AccountResponseDto closeAccount(String accountNumber) {
         Account account = findAccount(accountNumber);
-        account.setStatus(Status.CLOSED);
+        account.setAccountStatus(AccountStatus.CLOSED);
+        log.info("Account with number {} closed", accountNumber);
         return accountMapper.toAccountResponseDto(account);
     }
 

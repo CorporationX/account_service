@@ -15,7 +15,7 @@ public class AccountResponseDto {
     private String accountNumber;
     private Long ownerId;
     private OwnerTypeDto ownerType;
-    private StatusDto status;
+    private AccountStatusDto accountStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime closedAt;

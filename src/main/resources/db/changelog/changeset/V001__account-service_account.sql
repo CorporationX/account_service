@@ -1,10 +1,9 @@
-CREATE TABLE IF NOT EXISTS payment_account
-(
+CREATE TABLE IF NOT EXISTS payment_account (
     account_number VARCHAR(20) PRIMARY KEY,
     owner_id       BIGINT,
     owner_type     VARCHAR(32),
     description    VARCHAR(512),
-    status         VARCHAR(32),
+    accountStatus         VARCHAR(32),
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     closed_at      TIMESTAMP,

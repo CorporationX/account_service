@@ -1,6 +1,6 @@
 package faang.school.accountservice.dto;
 
-public enum StatusDto {
+public enum AccountStatusDto {
     ACTIVE,
     BLOCKED,
     CLOSED
