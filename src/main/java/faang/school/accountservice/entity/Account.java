@@ -4,6 +4,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -73,4 +75,7 @@ public class Account {
     @Version
     @Column(name = "version", nullable = false)
     private int version;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SavingsAccount savingsAccount;
 }
