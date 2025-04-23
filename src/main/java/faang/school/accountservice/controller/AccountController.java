@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @Slf4j
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
     private final AccountService accountService;
@@ -38,19 +40,19 @@ public class AccountController {
         return ResponseEntity.ok(accountService.createAccount(accountRequest));
     }
 
-    @PutMapping("/{accountNumber}")
+    @PutMapping("/{accountNumber}/block")
     public ResponseEntity<AccountResponseDto> blockAccount(
             @PathVariable @Valid @NotNull @NotBlank String accountNumber) {
 
-        log.info("Received request to block account with ID{}", accountNumber);
+        log.info("Received request to block account with ID {}", accountNumber);
         return ResponseEntity.ok(accountService.blockAccount(accountNumber));
     }
 
-    @PutMapping("/{accountNumber}")
+    @PutMapping("/{accountNumber}/close")
     public ResponseEntity<AccountResponseDto> closeAccount(
             @PathVariable @Valid @NotNull @NotBlank String accountNumber) {
 
-        log.info("Received request to close account with ID{}", accountNumber);
+        log.info("Received request to close account with ID {}", accountNumber);
         return ResponseEntity.ok(accountService.closeAccount(accountNumber));
     }
 }
