@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
             }
         }
 
-        return accountMapper.toAccountResponseDto(accountRepository.save(account));
+        return accountMapper.toAccountResponseDto(account);
     }
 
     @Retryable(
