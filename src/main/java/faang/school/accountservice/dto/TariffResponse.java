@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Builder
 public record TariffResponse(
         String typeName,
+        String activeRate,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

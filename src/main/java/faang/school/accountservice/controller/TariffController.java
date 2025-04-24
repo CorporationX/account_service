@@ -1,13 +1,16 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.TariffResponse;
+import faang.school.accountservice.dto.TariffUpdateRequest;
 import faang.school.accountservice.service.TariffService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,8 +31,8 @@ public class TariffController {
     }
 
     @PatchMapping
-    public ResponseEntity<String> updateTariff(@RequestParam String typeName) {
-        tariffService.updateTariff(typeName);
+    public ResponseEntity<String> updateTariff(@Valid @RequestBody TariffUpdateRequest request) {
+        tariffService.updateTariff(request);
         return ResponseEntity.status(HttpStatus.OK).body("Tariff updated successfully");
     }
 

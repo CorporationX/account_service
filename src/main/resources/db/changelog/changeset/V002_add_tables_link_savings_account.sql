@@ -1,3 +1,5 @@
+CREATE INDEX idx_account_owner_id ON account(owner_id);
+
 CREATE TABLE savings_account (
     account_id bigint PRIMARY KEY,
     account_number varchar(128) NOT NULL UNIQUE,
@@ -9,8 +11,8 @@ CREATE TABLE savings_account (
     CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id)
 );
 
-CREATE INDEX idx_balance ON savings_account (balance);
 CREATE INDEX idx_created_at ON savings_account (created_at);
+CREATE INDEX idx_last_interest_accrual_at ON savings_account (last_interest_accrual_at);
 
 CREATE TABLE tariff (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -18,6 +20,8 @@ CREATE TABLE tariff (
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp
 );
+
+CREATE INDEX idx_type_name ON tariff (type_name);
 
 CREATE TABLE tariff_history (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -34,11 +38,11 @@ CREATE INDEX idx_tariff_history_by_account ON tariff_history (savings_account_id
 
 CREATE TABLE tariff_rate_history (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    tariff_history_id bigint NOT NULL,
+    tariff_id bigint NOT NULL,
     rate decimal(5, 2) NOT NULL,
     changed_at timestamptz DEFAULT current_timestamp,
 
-    CONSTRAINT fk_tariff_history_id FOREIGN KEY (tariff_history_id) REFERENCES tariff_history (id)
+    CONSTRAINT fk_tariff_history_id FOREIGN KEY (tariff_id) REFERENCES tariff (id)
 );
 
-CREATE INDEX idx_tariff_rate_history ON tariff_rate_history (tariff_history_id, changed_at DESC);
+CREATE INDEX idx_tariff_rate_history ON tariff_rate_history (tariff_id, changed_at DESC);

@@ -1,19 +1,20 @@
 package faang.school.accountservice.dto;
 
 import lombok.Builder;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
+@Data
 @Builder
-public record SavingsAccountResponse(
-        String accountNumber,
-        BigDecimal balance,
-        LocalDateTime lastInterestAccrualAt,
-        Map<String, List<BigDecimal>> tariffHistory,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
+public class SavingsAccountResponse {
+
+    private final String accountNumber;
+    private final BigDecimal balance;
+    private final LocalDateTime lastInterestAccrualAt;
+    private final String activeTariff;
+    private String activeTariffRate;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedA;
 }

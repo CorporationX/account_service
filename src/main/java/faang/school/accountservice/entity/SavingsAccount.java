@@ -50,7 +50,7 @@ public class SavingsAccount {
     private LocalDateTime lastInterestAccrualAt;
 
     @OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TariffHistory> tariffHistories;
+    private List<TariffHistory> tariffHistory;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

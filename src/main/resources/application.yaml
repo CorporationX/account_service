@@ -26,3 +26,12 @@ server:
 logging:
   level:
     root: debug
+
+cron-setting:
+  tariff-rate-calculator: 0 0 */2 * * *
+
+thread-pool-setting:
+  tariff-rate-calculator:
+    size: 3
+    timeout: 30
+    hours: 24

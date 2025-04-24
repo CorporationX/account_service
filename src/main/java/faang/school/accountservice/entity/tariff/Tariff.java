@@ -38,6 +38,9 @@ public class Tariff {
     @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TariffHistory> histories;
 
+    @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TariffRate> rates;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
