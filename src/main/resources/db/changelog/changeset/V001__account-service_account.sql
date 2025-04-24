@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS payment_account (
     owner_id       BIGINT,
     owner_type     VARCHAR(32),
     description    VARCHAR(512),
-    accountStatus         VARCHAR(32),
+    status         VARCHAR(32),
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     closed_at      TIMESTAMP,

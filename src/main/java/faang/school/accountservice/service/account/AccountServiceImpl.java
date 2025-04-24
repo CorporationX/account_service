@@ -33,15 +33,21 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponseDto createAccount(AccountRequestDto accountRequest) {
-        String accountNumber;
-        do {
-            accountNumber = generateAccountNumber();
-        } while (accountRepository.existsById(accountNumber));
-
         Account account = accountMapper.toAccount(accountRequest);
-        log.info("Creating account with number {} for user owner ID {}", accountNumber, accountRequest.getOwnerId());
-        account.setAccountNumber(accountNumber);
         account.setAccountStatus(AccountStatus.ACTIVE);
+
+        while (true) {
+            String accountNumber = generateAccountNumber();
+            account.setAccountNumber(accountNumber);
+            try {
+                accountRepository.save(account);
+                log.info("Creating account with number {} for user owner ID {}", accountNumber, accountRequest.getOwnerId());
+                break;
+            } catch (Exception e) {
+                log.warn("Account number {} already exists", accountNumber);
+            }
+        }
+
         return accountMapper.toAccountResponseDto(accountRepository.save(account));
     }
 
