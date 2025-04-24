@@ -45,7 +45,7 @@ public class Request {
     @Enumerated(EnumType.STRING)
     private RequestType requestType;
 
-    private String lockValue;
+    private Long lockValue;
 
     private boolean isOpen;
 
