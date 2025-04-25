@@ -11,6 +11,7 @@ import faang.school.accountservice.repository.TariffRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class TariffService {
         return tariffMapper.toDto(tariff);
     }
 
+    @Transactional
     public void updateTariff(TariffUpdateRequest request) {
         Tariff tariff = tariffRepository.findById(request.id()).orElseThrow(
                 () -> new TariffNotFoundException("Tariff with id %d not found", request.id()));

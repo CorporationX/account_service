@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletionException;
 
 @Slf4j
@@ -53,6 +54,7 @@ public class ProcessorSavingsAccountService {
             BigDecimal interestAmount = balance.multiply(rateMultiplier).setScale(AMOUNT_BY_SCALE, ROUNDING_MODE);
             BigDecimal newBalance = balance.add(interestAmount);
             account.setBalance(newBalance);
+            account.setLastInterestAccrualAt(LocalDateTime.now());
 
             savingsAccountRepository.save(account);
             log.debug("Savings account {} balance recalculated", account.getAccountNumber());
