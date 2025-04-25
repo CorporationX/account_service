@@ -1,8 +1,8 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.enums;
 
 public enum RequestStatus {
     READY,
-    PENDING,
+    TODO,
     DONE,
     CANCELLED
 }

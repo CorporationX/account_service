@@ -23,3 +23,14 @@ server:
 logging:
   level:
     root: info
+
+services:
+  user-service:
+    host: localhost
+    port: 8080
+  project-service:
+    host: localhost
+    port: 8082
+  payment-service:
+    host: localhost
+    port: 9080

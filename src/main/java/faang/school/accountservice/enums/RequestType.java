@@ -1,4 +1,4 @@
-package faang.school.accountservice.entity;
+package faang.school.accountservice.enums;
 
 public enum RequestType {
     CREATE,

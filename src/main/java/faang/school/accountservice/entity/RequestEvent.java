@@ -15,7 +15,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -28,12 +27,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "request")
-public class Request {
+@Table(name = "request_event")
+public class RequestEvent {
 
     @Id
     @org.hibernate.validator.constraints.UUID
-    private UUID token;
+    private UUID id;
 
     @Column(name = "user_id", nullable = false)
     private long userId;
@@ -44,9 +43,6 @@ public class Request {
 
     @Column(name = "block_value", nullable = false, unique = true)
     private long blockValue;
-
-    @Column(name = "is_opened", nullable = false)
-    private boolean isOpened;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
@@ -60,15 +56,11 @@ public class Request {
     @Column(name = "details")
     private String details;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(name = "request_version", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private RequestVersion requestVersion;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

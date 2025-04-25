@@ -1,0 +1,79 @@
+package faang.school.accountservice.exception_handlers;
+
+import faang.school.accountservice.dto.ErrorResponse;
+import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.exception.ResourceNotFoundException;
+import faang.school.accountservice.exception.ServiceUnavailableException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@Slf4j
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException ex) {
+        var errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .toList();
+
+        log.error("Validation errors: {}", errors);
+
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponse(VALIDATION_ERROR, "Validation failed", errors));
+    }
+
+    @ExceptionHandler(DataValidationException.class)
+    public ResponseEntity<Object> handleDataValidationExceptions(DataValidationException ex) {
+        log.error("Data validation error: {}", ex.getMessage(), ex);
+
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.builder()
+                        .code(VALIDATION_ERROR)
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFoundExceptions(ResourceNotFoundException ex) {
+        log.error("Resource not found: {}", ex.getMessage(), ex);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.builder()
+                        .code("RESOURCE_NOT_FOUND")
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<Object> handleServiceUnavailableExceptions(ServiceUnavailableException ex) {
+        log.error("Service unavailable: {}", ex.getMessage(), ex);
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.builder()
+                        .code("SERVICE_UNAVAILABLE")
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleExceptions(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.builder()
+                        .code("INTERNAL_ERROR")
+                        .message("An unexpected error occurred: %s".formatted(ex.getMessage())));
+    }
+}
