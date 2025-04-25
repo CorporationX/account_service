@@ -16,5 +16,5 @@ public class SavingsAccountResponse {
     private final String activeTariff;
     private String activeTariffRate;
     private final LocalDateTime createdAt;
-    private final LocalDateTime updatedA;
+    private final LocalDateTime updatedAt;
 }

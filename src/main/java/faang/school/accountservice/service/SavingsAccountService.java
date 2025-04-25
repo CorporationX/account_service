@@ -50,8 +50,7 @@ public class SavingsAccountService {
     public SavingsAccountResponse openSavingsAccount(Long tariffId) {
         Long ownerId = userContext.getUserId();
         Account account = getAccountByOwnerId(ownerId);
-        Tariff tariff = tariffRepository.findById(tariffId).orElseThrow(
-                () -> new TariffNotFoundException("Tariff with id %d not found", tariffId));
+        Tariff tariff = getTariff(tariffId);
         SavingsAccount savingsAccount = createSavingsAccount(account);
 
         List<TariffHistory> tariffHistory = new ArrayList<>();
@@ -69,12 +68,10 @@ public class SavingsAccountService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void updateTariffOnSavingsAccount(Long accountId, Long tariffId) {
-        SavingsAccount savingsAccount = savingsAccountRepository.findById(accountId).orElseThrow(
-                () -> new AccountNotFoundException("Savings account with id %d not found", accountId));
-        Tariff tariff = tariffRepository.findById(tariffId).orElseThrow(
-                () -> new TariffNotFoundException("Tariff with id %d not found", tariffId));
+        SavingsAccount savingsAccount = getSavingsAccount(accountId);
+        Tariff tariff = getTariff(tariffId);
 
-        List<TariffHistory> tariffHistory = savingsAccount.getTariffHistory();
+        List<TariffHistory> tariffHistory = new ArrayList<>(savingsAccount.getTariffHistory());
         tariffHistory.add(createTariffHistory(tariff, savingsAccount));
         savingsAccount.setTariffHistory(tariffHistory);
 
@@ -139,5 +136,10 @@ public class SavingsAccountService {
     private SavingsAccount getSavingsAccount(Long accountId) {
         return savingsAccountRepository.findById(accountId).orElseThrow(
                 () -> new AccountNotFoundException("Savings account with id %d not found", accountId));
+    }
+
+    private Tariff getTariff(Long tariffId) {
+        return tariffRepository.findById(tariffId).orElseThrow(
+                () -> new TariffNotFoundException("Tariff with id %d not found", tariffId));
     }
 }

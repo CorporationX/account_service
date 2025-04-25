@@ -18,7 +18,10 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -29,6 +32,9 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "account")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Account {
 
     @Id

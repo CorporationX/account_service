@@ -25,11 +25,18 @@ public class TariffService {
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
 
-    public TariffResponse addTariff(String typeName) {
+    public TariffResponse addTariff(String typeName, BigDecimal rate) {
         if (tariffRepository.existsByTypeName(typeName)) {
             throw new TariffDuplicateException("Tariff %s already exists", typeName);
         }
-        Tariff tariff = tariffRepository.save(createTariff(typeName));
+
+        Tariff tariff = createTariff(typeName);
+        List<TariffRate> tariffRate = new ArrayList<>();
+        tariffRate.add(createTariffRate(rate, tariff));
+        tariff.setRates(tariffRate);
+
+        tariffRepository.save(tariff);
+
         log.info("New tariff added: {}", tariff);
         return tariffMapper.toDto(tariff);
     }
@@ -43,7 +50,7 @@ public class TariffService {
             tariff.setTypeName(request.typeName());
         }
         if (request.rate() != null) {
-            List<TariffRate> rates = tariff.getRates();
+            List<TariffRate> rates = new ArrayList<>(tariff.getRates());
             rates.add(createTariffRate(request.rate(), tariff));
             tariff.setRates(rates);
         }
