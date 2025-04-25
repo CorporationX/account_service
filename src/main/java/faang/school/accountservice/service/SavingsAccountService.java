@@ -7,8 +7,6 @@ import faang.school.accountservice.entity.SavingsAccount;
 import faang.school.accountservice.entity.tariff.Tariff;
 import faang.school.accountservice.entity.tariff.TariffHistory;
 import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.exception.NotFoundException;
-import faang.school.accountservice.exception.RetryableException;
 import faang.school.accountservice.exception.SavingsAccountDuplicateException;
 import faang.school.accountservice.exception.TariffNotFoundException;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
@@ -18,23 +16,17 @@ import faang.school.accountservice.repository.TariffRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 
 @Slf4j
@@ -42,19 +34,13 @@ import java.util.concurrent.Executor;
 @RequiredArgsConstructor
 public class SavingsAccountService {
 
-    private static final int MULTIPLIER_BY_SCALE = 4;
-    private static final int AMOUNT_BY_SCALE = 2;
-    private static final int DIVIDER = 100;
-    private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
-    private static final int RETRY_DELAY = 500;
-    private static final int RETRY_MULTIPLIER = 3;
-
     private final SavingsAccountRepository savingsAccountRepository;
     private final SavingsAccountMapper savingsAccountMapper;
     private final AccountRepository accountRepository;
     private final UserContext userContext;
     private final TariffRepository tariffRepository;
     private final Executor tariffRatesCalculator;
+    private final ProcessorSavingsAccountService processorSavingsAccountService;
 
     @Value("${thread-pool-setting.tariff-rate-calculator.hours}")
     private int hours;
@@ -100,7 +86,7 @@ public class SavingsAccountService {
 
         List<CompletableFuture<Void>> futures = accounts.stream()
                 .map(account -> CompletableFuture.runAsync(
-                        () -> processSingleAccount(account), tariffRatesCalculator))
+                        () -> processorSavingsAccountService.processSingleAccount(account), tariffRatesCalculator))
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -127,34 +113,6 @@ public class SavingsAccountService {
 
         response.setActiveTariffRate(latestRate.toString());
         return response;
-    }
-
-    @Retryable(
-            retryFor = RetryableException.class,
-            backoff = @Backoff(delay = RETRY_DELAY, multiplier = RETRY_MULTIPLIER)
-    )
-    private void processSingleAccount(SavingsAccount account) {
-        try {
-            String activeTypeName = savingsAccountRepository.findLatestTariffTypeNameByAccountId(account.getAccountId())
-                    .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
-            BigDecimal activeRate = tariffRepository.findLatestRateByTariffTypeName(activeTypeName)
-                    .orElseThrow(() -> new NotFoundException("Rate not found"));
-
-            BigDecimal balance = account.getBalance();
-            BigDecimal rateMultiplier = activeRate.divide(
-                    BigDecimal.valueOf(DIVIDER), MULTIPLIER_BY_SCALE, ROUNDING_MODE);
-            BigDecimal interestAmount = balance.multiply(rateMultiplier).setScale(AMOUNT_BY_SCALE, ROUNDING_MODE);
-            BigDecimal newBalance = balance.add(interestAmount);
-            account.setBalance(newBalance);
-
-            savingsAccountRepository.save(account);
-            log.debug("Savings account {} balance recalculated", account.getAccountNumber());
-        } catch (DataAccessException | TransactionException e) {
-            log.warn("Retryable error processing account {}: {}", account.getAccountNumber(), e.getMessage());
-            throw new RetryableException(e.getMessage(), e);
-        } catch (Exception ex) {
-            throw new CompletionException("Error processing account " + account.getAccountNumber(), ex);
-        }
     }
 
     private SavingsAccount createSavingsAccount(Account account) {
