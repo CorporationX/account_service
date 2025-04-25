@@ -33,6 +33,10 @@ logging:
   level:
     root: info
 
+retry:
+  max-attempts: 5
+  delay: 100 # milliseconds
+
 account:
   number-length: 12
   type:
