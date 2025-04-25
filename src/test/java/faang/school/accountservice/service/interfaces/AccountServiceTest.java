@@ -10,7 +10,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.exception.JsonMappingException;
+import faang.school.accountservice.exception.InternalException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.implementations.AccountServiceImpl;
@@ -114,11 +114,11 @@ class AccountServiceTest {
     void testGetAccount_NotFound_ThrowsIllegalArgumentException() {
         when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
                 () -> accountService.getAccount(accountId)
         );
-        assertEquals("Account not found", exception.getMessage());
+        assertEquals("Account with id: 1 was not found", exception.getMessage());
         verify(accountRepository, times(1)).findById(accountId);
         verify(accountMapper, never()).toDto(any());
     }
@@ -144,8 +144,8 @@ class AccountServiceTest {
                 .thenThrow(new JsonProcessingException("JSON error") {
                 });
 
-        JsonMappingException exception = assertThrows(
-                JsonMappingException.class,
+        InternalException exception = assertThrows(
+                InternalException.class,
                 () -> accountService.createAccount(accountRequest)
         );
         assertTrue(exception.getMessage().contains("Error processing account request"));

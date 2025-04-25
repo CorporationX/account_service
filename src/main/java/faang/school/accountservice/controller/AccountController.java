@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountRequest;
 import faang.school.accountservice.dto.AccountResponse;
-import faang.school.accountservice.service.implementations.AccountServiceImpl;
+import faang.school.accountservice.service.interfaces.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class AccountController {
 
-    private final AccountServiceImpl accountService;
+    private final AccountService accountService;
 
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponse> getAccount(@RequestHeader("x-user-id") long userId,

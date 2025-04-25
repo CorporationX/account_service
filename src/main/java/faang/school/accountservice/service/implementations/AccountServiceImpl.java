@@ -6,7 +6,7 @@ import faang.school.accountservice.dto.AccountRequest;
 import faang.school.accountservice.dto.AccountResponse;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.exception.JsonMappingException;
+import faang.school.accountservice.exception.InternalException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.interfaces.AccountOwnerService;
@@ -36,8 +36,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(readOnly = true)
     public AccountResponse getAccount(long id) {
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        Account account = getAccountById(id);
         log.info("Successfully got account with id: {}", id);
         return accountMapper.toDto(account);
     }
@@ -60,7 +59,7 @@ public class AccountServiceImpl implements AccountService {
             return accountMapper.toDto(savedAccount);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize AccountRequest to JSON", e);
-            throw new JsonMappingException("Error processing account request: " + e.getMessage());
+            throw new InternalException("Error processing account request: " + e.getMessage());
         }
     }
 

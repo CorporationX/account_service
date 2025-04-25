@@ -1,8 +1,8 @@
 package faang.school.accountservice.exception.handler;
 
-import faang.school.accountservice.exception.JsonMappingException;
-import faang.school.accountservice.exception.UniqueConstraintException;
+import faang.school.accountservice.exception.InternalException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NonUniqueResultException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -27,13 +27,8 @@ public class GlobalExceptionHandler {
         return buildResponse(e);
     }
 
-    @ExceptionHandler(UniqueConstraintException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleUniqueConstraintException(UniqueConstraintException ex) {
-        return buildResponse(ex);
-    }
-
-    @ExceptionHandler({InternalError.class, DataIntegrityViolationException.class, JsonMappingException.class})
+    @ExceptionHandler({InternalError.class, NonUniqueResultException.class,
+            DataIntegrityViolationException.class, InternalException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleInternalError(Exception e) {
         return buildResponse(e);
