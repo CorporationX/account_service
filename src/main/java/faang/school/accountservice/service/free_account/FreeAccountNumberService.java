@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.free_account;
 
+import faang.school.accountservice.config.context.AccountTypeNumberProperties;
 import faang.school.accountservice.entity.free_account.AccountNumberSequence;
 import faang.school.accountservice.entity.free_account.FreeAccountNumber;
 import faang.school.accountservice.entity.free_account.FreeAccountNumberId;
@@ -29,9 +30,7 @@ public class FreeAccountNumberService {
     @Value("${account.number-length}")
     private int numberLength;
 
-    @Value("${account.type.number.first-numbers}")
-    private Map<AccountType, Integer> firstNumbers;
-
+    private final AccountTypeNumberProperties accountTypeNumberProperties;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
     private final FreeAccountNumberRepository freeAccountNumberRepository;
 
@@ -85,7 +84,7 @@ public class FreeAccountNumberService {
             updated = tryIncrement(accountType, currentValue);
         } while (!updated);
 
-        Integer firstNumber = firstNumbers.get(accountType);
+        Integer firstNumber = accountTypeNumberProperties.getFirstNumbers().get(accountType);
         if (firstNumber == null) {
             throw new IllegalStateException("First number not configured for account type: " + accountType);
         }

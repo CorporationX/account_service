@@ -12,9 +12,9 @@ public interface AccountNumberSequenceRepository extends JpaRepository<AccountNu
 
     @Query(value = """
                    UPDATE account_number_sequence a 
-                   SET a.last_value = a.last_value + 1 
-                   WHERE a.account_type = :account_type AND 
-                         a.last_value = :expectedLastValue
+                   SET a.lastValue = a.lastValue + 1 
+                   WHERE a.accountType = :accountType AND 
+                         a.lastValue = :expectedLastValue
                    """, nativeQuery = true
     )
     @Modifying
