@@ -23,3 +23,17 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number-length: 12
+  type:
+    number:
+      batch-size: 200
+      first-numbers:
+        DEPOSIT: 4200
+        CREDIT: 5236
+
+scheduler:
+  cron-deposit: "0 0 0 * * *"
+  cron-credit: "0 0 0 * * *"
+
