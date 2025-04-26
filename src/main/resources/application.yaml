@@ -1,3 +1,7 @@
+app:
+  optimistic-lock-backoff-delay: 100
+  optimistic-lock-max-attempts: 5
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
