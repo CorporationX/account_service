@@ -1,4 +1,4 @@
-package faang.school.accountservice.exception_handlers;
+package faang.school.accountservice.exception_handler;
 
 import faang.school.accountservice.dto.ErrorResponse;
 import faang.school.accountservice.exception.DataValidationException;
@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @Slf4j
 @ControllerAdvice
+@SuppressWarnings("unused")
 public class GlobalExceptionHandler {
+
     public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @SuppressWarnings("unused")
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException ex) {
         var errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -32,6 +35,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataValidationException.class)
+    @SuppressWarnings("unused")
     public ResponseEntity<Object> handleDataValidationExceptions(DataValidationException ex) {
         log.error("Data validation error: {}", ex.getMessage(), ex);
 
@@ -43,6 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
+    @SuppressWarnings("unused")
     public ResponseEntity<Object> handleResourceNotFoundExceptions(ResourceNotFoundException ex) {
         log.error("Resource not found: {}", ex.getMessage(), ex);
 
@@ -55,6 +60,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
+    @SuppressWarnings("unused")
     public ResponseEntity<Object> handleServiceUnavailableExceptions(ServiceUnavailableException ex) {
         log.error("Service unavailable: {}", ex.getMessage(), ex);
 
@@ -67,6 +73,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @SuppressWarnings("unused")
     public ResponseEntity<Object> handleExceptions(Exception ex) {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
 
