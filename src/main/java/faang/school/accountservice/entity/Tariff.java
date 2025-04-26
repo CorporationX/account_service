@@ -1,17 +1,16 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.converter.TariffHistoryConverter;
-import jakarta.persistence.CascadeType;
+import faang.school.accountservice.converter.RateHistoryConverter;
+import faang.school.accountservice.enums.TariffType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,34 +22,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "savings_account")
+@Table(name = "tariff")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SavingAccount {
+public class Tariff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "account_id", nullable = false, unique = true)
-    private Account account;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "name", nullable = false)
+    private TariffType name;
 
-    @Column(name = "balance", nullable = false)
-    private BigDecimal balance = BigDecimal.ZERO;
-
-    @Column(name = "tariff_history", nullable = false, columnDefinition = "jsonb")
-    @Convert(converter = TariffHistoryConverter.class)
-    private List<Long> tariffHistory;
-
-    @Column(name = "last_interest_date")
-    private LocalDateTime lastInterestDate;
-
-    @Version
-    private Long version;
+    @Column(name = "rate_history", nullable = false, columnDefinition = "jsonb")
+    @Convert(converter = RateHistoryConverter.class)
+    private List<BigDecimal> rateHistory;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
