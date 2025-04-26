@@ -1,7 +1,9 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.background_worker.RequestEventsOutboxProcessor;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.CreateRequestDto;
+import faang.school.accountservice.dto.RequestEventDto;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestVersion;
@@ -22,11 +24,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
+
     private final RequestEventService requestEventService;
     private final RequestRepository requestRepository;
     private final UserServiceClient userServiceClient;
     private final RequestMapper requestMapper;
     private final RequestEventMapper requestEventMapper;
+    private final RequestEventsOutboxProcessor requestEventsOutboxProcessor;
 
     @Transactional
     public void createRequest(CreateRequestDto createRequestDto) {
@@ -40,7 +44,7 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestVersion(RequestVersion.V1);
 
         requestRepository.save(request);
-        requestEventService.create(requestEventMapper.toRequestEventDto(createRequestDto));
+        createAndPublisRequestEvent(requestEventMapper.toRequestEventDto(createRequestDto));
     }
 
     @Transactional
@@ -59,7 +63,7 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestStatus(newRequestStatus);
 
         requestRepository.save(request);
-        requestEventService.create(requestMapper.toRequestEventDto(request));
+        createAndPublisRequestEvent(requestMapper.toRequestEventDto(request));
     }
 
     @Transactional
@@ -71,7 +75,12 @@ public class RequestServiceImpl implements RequestService {
         request.setBody(newBody);
 
         requestRepository.save(request);
-        requestEventService.create(requestMapper.toRequestEventDto(request));
+        createAndPublisRequestEvent(requestMapper.toRequestEventDto(request));
+    }
+
+    private void createAndPublisRequestEvent(RequestEventDto requestEventDto) {
+        requestEventService.create(requestEventDto);
+        requestEventsOutboxProcessor.newRequestEventsAdded();
     }
 
     private Request getRequestByToken(UUID requestToken) {

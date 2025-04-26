@@ -17,6 +17,18 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      retry:
+        max-attempts: 3
+        backoff-delay: 1000
+        backoff-multiplier: 2
+      channels:
+        request_events_channel:
+          name: request_events
+
 server:
   port: 8090
 
