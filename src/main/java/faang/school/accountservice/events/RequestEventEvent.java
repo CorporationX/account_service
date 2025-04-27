@@ -2,12 +2,14 @@ package faang.school.accountservice.events;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import lombok.Builder;
 import lombok.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+@Builder
 public record RequestEventEvent(
         @NonNull
         UUID id,

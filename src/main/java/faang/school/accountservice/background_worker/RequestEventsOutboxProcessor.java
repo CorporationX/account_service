@@ -43,7 +43,6 @@ public class RequestEventsOutboxProcessor {
     public void init() {
         executor = Executors.newSingleThreadExecutor();
         processingRequestEventsTask = executor.submit(this::processRequestEvents);
-        executor.shutdown();
     }
 
     @PreDestroy
@@ -60,6 +59,7 @@ public class RequestEventsOutboxProcessor {
     }
 
     private void stopProcessing() {
+        executor.shutdown();
         processingRequestEventsTask.cancel(false);
         newRequestEventsAdded();
 
