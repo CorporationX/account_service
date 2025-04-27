@@ -46,7 +46,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private OwnerType ownerType;
 
-    @Column(name = "type", length = 64, nullable = false)
+    @Column(name = "account_type", length = 64, nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
