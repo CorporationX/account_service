@@ -44,7 +44,7 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestVersion(RequestVersion.V1);
 
         requestRepository.save(request);
-        createAndPublisRequestEvent(requestEventMapper.toRequestEventDto(createRequestDto));
+        createAndPublishRequestEvent(requestEventMapper.toRequestEventDto(createRequestDto));
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestStatus(newRequestStatus);
 
         requestRepository.save(request);
-        createAndPublisRequestEvent(requestMapper.toRequestEventDto(request));
+        createAndPublishRequestEvent(requestMapper.toRequestEventDto(request));
     }
 
     @Transactional
@@ -75,10 +75,10 @@ public class RequestServiceImpl implements RequestService {
         request.setBody(newBody);
 
         requestRepository.save(request);
-        createAndPublisRequestEvent(requestMapper.toRequestEventDto(request));
+        createAndPublishRequestEvent(requestMapper.toRequestEventDto(request));
     }
 
-    private void createAndPublisRequestEvent(RequestEventDto requestEventDto) {
+    private void createAndPublishRequestEvent(RequestEventDto requestEventDto) {
         requestEventService.create(requestEventDto);
         requestEventsOutboxProcessor.newRequestEventsAdded();
     }

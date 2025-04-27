@@ -1,11 +1,13 @@
 package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.RequestType;
+import lombok.Builder;
 import lombok.NonNull;
 
 import java.util.Map;
 import java.util.UUID;
 
+@Builder
 public record CreateRequestDto(
         @NonNull
         UUID token,
