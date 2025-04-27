@@ -16,6 +16,5 @@ CREATE TABLE payment_account (
         )
 );
 
-CREATE INDEX idx_payment_account_owner ON payment_account (account_number);
-CREATE INDEX idx_payment_account_status ON payment_account (status);
-CREATE INDEX idx_payment_account_created_at ON payment_account (created_at);
+CREATE INDEX idx_payment_account_user_id ON payment_account (user_id);
+CREATE INDEX idx_payment_account_project_id ON payment_account (project_id);
