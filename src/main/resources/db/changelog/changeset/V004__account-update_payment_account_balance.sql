@@ -1,0 +1,2 @@
+ALTER TABLE payment_account
+ADD COLUMN balance NUMERIC(20, 2) NOT NULL DEFAULT 0.00;
