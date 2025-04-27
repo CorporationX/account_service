@@ -38,7 +38,7 @@ public class SavingsAccount {
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "account_id", nullable = false, unique = true)
+    @JoinColumn(name = "account_number", nullable = false, unique = true)
     private Account account;
 
     @Column(name = "balance", nullable = false)
