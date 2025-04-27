@@ -2,7 +2,7 @@ CREATE TABLE account (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     number VARCHAR(20) NOT NULL
     CHECK(
-    CHARACTER_LENGTH(number) BETWEEN 12 AND 20 AND number NOT LIKE '%[^0-9]%'),
+    number ~ '^[0-9]{12,20}$' ),
     owner_id  BIGINT NOT NULL,
     owner_type VARCHAR(64) NOT NULL,
     type VARCHAR(64)  NOT NULL,

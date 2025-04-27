@@ -1,9 +1,9 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.enums.Status;
+import faang.school.accountservice.entity.enums.AccountType;
+import faang.school.accountservice.entity.enums.Currency;
+import faang.school.accountservice.entity.enums.OwnerType;
+import faang.school.accountservice.entity.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
