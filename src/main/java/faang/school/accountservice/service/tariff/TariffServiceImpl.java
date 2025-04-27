@@ -59,8 +59,6 @@ public class TariffServiceImpl implements TariffService {
         return tariffMapper.toTariffResponseDtoList(tariffs);
     }
 
-    public boolean existTariff
-
     private void validateNewRate(BigDecimal newRate, Long tariffId) {
         if (newRate == null) {
             log.error("New rate is null for tariff with id: {}", tariffId);
