@@ -1,15 +1,14 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.converter.RateHistoryConverter;
-import faang.school.accountservice.enums.TariffType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +18,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -34,9 +34,8 @@ public class Tariff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
-    private TariffType name;
+    private String name;
 
     @Column(name = "rate_history", nullable = false, columnDefinition = "jsonb")
     @Convert(converter = RateHistoryConverter.class)
@@ -47,4 +46,26 @@ public class Tariff {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    public BigDecimal getCurrentRate() {
+        return rateHistory.get(rateHistory.size() - 1);
+    }
+
+    public List<BigDecimal> getRateHistory() {
+        return Collections.unmodifiableList(rateHistory);
+    }
+
+    public void addRate(BigDecimal newRate) {
+        rateHistory.add(newRate);
+    }
 }
