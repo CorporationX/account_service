@@ -1,10 +1,18 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.entity.SavingAccount;
+import faang.school.accountservice.entity.SavingsAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface SavingsAccountRepository extends JpaRepository<SavingAccount, Long> {
-    Optional<SavingAccount> findByAccountId(Long accountId);
+public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
+    Optional<SavingsAccount> findByAccountId(Long accountId);
+
+    @Query(value = """
+            SELECT CASE WHEN (COUNT(sa) > 0) THEN TRUE ELSE FALSE END
+            FROM SavingsAccount sa
+            WHERE sa.accountId = :accountId
+    """)
+    boolean existsByAccountId(String accountId);
 }
