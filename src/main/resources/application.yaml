@@ -28,3 +28,6 @@ account:
   number:
     batch:
       size: 500
+    crone:
+      debit: "0 0 0 * * *"
+      credit: "0 0 0 * * *"

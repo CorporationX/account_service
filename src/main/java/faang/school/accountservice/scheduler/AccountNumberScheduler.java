@@ -13,14 +13,15 @@ public class AccountNumberScheduler {
 
     @Value("${account.number.batch.size}")
     private int batchSize;
-    private FreeAccountNumbersService freeAccountNumbersService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    private final FreeAccountNumbersService freeAccountNumbersService;
+
+    @Scheduled(cron = "${account.number.crone.debit}")
     public void generatedDebit() {
         freeAccountNumbersService.generatedAccountNumbers(AccountType.DEBIT,batchSize);
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${account.number.crone.credit}")
     public void generatedCredit() {
         freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT,batchSize);
     }
