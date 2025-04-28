@@ -17,6 +17,12 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  task:
+    scheduling:
+      account_generator:
+        cards_per_batch: 20
+        cron_expression: 0/10 * * * * *
+
 server:
   port: 8090
 
