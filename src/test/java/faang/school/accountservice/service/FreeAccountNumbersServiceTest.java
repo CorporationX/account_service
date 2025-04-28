@@ -85,7 +85,7 @@ public class FreeAccountNumbersServiceTest {
     }
 
     @Test
-    public void givenCardType_whenGetFreeAccountForType_thenGetCardWithNotInitializedCards() {
+    public void givenCardType_whenGetFreeAccountForType_thenGetCardWithNotEmpty() {
         CardType creditCardType = CardType.CREDIT;
         freeAccountNumbersService.initCards();
         freeAccountNumbersService.generateAccountNumbersForType(creditCardType, 1);
