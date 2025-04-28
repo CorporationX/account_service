@@ -27,7 +27,7 @@ public class AccountGeneratorSchedulerTest {
 
         for (CardType cardType : CardType.values()) {
             verify(freeAccountNumbersService, times(1))
-                    .generateAccountNumbersForType(cardType, 10);
+                    .generateAccountNumbersForType(cardType, batchSize);
         }
 
     }
