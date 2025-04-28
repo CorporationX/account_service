@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Сервис длы работы с банковскими картами
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,6 +31,9 @@ public class FreeAccountNumbersService {
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final Object lock = new Object();
 
+    /**
+     * Инициализирует дефолтное значение для каждого CardType если оно еще не проинициализировано в базе.
+     */
     public void initCards() {
         List<AccountNumberSequence> notExistedAccounts = Arrays.stream(CardType.values())
                 .filter(cardType ->
@@ -46,6 +52,11 @@ public class FreeAccountNumbersService {
         }
     }
 
+    /**
+     * Метод для автогенерации новых уникальных номеров карт
+     * @param type Тип карты для которого будут сгенерированы новые карты
+     * @param batchSize Кол-во карт для генерации
+     */
     @Transactional
     public void generateAccountNumbersForType(@NotNull CardType type, int batchSize) {
         log.debug("Start generating accountNumbers for card type {}", type);
@@ -67,6 +78,12 @@ public class FreeAccountNumbersService {
     }
 
 
+    /**
+     * Выдает свободный номер карты
+     * @param type Тип карты
+     * @param function Функция обработчик
+     * @return Уникальный номер карты для типа
+     */
     @Transactional
     public FreeAccountDto getFreeAccountForType(@NotNull CardType type,
                                                 @NotNull Function<FreeAccountNumber, FreeAccountDto> function) {

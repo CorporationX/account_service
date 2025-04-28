@@ -15,6 +15,10 @@ public class AccountGeneratorScheduler {
     @Value("${spring.task.scheduling.account_generator.cards_per_batch}")
     private int batchSize;
 
+    /**
+     * Автогенерация новых карт всех типов.
+     * Выполняется по расписанию, заданному в cron-выражении.
+     */
     @Scheduled(cron = "${spring.task.scheduling.account_generator.cron_expression}")
     public void generateAccountNumbers() {
         for (CardType cardType : CardType.values()) {
