@@ -14,6 +14,31 @@ spring:
       hibernate:
         format_sql: true
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+      retries: 3
+      acks: all
+      linger-ms: 20
+      batch-size: 16384
+      compression-type: snappy
+
+    consumer:
+      group-id: my-app-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      max-poll-records: 500
+
+    topics:
+      authorization: authorization-topic
+      cancellation:  cancellation-topic
+      clearing:      clearing-topic
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
