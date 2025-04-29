@@ -23,3 +23,17 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    cron: "0 * * * * ?"
+    check:
+      enabled: true
+      fixed-rate: 1000
+    batch-size-default: 5
+    batch-size:
+      INDIVIDUAL: 5
+      LEGAL: 5
+      SAVINGS: 10
+      DEBIT: 5
+      CREDIT: 5
