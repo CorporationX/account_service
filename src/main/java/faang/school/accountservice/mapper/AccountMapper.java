@@ -1,9 +1,9 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.dto.AccountRequestDto;
-import faang.school.accountservice.dto.AccountResponseDto;
-import faang.school.accountservice.dto.AccountStatusDto;
-import faang.school.accountservice.dto.AccountTypeDto;
+import faang.school.accountservice.dto.account.AccountRequestDto;
+import faang.school.accountservice.dto.account.AccountResponseDto;
+import faang.school.accountservice.dto.account.AccountStatusDto;
+import faang.school.accountservice.dto.account.AccountTypeDto;
 import faang.school.accountservice.dto.CurrencyDto;
 import faang.school.accountservice.dto.OwnerTypeDto;
 import faang.school.accountservice.entity.Account;
