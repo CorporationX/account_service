@@ -7,19 +7,21 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface AccountNumberSequenceRepository extends JpaRepository<AccountNumberSequence, AccountType> {
 
     @Query(value = """
                    UPDATE account_number_sequence a 
-                   SET a.lastValue = a.lastValue + 1 
-                   WHERE a.accountType = :accountType AND 
-                         a.lastValue = :expectedLastValue
+                   SET a.last_value = a.last_value + 1 
+                   WHERE a.account_type = :accountType AND 
+                         a.last_value = :expectedLastValue
                    """, nativeQuery = true
     )
     @Modifying
     int incrementAccountNumberIfMatch(AccountType accountType, long expectedLastValue);
 
     @Query("SELECT a.lastValue FROM AccountNumberSequence a WHERE a.accountType = :accountType")
-    Long findLastValueByAccountType(AccountType accountType);
+    Optional<Long> findLastValueByAccountType(AccountType accountType);
 }

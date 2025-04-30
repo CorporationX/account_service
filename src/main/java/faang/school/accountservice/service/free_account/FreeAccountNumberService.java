@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class FreeAccountNumberService {
 
-    private static final Long DEFAULT_NUMBER = 0L;
+    private static final String DEFAULT_NUMBER = "0";
 
     @Value("${account.type.number.batch-size}")
     private int batchSize;
@@ -43,7 +43,7 @@ public class FreeAccountNumberService {
         }
     }
 
-    private FreeAccountNumber createFreeAccountNumber(AccountType accountType, Long accountNumber) {
+    private FreeAccountNumber createFreeAccountNumber(AccountType accountType, String accountNumber) {
         FreeAccountNumberId freeAccountNumberId = new FreeAccountNumberId();
         freeAccountNumberId.setAccountType(accountType);
         freeAccountNumberId.setAccountNumber(accountNumber);
@@ -65,7 +65,7 @@ public class FreeAccountNumberService {
         List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
 
         for (int i = 0; i < batchSize; i++) {
-            Long accountNumber = incrementAndGenerateNewNumber(accountType);
+            String accountNumber = incrementAndGenerateNewNumber(accountType);
             freeAccountNumbers.add(createFreeAccountNumber(accountType, accountNumber));
         }
 
@@ -76,11 +76,12 @@ public class FreeAccountNumberService {
         return accountNumberSequenceRepository.existsById(accountType);
     }
 
-    private Long incrementAndGenerateNewNumber(AccountType accountType) {
+    private String incrementAndGenerateNewNumber(AccountType accountType) {
         Long currentValue;
         boolean updated;
         do {
-            currentValue = accountNumberSequenceRepository.findLastValueByAccountType(accountType);
+            currentValue = accountNumberSequenceRepository.findLastValueByAccountType(accountType)
+                    .orElseThrow(() -> new IllegalStateException("No account number sequence for account type: " + accountType));
             updated = tryIncrement(accountType, currentValue);
         } while (!updated);
 
@@ -90,15 +91,15 @@ public class FreeAccountNumberService {
         }
 
         String accNumber = firstNumber + String.format("%0" + numberLength + "d", currentValue);
-        return Long.parseLong(accNumber);
+        return accNumber;
     }
 
     @Transactional
-    public void useFreeAccountNumber(AccountType accountType, Consumer<Long> accountNumberConsumer) {
+    public void useFreeAccountNumber(AccountType accountType, Consumer<String> accountNumberConsumer) {
         createAccountNumberSequenceIfNotExists(accountType);
 
-        Long accountNumber;
-        Optional<FreeAccountNumber> optionalFreeAccountNumber = freeAccountNumberRepository.deleteFirst(accountType.name());
+        String accountNumber;
+        Optional<FreeAccountNumber> optionalFreeAccountNumber = freeAccountNumberRepository.deleteFirst(accountType);
         if (optionalFreeAccountNumber.isPresent()) {
             accountNumber = optionalFreeAccountNumber.get().getFreeAccountNumberId().getAccountNumber();
         } else {

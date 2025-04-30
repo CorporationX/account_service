@@ -2,6 +2,7 @@ package faang.school.accountservice.repository.free_account;
 
 import faang.school.accountservice.entity.free_account.FreeAccountNumber;
 import faang.school.accountservice.entity.free_account.FreeAccountNumberId;
+import faang.school.accountservice.enums.AccountType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,5 +27,5 @@ public interface FreeAccountNumberRepository extends JpaRepository<FreeAccountNu
                    """, nativeQuery = true
     )
     @Modifying
-    Optional<FreeAccountNumber> deleteFirst(@Param("accountType") String accountType);
+    Optional<FreeAccountNumber> deleteFirst(@Param("accountType") AccountType accountType);
 }

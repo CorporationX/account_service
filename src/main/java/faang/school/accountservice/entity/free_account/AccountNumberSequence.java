@@ -23,7 +23,7 @@ public class AccountNumberSequence {
     private AccountType accountType;
 
     @Column(name = "last_value", nullable = false)
-    private Long lastValue;
+    private String lastValue;
 
     @Version
     private Long version;
