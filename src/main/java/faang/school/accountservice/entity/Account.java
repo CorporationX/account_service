@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -70,4 +71,7 @@ public class Account {
     @Version
     @Column(name = "version")
     private Long version;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 }
