@@ -53,8 +53,8 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
 
-        if (account.getStatus() == AccountStatus.CLOSED) {
-            throw new IllegalStateException("Cannot block a closed account.");
+        if (account.getStatus() == AccountStatus.CLOSED || account.getStatus() == AccountStatus.FROZEN) {
+            throw new IllegalStateException("Cannot block an account that is already closed or frozen.");
         }
 
         try {
