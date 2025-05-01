@@ -10,11 +10,11 @@ import org.springframework.kafka.core.ProducerFactory;
 @Configuration
 @RequiredArgsConstructor
 public class KafkaProducerConfig {
-    private final KafkaProperties kafkaProperties;
+    private final KafkaConfig kafkaConfig;
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(kafkaProperties.getProducerConfigs());
+        return new DefaultKafkaProducerFactory<>(kafkaConfig.getProducerConfigs());
     }
 
     @Bean

@@ -48,3 +48,15 @@ server:
 logging:
   level:
     root: info
+    # Логирование SQL и параметров
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    # Логи транзакций
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa: DEBUG
+    # Логи JPA/Hibernate
+    org.hibernate: WARN
+    jakarta.persistence: WARN
+    # Логи кафки
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

@@ -20,11 +20,11 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class KafkaConsumerConfig {
-    private final KafkaProperties kafkaProperties;
+    private final KafkaConfig kafkaConfig;
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
-        Map<String, Object> configs = new HashMap<>(kafkaProperties.getConsumerConfigs());
+        Map<String, Object> configs = new HashMap<>(kafkaConfig.getConsumerConfigs());
 
         // Явно задаём десериализаторы
         configs.put(org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
@@ -59,8 +59,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public CommonErrorHandler errorHandler() {
-        return new DefaultErrorHandler((record, exception) -> {
-            log.error("Ошибка обработки сообщения: {}, данные: {}", exception.getMessage(), record);
-        });
+        return new DefaultErrorHandler((record, exception) ->
+                log.error("Ошибка обработки сообщения: {}, данные: {}", exception.getMessage(), record));
     }
 }
