@@ -12,15 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountSequence, AccountType> {
 
-    default void createCounter(AccountType type) {
-        if (!existsById(type)) {
-            AccountSequence sequence = new AccountSequence();
-            sequence.setType(type);
-            sequence.setCounter(0L);
-            save(sequence);
-        }
-    }
-
     @Transactional
     @Modifying
     @Query("UPDATE AccountSequence s SET s.counter = s.counter + :increment, s.version = s.version + 1 " +
@@ -36,5 +27,14 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountS
                                             long version) {
         int updatedRows = incrementCounterIfMatchInternal(type, increment, expectedCounter, version);
         return updatedRows == 1;
+    }
+
+    default void createCounter(AccountType type) {
+        if (!existsById(type)) {
+            AccountSequence sequence = new AccountSequence();
+            sequence.setType(type);
+            sequence.setCounter(0L);
+            save(sequence);
+        }
     }
 }

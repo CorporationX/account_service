@@ -1,9 +1,9 @@
-package faang.school.accountservice.service.implementations;
+package faang.school.accountservice.scheduler;
 
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.repository.FreeAccountNumberRepository;
 import faang.school.accountservice.service.interfaces.FreeAccountNumberService;
 import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,18 +29,17 @@ public class AccountNumberRetrievalChecker implements SchedulingConfigurer {
     private long fixedRate;
 
     private final FreeAccountNumberService freeAccountNumberService;
-    private final FreeAccountNumberRepository freeAccountNumberRepository;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(AccountType.values().length);
 
     @Override
-    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+    public void configureTasks(@NonNull ScheduledTaskRegistrar taskRegistrar) {
         if (!enabled) {
             log.info("Account number retrieval check is disabled");
             return;
         }
 
-        taskRegistrar.addFixedRateTask(() -> checkFreeAccountNumbers(), fixedRate);
+        taskRegistrar.addFixedRateTask(this::checkFreeAccountNumbers, fixedRate);
         log.info("Scheduled account number retrieval check with fixed rate: {} ms", fixedRate);
     }
 
@@ -55,12 +54,13 @@ public class AccountNumberRetrievalChecker implements SchedulingConfigurer {
         try {
             log.info("Attempting to retrieve and use a free account number for type: {}", type);
 
-            freeAccountNumberService.useFreeAccountNumber(type, accountNumber -> {
-                log.info("Successfully retrieved and used account number for type: {}, accountNumber: {}", type, accountNumber);
-            });
+            freeAccountNumberService.useFreeAccountNumber(type, accountNumber ->
+                    log.info("Successfully retrieved and used account number for type: {}," +
+                            " accountNumber: {}", type, accountNumber));
 
         } catch (Exception e) {
-            log.error("Failed to retrieve or use account number for type: {}. Error: {}", type, e.getMessage(), e);
+            log.error("Failed to retrieve or use account number for type: {}. Error: {}",
+                    type, e.getMessage(), e);
         }
     }
 }

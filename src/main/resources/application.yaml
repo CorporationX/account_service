@@ -28,7 +28,7 @@ account:
   number:
     cron: "0 * * * * ?"
     check:
-      enabled: true
+      enabled: false
       fixed-rate: 1000
     batch-size-default: 5
     batch-size:
