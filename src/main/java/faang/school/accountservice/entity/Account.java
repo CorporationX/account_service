@@ -32,6 +32,7 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "account_number", nullable = false, unique = true, length = 14)
@@ -49,11 +50,11 @@ public class Account {
     private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "currency", nullable = false)
     private Currency currency;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private AccountStatus status;
 
     @CreationTimestamp
@@ -68,5 +69,6 @@ public class Account {
     private LocalDateTime closedAt;
 
     @Version
+    @Column(name = "version")
     private Long version;
 }
