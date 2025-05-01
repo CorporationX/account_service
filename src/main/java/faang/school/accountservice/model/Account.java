@@ -55,7 +55,7 @@ public class Account {
     private Currency currency;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "accountStatus", nullable = false, length = 20)
+    @Column(name = "account_status", nullable = false, length = 20)
     private AccountStatus accountStatus;
 
     @CreationTimestamp
@@ -73,6 +73,6 @@ public class Account {
     @Column(name = "version", nullable = false)
     private Integer version;
 
-    @Column(name = "balance", nullable = false)
+    @Column(name = "balance", nullable = false, precision = 15, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
 }

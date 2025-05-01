@@ -4,34 +4,94 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.AccountAlreadyClosedException;
 import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.account.AccountHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
+/**
+ * Компонент для валидации операций над счетами.
+ * Проверяет корректность изменения статуса счета, блокировки, разблокировки и закрытия.
+ */
 @Slf4j
 @Component
 @AllArgsConstructor
 public class AccountValidator {
+    private final AccountRepository accountRepository;
+    private final AccountHelper accountHelper;
 
+    /**
+     * Проверяет, что новый статус отличается от текущего.
+     *
+     * @param account   счет для проверки
+     * @param newStatus новый статус счета
+     * @throws AccountOperationConflictException если счет уже находится в указанном статусе
+     */
     public void validateStatus(Account account, AccountStatus newStatus) {
         if (account.getAccountStatus() == newStatus) {
             log.error("Account is already in {} state for account ID: {}", newStatus, account.getId());
             throw new AccountOperationConflictException("Account is already in the requested state");
         }
-        if (account.getAccountStatus() == AccountStatus.CLOSED) {
-            log.error("Attempt to change status of a closed account with ID: {}", account.getId());
-            throw new AccountAlreadyClosedException("Cannot change status of a closed account");
-        }
+    }
+
+    /**
+     * Проверяет возможность блокировки счета.
+     *
+     * @param account счет для проверки
+     * @throws AccountAlreadyClosedException     если счет закрыт
+     * @throws AccountOperationConflictException если счет уже заблокирован
+     */
+    public void validateBlock(Account account) {
+        validateNotClosed(account);
         if (account.getAccountStatus() == AccountStatus.BLOCKED) {
-            log.error("Attempt to change status of a blocked account with ID: {}", account.getId());
+            log.error("Account ID {} is already blocked", account.getId());
             throw new AccountOperationConflictException("Account is already blocked");
         }
     }
 
+    /**
+     * Проверяет возможность разблокировки счета.
+     *
+     * @param account счет для проверки
+     * @throws AccountAlreadyClosedException     если счет закрыт
+     * @throws AccountOperationConflictException если счет не заблокирован
+     */
     public void validateUnblock(Account account) {
+        validateNotClosed(account);
         if (account.getAccountStatus() != AccountStatus.BLOCKED) {
             log.error("Account ID {} is not blocked, cannot unblock", account.getId());
             throw new AccountOperationConflictException("Account is not blocked, cannot unblock");
+        }
+    }
+
+    /**
+     * Проверяет возможность закрытия счета.
+     *
+     * @param account счет для проверки
+     * @throws AccountAlreadyClosedException     если счет уже закрыт
+     * @throws AccountOperationConflictException если баланс счета не равен нулю
+     */
+    public void validateClose(Account account) {
+        validateNotClosed(account);
+        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            log.error("Attempt to close account with non-zero balance for account ID: {}", account.getId());
+            throw new AccountOperationConflictException("Cannot close account with non-zero balance");
+        }
+    }
+
+    /**
+     * Проверяет, что счет не закрыт.
+     *
+     * @param account счет для проверки
+     * @throws AccountAlreadyClosedException если счет закрыт
+     */
+    public void validateNotClosed(Account account) {
+        if (account.getAccountStatus() == AccountStatus.CLOSED) {
+            log.error("Attempt to modify closed account with ID: {}", account.getId());
+            throw new AccountAlreadyClosedException("Cannot modify closed account");
         }
     }
 }

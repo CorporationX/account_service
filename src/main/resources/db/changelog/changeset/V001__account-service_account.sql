@@ -10,7 +10,7 @@ CREATE TABLE account (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closed_at TIMESTAMP WITH TIME ZONE,
     version INTEGER NOT NULL DEFAULT 0,
-    balance DECIMAL(15, 2) NOT NULL DEFAULT 0
+    balance DECIMAL(15, 2) NOT NULL DEFAULT 0,
     CONSTRAINT unique_account_number UNIQUE (account_number)
 );
 

@@ -19,7 +19,6 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class AccountViewDto {
-    private Long id;
     private String accountNumber;
     private OwnerType ownerType;
     private Long ownerId;
