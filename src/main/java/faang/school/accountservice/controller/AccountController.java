@@ -3,7 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountViewDto;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -11,6 +11,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,8 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @RestController
@@ -39,11 +41,12 @@ public class AccountController {
 
     @GetMapping
     @Operation(summary = "Get accounts by owner", description = "Retrieve all accounts for a specific owner")
-    public ResponseEntity<List<AccountViewDto>> getAccountsByOwner(
+    public ResponseEntity<Page<AccountViewDto>> getAccountsByOwner(
             @RequestParam OwnerType ownerType,
-            @RequestParam @Positive @NotNull Long ownerId) {
+            @RequestParam @Positive @NotNull Long ownerId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("Fetching accounts for owner type: {} and owner ID: {}", ownerType, ownerId);
-        return ResponseEntity.ok(accountService.getAccountsByOwner(ownerType, ownerId));
+        return ResponseEntity.ok(accountService.getAccountsByOwner(ownerType, ownerId, pageable));
     }
 
     @PostMapping
@@ -67,9 +70,10 @@ public class AccountController {
         return ResponseEntity.ok(accountService.closeAccount(id));
     }
 
-    @PostMapping("/{accountId}/unblock")
-    public ResponseEntity<AccountViewDto> unblockAccount(@PathVariable Long accountId) {
-        log.info("Unblocking account with ID: {}", accountId);
-        return ResponseEntity.ok(accountService.unblockAccount(accountId));
+    @PostMapping("/{id}/unblock")
+    @Operation(summary = "Unblock an account", description = "Unblock an existing account by ID")
+    public ResponseEntity<AccountViewDto> unblockAccount(@PathVariable @Positive @NotNull Long id) {
+        log.info("Unblocking account with ID: {}", id);
+        return ResponseEntity.ok(accountService.unblockAccount(id));
     }
 }
