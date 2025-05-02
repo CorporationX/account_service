@@ -5,5 +5,6 @@ public enum RequestStatus {
     REPEATING,
     COMPLETED,
     CANCELLED,
+    PAUSED,
     IN_QUEUE;
 }

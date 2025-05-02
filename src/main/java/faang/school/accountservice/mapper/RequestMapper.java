@@ -1,6 +1,6 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.dto.RequestDto;
+import faang.school.accountservice.dto.Request.RequestDto;
 import faang.school.accountservice.entity.Request;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

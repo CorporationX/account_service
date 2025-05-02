@@ -1,7 +1,8 @@
 package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.config.context.UserContext;
-import faang.school.accountservice.dto.RequestDto;
+import faang.school.accountservice.dto.Request.RequestDto;
+import faang.school.accountservice.dto.Request.RequestStatusDto;
 import faang.school.accountservice.entity.IdempotencyToken;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestStatus;
@@ -9,7 +10,8 @@ import faang.school.accountservice.exception.RequestProcessingException;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.repository.TokenRepository;
-import faang.school.accountservice.service.RequsetService;
+import faang.school.accountservice.service.RequestService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,14 +30,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class RequestServiceImpl implements RequsetService {
+public class RequestServiceImpl implements RequestService {
     private static final String REQUEST_IN_PROCESSING = "You`r request in processing...";
+    private static final int THREAD_POOL_SIZE = 10;
+
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
     private final UserContext userContext;
     private final TokenRepository tokenRepository;
     private final Map<Long, BlockingQueue<RequestDto>> userQueues = new ConcurrentHashMap<>();
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     @Override
     @Transactional
@@ -65,25 +69,38 @@ public class RequestServiceImpl implements RequsetService {
         }
     }
 
-    @Override
     @Transactional
-    public RequestDto updateRequestStatus(Long requestId, RequestStatus status, String statusDetails) {
-        return null;
+    @Override
+    public RequestDto updateRequestStatus(Long requestId, RequestStatusDto requestStatusDto) {
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException("Request with id = " + requestId + " not found"));
+        request.setStatus(requestStatusDto.getStatus());
+        request.setStatusDetails(requestStatusDto.getStatusDetails());
+        Request savedRequest = requestRepository.save(request);
+        log.info("Request with id = {} status was update", savedRequest.getId());
+        //TODO оповещение о смене статуса
+        return requestMapper.toDto(savedRequest);
     }
 
     @Override
     public RequestDto updateIsOpenFlag(Long requestId, boolean isOpen) {
-        return null;
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException("Request with id = " + requestId + " not found"));
+        request.setOpen(isOpen);
+        Request savedRequest = requestRepository.save(request);
+        log.info("Request with id = {} open/close flag was update", savedRequest.getId());
+        //TODO оповещение о открытии\ закрытии запроса
+        return requestMapper.toDto(savedRequest);
     }
 
     @Override
     public RequestDto updateInputData(Long requestId, Map<String, Object> inputData) {
-        return null;
-    }
-
-    @Override
-    public RequestDto getRequestById(Long requestId) {
-        return null;
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException("Request with id = " + requestId + " not found"));
+        request.setInputData(inputData);
+        Request savedRequest = requestRepository.save(request);
+        log.info("Request with id = {} input data was update", savedRequest.getId());
+        return requestMapper.toDto(savedRequest);
     }
 
     private RequestDto requestBalancer(Long userId, IdempotencyToken idempotencyToken) {
