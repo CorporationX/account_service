@@ -11,3 +11,7 @@ CREATE TABLE account_numbers_sequence
     type VARCHAR(32) NOT NULL PRIMARY KEY ,
     counter BIGINT NOT NULL DEFAULT 1
 );
+INSERT INTO account_numbers_sequence(type, counter)
+VALUES
+    ('DEBIT',1),
+    ('CREDIT',1);

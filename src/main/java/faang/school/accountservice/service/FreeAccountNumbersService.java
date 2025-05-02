@@ -4,7 +4,6 @@ import faang.school.accountservice.entity.AccountSeq;
 import faang.school.accountservice.entity.FreeAccountId;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.exception.AccountNumberGenerationException;
 import faang.school.accountservice.exception.AccountNumberNotFoundException;
 import faang.school.accountservice.exception.InvalidBatchSizeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
@@ -35,17 +34,13 @@ public class FreeAccountNumbersService {
             log.error("Batch size must be positive");
             throw new InvalidBatchSizeException("Batch size must be positive");
         }
-
-        AccountSeq period;
-        try {
-            period = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
-        } catch (DataAccessException e) {
-            log.error("Error incrementing counter for account type: {}", type, e);
-            throw new AccountNumberGenerationException("Error generating account numbers for type: " + type, e);
+        AccountSeq period1 = accountNumbersSequenceRepository.incrementCounter(type.name(),batchSize);
+        if (period1 == null) {
+            throw new IllegalStateException("Account sequence not found for type: " + type);
         }
 
         List<FreeAccountNumber> numberList =
-                LongStream.range(period.getInitialValue(), period.getCounter())
+                LongStream.range(period1.getInitialValue(), period1.getCounter())
                         .mapToObj(i -> new FreeAccountNumber(new FreeAccountId(type,
                                 ACCOUNT_PATTERN + i)))
                         .collect(Collectors.toList());
@@ -56,7 +51,7 @@ public class FreeAccountNumbersService {
     }
 
     @Transactional
-    public void retrieveAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
+    public FreeAccountNumber retrieveAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> numberConsumer) {
         FreeAccountNumber accountNumber;
         try {
             accountNumber = freeAccountNumbersRepository.retrieveFirst(accountType.name());
@@ -72,5 +67,6 @@ public class FreeAccountNumbersService {
             log.warn("No account number found for type: {}", accountType);
             throw new AccountNumberNotFoundException("No account number found for type: " + accountType);
         }
+        return accountNumber;
     }
 }

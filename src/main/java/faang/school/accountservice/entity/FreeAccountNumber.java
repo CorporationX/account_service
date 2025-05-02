@@ -12,7 +12,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "free_account_numbers")
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class FreeAccountNumber {
