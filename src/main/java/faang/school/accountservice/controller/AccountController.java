@@ -79,7 +79,7 @@ public class AccountController {
 
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/{id}/close")
-    public AccountResponseDto closeAccount(@PathVariable Long id) {
+    public AccountResponseDto closeAccount(@Positive @PathVariable Long id) {
         Account account = accountService.closeAccount(id);
         return accountMapper.toDto(account);
     }

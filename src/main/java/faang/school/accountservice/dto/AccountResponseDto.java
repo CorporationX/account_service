@@ -5,11 +5,9 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AccountResponseDto(Long id,
                                  String accountNumber,

@@ -6,6 +6,9 @@ import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,7 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = ObjectOptimisticLockingFailureException.class, backoff = @Backoff(delay = 100))
     public Account openAccount(Account account) {
         // В строку ниже необходимо внедрить метод репозитория который ищет номер платежного счета.
         // Сейчас я просто поставил генератор рандомных чисел
@@ -44,15 +48,25 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = ObjectOptimisticLockingFailureException.class, backoff = @Backoff(delay = 100))
     public Account blockAccount(Long id) {
         Account account = accountRepository.findByIdOrThrow(id);
+        if (account.getAccountStatus() == AccountStatus.BLOCKED) {
+            log.info("Account {} is already blocked", id);
+            return account;
+        }
         account.setAccountStatus(AccountStatus.BLOCKED);
         return accountRepository.save(account);
     }
 
     @Transactional
+    @Retryable(retryFor = ObjectOptimisticLockingFailureException.class, backoff = @Backoff(delay = 100))
     public Account closeAccount(Long id) {
         Account account = accountRepository.findByIdOrThrow(id);
+        if (account.getAccountStatus() == AccountStatus.CLOSED) {
+            log.info("Account {} is already closed", id);
+            return account;
+        }
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
         return accountRepository.save(account);
