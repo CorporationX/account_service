@@ -3,7 +3,7 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.account.AccountRequestDto;
 import faang.school.accountservice.dto.account.AccountResponseDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.account.AccountStatus;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
@@ -25,6 +25,7 @@ import static faang.school.accountservice.messages.ErrorMessages.ACCOUNT_NOT_FOU
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
     public AccountResponseDto getAccount(String accountNumber) {
@@ -85,7 +86,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private String generateAccountNumber() {
-        SecureRandom secureRandom = new SecureRandom();
         int length = secureRandom.nextInt(9) + 12;
         StringBuilder accountNumber = new StringBuilder(length);
         for (int i = 0; i < length; i++) {

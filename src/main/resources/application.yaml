@@ -1,6 +1,7 @@
 app:
   optimistic-lock-backoff-delay: 100
   optimistic-lock-max-attempts: 5
+  requests-thread-pool-size: 8
 
 spring:
   datasource:
@@ -13,13 +14,36 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  kafka:
+    producer:
+      acks: all
+      enable.idempotence: true
+      max-in-flight-per-connection: 1
+      transaction-id-prefix: "user-service-"
+
+      topics:
+        request:
+          block-account-topic: "block-account-notification-topic"
+          close-account-topic: "close-account-notification-topic"
+          create-account-topic: "create-account-notification-topic"
+          transfer-funds-topic: "transfer-funds-notification-topic"
+
+
+    consumer:
+      enable-auto-commit: false
+      isolation-level: "read-committed"
+      auto-offset-reset: "latest"
+
+    listener:
+      ack-mode: "manual"
 
 server:
   port: 8090

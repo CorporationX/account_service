@@ -1,16 +1,16 @@
 package faang.school.accountservice.mapper;
 
+import faang.school.accountservice.dto.CurrencyDto;
 import faang.school.accountservice.dto.account.AccountRequestDto;
 import faang.school.accountservice.dto.account.AccountResponseDto;
 import faang.school.accountservice.dto.account.AccountStatusDto;
 import faang.school.accountservice.dto.account.AccountTypeDto;
-import faang.school.accountservice.dto.CurrencyDto;
-import faang.school.accountservice.dto.OwnerTypeDto;
+import faang.school.accountservice.dto.account.OwnerTypeDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.account.OwnerType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

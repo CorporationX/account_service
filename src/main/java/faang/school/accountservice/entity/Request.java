@@ -1,10 +1,8 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.RequestStatus;
-import faang.school.accountservice.enums.RequestType;
-import faang.school.accountservice.utils.JsonMapConverter;
+import faang.school.accountservice.enums.request.RequestStatus;
+import faang.school.accountservice.enums.request.RequestType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,7 +18,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -49,9 +46,8 @@ public class Request {
     @Column(name = "is_open")
     private boolean isOpen;
 
-    @Convert(converter = JsonMapConverter.class)
-    @Column(name = "input_data", nullable = false, columnDefinition = "jsonb")
-    private Map<String, Object> inputData;
+    @Column(name = "input_data", nullable = false, length = 1024)
+    private String inputData;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status", nullable = false, length = 32)
