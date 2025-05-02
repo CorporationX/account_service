@@ -60,7 +60,10 @@ public class SavingsAccountService {
         try {
             savingsAccount = savingsAccountRepository.save(savingsAccount);
             log.info("Opened new savings account. {}", savingsAccount.getAccountNumber());
-            return savingsAccountMapper.toDto(savingsAccount);
+            SavingsAccountResponse response = savingsAccountMapper.toDto(savingsAccount);
+            BigDecimal activeRate = getActiveRate(tariff.getTypeName());
+            response.setActiveTariffRate(activeRate.toString());
+            return response;
         } catch (DataIntegrityViolationException ex) {
             throw new SavingsAccountDuplicateException("Savings account on owner with id %d already exists", ownerId);
         }
@@ -71,17 +74,19 @@ public class SavingsAccountService {
         SavingsAccount savingsAccount = getSavingsAccount(accountId);
         Tariff tariff = getTariff(tariffId);
 
-        List<TariffHistory> tariffHistory = new ArrayList<>(savingsAccount.getTariffHistory());
+        List<TariffHistory> tariffHistory = savingsAccount.getTariffHistory();
         tariffHistory.add(createTariffHistory(tariff, savingsAccount));
         savingsAccount.setTariffHistory(tariffHistory);
 
         savingsAccountRepository.save(savingsAccount);
+        log.info("Tariff on savings account with id {} updated on {}", accountId, tariff.getTypeName());
     }
 
     @Async("tariffRatesCalculator")
     public void recalculateTariffRates() {
         LocalDateTime dayAgoTime = LocalDateTime.now().minusHours(hours);
-        List<SavingsAccount> accounts = savingsAccountRepository.findAllByLastInterestAccrualAtIsBefore(dayAgoTime);
+        List<SavingsAccount> accounts =
+                savingsAccountRepository.findAllByLastInterestAccrualAtIsBeforeOrLastInterestAccrualAtIsNull(dayAgoTime);
 
         List<CompletableFuture<Void>> futures = accounts.stream()
                 .map(account -> CompletableFuture.runAsync(
@@ -107,8 +112,7 @@ public class SavingsAccountService {
         SavingsAccountResponse response = savingsAccountMapper.toDto(savingsAccount);
 
         String typeName = response.getActiveTariff();
-        BigDecimal latestRate = tariffRepository.findLatestRateByTariffTypeName(typeName)
-                .orElseThrow(() -> new TariffNotFoundException("Tariff %s not found", typeName));
+        BigDecimal latestRate = getActiveRate(typeName);
 
         response.setActiveTariffRate(latestRate.toString());
         return response;
@@ -117,6 +121,7 @@ public class SavingsAccountService {
     private SavingsAccount createSavingsAccount(Account account) {
         return SavingsAccount.builder()
                 .account(account)
+                .balance(BigDecimal.ZERO)
                 .accountNumber(UUID.randomUUID().toString())
                 .build();
     }
@@ -141,5 +146,10 @@ public class SavingsAccountService {
     private Tariff getTariff(Long tariffId) {
         return tariffRepository.findById(tariffId).orElseThrow(
                 () -> new TariffNotFoundException("Tariff with id %d not found", tariffId));
+    }
+
+    private BigDecimal getActiveRate(String typeName) {
+        return tariffRepository.findLatestRateByTariffTypeName(typeName)
+                .orElseThrow(() -> new TariffNotFoundException("Tariff %s not found", typeName));
     }
 }

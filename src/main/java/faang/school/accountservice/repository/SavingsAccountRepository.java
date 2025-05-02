@@ -11,7 +11,8 @@ import java.util.Optional;
 
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
 
-    List<SavingsAccount> findAllByLastInterestAccrualAtIsBefore(LocalDateTime lastInterestAccrualAt);
+    List<SavingsAccount> findAllByLastInterestAccrualAtIsBeforeOrLastInterestAccrualAtIsNull
+            (LocalDateTime lastInterestAccrualAt);
 
     @Query("""
         SELECT th.tariff.typeName

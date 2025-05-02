@@ -37,7 +37,7 @@ public class TariffService {
 
         tariffRepository.save(tariff);
 
-        log.info("New tariff added: {}", tariff);
+        log.info("New tariff added: {}", tariff.getTypeName());
         return tariffMapper.toDto(tariff);
     }
 
@@ -50,13 +50,13 @@ public class TariffService {
             tariff.setTypeName(request.typeName());
         }
         if (request.rate() != null) {
-            List<TariffRate> rates = new ArrayList<>(tariff.getRates());
+            List<TariffRate> rates = tariff.getRates();
             rates.add(createTariffRate(request.rate(), tariff));
             tariff.setRates(rates);
         }
 
         tariffRepository.save(tariff);
-        log.info("Tariff updated: {}", tariff);
+        log.info("Tariff with id {} updated successfully", request.id());
     }
 
     public List<TariffResponse> getAllTariffs() {

@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -108,6 +109,8 @@ public class SavingsAccountServiceTest {
         when(tariffRepository.findById(firstTariffId)).thenReturn(Optional.of(tariff));
         when(savingsAccountRepository.save(any(SavingsAccount.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(tariffRepository.findLatestRateByTariffTypeName(tariff.getTypeName()))
+                .thenReturn(Optional.of(BigDecimal.ZERO));
         when(savingsAccountMapper.toDto(any(SavingsAccount.class))).thenReturn(response);
 
         SavingsAccountResponse result = savingsAccountService.openSavingsAccount(firstTariffId);
@@ -241,7 +244,10 @@ public class SavingsAccountServiceTest {
         SavingsAccount savingsAccount = SavingsAccount.builder()
                 .account(account)
                 .build();
-        savingsAccount.setTariffHistory(List.of(createTariffHistory(tariff, savingsAccount)));
+        TariffHistory history = createTariffHistory(tariff, savingsAccount);
+        List<TariffHistory> historyList = new ArrayList<>();
+        historyList.add(history);
+        savingsAccount.setTariffHistory(historyList);
         return savingsAccount;
     }
 
