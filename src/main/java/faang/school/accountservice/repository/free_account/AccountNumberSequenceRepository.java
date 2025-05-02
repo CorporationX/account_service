@@ -20,8 +20,8 @@ public interface AccountNumberSequenceRepository extends JpaRepository<AccountNu
                    """, nativeQuery = true
     )
     @Modifying
-    int incrementAccountNumberIfMatch(AccountType accountType, long expectedLastValue);
+    int incrementAccountNumberIfMatch(AccountType accountType, String expectedLastValue);
 
     @Query("SELECT a.lastValue FROM AccountNumberSequence a WHERE a.accountType = :accountType")
-    Optional<Long> findLastValueByAccountType(AccountType accountType);
+    Optional<String> findLastValueByAccountType(AccountType accountType);
 }

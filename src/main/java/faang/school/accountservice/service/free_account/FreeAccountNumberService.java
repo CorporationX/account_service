@@ -55,7 +55,7 @@ public class FreeAccountNumberService {
     }
 
     @Transactional
-    public boolean tryIncrement(AccountType accountType, Long expectedValue) {
+    public boolean tryIncrement(AccountType accountType, String expectedValue) {
         return accountNumberSequenceRepository.incrementAccountNumberIfMatch(accountType, expectedValue) == 1;
     }
 
@@ -77,7 +77,7 @@ public class FreeAccountNumberService {
     }
 
     private String incrementAndGenerateNewNumber(AccountType accountType) {
-        Long currentValue;
+        String currentValue;
         boolean updated;
         do {
             currentValue = accountNumberSequenceRepository.findLastValueByAccountType(accountType)
