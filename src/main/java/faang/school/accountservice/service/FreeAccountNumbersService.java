@@ -31,37 +31,35 @@ public class FreeAccountNumbersService {
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
-    @Retryable(
-            value = {OptimisticLockException.class},
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 2000))
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void generatedAccountNumbers(AccountType type, int batchSize) {
         if (batchSize <= 0) {
             log.error("Batch size must be positive");
             throw new InvalidBatchSizeException("Batch size must be positive");
         }
-        AccountSeq period1 = accountNumbersSequenceRepository.findByAccountType(type);
-        if (period1 == null) {
-            log.error("No sequence found for type {}", type);
-            period1 = new AccountSeq();
-            period1.setAccountType(type);
-            period1.setCounter((long) batchSize);
-            accountNumbersSequenceRepository.save(period1);
-        }else {
-            period1.setInitialValue(period1.getCounter());
-            period1.setCounter(period1.getCounter() + batchSize);
+
+        try {
+            AccountSeq period = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
+
+            List<FreeAccountNumber> numberList =
+                    LongStream.range(period.getInitialValue() , period.getCounter() )
+                            .mapToObj(i -> new FreeAccountNumber(new FreeAccountId(type, ACCOUNT_PATTERN + i)))
+                            .collect(Collectors.toList());
+
+            log.info("Generating {} numbers ({} to {}) for type: {}",
+                    numberList.size(),
+                    period.getInitialValue() ,
+                    period.getCounter(),
+                    type);
+
+            freeAccountNumbersRepository.saveAll(numberList);
+            log.info("Successfully generated {} account numbers for type: {}", numberList.size(), type);
+        } catch (Exception e) {
+            log.error("Failed to generate account numbers for type: {}", type, e);
+            throw e; // Откатывает транзакцию
         }
-
-        List<FreeAccountNumber> numberList =
-                LongStream.range(period1.getInitialValue(), period1.getCounter())
-                        .mapToObj(i -> new FreeAccountNumber(new FreeAccountId(type,
-                                ACCOUNT_PATTERN + i)))
-                        .collect(Collectors.toList());
-
-        log.info("Generating {} account numbers for type: {}", numberList.size(), type);
-        freeAccountNumbersRepository.saveAll(numberList);
-        log.info("Successfully generated {} account numbers for type: {}", numberList.size(), type);
     }
 
     @Transactional

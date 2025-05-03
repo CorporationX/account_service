@@ -22,17 +22,4 @@ public class FreeAccountId implements Serializable {
 
     @Column(name = "account_number", nullable = false)
     private Long accountNumber;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FreeAccountId that = (FreeAccountId) o;
-        return accountType == that.accountType && Objects.equals(accountNumber, that.accountNumber);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(accountType, accountNumber);
-    }
 }
