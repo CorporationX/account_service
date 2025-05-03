@@ -9,7 +9,6 @@ import java.util.Map;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
-
     boolean existsByLockValueAndUserId(Long lockValue, Long userId);
 
     boolean existsByInputDataAndUserId(Map<String, Object> inputData, Long userId);

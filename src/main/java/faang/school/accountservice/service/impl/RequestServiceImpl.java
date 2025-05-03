@@ -48,6 +48,7 @@ public class RequestServiceImpl implements RequestService {
     public String createRequest(RequestDto requestDto, UUID idempotencyToken) {
 
         Long userId = userContext.getUserId();
+        requestDto.setUserId(userId);
         BlockingQueue<RequestDto> userQueue = userQueues.computeIfAbsent(userId, k -> new LinkedBlockingQueue<>());
         try {
             userQueue.put(requestDto);
@@ -60,7 +61,6 @@ public class RequestServiceImpl implements RequestService {
                 log.info("Request with input data completed {}", result.getInputData());
                 Request request = requestRepository.findById(result.getId()).orElseThrow(
                         () -> new EntityNotFoundException("Request with id " + result.getId() + " not found"));
-                request.setOpen(false);
                 log.info("Request with id = {} set open/closed flag = false", request.getId());
                 request.setLockValue(FREE_FLAG_VALUE);
                 log.info("Request with id = {} set lock value = free", request.getId());
@@ -110,7 +110,8 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toDto(savedRequest);
     }
 
-    private RequestDto requestBalancer(Long userId, UUID idempotencyToken) {
+    @Transactional
+    protected RequestDto requestBalancer(Long userId, UUID idempotencyToken) {
         try {
             RequestDto requestDto = userQueues.get(userId).take();
             log.info("Processing request for userId = {}", userId);
@@ -134,7 +135,11 @@ public class RequestServiceImpl implements RequestService {
             request.setUserId(userId);
             request.setLockValue(userId);
             request.setOpen(true);
-            request.setIdempotencyToken(createIdempotencyToken(idempotencyToken));
+            IdempotencyToken token = new IdempotencyToken();
+            token.setToken(idempotencyToken);
+            token.setRequest(request);
+            request.setIdempotencyToken(token);
+            log.info("request = {}", request);
             Request savedRequest = requestRepository.save(request);
             savedRequest.setStatus(RequestStatus.COMPLETED);
             log.info("saved request have token : {}", savedRequest.getIdempotencyToken());
@@ -157,12 +162,6 @@ public class RequestServiceImpl implements RequestService {
             return false;
         }
         return Objects.equals(existRequest.getInputData(), request.getInputData());
-    }
-
-    private IdempotencyToken createIdempotencyToken(UUID idempotencyToken) {
-        IdempotencyToken token = tokenRepository.save(new IdempotencyToken());
-        token.setToken(idempotencyToken);
-        return token;
     }
 
 }
