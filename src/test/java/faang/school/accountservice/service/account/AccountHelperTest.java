@@ -141,11 +141,10 @@ class AccountHelperTest {
                     .accountStatus(AccountStatus.ACTIVE)
                     .balance(BigDecimal.ZERO)
                     .build();
-            String errorMessage = "Failed to save the account";
 
             when(accountRepository.save(account)).thenReturn(account);
 
-            Account result = accountHelper.saveAccount(account, errorMessage);
+            Account result = accountHelper.saveAccount(account);
 
             assertEquals(account, result);
             verify(accountRepository).save(account);
@@ -159,14 +158,12 @@ class AccountHelperTest {
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
-            String errorMessage = "Failed to save the account";
 
             when(accountRepository.save(account))
                     .thenThrow(new ObjectOptimisticLockingFailureException("Optimistic locking failure", null));
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
-                    () -> accountHelper.saveAccount(account, errorMessage));
-            assertEquals(errorMessage, exception.getMessage());
+                    () -> accountHelper.saveAccount(account));
             verify(accountRepository).save(account);
         }
     }

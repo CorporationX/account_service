@@ -73,7 +73,7 @@ public class AccountService {
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setVersion(0);
         account.setBalance(BigDecimal.ZERO);
-        Account savedAccount = accountHelper.saveAccount(account, "Failed to save the account");
+        Account savedAccount = accountHelper.saveAccount(account);
         return accountMapper.toViewDto(savedAccount);
     }
 
@@ -135,7 +135,7 @@ public class AccountService {
         accountValidator.validateStatus(account, newStatus);
         account.setAccountStatus(newStatus);
         Optional.ofNullable(closedAt).ifPresent(account::setClosedAt);
-        Account updatedAccount = accountHelper.saveAccount(account, "Failed to update account status");
+        Account updatedAccount = accountHelper.saveAccount(account);
         return accountMapper.toViewDto(updatedAccount);
     }
 }

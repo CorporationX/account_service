@@ -31,7 +31,6 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -183,7 +182,7 @@ class AccountServiceTest {
 
             when(accountHelper.generateAccountNumber()).thenReturn("1234567890123456");
             when(accountMapper.toEntity(createDto)).thenReturn(account);
-            when(accountHelper.saveAccount(any(Account.class), anyString())).thenReturn(account);
+            when(accountHelper.saveAccount(any(Account.class))).thenReturn(account);
             when(accountMapper.toViewDto(account)).thenReturn(accountViewDto);
 
             AccountViewDto result = accountService.openAccount(createDto);
@@ -191,7 +190,7 @@ class AccountServiceTest {
             assertEquals(accountViewDto, result);
             verify(accountHelper).generateAccountNumber();
             verify(accountMapper).toEntity(createDto);
-            verify(accountHelper).saveAccount(any(Account.class), anyString());
+            verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(account);
         }
     }
@@ -236,7 +235,7 @@ class AccountServiceTest {
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);
             doNothing().when(accountValidator).validateBlock(account);
-            when(accountHelper.saveAccount(any(Account.class), anyString())).thenReturn(blockedAccount);
+            when(accountHelper.saveAccount(any(Account.class))).thenReturn(blockedAccount);
             when(accountMapper.toViewDto(blockedAccount)).thenReturn(accountViewDto);
 
             AccountViewDto result = accountService.blockAccount(accountId);
@@ -244,7 +243,7 @@ class AccountServiceTest {
             assertEquals(accountViewDto, result);
             verify(accountHelper).getAccountById(accountId);
             verify(accountValidator).validateBlock(account);
-            verify(accountHelper).saveAccount(any(Account.class), anyString());
+            verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(blockedAccount);
         }
 
@@ -329,7 +328,7 @@ class AccountServiceTest {
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);
             doNothing().when(accountValidator).validateClose(account);
-            when(accountHelper.saveAccount(any(Account.class), anyString())).thenReturn(closedAccount);
+            when(accountHelper.saveAccount(any(Account.class))).thenReturn(closedAccount);
             when(accountMapper.toViewDto(closedAccount)).thenReturn(accountViewDto);
 
             AccountViewDto result = accountService.closeAccount(accountId);
@@ -337,7 +336,7 @@ class AccountServiceTest {
             assertEquals(accountViewDto, result);
             verify(accountHelper).getAccountById(accountId);
             verify(accountValidator).validateClose(account);
-            verify(accountHelper).saveAccount(any(Account.class), anyString());
+            verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(closedAccount);
         }
 
@@ -421,7 +420,7 @@ class AccountServiceTest {
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);
             doNothing().when(accountValidator).validateUnblock(account);
-            when(accountHelper.saveAccount(any(Account.class), anyString())).thenReturn(unblockedAccount);
+            when(accountHelper.saveAccount(any(Account.class))).thenReturn(unblockedAccount);
             when(accountMapper.toViewDto(unblockedAccount)).thenReturn(accountViewDto);
 
             AccountViewDto result = accountService.unblockAccount(accountId);
@@ -429,7 +428,7 @@ class AccountServiceTest {
             assertEquals(accountViewDto, result);
             verify(accountHelper).getAccountById(accountId);
             verify(accountValidator).validateUnblock(account);
-            verify(accountHelper).saveAccount(any(Account.class), anyString());
+            verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(unblockedAccount);
         }
 

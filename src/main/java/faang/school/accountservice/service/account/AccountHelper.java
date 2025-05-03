@@ -69,16 +69,15 @@ public class AccountHelper {
      * Сохраняет учетную запись в репозитории.
      *
      * @param account      учетная запись для сохранения
-     * @param errorMessage сообщение об ошибке в случае конфликта
      * @return сохраненная учетная запись
      * @throws AccountOperationConflictException если возникает конфликт при сохранении учетной записи
      */
-    public Account saveAccount(Account account, String errorMessage) {
+    public Account B(Account account) {
         try {
             return accountRepository.save(account);
         } catch (ObjectOptimisticLockingFailureException e) {
-            log.error(errorMessage, e);
-            throw new AccountOperationConflictException(errorMessage);
+            log.error("Optimistic locking failure while saving account: {}", account, e);
+            throw new AccountOperationConflictException("Optimistic locking failure while saving account");
         }
     }
 }
