@@ -23,10 +23,10 @@ import java.util.concurrent.Executors;
 public class AccountNumberRetrievalChecker implements SchedulingConfigurer {
 
     @Value("${account.number.check.enabled}")
-    private boolean enabled;
+    private Boolean enabled;
 
     @Value("${account.number.check.fixed-rate}")
-    private long fixedRate;
+    private Long fixedRate;
 
     private final FreeAccountNumberService freeAccountNumberService;
 

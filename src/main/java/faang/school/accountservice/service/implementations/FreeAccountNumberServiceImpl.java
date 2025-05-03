@@ -219,8 +219,10 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
                 return accountNumber;
             }
             attempts++;
-            log.debug("Account number {} already exists, retrying (attempt {}/{})", accountNumber, attempts, MAX_ATTEMPTS);
+            log.debug("Account number {} already exists, retrying (attempt {}/{})",
+                    accountNumber, attempts, MAX_ATTEMPTS);
         }
-        throw new GenerateNumberException("Failed to generate unique account number after " + MAX_ATTEMPTS + " attempts");
+        throw new GenerateNumberException("Failed to generate unique account number after " +
+                MAX_ATTEMPTS + " attempts");
     }
 }

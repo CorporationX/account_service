@@ -20,5 +20,5 @@ public class FreeAccountId {
     private AccountType type;
 
     @Column(name = "account_number", nullable = false)
-    private long accountNumber;
+    private Long accountNumber;
 }

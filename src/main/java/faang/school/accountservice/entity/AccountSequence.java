@@ -23,7 +23,7 @@ public class AccountSequence {
     private AccountType type;
 
     @Column(name = "counter", nullable = false)
-    private long counter;
+    private Long counter;
 
     @Version
     private Long version;

@@ -12,6 +12,6 @@ import java.util.Map;
 public class AccountNumberConfig {
 
     private String cron;
-    private int batchSizeDefault;
+    private Integer batchSizeDefault;
     private Map<String, Integer> batchSize;
 }
