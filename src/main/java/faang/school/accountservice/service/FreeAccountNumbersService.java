@@ -8,10 +8,14 @@ import faang.school.accountservice.exception.AccountNumberNotFoundException;
 import faang.school.accountservice.exception.InvalidBatchSizeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,16 +31,26 @@ public class FreeAccountNumbersService {
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
-
-    @Transactional
+    @Retryable(
+            value = {OptimisticLockException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 2000))
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void generatedAccountNumbers(AccountType type, int batchSize) {
         if (batchSize <= 0) {
             log.error("Batch size must be positive");
             throw new InvalidBatchSizeException("Batch size must be positive");
         }
-        AccountSeq period1 = accountNumbersSequenceRepository.incrementCounter(type.name(),batchSize);
+        AccountSeq period1 = accountNumbersSequenceRepository.findByAccountType(type);
         if (period1 == null) {
-            throw new IllegalStateException("Account sequence not found for type: " + type);
+            log.error("No sequence found for type {}", type);
+            period1 = new AccountSeq();
+            period1.setAccountType(type);
+            period1.setCounter((long) batchSize);
+            accountNumbersSequenceRepository.save(period1);
+        }else {
+            period1.setInitialValue(period1.getCounter());
+            period1.setCounter(period1.getCounter() + batchSize);
         }
 
         List<FreeAccountNumber> numberList =

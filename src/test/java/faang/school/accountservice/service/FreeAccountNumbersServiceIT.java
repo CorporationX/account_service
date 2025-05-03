@@ -40,10 +40,10 @@ public class FreeAccountNumbersServiceIT {
     @Test
     @Transactional
     public void testPositiveGeneratedAccountNumbers() {
-
-        freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT,10);
+        freeAccountNumbersRepository.deleteAll();
+        freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT,1000);
         List<FreeAccountNumber> freeAccountNumbers = freeAccountNumbersRepository.findAll();
-        assertEquals(freeAccountNumbers.size(), 11);
+        assertEquals(freeAccountNumbers.size(), 1000);
         assertEquals(4200_0000_0000_0001L,freeAccountNumbers.get(1).getFreeAccountId().getAccountNumber());
     }
 
@@ -56,7 +56,8 @@ public class FreeAccountNumbersServiceIT {
             });
         }
         executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
+        executor.awaitTermination(1, TimeUnit.MINUTES); // Ожидание завершения потоков
+
         List<FreeAccountNumber> freeAccountNumbers = freeAccountNumbersRepository.findAll();
 
         assertEquals(1000, freeAccountNumbers.size());

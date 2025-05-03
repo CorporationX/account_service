@@ -29,5 +29,5 @@ account:
     batch:
       size: 50
     crone:
-      debit: "0 * * * * *"
-      credit: "0 * * * * *"
+      debit: "* * * * * *"
+      credit: "* * * * * *"

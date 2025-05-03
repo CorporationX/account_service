@@ -25,4 +25,7 @@ public class AccountSeq {
     private Long counter;
     @Transient
     private long initialValue;
+    @Version
+    private long version;
+
 }
