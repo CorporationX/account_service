@@ -23,6 +23,8 @@ public class AccountValidator {
     private final AccountRepository accountRepository;
     private final AccountHelper accountHelper;
 
+    private static final int ZERO_BALANCE = 0;
+
     /**
      * Проверяет, что новый статус отличается от текущего.
      *
@@ -76,7 +78,7 @@ public class AccountValidator {
      */
     public void validateClose(Account account) {
         validateNotClosed(account);
-        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+        if (account.getBalance().compareTo(BigDecimal.ZERO) != ZERO_BALANCE) {
             log.error("Attempt to close account with non-zero balance for account ID: {}", account.getId());
             throw new AccountOperationConflictException("Cannot close account with non-zero balance");
         }

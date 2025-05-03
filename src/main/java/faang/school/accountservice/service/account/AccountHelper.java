@@ -22,6 +22,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AccountHelper {
     private final AccountRepository accountRepository;
 
+    private static final int MAX_ATTEMPTS = 10;
+    private static final int MIN_ACCOUNT_NUMBER_LENGTH = 12;
+    private static final int MAX_ACCOUNT_NUMBER_LENGTH = 21;
+    private static final int FIRST_DIGIT_MIN = 1;
+    private static final int FIRST_DIGIT_MAX = 10;
+    private static final int OTHER_DIGIT_MIN = 0;
+    private static final int OTHER_DIGIT_MAX = 10;
+
     /**
      * Получает учетную запись по идентификатору.
      *
@@ -48,15 +56,17 @@ public class AccountHelper {
         int attempt = 0;
         String number;
         do {
-            if (attempt++ > 10) {
-                throw new IllegalStateException("Не удалось сгенерировать уникальный номер счёта");
+            if (attempt++ > MAX_ATTEMPTS) {
+                log.error("Failed to generate unique account number after {} attempts", MAX_ATTEMPTS);
+                throw new IllegalStateException("Failed to generate unique account number");
             }
 
-            int length = ThreadLocalRandom.current().nextInt(12, 21);
+            int length = ThreadLocalRandom.current().nextInt(MIN_ACCOUNT_NUMBER_LENGTH, MAX_ACCOUNT_NUMBER_LENGTH);
 
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < length; i++) {
-                sb.append(ThreadLocalRandom.current().nextInt(i == 0 ? 1 : 0, 10));
+            sb.append(ThreadLocalRandom.current().nextInt(FIRST_DIGIT_MIN, FIRST_DIGIT_MAX));
+            for (int i = 1; i < length; i++) {
+                sb.append(ThreadLocalRandom.current().nextInt(OTHER_DIGIT_MIN, OTHER_DIGIT_MAX));
             }
             number = sb.toString();
 
