@@ -119,7 +119,7 @@ class AccountHelperTest {
 
             IllegalStateException exception = assertThrows(IllegalStateException.class,
                     () -> accountHelper.generateAccountNumber());
-            assertEquals("Не удалось сгенерировать уникальный номер счёта", exception.getMessage());
+            assertEquals("Failed to generate unique account number", exception.getMessage());
             verify(accountRepository, times(11)).existsByAccountNumber(any(String.class));
         }
     }
