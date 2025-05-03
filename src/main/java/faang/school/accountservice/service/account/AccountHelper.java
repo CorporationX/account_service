@@ -72,7 +72,7 @@ public class AccountHelper {
      * @return сохраненная учетная запись
      * @throws AccountOperationConflictException если возникает конфликт при сохранении учетной записи
      */
-    public Account B(Account account) {
+    public Account saveAccount(Account account) {
         try {
             return accountRepository.save(account);
         } catch (ObjectOptimisticLockingFailureException e) {
