@@ -3,6 +3,7 @@ package faang.school.accountservice.entity;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +15,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,6 +24,8 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "payment_account")
+@Getter
+@Setter
 public class Account {
 
     @Id
@@ -33,11 +38,11 @@ public class Account {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "owner_id")
+    private Long ownerId;
 
-    @Column(name = "project_id")
-    private Long projectId;
+    @Column(name = "owner_type")
+    private OwnerType ownerType;
 
     @Column(name = "account_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -63,6 +68,17 @@ public class Account {
     @Column(name = "version", nullable = false)
     @Version
     private Long version;
+
+    public Account(Long ownerId, OwnerType ownerType, AccountType type, Currency currency, String accountNumber) {
+        this.ownerId = ownerId;
+        this.ownerType = ownerType;
+        this.accountNumber = accountNumber;
+        this.type = type;
+        this.currency = currency;
+        balance = BigDecimal.valueOf(0.0);
+        version = 0L;
+        status = AccountStatus.ACTIVE;
+    }
 
     @PrePersist
     protected void onCreate() {
