@@ -61,11 +61,25 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            log.error("Payment account with number {} cannot be blocked because its status is not ACTIVE", accountNumber);
-            throw new AccountStatusException("Only accounts with status ACTIVE can be blocked");
+            throw new AccountStatusException(
+                    "Cannot block account %s: status must be ACTIVE, but was %s"
+                            .formatted(accountNumber, account.getStatus())
+            );
         }
         account.setStatus(AccountStatus.FROZEN);
         log.info("Account {} status changed to FROZEN. Version: {}", accountNumber, account.getVersion());
+    }
+
+    @Override
+    @Transactional
+    public void unblock(String accountNumber) {
+        Account account = getAccountOrThrow(accountNumber);
+        if (account.getStatus() != AccountStatus.FROZEN) {
+            throw new AccountStatusException("Cannot unblock account %s: status must be FROZEN, but was %s"
+                    .formatted(accountNumber, account.getStatus()));
+        }
+        account.setStatus(AccountStatus.ACTIVE);
+        log.info("Account {} status changed to ACTIVE", accountNumber);
     }
 
     @Override
@@ -83,6 +97,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
+    public void delete(String accountNumber) {
+        Account account = getAccountOrThrow(accountNumber);
+        if (account.getStatus() != AccountStatus.CLOSED) {
+            throw new AccountStatusException("Cannot delete account %s: must be CLOSED first"
+                    .formatted(accountNumber));
+        }
+        accountRepository.delete(account);
+        log.info("Account {} deleted permanently", accountNumber);
+    }
+
+    @Override
+    @Transactional
     public void updateBalance(String accountNumber, BigDecimal amount) {
         Account account = getAccountOrThrow(accountNumber);
         if (account.getStatus() == AccountStatus.CLOSED) {
@@ -91,19 +117,16 @@ public class AccountServiceImpl implements AccountService {
         }
         BigDecimal newBalance = account.getBalance().add(amount);
         if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            log.error("Insufficient funds: attempted to subtract {}, current balance: {}",
-                    amount, account.getBalance());
-            throw new IllegalStateException("Insufficient funds");
+            throw new IllegalStateException("Insufficient funds: attempted to subtract %d, current balance: %d"
+                    .formatted(amount, account.getBalance()));
         }
         account.setBalance(newBalance);
         log.info("Account {} balance updated to {}. Version: {}", accountNumber, newBalance, account.getVersion());
     }
 
     private Account getAccountOrThrow(String accountNumber) {
-        return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> {
-                    log.warn("Account with number {} not found", accountNumber);
-                    return new AccountNotFoundException("account with number %s not found".formatted(accountNumber));
-                });
+        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() ->
+                new AccountNotFoundException("Account with number %s not found.".formatted(accountNumber))
+        );
     }
 }

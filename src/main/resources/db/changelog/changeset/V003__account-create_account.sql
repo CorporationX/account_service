@@ -12,7 +12,7 @@ CREATE TABLE account (
     closed_at TIMESTAMP WITH TIME ZONE,
     version BIGINT NOT NULL DEFAULT 0,
 
-     CONSTRAINT chk_account_number_format CHECK (account_number ~ '^\d{12,20}$')
+     CONSTRAINT chk_account_number_format CHECK (account_number ~ '^\d{12,20}$'),
      CONSTRAINT chk_balance_non_negative CHECK (balance >= 0)
 );
 

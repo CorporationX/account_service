@@ -50,9 +50,21 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PutMapping("/{accountNumber}/unblock")
+    public ResponseEntity<Void> unblock(@PathVariable String accountNumber) {
+        accountService.unblock(accountNumber);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     @PutMapping("/{accountNumber}/close")
     public ResponseEntity<Void> close(@PathVariable String accountNumber) {
         accountService.close(accountNumber);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{accountNumber}/delete")
+    public ResponseEntity<Void> delete(@PathVariable String accountNumber) {
+        accountService.delete(accountNumber);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
