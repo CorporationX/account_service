@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class RequestServiceImpl implements RequestService {
     private static final String REQUEST_IN_PROCESSING = "You`r request in processing...";
     private static final int THREAD_POOL_SIZE = 10;
+    private static final long FREE_FLAG_VALUE = 0L;
 
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
@@ -43,7 +45,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public String createRequest(RequestDto requestDto, IdempotencyToken idempotencyToken) {
+    public String createRequest(RequestDto requestDto, UUID idempotencyToken) {
 
         Long userId = userContext.getUserId();
         BlockingQueue<RequestDto> userQueue = userQueues.computeIfAbsent(userId, k -> new LinkedBlockingQueue<>());
@@ -51,12 +53,17 @@ public class RequestServiceImpl implements RequestService {
             userQueue.put(requestDto);
             //TODO Оповещение о добавлении в очередь
             log.info("Request for userId = {} added to the queue", userId);
-
             CompletableFuture<RequestDto> futureRequest = CompletableFuture
                     .supplyAsync(() -> requestBalancer(userId, idempotencyToken), executorService);
 
             futureRequest.thenAccept(result -> {
                 log.info("Request with input data completed {}", result.getInputData());
+                Request request = requestRepository.findById(result.getId()).orElseThrow(
+                        () -> new EntityNotFoundException("Request with id " + result.getId() + " not found"));
+                request.setOpen(false);
+                log.info("Request with id = {} set open/closed flag = false", request.getId());
+                request.setLockValue(FREE_FLAG_VALUE);
+                log.info("Request with id = {} set lock value = free", request.getId());
                 //TODO оповвещение о готовности
             });
 
@@ -103,22 +110,19 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toDto(savedRequest);
     }
 
-    private RequestDto requestBalancer(Long userId, IdempotencyToken idempotencyToken) {
-
+    private RequestDto requestBalancer(Long userId, UUID idempotencyToken) {
         try {
             RequestDto requestDto = userQueues.get(userId).take();
             log.info("Processing request for userId = {}", userId);
             //TODO Оповещение о смене статуса запроса
             Request request = requestMapper.toEntity(requestDto);
             request.setStatus(RequestStatus.IN_PROGRESS);
-            Optional<IdempotencyToken> tokenOpt = tokenRepository.findByToken(idempotencyToken.getToken());
 
+            Optional<IdempotencyToken> tokenOpt = tokenRepository.findByToken(idempotencyToken);
             if (tokenOpt.isPresent()) {
                 Request existingRequest = tokenOpt.get().getRequest();
-
                 if (requestRepository.existsByInputDataAndUserId(existingRequest.getInputData(), userId)) {
                     if (isInputDataEqual(existingRequest, request)) {
-
                         log.info("Request already exists for userId = {}", userId);
                         existingRequest.setStatus(RequestStatus.REPEATING);
                         //TODO Оповещение о смене статуса запроса
@@ -130,9 +134,10 @@ public class RequestServiceImpl implements RequestService {
             request.setUserId(userId);
             request.setLockValue(userId);
             request.setOpen(true);
-            request.setIdempotencyToken(idempotencyToken);
+            request.setIdempotencyToken(createIdempotencyToken(idempotencyToken));
             Request savedRequest = requestRepository.save(request);
             savedRequest.setStatus(RequestStatus.COMPLETED);
+            log.info("saved request have token : {}", savedRequest.getIdempotencyToken());
             log.info("Request for userId = {} processed successfully", userId);
             return requestMapper.toDto(savedRequest);
 
@@ -154,5 +159,10 @@ public class RequestServiceImpl implements RequestService {
         return Objects.equals(existRequest.getInputData(), request.getInputData());
     }
 
+    private IdempotencyToken createIdempotencyToken(UUID idempotencyToken) {
+        IdempotencyToken token = tokenRepository.save(new IdempotencyToken());
+        token.setToken(idempotencyToken);
+        return token;
+    }
 
 }

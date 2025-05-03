@@ -16,5 +16,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Request findByInputDataAndUserId(Map<String, Object> inputData, Long userId);
 
-    Request findByLockValueAndUserId(Long lockValue);
+    Request findByLockValueAndUserId(Long lockValue, Long userId);
 }
