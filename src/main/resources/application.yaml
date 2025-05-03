@@ -27,7 +27,7 @@ logging:
 account:
   number:
     batch:
-      size: 50
+      size: 14
     crone:
       debit: "1 * * * * *"
-      credit: "1 1 * * * *"
+      credit: "6 * * * * *"

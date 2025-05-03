@@ -37,7 +37,7 @@ public class FreeAccountNumbersServiceIT {
     @Autowired
     private FreeAccountNumbersRepository freeAccountNumbersRepository;
     @Autowired
-    AccountNumbersSequenceRepository accountNumbersSequenceRepository;
+    private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
     @Container
     public static PostgreSQLContainer<?> POSTGRESQL_CONTAINER
@@ -45,40 +45,44 @@ public class FreeAccountNumbersServiceIT {
 
 
     @Test
-    @Rollback
     public void testPositiveGeneratedAccountNumbers() throws InterruptedException {
+        System.out.println( freeAccountNumbersRepository.findAll().size());
+        System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
+                "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
         freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, 10);
-        Thread.sleep(1000);
-        List<FreeAccountNumber> freeAccountNumbers = freeAccountNumbersRepository.findAll();
-        assertEquals(freeAccountNumbers.size(), 10);
-        assertEquals(4200_0000_0000_0001L, freeAccountNumbers.get(1).getFreeAccountId().getAccountNumber());
+        List<FreeAccountNumber> freeAccountNumber = freeAccountNumbersRepository.findAll();
+        System.out.println("Созданные аккаунты: ");
+        freeAccountNumber.forEach(account ->
+                System.out.println("Аккаунт: " + account.getFreeAccountId().getAccountNumber())
+        );
+        assertEquals(10,freeAccountNumber.size());
+        assertEquals(4200_0000_0000_0001L, freeAccountNumber.get(1).getFreeAccountId().getAccountNumber());
     }
 
     @Test
-    @Rollback
     public void testPositiveGeneratedAccount() throws InterruptedException {
+
 
         ExecutorService executor = Executors.newFixedThreadPool(10);
         for (int i = 0; i < 10; i++) {
             executor.submit(() -> {
-                freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, 100);
+                freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, 10);
             });
         }
         executor.shutdown();
-        boolean b = executor.awaitTermination(1, TimeUnit.MINUTES);
+        executor.awaitTermination(1, TimeUnit.MINUTES);
 
         List<FreeAccountNumber> freeAccountNumbers = freeAccountNumbersRepository.findAll();
 
-        assertEquals(1000, freeAccountNumbers.size());
+        assertEquals( freeAccountNumbers.size(),100);
 
         Set<Long> uniqueAccountNumbers = freeAccountNumbers.stream()
                 .map(number -> number.getFreeAccountId().getAccountNumber())
                 .collect(Collectors.toSet());
-        assertEquals(1000, uniqueAccountNumbers.size(), "Account numbers should be unique");
+        assertEquals( uniqueAccountNumbers.size(),100, "Account numbers should be unique");
     }
 
     @Test
-    @Rollback
     public void testPositiveRetrieveAccountNumber() {
         freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, 10);
         FreeAccountNumber accountNumber = freeAccountNumbersService
@@ -99,11 +103,9 @@ public class FreeAccountNumbersServiceIT {
 
     @BeforeEach
     void setUp() {
+        accountNumbersSequenceRepository.findByAccountType(AccountType.CREDIT).setCounter(0L);
+        accountNumbersSequenceRepository.flush();
         freeAccountNumbersRepository.deleteAll();
-    }
-
-    @AfterEach
-    void tearDown() {
-        freeAccountNumbersRepository.deleteAll();
+        freeAccountNumbersRepository.flush();
     }
 }

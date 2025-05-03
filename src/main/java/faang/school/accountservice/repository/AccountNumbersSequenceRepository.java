@@ -4,22 +4,21 @@ import faang.school.accountservice.entity.AccountSeq;
 import faang.school.accountservice.enums.AccountType;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface AccountNumbersSequenceRepository extends JpaRepository<AccountSeq,String> {
+public interface AccountNumbersSequenceRepository extends JpaRepository<AccountSeq, AccountType> {
 
-    @Query(nativeQuery = true, value = """
-            UPDATE account_numbers_sequence 
-            SET counter = counter + :batchSize
-            WHERE type = :type
-            RETURNING type, counter, (counter - :batchSize) AS initialValue
-            """)
-    AccountSeq incrementCounter(@Param("type") String type, @Param("batchSize") int batchSize);
-
+    @Query(
+            nativeQuery = true,
+            name = "AccountSeq.incrementCounter" // Ссылка на NamedNativeQuery
+    )
+    AccountSeq incrementCounter(
+            @Param("type") String type,  // Принимает String, а не AccountType (из-за SQL)
+            @Param("batchSize") int batchSize
+    );
 
     AccountSeq findByAccountType(AccountType type);
 

@@ -42,6 +42,7 @@ public class FreeAccountNumbersService {
 
         try {
             AccountSeq period = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
+            log.info(period.toString());
 
             List<FreeAccountNumber> numberList =
                     LongStream.range(period.getInitialValue() , period.getCounter() )
