@@ -6,17 +6,17 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class FreeAccountNumberId {
     @Column(name = "type", nullable = false, length = 16)
     @Enumerated(value = EnumType.STRING)
     private CardType cardType;
     @Column(name = "number", nullable = false)
-    private long cardNumber;
+    private Long cardNumber;
 }

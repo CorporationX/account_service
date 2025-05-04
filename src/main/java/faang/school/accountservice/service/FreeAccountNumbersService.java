@@ -38,23 +38,24 @@ public class FreeAccountNumbersService {
         List<AccountNumberSequence> notExistedAccounts = Arrays.stream(CardType.values())
                 .filter(cardType ->
                         !accountNumbersSequenceRepository.existsAccountNumberSequenceByType(cardType))
-                .map(cardType -> new AccountNumberSequence(cardType, 0))
+                .map(cardType -> new AccountNumberSequence(cardType, 0L))
                 .toList();
 
-        if (!notExistedAccounts.isEmpty()) {
-            List<AccountNumberSequence> createdAccounts =
-                    accountNumbersSequenceRepository.saveAll(notExistedAccounts);
-
-            log.debug("New card types initialised: {}",
-                    createdAccounts.stream().map(AccountNumberSequence::getType).toList());
-        } else {
+        if (notExistedAccounts.isEmpty()) {
             log.debug("All card type already initialised");
+            return;
         }
+
+        List<AccountNumberSequence> createdAccounts = accountNumbersSequenceRepository.saveAll(notExistedAccounts);
+        log.debug("New card types initialised: {}",
+                createdAccounts.stream().map(AccountNumberSequence::getType).toList());
+
     }
 
     /**
      * Метод для автогенерации новых уникальных номеров карт
-     * @param type Тип карты для которого будут сгенерированы новые карты
+     *
+     * @param type      Тип карты для которого будут сгенерированы новые карты
      * @param batchSize Кол-во карт для генерации
      */
     @Transactional
@@ -71,8 +72,10 @@ public class FreeAccountNumbersService {
         long previousSequenceNumber = currentSequenceNumber - batchSize;
 
         log.debug("Card will be generated from: {} to: {}", previousSequenceNumber, currentSequenceNumber);
-        freeAccountNumbersRepository.saveAll(
-                generateAccountNumbersForType(type, previousSequenceNumber, currentSequenceNumber));
+
+        List<FreeAccountNumber> generatedFreeAccountNumbers =
+                generateAccountNumbersForType(type, previousSequenceNumber, currentSequenceNumber);
+        freeAccountNumbersRepository.saveAll(generatedFreeAccountNumbers);
 
         log.debug("Finished generating accountNumbers for card type {}", type);
     }
@@ -80,7 +83,8 @@ public class FreeAccountNumbersService {
 
     /**
      * Выдает свободный номер карты
-     * @param type Тип карты
+     *
+     * @param type     Тип карты
      * @param function Функция обработчик
      * @return Уникальный номер карты для типа
      */
@@ -88,22 +92,23 @@ public class FreeAccountNumbersService {
     public FreeAccountDto getFreeAccountForType(@NotNull CardType type,
                                                 @NotNull Function<FreeAccountNumber, FreeAccountDto> function) {
         synchronized (lock) {
-            return function.apply(freeAccountNumbersRepository.getFreeAccount(type.name())
+            FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getFreeAccount(type.name())
                     .orElseGet(() -> {
                         generateAccountNumbersForType(type, 1);
                         return freeAccountNumbersRepository.getFreeAccount(type.name())
                                 .orElseThrow(() ->
                                         new FreeAccountNumberException("Can't generate card number for type " + type));
-                    }));
+                    });
+            return function.apply(freeAccountNumber);
         }
     }
 
     private List<FreeAccountNumber> generateAccountNumbersForType(@NotNull CardType type, long from, long to) {
         List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
         for (long i = from; i < to; i++) {
-            freeAccountNumbers.add(
-                    new FreeAccountNumber(new FreeAccountNumberId(type, type.getCardPattern() + i))
-            );
+            FreeAccountNumberId accountId = new FreeAccountNumberId(type, type.getCardPattern() + i);
+            FreeAccountNumber accountNumber = new FreeAccountNumber(accountId);
+            freeAccountNumbers.add(accountNumber);
         }
         return freeAccountNumbers;
     }

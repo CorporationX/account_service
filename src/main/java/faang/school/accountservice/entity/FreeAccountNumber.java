@@ -4,16 +4,16 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Table(name = "free_account_numbers")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Getter
 public class FreeAccountNumber {
 
     @EmbeddedId
