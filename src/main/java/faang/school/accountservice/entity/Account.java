@@ -15,7 +15,11 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -26,6 +30,9 @@ import java.time.Instant;
 @Table(name = "payment_account")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Account {
 
     @Id
@@ -46,7 +53,7 @@ public class Account {
 
     @Column(name = "account_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private AccountType type;
+    private AccountType accountType;
 
     @Column(name = "currency", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -69,11 +76,11 @@ public class Account {
     @Version
     private Long version;
 
-    public Account(Long ownerId, OwnerType ownerType, AccountType type, Currency currency, String accountNumber) {
+    public Account(Long ownerId, OwnerType ownerType, AccountType accountType, Currency currency, String accountNumber) {
         this.ownerId = ownerId;
         this.ownerType = ownerType;
         this.accountNumber = accountNumber;
-        this.type = type;
+        this.accountType = accountType;
         this.currency = currency;
         balance = BigDecimal.valueOf(0.0);
         version = 0L;

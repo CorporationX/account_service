@@ -31,10 +31,10 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void open(AccountOpenRequest request) {
         String accountNumber = accountNumberGenerator.generateUniqueAccountNumber();
-        Account account = new Account(request.ownerId(), request.ownerType(), request.type(),
+        Account account = new Account(request.ownerId(), request.ownerType(), request.accountType(),
                 request.currency(), accountNumber);
         accountRepository.save(account);
-        log.info("Account {} created for owner {} (type: {})", accountNumber, request.ownerId(), request.ownerType());
+        log.info("Account {} created for owner {} (accountType: {})", accountNumber, request.ownerId(), request.ownerType());
     }
 
     @Override
@@ -67,6 +67,7 @@ public class AccountServiceImpl implements AccountService {
             );
         }
         account.setStatus(AccountStatus.FROZEN);
+        accountRepository.save(account);
         log.info("Account {} status changed to FROZEN. Version: {}", accountNumber, account.getVersion());
     }
 
@@ -79,6 +80,7 @@ public class AccountServiceImpl implements AccountService {
                     .formatted(accountNumber, account.getStatus()));
         }
         account.setStatus(AccountStatus.ACTIVE);
+        accountRepository.save(account);
         log.info("Account {} status changed to ACTIVE", accountNumber);
     }
 
@@ -92,6 +94,7 @@ public class AccountServiceImpl implements AccountService {
         }
         account.setStatus(AccountStatus.CLOSED);
         account.setClosedAt(Instant.now());
+        accountRepository.save(account);
         log.info("Payment account {} has been closed", accountNumber);
     }
 
@@ -112,16 +115,16 @@ public class AccountServiceImpl implements AccountService {
     public void updateBalance(String accountNumber, BigDecimal amount) {
         Account account = getAccountOrThrow(accountNumber);
         if (account.getStatus() == AccountStatus.CLOSED) {
-            log.error("Cannot update balance for account {}: status is CLOSED", accountNumber);
-            throw new AccountStatusException("Balance update is forbidden: account is closed.");
+            throw new AccountStatusException("Cannot update balance for account %s: status is CLOSED.".formatted(accountNumber));
         }
         BigDecimal newBalance = account.getBalance().add(amount);
         if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalStateException("Insufficient funds: attempted to subtract %d, current balance: %d"
-                    .formatted(amount, account.getBalance()));
+            throw new IllegalStateException("Insufficient funds: attempted to subtract %s, current balance: %s"
+                    .formatted(amount.toPlainString(), account.getBalance().toPlainString()));
         }
         account.setBalance(newBalance);
-        log.info("Account {} balance updated to {}. Version: {}", accountNumber, newBalance, account.getVersion());
+        accountRepository.save(account);
+        log.info("Account {} balance updated to {}. Version: {}", accountNumber, newBalance.toPlainString(), account.getVersion());
     }
 
     private Account getAccountOrThrow(String accountNumber) {
