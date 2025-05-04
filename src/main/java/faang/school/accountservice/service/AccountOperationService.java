@@ -19,6 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Сервис для обработки операций по счетам.
+ * Обеспечивает выполнение операций авторизации, клиринга и отмены платежей,
+ * а также управление их статусами и взаимодействие с сервисом балансов.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,7 +35,7 @@ public class AccountOperationService {
     @Transactional
     public void processAuthorization(@NotNull @Valid AuthorizationMessage message) {
         if (accountOperationRepository.existsByPaymentOperationId(message.getOperationId())) {
-            log.debug("Authorization has already been processed.");
+            log.debug("Authorization operation with id {} has already been processed.", message.getOperationId());
             return;
         }
 
@@ -43,6 +48,7 @@ public class AccountOperationService {
 
             accountOperationRepository.save(operation);
         } catch (Exception e) {
+            log.debug("Authorization {} has failed with exception {}", message.getOperationId(), e.getMessage());
             operation.setOperationStatus(OperationStatus.FAILED);
             operation.setErrorMessage(e.getMessage());
 
@@ -60,7 +66,7 @@ public class AccountOperationService {
 
         if (accountOperationRepository
                 .existsByPaymentOperationIdAndOperationType(operationId, OperationType.CLEARING)) {
-            log.debug("The operation with id {} has already been processed.", operationId);
+            log.debug("Clearing operation with id {} has already been processed.", operationId);
         }
 
         AccountOperation operation =
@@ -72,6 +78,7 @@ public class AccountOperationService {
 
             balanceService.clearBalance(operation);
         } catch (Exception e) {
+            log.debug("Clearing operation {} has failed with exception {}", operationId, e.getMessage());
             operation.setOperationType(OperationType.CLEARING);
             operation.setOperationStatus(OperationStatus.FAILED);
             operation.setErrorMessage(e.getMessage());
@@ -89,17 +96,19 @@ public class AccountOperationService {
                 .orElseThrow(() -> new OperationNotFound("The operation has not found."));
 
         if (accountOperationRepository.existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION)) {
-            log.debug("The operation with id {} has already been processed.", operationId);
+            log.debug("Cancel operation with id {} has already been processed.", operationId);
         }
 
         AccountOperation operation =
                 accountOperationMapper.cloneOperation(authOperation, operationId);
         try {
             operation.setOperationType(OperationType.CANCELLATION);
-            balanceService.cancelBalance(operation);
 
-            accountOperationRepository.save(operation);
+            operation = accountOperationRepository.save(operation);
+
+            balanceService.cancelBalance(operation);
         } catch (Exception e) {
+            log.debug("Cancelling operation {} has failed with exception {}", operationId, e.getMessage());
             operation.setOperationType(OperationType.CANCELLATION);
             operation.setOperationStatus(OperationStatus.FAILED);
             operation.setErrorMessage(e.getMessage());

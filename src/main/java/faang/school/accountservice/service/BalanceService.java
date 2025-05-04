@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.exception.EntityNotFound;
 import faang.school.accountservice.model.AccountOperation;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
@@ -13,6 +14,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Сервис для управления балансом счетов.
+ * Обеспечивает резервирование, списание и отмену операций с балансом,
+ * а также валидацию операций перед их выполнением.
+ */
 @Service
 @RequiredArgsConstructor
 public class BalanceService {
@@ -24,7 +30,7 @@ public class BalanceService {
     public void reserveFounds(@NotNull AccountOperation operation) {
         UUID senderAccountId = operation.getSenderAccountId();
         Balance senderBalance = balanceRepository.findByAccountId(senderAccountId)
-                .orElseThrow(() -> new IllegalStateException("The sender account does not exist."));
+                .orElseThrow(() -> new EntityNotFound("The sender account does not exist."));
 
         balanceValidator.authValidation(senderBalance, operation);
 
@@ -50,10 +56,10 @@ public class BalanceService {
         BigDecimal amount = operation.getAmount();
 
         Balance senderBalance = balanceRepository.findByAccountId(senderAccountId)
-                .orElseThrow(() -> new IllegalStateException("The sender account does not exist."));
+                .orElseThrow(() -> new EntityNotFound("The sender account does not exist."));
 
         Balance recipientBalance = balanceRepository.findByAccountId(recipientAccountId)
-                .orElseThrow(() -> new IllegalStateException("The recipient account does not exist."));
+                .orElseThrow(() -> new EntityNotFound("The recipient account does not exist."));
 
         balanceValidator.clearValidation(senderBalance, recipientBalance, amount);
 
@@ -76,7 +82,7 @@ public class BalanceService {
         BigDecimal amount = operation.getAmount();
 
         Balance senderBalance = balanceRepository.findByAccountId(senderAccountId)
-                .orElseThrow(() -> new IllegalStateException("The sender account does not exist."));
+                .orElseThrow(() -> new EntityNotFound("The sender account does not exist."));
 
         balanceValidator.cancelValidation(senderBalance, amount);
 

@@ -53,6 +53,11 @@ dependencies {
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
 
     /**
+     * Swagger
+     */
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+
+    /**
      * Tests
      */
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")

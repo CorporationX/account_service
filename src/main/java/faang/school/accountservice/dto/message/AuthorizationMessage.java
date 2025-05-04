@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Сообщение для авторизации. Приходит из Payment Service.
+ */
 @Data
 public class AuthorizationMessage {
     @NotNull

@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * Сервис для аудита изменений баланса.
+ * Сохраняет исторические данные об изменениях баланса для последующего анализа и отслеживания операций.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -2,6 +2,8 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountOperationResponse;
 import faang.school.accountservice.service.AccountOperationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +17,14 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Account Operations", description = "API for managing account operations")
 public class AccountOperationController {
     private final AccountOperationService accountOperationService;
 
+    @Operation(
+            summary = "Get operation details",
+            description = "Retrieves detailed information about an account operation by its ID"
+    )
     @PostMapping
     public ResponseEntity<AccountOperationResponse> getOperation(@RequestBody @NotNull UUID id) {
         AccountOperationResponse response = accountOperationService.getOperation(id);

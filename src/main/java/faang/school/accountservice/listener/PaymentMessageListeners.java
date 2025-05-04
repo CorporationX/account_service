@@ -19,16 +19,19 @@ public class PaymentMessageListeners {
 
     @KafkaListener(topics = "${spring.kafka.topics.authorization}" )
     public void authorizationMessageListener(@Payload @Valid AuthorizationMessage message) {
+        log.debug("Received authorization message: {}", message);
         accountOperationService.processAuthorization(message);
     }
 
     @KafkaListener(topics = "${spring.kafka.topics.cancellation}" )
     public void cancellationMessageListener(@Payload @Valid CancellationMessage message) {
+        log.debug("Received cancellation message: {}", message);
         accountOperationService.processCancellation(message);
     }
 
     @KafkaListener(topics = "${spring.kafka.topics.clearing}" )
     public void clearingMessageListener(@Payload @Valid ClearingMessage message) {
+        log.debug("Received clearing message: {}", message);
         accountOperationService.processClearing(message);
     }
 }

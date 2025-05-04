@@ -7,6 +7,9 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Сообщение для отмены. Приходит из Payment Service.
+ */
 @Data
 public class CancellationMessage {
     @NotNull

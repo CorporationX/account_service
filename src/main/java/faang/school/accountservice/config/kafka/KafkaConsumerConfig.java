@@ -26,7 +26,6 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> configs = new HashMap<>(kafkaConfig.getConsumerConfigs());
 
-        // Явно задаём десериализаторы
         configs.put(org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 ErrorHandlingDeserializer.class);
         configs.put(org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
@@ -36,7 +35,6 @@ public class KafkaConsumerConfig {
         configs.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
                 JsonDeserializer.class);
 
-        // Дополнительные настройки для JsonDeserializer
         configs.put(JsonDeserializer.TRUSTED_PACKAGES,
                 "faang.school.accountservice.dto.message,faang.school.paymentservice.dto.message");
         configs.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);

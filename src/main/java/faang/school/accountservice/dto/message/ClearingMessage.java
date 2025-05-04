@@ -6,6 +6,9 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Сообщение для клиринга. Приходит из Payment Service.
+ */
 @Data
 public class ClearingMessage {
     @NotNull

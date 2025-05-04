@@ -11,7 +11,6 @@ public class KafkaProperties {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    // Producer properties
     @Value("${spring.kafka.producer.retries}")
     private Integer producerRetries;
 
@@ -24,7 +23,6 @@ public class KafkaProperties {
     @Value("${spring.kafka.producer.batch-size}")
     private Integer producerBatchSize;
 
-    // Consumer properties
     @Value("${spring.kafka.consumer.group-id}")
     private String consumerGroupId;
 
