@@ -19,7 +19,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             AccountNotFoundException.class,
-            NotFoundException.class,
             TariffNotFoundException.class
     })
     public ResponseEntity<Error> handleExceptionWithStatusNotFound(Exception e) {

@@ -1,7 +1,6 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.SavingsAccount;
-import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.exception.RetryableException;
 import faang.school.accountservice.exception.TariffNotFoundException;
 import faang.school.accountservice.repository.SavingsAccountRepository;
@@ -46,7 +45,7 @@ public class ProcessorSavingsAccountService {
             String activeTypeName = savingsAccountRepository.findLatestTariffTypeNameByAccountId(account.getAccountId())
                     .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
             BigDecimal activeRate = tariffRepository.findLatestRateByTariffTypeName(activeTypeName)
-                    .orElseThrow(() -> new NotFoundException("Rate not found"));
+                    .orElseThrow(() -> new TariffNotFoundException("Tariff rate not found"));
 
             BigDecimal balance = account.getBalance();
             BigDecimal rateMultiplier = activeRate.divide(
