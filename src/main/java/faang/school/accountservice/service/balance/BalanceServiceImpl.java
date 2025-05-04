@@ -35,13 +35,15 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Transactional
-    public void updateBalance(BalanceRequestDto request) {
+    public BalanceResponseDto updateBalance(BalanceRequestDto request) {
         try {
             Balance balance = getBalance(request.getAccountNumber());
+
             balance.setAuthorizationBalance(request.getAuthorizationBalance());
             balance.setFactualBalance(request.getFactualBalance());
             log.info("Updating balance for account {}", request.getAccountNumber());
             balanceRepository.save(balance);
+            return balanceMapper.toBalanceResponseDto(balance);
         } catch (OptimisticLockException e) {
             log.error(OPTIMISTIC_LOCK_ERROR, e);
             throw new BalanceConflictException(BALANCE_CONFLICT_ERROR);
@@ -49,27 +51,26 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public void createBalance(BalanceRequestDto request) {
+    public BalanceResponseDto createBalance(BalanceRequestDto request) {
         Account account = getAccount(request.getAccountNumber());
 
-        if (account.getBalance() != null) {
-            log.warn("Attempted to create a balance for account {} but it already exists", request.getAccountNumber());
-            throw new BalanceAlreadyExistsException(String.format(BALANCE_EXISTS_ERROR, request.getAccountNumber()));
-        }
+        validateBalanceDoesNotExist(request, account);
 
-        Balance balance = new Balance();
-        balance.setAccount(account);
-        balance.setAuthorizationBalance(request.getAuthorizationBalance());
-        balance.setFactualBalance(request.getFactualBalance());
-        balance.setCreatedAt(LocalDateTime.now());
+        Balance balance = Balance.builder()
+                .account(account)
+                .authorizationBalance(request.getAuthorizationBalance())
+                .factualBalance(request.getFactualBalance())
+                .createdAt(LocalDateTime.now())
+                .build();
         log.info("Creating balance for account {}", request.getAccountNumber());
         balanceRepository.save(balance);
+        return balanceMapper.toBalanceResponseDto(balance);
     }
 
     @Override
     public BalanceResponseDto getBalanceByAccountNumber(String accountNumber) {
         Balance balance = getBalance(accountNumber);
-        BalanceResponseDto balanceResponseDto = balanceMapper.toBalanceDto(balance);
+        BalanceResponseDto balanceResponseDto = balanceMapper.toBalanceResponseDto(balance);
         balanceResponseDto.setAccountNumber(accountNumber);
         log.info("Get BalanceDto: {}, accountNumber: {}", balanceResponseDto, accountNumber);
         return balanceResponseDto;
@@ -85,5 +86,12 @@ public class BalanceServiceImpl implements BalanceService {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() ->
                         new AccountNotFoundException(String.format(ACCOUNT_NOT_FOUND, accountNumber)));
+    }
+
+    private static void validateBalanceDoesNotExist(BalanceRequestDto request, Account account) {
+        if (account.getBalance() != null) {
+            log.warn("Attempted to create a balance for account {} but it already exists", request.getAccountNumber());
+            throw new BalanceAlreadyExistsException(String.format(BALANCE_EXISTS_ERROR, request.getAccountNumber()));
+        }
     }
 }

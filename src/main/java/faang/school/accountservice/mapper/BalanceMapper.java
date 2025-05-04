@@ -10,10 +10,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BalanceMapper {
     @Mapping(target = "accountNumber" , source = "account.accountNumber")
-    BalanceResponseDto toBalanceDto(Balance balance);
-
-    @Mapping(target = "accountNumber" , source = "account.accountNumber")
-    BalanceRequestDto toUpdateBalanceRequest(Balance balance);
+    BalanceResponseDto toBalanceResponseDto(Balance balance);
 
     @Mapping(target = "account", ignore = true )
     Balance toBalance(BalanceResponseDto balanceResponseDto);

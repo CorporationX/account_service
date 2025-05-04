@@ -60,14 +60,17 @@ class BalanceServiceImplTest {
 
         account.setAccountNumber(accountNumber);
 
-        updatedBalance = new Balance();
-        updatedBalance.setFactualBalance(BigDecimal.valueOf(90));
-        updatedBalance.setAuthorizationBalance(BigDecimal.valueOf(85));
-        updatedBalance.setAccount(account);
+        updatedBalance = Balance.builder()
+                .account(account)
+                .authorizationBalance(BigDecimal.valueOf(85))
+                .factualBalance(BigDecimal.valueOf(90))
+                .build();
 
-        balance.setAccount(account);
-        balance.setAuthorizationBalance(BigDecimal.valueOf(90));
-        balance.setFactualBalance(BigDecimal.valueOf(100));
+        balance = Balance.builder()
+                .account(account)
+                .authorizationBalance(BigDecimal.valueOf(90))
+                .factualBalance(BigDecimal.valueOf(100))
+                .build();
     }
 
     //Positive

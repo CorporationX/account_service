@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.BalanceResponseDto;
 import faang.school.accountservice.dto.BalanceRequestDto;
-import faang.school.accountservice.service.balance.BalanceServiceImpl;
+import faang.school.accountservice.service.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,27 +20,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/balance")
 public class BalanceController {
-    private final BalanceServiceImpl balanceService;
+    private final BalanceService balanceService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BalanceRequestDto createBalance(@RequestBody BalanceRequestDto request) {
-        balanceService.createBalance(request);
-        log.info("Created new balance: {}", request);
-        return request;
+    public BalanceResponseDto createBalance(@RequestBody BalanceRequestDto request) {
+        BalanceResponseDto response = balanceService.createBalance(request);
+        log.info("Created new balance: {}", response);
+        return response;
     }
 
     @PutMapping("/update")
-    public BalanceRequestDto updateBalance(@RequestBody BalanceRequestDto request) {
-        balanceService.updateBalance(request);
-        log.info("Updated balance: {}", request);
-        return request;
+    public BalanceResponseDto updateBalance(@RequestBody BalanceRequestDto request) {
+        BalanceResponseDto response = balanceService.updateBalance(request);
+        log.info("Updated balance: {}", response);
+        return response;
     }
 
     @GetMapping("/{accountNumber}")
     public BalanceResponseDto getBalance(@PathVariable String accountNumber) {
-       BalanceResponseDto balanceResponseDto = balanceService.getBalanceByAccountNumber(accountNumber);
-       log.info("Get balance for account number: {}", accountNumber);
-       return balanceResponseDto;
+        BalanceResponseDto balanceResponseDto = balanceService.getBalanceByAccountNumber(accountNumber);
+        log.info("Get balance for account number: {}", accountNumber);
+        return balanceResponseDto;
     }
 }
