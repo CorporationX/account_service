@@ -12,6 +12,7 @@ import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validation.AccountValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 
@@ -53,6 +53,9 @@ class AccountServiceTest {
     @Mock
     private AccountHelper accountHelper;
 
+    @Mock
+    private BalanceService balanceService;
+
     @InjectMocks
     private AccountService accountService;
 
@@ -72,7 +75,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             AccountViewDto accountViewDto = AccountViewDto.builder()
                     .accountNumber("1234567890123456")
@@ -81,7 +83,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);
@@ -123,7 +124,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             AccountViewDto accountViewDto = AccountViewDto.builder()
                     .accountNumber("1234567890123456")
@@ -132,7 +132,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             Page<Account> page = new PageImpl<>(Collections.singletonList(account), pageable, 1);
 
@@ -162,13 +161,13 @@ class AccountServiceTest {
                     .currency(Currency.USD)
                     .build();
             Account account = Account.builder()
+                    .id(1L)
                     .accountNumber("1234567890123456")
                     .ownerType(OwnerType.USER)
                     .ownerId(1L)
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .version(0)
                     .build();
             AccountViewDto accountViewDto = AccountViewDto.builder()
@@ -178,7 +177,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountHelper.generateAccountNumber()).thenReturn("1234567890123456");
@@ -186,12 +184,14 @@ class AccountServiceTest {
             when(accountHelper.saveAccount(any(Account.class), anyString())).thenReturn(account);
             when(accountMapper.toViewDto(account)).thenReturn(accountViewDto);
 
+            doNothing().when(balanceService).createBalanceForAccount(account.getId());
             AccountViewDto result = accountService.openAccount(createDto);
 
             assertEquals(accountViewDto, result);
             verify(accountHelper).generateAccountNumber();
             verify(accountMapper).toEntity(createDto);
             verify(accountHelper).saveAccount(any(Account.class), anyString());
+            verify(balanceService).createBalanceForAccount(account.getId());
             verify(accountMapper).toViewDto(account);
         }
     }
@@ -212,7 +212,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             Account blockedAccount = Account.builder()
                     .id(accountId)
@@ -222,7 +221,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.BLOCKED)
-                    .balance(BigDecimal.ZERO)
                     .build();
             AccountViewDto accountViewDto = AccountViewDto.builder()
                     .accountNumber("1234567890123456")
@@ -231,7 +229,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.BLOCKED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);
@@ -303,7 +300,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             Account closedAccount = Account.builder()
                     .id(accountId)
@@ -313,7 +309,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.CLOSED)
-                    .balance(BigDecimal.ZERO)
                     .closedAt(Instant.now())
                     .build();
             AccountViewDto accountViewDto = AccountViewDto.builder()
@@ -323,7 +318,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.CLOSED)
-                    .balance(BigDecimal.ZERO)
                     .closedAt(Instant.now())
                     .build();
 
@@ -349,7 +343,6 @@ class AccountServiceTest {
                     .id(accountId)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(new BigDecimal("100.00"))
                     .build();
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);
@@ -397,7 +390,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.BLOCKED)
-                    .balance(BigDecimal.ZERO)
                     .build();
             Account unblockedAccount = Account.builder()
                     .id(accountId)
@@ -407,7 +399,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             AccountViewDto accountViewDto = AccountViewDto.builder()
                     .accountNumber("1234567890123456")
@@ -416,7 +407,6 @@ class AccountServiceTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountHelper.getAccountById(accountId)).thenReturn(account);

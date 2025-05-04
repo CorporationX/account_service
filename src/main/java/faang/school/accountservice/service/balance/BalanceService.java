@@ -1,0 +1,111 @@
+package faang.school.accountservice.service.balance;
+
+import faang.school.accountservice.dto.balance.BalanceViewDto;
+import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.service.account.AccountHelper;
+import faang.school.accountservice.validation.BalanceValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class BalanceService {
+    private final AccountHelper accountHelper;
+    private final BalanceHelper balanceHelper;
+    private final BalanceValidator balanceValidator;
+    private final BalanceRepository balanceRepository;
+
+    /**
+     * Создает новый баланс для указанного счета.
+     *
+     * @param accountId идентификатор счета
+     */
+    public void createBalanceForAccount(Long accountId) {
+        Account account = accountHelper.getAccountById(accountId);
+        Balance balance = new Balance();
+        balance.setAccount(account);
+        balanceRepository.save(balance);
+        log.debug("Created balance for account ID: {}", accountId);
+    }
+
+    /**
+     * Резервирует (авторизует) средства на счете.
+     *
+     * @param accountId идентификатор счета
+     * @param amount    сумма для резервирования
+     * @return DTO с обновленным состоянием баланса
+     */
+    public BalanceViewDto authorizeAmount(Long accountId, BigDecimal amount) {
+        return balanceHelper.executeBalanceOperation(accountId, balance -> {
+            BigDecimal actualBalance = balance.getActualBalance();
+            balanceValidator.validateActualBalanceSufficiency(actualBalance, amount);
+            balance.authorize(amount);
+            log.debug("Authorized {} for account ID: {}", amount, accountId);
+        });
+    }
+
+    /**
+     * Подтверждает списание ранее зарезервированных средств.
+     *
+     * @param accountId идентификатор счета
+     * @param amount    сумма для списания
+     * @return DTO с обновленным состоянием баланса
+     */
+    public BalanceViewDto clearAuthorizedAmount(Long accountId, BigDecimal amount) {
+        return balanceHelper.executeBalanceOperation(accountId, balance -> {
+            BigDecimal authorizedBalance = balance.getAuthorizedBalance();
+            balanceValidator.validateAuthorizedBalanceSufficiency(authorizedBalance, amount);
+            balance.clear(amount);
+            log.debug("Cleared {} for account ID: {}", amount, accountId);
+        });
+    }
+
+    /**
+     * Отменяет резервирование средств на счете.
+     *
+     * @param accountId идентификатор счета
+     * @param amount    сумма для отмены резервирования
+     * @return DTO с обновленным состоянием баланса
+     */
+    public BalanceViewDto cancelAuthorization(Long accountId, BigDecimal amount) {
+        return balanceHelper.executeBalanceOperation(accountId, balance -> {
+            BigDecimal authorizedBalance = balance.getAuthorizedBalance();
+            balanceValidator.validateAuthorizedBalanceSufficiency(authorizedBalance, amount);
+            balance.cancelAuthorization(amount);
+            log.debug("Cancelled authorization {} for account ID: {}", amount, accountId);
+        });
+    }
+
+    /**
+     * Возвращает доступный баланс счета (актуальный баланс).
+     *
+     * @param accountId идентификатор счета
+     * @return доступный баланс
+     */
+    public BigDecimal getAvailableBalance(Long accountId) {
+        Balance balance = balanceHelper.getBalance(accountId);
+        BigDecimal availableBalance = balance.getActualBalance();
+        log.debug("Retrieved available balance {} for account ID: {}", availableBalance, accountId);
+        return availableBalance;
+    }
+
+    /**
+     * Пополняет баланс счета на указанную сумму.
+     *
+     * @param accountId идентификатор счета
+     * @param amount    сумма пополнения
+     * @return DTO с обновленным состоянием баланса
+     */
+    public BalanceViewDto depositAmount(Long accountId, BigDecimal amount) {
+        return balanceHelper.executeBalanceOperation(accountId, balance -> {
+            balance.deposit(amount);
+            log.debug("Deposited {} to account ID: {}", amount, accountId);
+        });
+    }
+}

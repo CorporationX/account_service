@@ -18,5 +18,6 @@ public interface AccountMapper {
     @Mapping(target = "version", ignore = true)
     Account toEntity(AccountCreateDto createDto);
 
+    @Mapping(source = "balance.id", target = "balance")
     AccountViewDto toViewDto(Account account);
 }

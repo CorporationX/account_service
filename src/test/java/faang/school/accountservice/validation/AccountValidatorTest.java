@@ -7,8 +7,7 @@ import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.AccountAlreadyClosedException;
 import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.account.AccountHelper;
+import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,16 +21,14 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты для AccountValidator")
 class AccountValidatorTest {
 
     @Mock
-    private AccountRepository accountRepository;
-
-    @Mock
-    private AccountHelper accountHelper;
+    private BalanceService balanceService;
 
     @InjectMocks
     private AccountValidator accountValidator;
@@ -82,7 +79,6 @@ class AccountValidatorTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             assertDoesNotThrow(() -> accountValidator.validateBlock(account));
@@ -132,7 +128,6 @@ class AccountValidatorTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.BLOCKED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             assertDoesNotThrow(() -> accountValidator.validateUnblock(account));
@@ -178,8 +173,8 @@ class AccountValidatorTest {
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
+            when(balanceService.getAvailableBalance(account.getId())).thenReturn(BigDecimal.ZERO);
 
             assertDoesNotThrow(() -> accountValidator.validateClose(account));
         }
@@ -191,8 +186,8 @@ class AccountValidatorTest {
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(new BigDecimal("100.00"))
                     .build();
+            when(balanceService.getAvailableBalance(account.getId())).thenReturn(BigDecimal.TEN);
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateClose(account));
@@ -206,7 +201,6 @@ class AccountValidatorTest {
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.CLOSED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             AccountAlreadyClosedException exception = assertThrows(AccountAlreadyClosedException.class,

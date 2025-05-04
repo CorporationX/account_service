@@ -3,10 +3,14 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountViewDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.AccountAlreadyClosedException;
+import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validation.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -31,13 +34,14 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
     private final AccountHelper accountHelper;
+    private final BalanceService balanceService;
 
     /**
      * Получает информацию о счете по его идентификатору.
      *
      * @param accountId идентификатор счета
      * @return данные счета в формате {@link AccountViewDto}
-     * @throws AccountNotFoundException если счет не найден
+     * @throws AccountNotFoundException AccountNo если счет не найден
      */
     @Transactional(readOnly = true)
     public AccountViewDto getAccount(Long accountId) {
@@ -72,8 +76,9 @@ public class AccountService {
         account.setAccountNumber(accountNumber);
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setVersion(0);
-        account.setBalance(BigDecimal.ZERO);
+
         Account savedAccount = accountHelper.saveAccount(account, "Failed to save the account");
+        balanceService.createBalanceForAccount(savedAccount.getId());
         return accountMapper.toViewDto(savedAccount);
     }
 

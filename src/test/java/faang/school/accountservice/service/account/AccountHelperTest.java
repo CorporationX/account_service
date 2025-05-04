@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,7 +55,6 @@ class AccountHelperTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
@@ -139,7 +137,6 @@ class AccountHelperTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             String errorMessage = "Failed to save the account";
 
