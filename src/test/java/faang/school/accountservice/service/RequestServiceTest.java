@@ -7,7 +7,8 @@ import faang.school.accountservice.dto.request.RequestTypeDto;
 import faang.school.accountservice.dto.request.RequestUpdateDto;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.exception.RequestNotFoundException;
-import faang.school.accountservice.mapper.RequestMapperImpl;
+import faang.school.accountservice.mapper.request.RequestMapperImpl;
+import faang.school.accountservice.mapper.request.RequestUpdateMapperImpl;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.service.request.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,9 @@ public class RequestServiceTest {
     @Spy
     private RequestMapperImpl requestMapper;
 
+    @Spy
+    private RequestUpdateMapperImpl requestUpdateMapper;
+
     @Mock
     private RequestRepository requestRepository;
 
@@ -58,7 +62,7 @@ public class RequestServiceTest {
 
         requestUpdate = RequestUpdateDto.builder()
                 .idempotencyToken(UUID.randomUUID())
-                .isActive(true)
+                .isOpen(true)
                 .requestStatus(RequestStatusDto.IN_PROGRESS)
                 .newStatusDetails("newStatusDetails")
                 .build();

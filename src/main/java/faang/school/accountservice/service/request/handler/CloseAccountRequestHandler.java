@@ -2,10 +2,12 @@ package faang.school.accountservice.service.request.handler;
 
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestType;
-import faang.school.accountservice.mapper.RequestMapper;
+import faang.school.accountservice.mapper.request.RequestMapper;
 import faang.school.accountservice.service.kafka.publisher.KafkaPublisher;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CloseAccountRequestHandler extends KafkaRequestHandler implements RequestHandler {
 
     protected CloseAccountRequestHandler(KafkaPublisher kafkaPublisher, RequestMapper requestMapper) {

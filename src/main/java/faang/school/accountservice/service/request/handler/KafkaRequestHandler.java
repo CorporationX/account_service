@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.request.handler;
 
 import faang.school.accountservice.entity.Request;
-import faang.school.accountservice.mapper.RequestMapper;
+import faang.school.accountservice.mapper.request.RequestMapper;
 import faang.school.accountservice.service.kafka.publisher.KafkaPublisher;
 import lombok.extern.slf4j.Slf4j;
 

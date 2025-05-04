@@ -1,4 +1,4 @@
-package faang.school.accountservice.mapper;
+package faang.school.accountservice.mapper.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

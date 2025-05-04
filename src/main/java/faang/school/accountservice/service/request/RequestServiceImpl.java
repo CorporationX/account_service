@@ -7,7 +7,8 @@ import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.exception.OpenRequestExistsException;
 import faang.school.accountservice.exception.RequestNotFoundException;
-import faang.school.accountservice.mapper.RequestMapper;
+import faang.school.accountservice.mapper.request.RequestMapper;
+import faang.school.accountservice.mapper.request.RequestUpdateMapper;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.service.request.handler.RequestHandler;
 import jakarta.annotation.PostConstruct;
@@ -33,6 +34,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestMapper requestMapper;
     private final RequestRepository requestRepository;
     private final List<RequestHandler> requestHandlers;
+    private final RequestUpdateMapper updateMapper;
 
     @Value("${app.requests-thread-pool-size}")
     private int threadPoolSize;
@@ -84,16 +86,7 @@ public class RequestServiceImpl implements RequestService {
             throw new RequestNotFoundException(REQUEST_NOT_FOUND.formatted(requestUpdateDto.getIdempotencyToken()));
         }
         Request request = requestOptional.get();
-
-        if (requestUpdateDto.getRequestStatus() != null) {
-            request.setStatus(RequestStatus.valueOf(requestUpdateDto.getRequestStatus().name()));
-        }
-        if (requestUpdateDto.getIsActive() != null) {
-            request.setOpen(requestUpdateDto.getIsActive());
-        }
-        if (requestUpdateDto.getNewStatusDetails() != null) {
-            request.setStatusDetails(requestUpdateDto.getNewStatusDetails());
-        }
+        updateMapper.updateRequestFromDto(requestUpdateDto, requestOptional.get());
         return requestMapper.requestToRequestResponseDto(request);
     }
 }

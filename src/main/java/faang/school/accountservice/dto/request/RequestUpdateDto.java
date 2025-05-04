@@ -14,6 +14,6 @@ import java.util.UUID;
 public class RequestUpdateDto {
     private UUID idempotencyToken;
     private RequestStatusDto requestStatus;
-    private Boolean isActive;
+    private Boolean isOpen;
     private String newStatusDetails;
 }
