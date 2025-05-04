@@ -13,13 +13,12 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountS
 
     @Query(
             nativeQuery = true,
-            name = "AccountSeq.incrementCounter" // Ссылка на NamedNativeQuery
+            name = "AccountSeq.incrementCounter"
     )
     AccountSeq incrementCounter(
-            @Param("type") String type,  // Принимает String, а не AccountType (из-за SQL)
+            @Param("type") String type,
             @Param("batchSize") int batchSize
     );
 
     AccountSeq findByAccountType(AccountType type);
-
 }

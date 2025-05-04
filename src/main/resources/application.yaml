@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/postgres
+    url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
 
@@ -27,7 +27,7 @@ logging:
 account:
   number:
     batch:
-      size: 14
+      size: 100
     crone:
-      debit: "1 * * * * *"
-      credit: "6 * * * * *"
+      debit: "0 0 0  * * *"
+      credit: "0 0 0  * * *"

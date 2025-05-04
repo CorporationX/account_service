@@ -14,11 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.Accessors;
-
-import java.beans.ConstructorProperties;
 
 @Entity
 @Getter
@@ -33,7 +29,7 @@ import java.beans.ConstructorProperties;
                 SET counter = counter + :batchSize
                 WHERE type = :type
                 RETURNING type, counter, (SELECT counter FROM account_numbers_sequence WHERE type = :type) AS initialValue;
-                        
+                
                 """,
         resultSetMapping = "IncrementCounterResult"
 )
@@ -61,7 +57,8 @@ public class AccountSeq {
     @Transient
     private Long initialValue;
 
-    protected AccountSeq() {}
+    protected AccountSeq() {
+    }
 
 
     @Override

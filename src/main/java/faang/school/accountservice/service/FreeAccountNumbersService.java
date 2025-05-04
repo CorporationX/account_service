@@ -8,12 +8,9 @@ import faang.school.accountservice.exception.AccountNumberNotFoundException;
 import faang.school.accountservice.exception.InvalidBatchSizeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,26 +29,24 @@ public class FreeAccountNumbersService {
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
 
-
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void generatedAccountNumbers(AccountType type, int batchSize) {
         if (batchSize <= 0) {
             log.error("Batch size must be positive");
             throw new InvalidBatchSizeException("Batch size must be positive");
         }
-
         try {
             AccountSeq period = accountNumbersSequenceRepository.incrementCounter(type.name(), batchSize);
             log.info(period.toString());
 
             List<FreeAccountNumber> numberList =
-                    LongStream.range(period.getInitialValue() , period.getCounter() )
+                    LongStream.range(period.getInitialValue(), period.getCounter())
                             .mapToObj(i -> new FreeAccountNumber(new FreeAccountId(type, ACCOUNT_PATTERN + i)))
                             .collect(Collectors.toList());
 
             log.info("Generating {} numbers ({} to {}) for type: {}",
                     numberList.size(),
-                    period.getInitialValue() ,
+                    period.getInitialValue(),
                     period.getCounter(),
                     type);
 

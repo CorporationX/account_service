@@ -18,11 +18,11 @@ public class AccountNumberScheduler {
 
     @Scheduled(cron = "${account.number.crone.debit}")
     public void generatedDebit() {
-        freeAccountNumbersService.generatedAccountNumbers(AccountType.DEBIT,batchSize);
+        freeAccountNumbersService.generatedAccountNumbers(AccountType.DEBIT, batchSize);
     }
 
     @Scheduled(cron = "${account.number.crone.credit}")
     public void generatedCredit() {
-        freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT,batchSize);
+        freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, batchSize);
     }
 }
