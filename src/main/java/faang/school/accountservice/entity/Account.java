@@ -74,5 +74,5 @@ public class Account {
     private Long version;
 
     @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
-    private Balance balance;
+    private Balance accountBalance;
 }

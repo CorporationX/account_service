@@ -14,6 +14,8 @@ import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,11 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Transactional
+    @Retryable(
+            value = OptimisticLockException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public BalanceResponseDto updateBalance(BalanceRequestDto request) {
         try {
             Balance balance = getBalance(request.getAccountNumber());
@@ -89,7 +96,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     private static void validateBalanceDoesNotExist(BalanceRequestDto request, Account account) {
-        if (account.getBalance() != null) {
+        if (account.getAccountBalance() != null) {
             log.warn("Attempted to create a balance for account {} but it already exists", request.getAccountNumber());
             throw new BalanceAlreadyExistsException(String.format(BALANCE_EXISTS_ERROR, request.getAccountNumber()));
         }

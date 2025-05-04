@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS balance(
         REFERENCES payment_account(account_number)
 );
 
-CREATE INDEX IF NOT EXISTS idx_balance_account_number ON  balance(account_number);
+CREATE INDEX IF NOT EXISTS idx_balance_account_number ON balance(account_number);
