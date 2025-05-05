@@ -36,3 +36,5 @@ CREATE TABLE balance_audit(
     clear_balance_change DECIMAL(19,4) NOT NULL,
     currency_code VARCHAR(3) NOT NULL
 );
+
+CREATE INDEX idx_account_operations_payment_operation_id ON account_operations(payment_operation_id);
