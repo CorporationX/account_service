@@ -24,12 +24,11 @@ import lombok.Setter;
 @NamedNativeQuery(
         name = "AccountSeq.incrementCounter",
         query = """
-                
-                        UPDATE account_numbers_sequence
+                UPDATE account_numbers_sequence
                 SET counter = counter + :batchSize
                 WHERE type = :type
-                RETURNING type, counter, (SELECT counter FROM account_numbers_sequence WHERE type = :type) AS initialValue;
-                
+                RETURNING type, counter,
+                (SELECT counter FROM account_numbers_sequence WHERE type = :type) AS initialValue;
                 """,
         resultSetMapping = "IncrementCounterResult"
 )
@@ -44,7 +43,6 @@ import lombok.Setter;
                 }
         )
 )
-
 public class AccountSeq {
     @Id
     @Enumerated(EnumType.STRING)
@@ -59,7 +57,6 @@ public class AccountSeq {
 
     protected AccountSeq() {
     }
-
 
     @Override
     public String toString() {

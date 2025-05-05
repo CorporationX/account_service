@@ -54,7 +54,7 @@ public class FreeAccountNumbersService {
             log.info("Successfully generated {} account numbers for type: {}", numberList.size(), type);
         } catch (Exception e) {
             log.error("Failed to generate account numbers for type: {}", type, e);
-            throw e; // Откатывает транзакцию
+            throw e;
         }
     }
 
