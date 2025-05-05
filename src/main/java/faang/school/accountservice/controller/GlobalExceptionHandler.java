@@ -21,20 +21,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest req) {
-        log.error("Сущность не найдена: {}", ex.getMessage(), ex);
+        log.error("Entity not found: {}", ex.getMessage(), ex);
         return buildErrorResponse(ex, HttpStatus.NOT_FOUND, req);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest req) {
-        log.error("Нарушение ограничений: {}", ex.getMessage(), ex);
+        log.error("Violation of restrictions: {}", ex.getMessage(), ex);
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, req);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
         String message = "Invalid parameter: " + ex.getName() + " must be of type " + ex.getRequiredType().getSimpleName();
-        log.error("Неверный тип параметра: {}", message, ex);
+        log.error("Invalid parameter type: {}", message, ex);
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST, req);
     }
 
@@ -44,19 +44,19 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(fieldError ->
                 sb.append(fieldError.getField()).append(" — ").append(fieldError.getDefaultMessage()).append("; ")
         );
-        log.error("Ошибка валидации: {}", sb, ex);
+        log.error("Validation error: {}", sb, ex);
         return buildErrorResponse(sb.toString(), HttpStatus.BAD_REQUEST, req);
     }
 
     @ExceptionHandler(InvalidAccountStateException.class)
     public ResponseEntity<ApiError> handleInvalidAccountState(InvalidAccountStateException ex, HttpServletRequest req) {
-        log.error("Неверное состояние аккаунта: {}", ex.getMessage(), ex);
+        log.error("Incorrect account status\n: {}", ex.getMessage(), ex);
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, req);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleOtherExceptions(Exception ex, HttpServletRequest req) {
-        log.error("Необработанное исключение: {}", ex.getMessage(), ex);
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
         return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, req);
     }
 

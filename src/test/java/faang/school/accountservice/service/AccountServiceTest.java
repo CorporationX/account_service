@@ -10,6 +10,7 @@ import faang.school.accountservice.entity.enums.Status;
 import faang.school.accountservice.exception.InvalidAccountStateException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.account.AccountAction;
 import faang.school.accountservice.service.account.AccountNumberGenerator;
 import faang.school.accountservice.service.account.impl.AccountService;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,7 +44,6 @@ public class AccountServiceTest {
 
     private final long EXISTING_ACCOUNT_ID = 1L;
     private final long NON_EXISTING_ACCOUNT_ID = 999L;
-    private final long INVALID_ACCOUNT_ID = 0L;
     private Account account;
     private ResponseAccountDto responseDto;
     private RequestAccountDto requestAccountDto;
@@ -86,24 +86,24 @@ public class AccountServiceTest {
         assertEquals(responseDto.getStatus(), result.getStatus());
 
         verify(accountRepository, times(1)).findById(EXISTING_ACCOUNT_ID);
-        verify(accountMapper,times(1)).toDto(account);
+        verify(accountMapper, times(1)).toDto(account);
     }
 
     @Test
-    void get_WhenAccountNotExists_ThrowsEntityNotFoundException(){
+    void get_WhenAccountNotExists_ThrowsEntityNotFoundException() {
         when(accountRepository.findById(NON_EXISTING_ACCOUNT_ID)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> accountService.get(NON_EXISTING_ACCOUNT_ID));
 
-        assertEquals("Account does not exists", exception.getMessage());
+        assertEquals("Account with id " + NON_EXISTING_ACCOUNT_ID + " does not exists", exception.getMessage());
 
         verify(accountRepository, times(1)).findById(NON_EXISTING_ACCOUNT_ID);
         verify(accountMapper, never()).toDto(any());
     }
 
     @Test
-    void open_WhenRequestAccountDtoValid_CreatesNewAccount(){
+    void open_WhenRequestAccountDtoValid_CreatesNewAccount() {
         String uniqueNumber = "1234567891234567";
 
         when(accountMapper.toEntity(requestAccountDto)).thenReturn(accountEntity);
@@ -112,75 +112,75 @@ public class AccountServiceTest {
         accountService.open(requestAccountDto);
         assertEquals(Status.ACTIVE, accountEntity.getStatus());
         assertEquals(uniqueNumber, accountEntity.getNumber());
-        assertEquals(16,accountEntity.getNumber().length());
+        assertEquals(16, accountEntity.getNumber().length());
 
-        verify(accountMapper,times(1)).toEntity(requestAccountDto);
-        verify(accountRepository,times(1)).save(accountEntity);
+        verify(accountMapper, times(1)).toEntity(requestAccountDto);
+        verify(accountRepository, times(1)).save(accountEntity);
 
     }
 
     @Test
-    void block_WhenAccountExits(){
+    void block_WhenAccountExits() {
         when(accountRepository.findById(EXISTING_ACCOUNT_ID)).thenReturn(Optional.of(account));
-        accountService.block(EXISTING_ACCOUNT_ID);
+        accountService.applyAccountAction(EXISTING_ACCOUNT_ID, AccountAction.BLOCKED);
         assertEquals(Status.BLOCKED, account.getStatus());
         verify(accountRepository, times(1)).findById(EXISTING_ACCOUNT_ID);
     }
 
     @Test
-    void block_WhenAccountNotExists_ThrowEntityNotFoundException(){
+    void block_WhenAccountNotExists_ThrowEntityNotFoundException() {
         when(accountRepository.findById(NON_EXISTING_ACCOUNT_ID)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> accountService.get(NON_EXISTING_ACCOUNT_ID));
-        assertEquals("Account does not exists", exception.getMessage());
+        assertEquals("Account with id " + NON_EXISTING_ACCOUNT_ID + " does not exists", exception.getMessage());
         verify(accountRepository, times(1)).findById(NON_EXISTING_ACCOUNT_ID);
     }
 
     @Test
-    void unblock_WhenAccountExitsAndBlocked(){
+    void unblock_WhenAccountExitsAndBlocked() {
         account.setStatus(Status.BLOCKED);
         when(accountRepository.findById(EXISTING_ACCOUNT_ID)).thenReturn(Optional.of(account));
-        accountService.unblock(EXISTING_ACCOUNT_ID);
+        accountService.applyAccountAction(EXISTING_ACCOUNT_ID, AccountAction.UNBLOCKED);
         assertEquals(Status.ACTIVE, account.getStatus());
         verify(accountRepository, times(1)).findById(EXISTING_ACCOUNT_ID);
     }
 
     @Test
-    void unblock_WhenAccountIsNotBlocked_ThrowInvalidAccountStateException(){
+    void unblock_WhenAccountIsNotBlocked_ThrowInvalidAccountStateException() {
         when(accountRepository.findById(EXISTING_ACCOUNT_ID)).thenReturn(Optional.of(account));
         InvalidAccountStateException exception = assertThrows(InvalidAccountStateException.class,
-                ()-> accountService.unblock(EXISTING_ACCOUNT_ID));
-        assertEquals("Account is not blocked",exception.getMessage());
-        assertEquals(Status.ACTIVE, account.getStatus());
+                () -> accountService.applyAccountAction(EXISTING_ACCOUNT_ID, AccountAction.UNBLOCKED));
+        assertEquals("Account with id: " + EXISTING_ACCOUNT_ID + " already unblocked", exception.getMessage());
+                assertEquals(Status.ACTIVE, account.getStatus());
         verify(accountRepository, times(1)).findById(EXISTING_ACCOUNT_ID);
     }
 
     @Test
-    void close_WhenAccountIsOpen(){
+    void close_WhenAccountIsOpen() {
         when(accountRepository.findById(EXISTING_ACCOUNT_ID)).thenReturn(Optional.of(account));
-        accountService.close(EXISTING_ACCOUNT_ID);
+        accountService.applyAccountAction(EXISTING_ACCOUNT_ID, AccountAction.CLOSED);
         assertEquals(Status.CLOSED, account.getStatus());
-        verify(accountRepository,times(1)).findById(EXISTING_ACCOUNT_ID);
+        verify(accountRepository, times(1)).findById(EXISTING_ACCOUNT_ID);
     }
 
     @Test
-    void close_WhenAccountAlreadyClosed_ThrowInvalidAccountStateException(){
+    void close_WhenAccountAlreadyClosed_ThrowInvalidAccountStateException() {
         account.setStatus(Status.CLOSED);
         when(accountRepository.findById(EXISTING_ACCOUNT_ID)).thenReturn(Optional.of(account));
         InvalidAccountStateException exception = assertThrows(InvalidAccountStateException.class,
-                ()-> accountService.close(EXISTING_ACCOUNT_ID));
-        assertEquals("Account is already closed", exception.getMessage());
+                () -> accountService.applyAccountAction(EXISTING_ACCOUNT_ID, AccountAction.CLOSED));
+        assertEquals("Account with id: " + EXISTING_ACCOUNT_ID + " already closed", exception.getMessage());
         verify(accountRepository, times(1)).findById(EXISTING_ACCOUNT_ID);
     }
 
     @Test
-    void close_WhenAccountNotExists_ThrowsEntityNotFoundException(){
+    void close_WhenAccountNotExists_ThrowsEntityNotFoundException() {
         when(accountRepository.findById(NON_EXISTING_ACCOUNT_ID)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                ()-> accountService.close(NON_EXISTING_ACCOUNT_ID));
-        assertEquals("Account does not exists", exception.getMessage());
-        verify(accountRepository,times(1)).findById(NON_EXISTING_ACCOUNT_ID);
+                () -> accountService.applyAccountAction(NON_EXISTING_ACCOUNT_ID, AccountAction.CLOSED));
+        assertEquals("Account with id " + NON_EXISTING_ACCOUNT_ID + " does not exists", exception.getMessage());
+        verify(accountRepository, times(1)).findById(NON_EXISTING_ACCOUNT_ID);
     }
 }

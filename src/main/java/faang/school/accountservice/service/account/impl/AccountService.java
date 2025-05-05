@@ -7,15 +7,18 @@ import faang.school.accountservice.entity.enums.Status;
 import faang.school.accountservice.exception.InvalidAccountStateException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.account.AccountAction;
 import faang.school.accountservice.service.account.AccountNumberGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -28,43 +31,35 @@ public class AccountService {
         return accountMapper.toDto(findById(accountId));
     }
 
+    @Transactional
     public void open(RequestAccountDto accountDto) {
         Account account = accountMapper.toEntity(accountDto);
         account.setNumber(accountNumberGenerator.generateUniqueNumber());
         account.setStatus(Status.ACTIVE);
         accountRepository.save(account);
+        log.info("Account opened successfully");
     }
 
     @Transactional
-    public void block(long accountId) {
+    public void applyAccountAction(long accountId, AccountAction action){
         Account account = findById(accountId);
-        if(account.getStatus().equals(Status.BLOCKED)){
-            throw new InvalidAccountStateException("Account is already blocked");
+        if(account.getStatus().equals(action.getStatus())){
+            log.warn("The operation cannot be performed: account with ID {} already {}",
+                    accountId, action.getDescription());
+            throw new InvalidAccountStateException(
+                    "Account with id: " + accountId + " already " + action.getDescription()
+            );
         }
-        account.setStatus(Status.BLOCKED);
-    }
+        account.setStatus(action.getStatus());
 
-    @Transactional
-    public void unblock(long accountId) {
-        Account account = findById(accountId);
-        if(account.getStatus().equals(Status.ACTIVE)){
-            throw new InvalidAccountStateException("Account is not blocked");
+        if (action.getStatus().equals(Status.CLOSED)) {
+            account.setClosedAt(LocalDateTime.now());
         }
-        account.setStatus(Status.ACTIVE);
-    }
-
-    @Transactional
-    public void close(long accountId){
-        Account account = findById(accountId);
-        if(account.getStatus().equals(Status.CLOSED)){
-            throw new InvalidAccountStateException("Account is already closed");
-        }
-        account.setStatus(Status.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
+        log.info("Account with id: {} success {}", accountId, action.getDescription());
     }
 
     private Account findById(long accountId) {
         return accountRepository.findById(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Account does not exists"));
+                .orElseThrow(() -> new EntityNotFoundException("Account with id "+ accountId +" does not exists"));
     }
 }

@@ -2,10 +2,12 @@ package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.RequestAccountDto;
 import faang.school.accountservice.dto.ResponseAccountDto;
+import faang.school.accountservice.service.account.AccountAction;
 import faang.school.accountservice.service.account.impl.AccountService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,31 +26,31 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<ResponseAccountDto> get(@PathVariable @Min(1) long accountId){
+    public ResponseEntity<ResponseAccountDto> get(@PathVariable @Positive long accountId){
         return ResponseEntity.ok().body(accountService.get(accountId));
     }
 
     @PostMapping
     public ResponseEntity<Void> open(@RequestBody @Valid RequestAccountDto accountDto){
         accountService.open(accountDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PatchMapping("/{accountId}/block")
-    public ResponseEntity<Void> block(@PathVariable @Min(1) long accountId){
-        accountService.block(accountId);
+    public ResponseEntity<Void> block(@PathVariable @Positive long accountId){
+        accountService.applyAccountAction(accountId, AccountAction.BLOCKED);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{accountId}/close")
-    public ResponseEntity<Void> close(@PathVariable @Min(1) long  accountId){
-        accountService.close(accountId);
+    public ResponseEntity<Void> close(@PathVariable @Positive long  accountId){
+        accountService.applyAccountAction(accountId, AccountAction.CLOSED);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{accountId}/unblock")
     public ResponseEntity<Void> unblock(@PathVariable @Valid long  accountId){
-        accountService.unblock(accountId);
+        accountService.applyAccountAction(accountId, AccountAction.UNBLOCKED);
         return ResponseEntity.ok().build();
     }
 }
