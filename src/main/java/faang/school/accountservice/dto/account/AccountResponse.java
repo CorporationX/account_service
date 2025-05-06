@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;

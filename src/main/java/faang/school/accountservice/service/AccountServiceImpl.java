@@ -1,7 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountOpenRequest;
-import faang.school.accountservice.dto.AccountResponse;
+import faang.school.accountservice.dto.account.AccountBalanceResponse;
+import faang.school.accountservice.dto.account.AccountOpenRequest;
+import faang.school.accountservice.dto.account.AccountResponse;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
@@ -12,6 +13,8 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.AccountNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,7 +115,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void updateBalance(String accountNumber, BigDecimal amount) {
+    public AccountBalanceResponse updateBalance(String accountNumber, BigDecimal amount) {
         Account account = getAccountOrThrow(accountNumber);
         if (account.getStatus() == AccountStatus.CLOSED) {
             throw new AccountStatusException("Cannot update balance for account %s: status is CLOSED.".formatted(accountNumber));
@@ -125,6 +128,7 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(newBalance);
         accountRepository.save(account);
         log.info("Account {} balance updated to {}. Version: {}", accountNumber, newBalance.toPlainString(), account.getVersion());
+        return accountMapper.toBalanceDto(account);
     }
 
     private Account getAccountOrThrow(String accountNumber) {

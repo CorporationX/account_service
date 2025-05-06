@@ -1,7 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountOpenRequest;
-import faang.school.accountservice.dto.AccountResponse;
+import faang.school.accountservice.dto.account.AccountBalanceResponse;
+import faang.school.accountservice.dto.account.AccountOpenRequest;
+import faang.school.accountservice.dto.account.AccountResponse;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
@@ -23,10 +24,12 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -164,7 +167,7 @@ class AccountServiceImplTest {
 
         AccountStatusException e =
                 assertThrows(AccountStatusException.class, () -> accountService.updateBalance(ACCOUNT_NUMBER, AMOUNT));
-        assertEquals(ERROR_MESSAGE,e.getMessage());
+        assertEquals(ERROR_MESSAGE,e.getMessage(), () -> "Wrong error message when account status is CLOSED.");
     }
 
     @Test
@@ -173,16 +176,20 @@ class AccountServiceImplTest {
 
         IllegalStateException e =
                 assertThrows(IllegalStateException.class, () -> accountService.updateBalance(ACCOUNT_NUMBER, AMOUNT.negate()));
-        assertEquals(ERROR_MESSAGE2, e.getMessage(), () -> "");
+        assertEquals(ERROR_MESSAGE2, e.getMessage(), () -> "Unexpected error message when balance goes negative.");
     }
 
     @Test
     void testUpdateBalanceShouldUpdateBalance() {
-        when(accountRepository.findByAccountNumber(ACCOUNT_NUMBER)).thenReturn(Optional.of(account) );
+        AccountBalanceResponse expectedResponse = new AccountBalanceResponse(AMOUNT, null, 1L);
+        when(accountRepository.findByAccountNumber(ACCOUNT_NUMBER)).thenReturn(Optional.of(account));
 
-        accountService.updateBalance(ACCOUNT_NUMBER,AMOUNT);
+        AccountBalanceResponse actualResponse = accountService.updateBalance(ACCOUNT_NUMBER,AMOUNT);
 
         verify(accountRepository, times(1)).save(accountCaptor.capture());
         assertEquals(AMOUNT,accountCaptor.getValue().getBalance());
+        assertEquals(expectedResponse.balance(), actualResponse.balance());
+
+
     }
 }

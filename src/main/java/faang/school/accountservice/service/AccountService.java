@@ -1,7 +1,8 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountOpenRequest;
-import faang.school.accountservice.dto.AccountResponse;
+import faang.school.accountservice.dto.account.AccountBalanceResponse;
+import faang.school.accountservice.dto.account.AccountOpenRequest;
+import faang.school.accountservice.dto.account.AccountResponse;
 import faang.school.accountservice.enums.OwnerType;
 
 import java.math.BigDecimal;
@@ -22,5 +23,5 @@ public interface AccountService {
 
     void delete(String accountNumber);
 
-    void updateBalance(String accountNumber, BigDecimal amount);
+    AccountBalanceResponse updateBalance(String accountNumber, BigDecimal amount);
 }
