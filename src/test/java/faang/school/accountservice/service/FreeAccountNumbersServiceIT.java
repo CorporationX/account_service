@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.exception.InvalidBatchSizeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Testcontainers
@@ -97,4 +99,32 @@ public class FreeAccountNumbersServiceIT {
         assertEquals(AccountType.CREDIT, accountNumber.getFreeAccountId().getAccountType());
         assertEquals(4200_0000_0000_0000L, accountNumber.getFreeAccountId().getAccountNumber());
     }
+
+    @Test
+    public void testNegativeGeneratedAccountNumbersBatchSize0(){
+        assertThrows(InvalidBatchSizeException.class, () -> {
+            freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, 0);
+    });
+    }
+
+@Test
+public void testNegativeGeneratedAccountNumbersBatchSize() {
+    assertThrows(InvalidBatchSizeException.class, () -> {
+        freeAccountNumbersService.generatedAccountNumbers(AccountType.DEBIT, -6);
+    });
 }
+
+    @Test
+    public void testNegativeGeneratedAccountNumbersTypeNull () {
+        assertThrows(NullPointerException.class, () -> {
+            freeAccountNumbersService.generatedAccountNumbers(null, 10);
+        });
+    }
+    @Test
+    public void testNegativeRetrieveAccountNumberTypeNull () {
+        assertThrows(NullPointerException.class, () -> {
+            freeAccountNumbersService.retrieveAccountNumber(null,Object::notify);
+        });
+    }
+}
+
