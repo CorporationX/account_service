@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "retry")
 public class RetryProperties {
-    private int maxAttempts;
-    private long delay;
+    private Integer maxAttempts;
+    private Long delay;
 }

@@ -52,7 +52,7 @@ public class BalanceService {
     }
 
     @Transactional()
-    BalanceDto update(Long accountId, BalanceDto balanceDto) {
+    private BalanceDto update(Long accountId, BalanceDto balanceDto) {
         Balance balance = getBalance(accountId);
 
         balance.setActualBalance(balanceDto.getActualBalance());
