@@ -12,7 +12,7 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class AccountNumberGenerator {
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     public String generateUniqueAccountNumber() {
         String accountNumber;
