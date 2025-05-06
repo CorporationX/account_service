@@ -33,24 +33,24 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<Void> open(@RequestBody @Valid RequestAccountDto accountDto){
         accountService.open(accountDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{accountId}/block")
     public ResponseEntity<Void> block(@PathVariable @Positive long accountId){
         accountService.applyAccountAction(accountId, AccountAction.BLOCKED);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{accountId}/close")
     public ResponseEntity<Void> close(@PathVariable @Positive long  accountId){
         accountService.applyAccountAction(accountId, AccountAction.CLOSED);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{accountId}/unblock")
     public ResponseEntity<Void> unblock(@PathVariable @Valid long  accountId){
         accountService.applyAccountAction(accountId, AccountAction.UNBLOCKED);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

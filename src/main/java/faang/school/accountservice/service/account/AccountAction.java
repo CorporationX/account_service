@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AccountAction {
-    BLOCKED(Status.BLOCKED, "blocked"),
-    UNBLOCKED(Status.ACTIVE, "unblocked"),
-    CLOSED(Status.CLOSED, "closed");
+    BLOCKED(Status.BLOCKED),
+    UNBLOCKED(Status.ACTIVE),
+    CLOSED(Status.CLOSED);
 
     private final Status status;
-    private final String description;
+
 }

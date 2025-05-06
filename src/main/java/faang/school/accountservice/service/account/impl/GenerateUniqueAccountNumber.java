@@ -15,7 +15,7 @@ public class GenerateUniqueAccountNumber implements AccountNumberGenerator {
     private final Random random = new Random();
     private final AccountRepository accountRepository;
 
-    //todo
+    //todo эта задача требует выполнение двух задач: 1. BJS2-65720, 2.BJS2-65723
     @Override
     public String generateUniqueNumber() {
         StringBuilder builder = new StringBuilder(String.valueOf(random.nextInt(1, 9)));
