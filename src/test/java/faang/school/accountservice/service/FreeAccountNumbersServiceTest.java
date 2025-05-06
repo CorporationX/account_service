@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.FreeAccountNumberDto;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.exception.DuplicateAccountNumberException;
@@ -15,10 +16,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
@@ -26,29 +24,18 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@ActiveProfiles("test")
 @Import(FreeAccountNumbersServiceImpl.class)
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @EntityScan("faang.school.accountservice.entity")
 @EnableJpaRepositories("faang.school.accountservice.repository")
 public class FreeAccountNumbersServiceTest {
-    @Container
-    public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:13.3")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpassword");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-    }
 
     @Autowired
     private FreeAccountNumbersServiceImpl numbersService;
@@ -73,7 +60,11 @@ public class FreeAccountNumbersServiceTest {
     public void testAddFreeAccountNumber_Successfully() {
         String accountNumber = "123";
 
-        numbersService.addFreeAccountNumber(TYPE, accountNumber);
+        FreeAccountNumberDto dto = numbersService.addFreeAccountNumber(TYPE, accountNumber);
+
+        assertEquals(TYPE, dto.getAccountType(), "DTO should contain the correct account type");
+        assertEquals(accountNumber, dto.getAccountNumber(), "DTO should contain the correct account number");
+        assertNotNull(dto.getCreatedAt(), "DTO should contain a creation timestamp");
 
         Optional<FreeAccountNumber> saved = numbersRepo.findByKeyAccountNumber(accountNumber);
         assertTrue(saved.isPresent(), "Free account number should be saved in repository");
@@ -83,10 +74,12 @@ public class FreeAccountNumbersServiceTest {
     @Test
     public void testAddFreeAccountNumber_DuplicateThrowsException() {
         String accountNumber = "321";
+
         numbersService.addFreeAccountNumber(TYPE, accountNumber);
 
         assertThrows(DuplicateAccountNumberException.class, () ->
-                numbersService.addFreeAccountNumber(TYPE, accountNumber), "Adding duplicate account number must throw DuplicateAccountNumberException");
+                        numbersService.addFreeAccountNumber(TYPE, accountNumber),
+                "Adding a duplicate should throw DuplicateAccountNumberException");
     }
 
     @Test
@@ -122,6 +115,7 @@ public class FreeAccountNumbersServiceTest {
     @Test
     public void testWithNewAccountNumber_SequenceInitializationError() {
         assertThrows(SequenceNotInitializedException.class, () ->
-                numbersService.withNewAccountNumber(TYPE, number -> number, PREFIX, TOTAL_LENGTH), "Missing sequence should throw SequenceNotInitializedException");
+                        numbersService.withNewAccountNumber(TYPE, number -> number, PREFIX, TOTAL_LENGTH),
+                "Missing sequence should throw SequenceNotInitializedException");
     }
 }
