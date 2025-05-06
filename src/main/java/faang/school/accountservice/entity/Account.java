@@ -27,7 +27,7 @@ import java.time.Instant;
 
 
 @Entity
-@Table(name = "payment_account")
+@Table(name = "account")
 @Getter
 @Setter
 @Builder

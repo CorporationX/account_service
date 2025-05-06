@@ -9,6 +9,5 @@ public record AccountOpenRequest(
      OwnerType ownerType,
      AccountType accountType,
      Currency currency
-
 ) {
 }
