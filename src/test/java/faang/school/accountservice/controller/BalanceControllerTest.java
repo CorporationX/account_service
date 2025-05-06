@@ -31,7 +31,6 @@ public class BalanceControllerTest {
 
     Long accountId = 1L;
     BigDecimal amount = new BigDecimal("1000.00");
-    BigDecimal expectedBalance = new BigDecimal("1500.00");
     BalanceViewDto balanceViewDto = new BalanceViewDto();
 
     @Test
@@ -82,10 +81,10 @@ public class BalanceControllerTest {
 
     @Test
     @DisplayName("При существующем счете возвращает баланс")
-    void getAvailableBalance_WhenAccountExists_ReturnsBalance() throws Exception {
-        when(balanceService.getAvailableBalance(accountId)).thenReturn(expectedBalance);
+    void getBalance_WhenAccountExists_ReturnsBalance() throws Exception {
+        when(balanceService.getBalance(accountId)).thenReturn(balanceViewDto);
 
-        mockMvc.perform(get("/balance/{accountId}/available-balance", accountId)
+        mockMvc.perform(get("/balance/{accountId}", accountId)
                         .header("x-user-id", 1))
                 .andExpect(status().isOk());
     }

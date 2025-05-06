@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -25,7 +24,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @Getter
 @Setter
-@Slf4j
 @Table(name = "balance")
 public class Balance {
 

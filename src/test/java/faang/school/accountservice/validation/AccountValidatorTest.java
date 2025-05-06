@@ -1,5 +1,6 @@
 package faang.school.accountservice.validation;
 
+import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -169,12 +170,14 @@ class AccountValidatorTest {
         @Test
         @DisplayName("Успешная валидация для закрытия счета с нулевым балансом")
         void givenZeroBalanceAccount_WhenValidateClose_ThenPasses() {
+            BalanceViewDto balanceViewDto = new BalanceViewDto();
+            balanceViewDto.setActualBalance(BigDecimal.ZERO);
             Account account = Account.builder()
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
-            when(balanceService.getAvailableBalance(account.getId())).thenReturn(BigDecimal.ZERO);
+            when(balanceService.getBalance(account.getId())).thenReturn(balanceViewDto);
 
             assertDoesNotThrow(() -> accountValidator.validateClose(account));
         }
@@ -182,12 +185,14 @@ class AccountValidatorTest {
         @Test
         @DisplayName("Закрытие счета с ненулевым балансом")
         void givenNonZeroBalanceAccount_WhenValidateClose_ThenThrowsConflictException() {
+            BalanceViewDto balanceViewDto = new BalanceViewDto();
+            balanceViewDto.setActualBalance(BigDecimal.TEN);
             Account account = Account.builder()
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
-            when(balanceService.getAvailableBalance(account.getId())).thenReturn(BigDecimal.TEN);
+            when(balanceService.getBalance(account.getId())).thenReturn(balanceViewDto);
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateClose(account));

@@ -1,5 +1,6 @@
 package faang.school.accountservice.validation;
 
+import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.AccountAlreadyClosedException;
 import faang.school.accountservice.exception.AccountOperationConflictException;
@@ -74,7 +75,8 @@ public class AccountValidator {
      */
     public void validateClose(Account account) {
         validateNotClosed(account);
-        BigDecimal availableBalance = balanceService.getAvailableBalance(account.getId());
+        BalanceViewDto balanceViewDto = balanceService.getBalance(account.getId());
+        BigDecimal availableBalance = balanceViewDto.getActualBalance();
         if (availableBalance.compareTo(BigDecimal.ZERO) != 0) {
             log.error("Attempt to close account with non-zero balance for account ID: {}", account.getId());
             throw new AccountOperationConflictException("Cannot close account with non-zero balance");

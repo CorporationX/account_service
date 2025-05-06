@@ -1,11 +1,13 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
+import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.account.AccountHelper;
 import faang.school.accountservice.validation.BalanceValidator;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,14 @@ public class BalanceService {
     private final BalanceHelper balanceHelper;
     private final BalanceValidator balanceValidator;
     private final BalanceRepository balanceRepository;
+    private final BalanceMapper balanceMapper;
 
     /**
      * Создает новый баланс для указанного счета.
      *
      * @param accountId идентификатор счета
      */
+    @Transactional
     public void createBalanceForAccount(Long accountId) {
         Account account = accountHelper.getAccountById(accountId);
         Balance balance = new Balance();
@@ -83,16 +87,15 @@ public class BalanceService {
     }
 
     /**
-     * Возвращает доступный баланс счета (актуальный баланс).
+     * Возвращает баланс счета, включая доступный и авторизованный балансы.
      *
      * @param accountId идентификатор счета
-     * @return доступный баланс
+     * @return DTO с представлением баланса
      */
-    public BigDecimal getAvailableBalance(Long accountId) {
+    public BalanceViewDto getBalance(Long accountId) {
         Balance balance = balanceHelper.getBalance(accountId);
-        BigDecimal availableBalance = balance.getActualBalance();
-        log.debug("Retrieved available balance {} for account ID: {}", availableBalance, accountId);
-        return availableBalance;
+        log.debug("Balance retrieved for account: {}", accountId);
+        return balanceMapper.toViewDto(balance);
     }
 
     /**

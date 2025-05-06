@@ -62,10 +62,10 @@ public class BalanceController {
     }
 
     @Operation(
-            summary = "Get available balance",
-            description = "Returns current available balance (actual balance)")
-    @GetMapping("/available-balance")
-    public BigDecimal getAvailableBalance(@NotNull @PathVariable Long accountId) {
-        return balanceService.getAvailableBalance(accountId);
+            summary = "Get account balance details",
+            description = "Retrieves complete balance information")
+    @GetMapping
+    public BalanceViewDto getAvailableBalance(@NotNull @PathVariable @Positive Long accountId) {
+        return balanceService.getBalance(accountId);
     }
 }

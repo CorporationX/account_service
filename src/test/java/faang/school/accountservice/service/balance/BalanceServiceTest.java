@@ -1,6 +1,7 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
+import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,6 +34,9 @@ class BalanceServiceTest {
 
     @Mock
     private BalanceRepository balanceRepository;
+
+    @Mock
+    private BalanceMapper balanceMapper;
 
     @InjectMocks
     private BalanceService balanceService;
@@ -76,17 +81,16 @@ class BalanceServiceTest {
     }
 
     @Test
-    @DisplayName("Возвращает актуальный баланс")
-    public void givenExistingBalance_whenGetAvailableBalance_thenReturnActualBalance() {
-        BigDecimal expectedBalance = new BigDecimal("1500.00");
+    @DisplayName("Возвращает баланс")
+    public void givenExistingBalance_whenGetBalance_thenReturnActualBalance() {
         Balance balance = new Balance();
-        balance.setActualBalance(expectedBalance);
 
         when(balanceHelper.getBalance(accountId)).thenReturn(balance);
+        when(balanceMapper.toViewDto(balance)).thenReturn(balanceViewDto);
 
-        BigDecimal result = balanceService.getAvailableBalance(accountId);
+        BalanceViewDto result = balanceService.getBalance(accountId);
 
-        assertEquals(expectedBalance, result);
+        assertNotNull(result);
         verify(balanceHelper).getBalance(accountId);
     }
 
