@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface AccountService {
-    void open(AccountOpenRequest request);
+    AccountResponse open(AccountOpenRequest request);
 
     AccountResponse get(String accountNumber);
 

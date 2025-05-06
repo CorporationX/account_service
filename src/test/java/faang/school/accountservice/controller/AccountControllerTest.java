@@ -69,14 +69,22 @@ class AccountControllerTest {
 
     @Test
     void testOpen() throws Exception {
-        doNothing().when(accountService).open(request);
+        when(accountService.open(request)).thenReturn(accountResponse);
 
         mockMvc.perform(
                         post(BASE_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                 )
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accountNumber").value(ACCOUNT_NUMBER))
+                .andExpect(jsonPath("$.ownerId").value(123L))
+                .andExpect(jsonPath("$.ownerType").value(OwnerType.USER.name()))
+                .andExpect(jsonPath("$.accountType").value(AccountType.PERSONAL.name()))
+                .andExpect(jsonPath("$.currency").value(Currency.USD.name()))
+                .andExpect(jsonPath("$.balance").value(BigDecimal.valueOf(0.00)))
+                .andExpect(jsonPath("$.status").value(AccountStatus.ACTIVE.name()));;
+
         verify(accountService, times(1)).open(request);
     }
 

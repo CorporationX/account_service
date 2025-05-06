@@ -28,9 +28,9 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    public ResponseEntity<Void> open(@RequestBody AccountOpenRequest request) {
-        accountService.open(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<AccountResponse> open(@RequestBody AccountOpenRequest request) {
+        AccountResponse response = accountService.open(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{accountNumber}")

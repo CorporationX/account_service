@@ -32,12 +32,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void open(AccountOpenRequest request) {
+    public AccountResponse open(AccountOpenRequest request) {
         String accountNumber = accountNumberGenerator.generateUniqueAccountNumber();
         Account account = new Account(request.ownerId(), request.ownerType(), request.accountType(),
                 request.currency(), accountNumber);
-        accountRepository.save(account);
+        Account openedAccount = accountRepository.save(account);
         log.info("Account {} created for owner {} (accountType: {})", accountNumber, request.ownerId(), request.ownerType());
+        return accountMapper.toDto(openedAccount);
     }
 
     @Override
