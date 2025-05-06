@@ -1,6 +1,7 @@
 package faang.school.accountservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import faang.school.accountservice.dto.account.AccountBalanceResponse;
 import faang.school.accountservice.dto.account.AccountOpenRequest;
 import faang.school.accountservice.dto.account.AccountResponse;
 import faang.school.accountservice.dto.account.BalanceUpdateRequest;
@@ -29,9 +30,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -71,9 +72,9 @@ class AccountControllerTest {
         doNothing().when(accountService).open(request);
 
         mockMvc.perform(
-                post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                        post(BASE_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
                 )
                 .andExpect(status().isCreated());
         verify(accountService, times(1)).open(request);
@@ -84,14 +85,14 @@ class AccountControllerTest {
         when(accountService.get(ACCOUNT_NUMBER)).thenReturn(accountResponse);
 
         mockMvc.perform(
-                get(BASE_URL + "/{accountNumber}", ACCOUNT_NUMBER)
+                        get(BASE_URL + "/{accountNumber}", ACCOUNT_NUMBER)
                 )
                 .andExpect(status().isOk())
-                .andExpect( jsonPath("$.accountNumber").value(ACCOUNT_NUMBER))
+                .andExpect(jsonPath("$.accountNumber").value(ACCOUNT_NUMBER))
                 .andExpect(jsonPath("$.ownerId").value(123L))
                 .andExpect(jsonPath("$.ownerType").value(OwnerType.USER.name()))
-                .andExpect(jsonPath("$.accountType" ).value(AccountType.PERSONAL.name()))
-                .andExpect(jsonPath("$.currency" ).value(Currency.USD.name()))
+                .andExpect(jsonPath("$.accountType").value(AccountType.PERSONAL.name()))
+                .andExpect(jsonPath("$.currency").value(Currency.USD.name()))
                 .andExpect(jsonPath("$.balance").value(BigDecimal.valueOf(0.00)))
                 .andExpect(jsonPath("$.status").value(AccountStatus.ACTIVE.name()));
 
@@ -108,9 +109,9 @@ class AccountControllerTest {
         when(accountService.get(ownerId, ownerType)).thenReturn(responseList);
 
         mockMvc.perform(
-                get(BASE_URL)
-                        .param("ownerId", ownerId.toString())
-                        .param("ownerType", ownerType.name())
+                        get(BASE_URL)
+                                .param("ownerId", ownerId.toString())
+                                .param("ownerType", ownerType.name())
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -124,7 +125,6 @@ class AccountControllerTest {
 
         verify(accountService, times(1)).get(ownerId, ownerType);
     }
-
 
 
     @Test
@@ -157,7 +157,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testDelete() throws Exception{
+    void testDelete() throws Exception {
         doNothing().when(accountService).delete(ACCOUNT_NUMBER);
 
         mockMvc.perform(patch(BASE_URL + "/{accountNumber}/delete", ACCOUNT_NUMBER))
@@ -167,15 +167,17 @@ class AccountControllerTest {
 
     }
 
-  /*  @Test
-    void testUpdateBalance() throws Exception{
-        doNothing().when(accountService).updateBalance(ACCOUNT_NUMBER,AMOUNT);
+    @Test
+    void testUpdateBalance() throws Exception {
+        AccountBalanceResponse response = new AccountBalanceResponse(AMOUNT, null, 1L);
+        when(accountService.updateBalance(ACCOUNT_NUMBER, AMOUNT)).thenReturn(response);
 
         mockMvc.perform(
-                patch(BASE_URL + "/{accountNumber}/balance", ACCOUNT_NUMBER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(BALANCE_UPDATE_REQUEST))
-        )
-                .andExpect(status())
-    }*/
+                        patch(BASE_URL + "/{accountNumber}/balance", ACCOUNT_NUMBER)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(BALANCE_UPDATE_REQUEST))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.balance").value(AMOUNT.toString()));
+    }
 }
