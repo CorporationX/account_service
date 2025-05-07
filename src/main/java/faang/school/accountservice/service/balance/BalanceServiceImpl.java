@@ -6,7 +6,6 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.BalanceAlreadyExistsException;
-import faang.school.accountservice.exception.BalanceConflictException;
 import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
@@ -22,10 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static faang.school.accountservice.messages.ErrorMessages.ACCOUNT_NOT_FOUND;
-import static faang.school.accountservice.messages.ErrorMessages.BALANCE_CONFLICT_ERROR;
 import static faang.school.accountservice.messages.ErrorMessages.BALANCE_EXISTS_ERROR;
 import static faang.school.accountservice.messages.ErrorMessages.BALANCE_NOT_FOUND;
-import static faang.school.accountservice.messages.ErrorMessages.OPTIMISTIC_LOCK_ERROR;
 
 @Slf4j
 @Service
@@ -43,21 +40,17 @@ public class BalanceServiceImpl implements BalanceService {
             backoff = @Backoff(delay = 2000)
     )
     public BalanceResponseDto updateBalance(BalanceRequestDto request) {
-        try {
-            Balance balance = getBalance(request.getAccountNumber());
+        Balance balance = getBalance(request.getAccountNumber());
 
-            balance.setAuthorizationBalance(request.getAuthorizationBalance());
-            balance.setFactualBalance(request.getFactualBalance());
-            log.info("Updating balance for account {}", request.getAccountNumber());
-            balanceRepository.save(balance);
-            return balanceMapper.toBalanceResponseDto(balance);
-        } catch (OptimisticLockException e) {
-            log.error(OPTIMISTIC_LOCK_ERROR, e);
-            throw new BalanceConflictException(BALANCE_CONFLICT_ERROR);
-        }
+        balance.setAuthorizationBalance(request.getAuthorizationBalance());
+        balance.setFactualBalance(request.getFactualBalance());
+        log.info("Updating balance for account {}", request.getAccountNumber());
+        balanceRepository.save(balance);
+        return balanceMapper.toBalanceResponseDto(balance);
     }
 
     @Override
+    @Transactional
     public BalanceResponseDto createBalance(BalanceRequestDto request) {
         Account account = getAccount(request.getAccountNumber());
 
@@ -75,6 +68,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    @Transactional
     public BalanceResponseDto getBalanceByAccountNumber(String accountNumber) {
         Balance balance = getBalance(accountNumber);
         BalanceResponseDto balanceResponseDto = balanceMapper.toBalanceResponseDto(balance);
