@@ -8,7 +8,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -70,4 +72,7 @@ public class Account {
     @Version
     @Column(name = "version")
     private Long version;
+
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    private Balance accountBalance;
 }
