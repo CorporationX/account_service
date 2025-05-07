@@ -1,6 +1,5 @@
 package faang.school.accountservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.handler.GlobalExceptionHandler;
@@ -10,8 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -43,7 +40,6 @@ class BalanceControllerTest {
 
     private Long accountId = 1L;
     BalanceDto balanceDto;
-    Long nonExistentId = 999L;
 
     @BeforeEach
     void setUp() {

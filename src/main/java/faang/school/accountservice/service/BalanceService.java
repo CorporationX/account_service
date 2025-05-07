@@ -33,13 +33,9 @@ public class BalanceService {
     @Transactional
     public BalanceDto create(Long accountId) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> {
-                    log.error("Account not found:  {}", accountId);
-                    return new EntityNotFoundException("Account not found: " + accountId);
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Account not found: " + accountId));
 
         if (account.getBalance() != null) {
-            log.error("Balance already exists for account ID: {}", accountId);
             throw new IllegalStateException("Balance already exists for account ID: " + accountId);
         }
 
@@ -51,7 +47,7 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    @Transactional()
+    @Transactional
     private BalanceDto update(Long accountId, BalanceDto balanceDto) {
         Balance balance = getBalance(accountId);
 
@@ -70,9 +66,6 @@ public class BalanceService {
 
     private Balance getBalance(Long accountId) {
         return balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> {
-                    log.error("Balance not found for account ID: {}", accountId);
-                    return new EntityNotFoundException("Balance not found for account ID: " + accountId);
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Balance not found for account ID: " + accountId));
     }
 }
