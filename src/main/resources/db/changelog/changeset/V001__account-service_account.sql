@@ -1,3 +1,14 @@
+CREATE TABLE free_account_numbers(
+    type VARCHAR(16) NOT NULL,
+    number BIGINT NOT NULL,
+
+    CONSTRAINT free_account_numbers_pk PRIMARY KEY (type, number)
+);
+
+CREATE TABLE account_numbers_sequence(
+    type VARCHAR(16) NOT NULL PRIMARY KEY,
+    count BIGINT NOT NULL DEFAULT 0
+);
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
     account_number VARCHAR(20) NOT NULL CHECK (account_number ~ '^[0-9]{12,20}$'),
