@@ -75,7 +75,7 @@ public class Account {
     private LocalDateTime updateAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "closed_at", nullable = false)
+    @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
     @Version
