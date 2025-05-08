@@ -3,21 +3,25 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.BalanceResponseDto;
 import faang.school.accountservice.dto.BalanceUpdateCommand;
+import faang.school.accountservice.dto.TransactionDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.entity.Transaction;
 import faang.school.accountservice.enums.TransactionType;
 import faang.school.accountservice.exception.*;
+import faang.school.accountservice.mapper.TransactionsMapper;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.repository.TransactionsRepository;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import static faang.school.accountservice.enums.TransactionType.RECEIVE;
@@ -30,6 +34,9 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final TransactionsRepository transactionsRepository;
     private final UserContext context;
+
+    @Autowired
+    private final TransactionsMapper transactionsMapper;
 
     @Transactional(readOnly = true)
     public BalanceResponseDto getBalance(Long balanceId) {
@@ -120,6 +127,19 @@ public class BalanceService {
         log.info("Перевод {} от {} к {}", amount, senderId, receiverId);
     }
 
+    public List<TransactionDto> getTransactions(Long balanceId) {
+        Balance balance = validateBalance(balanceId);
+        validateOwner(balance.getAccount());
+        if (balance.getTransactions().isEmpty()) {
+            log.debug("Список транзакций для баланса {} пуст", balanceId);
+            return Collections.emptyList();
+        }
+        log.info("Список транзакций для баланса {} получен, количество {}",
+                balanceId, balance.getTransactions().size());
+
+        return  transactionsRepository.findDtoByBalanceId(balanceId);
+    }
+
     private Transaction buildTransaction(Balance balance, BigDecimal amount,
                                          TransactionType type, String comment) {
         return Transaction.builder()
@@ -130,8 +150,6 @@ public class BalanceService {
                 .build();
     }
 
-    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3)
-    @Transactional
     private Balance updateBalance(Long balanceId, BalanceUpdateCommand command) {
         Balance balance = validateBalance(balanceId);
 

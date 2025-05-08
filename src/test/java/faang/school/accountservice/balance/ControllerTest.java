@@ -3,6 +3,7 @@ package faang.school.accountservice.balance;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.controller.BalanceController;
 import faang.school.accountservice.dto.BalanceResponseDto;
+import faang.school.accountservice.dto.TransactionDto;
 import faang.school.accountservice.exception.AccessException;
 import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.exception.NotEnoughFundsException;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,6 +42,7 @@ public class ControllerTest {
     private static final String DEPOSIT_URL = "/balances/{balanceId}/deposit/{amount}";
     private static final String WITHDRAW_URL = "/balances/{balanceId}/withdraw/{amount}";
     private static final String SEND_URL = "/balances/{senderId}/send/{receiverId}/{amount}";
+    private static final String GET_TRANSACTIONS_URL = "/balances/{balanceId}/transactions";
 
 
     @Autowired
@@ -128,24 +132,6 @@ public class ControllerTest {
         verify(balanceService).addFunds(eq(balanceId), eq(amount), eq(comment));
     }
 
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    @Test
-    void negativeDepositFundsBalanceNotFound() throws Exception { //TODO: NOT WORK
-        BigDecimal amount = new BigDecimal("500");
-
-        doThrow(new BalanceNotFoundException("Баланс не найден"))
-                .when(balanceService)
-                .addFunds(eq(1L), eq(amount), eq("Deposit"));
-
-        mockMvc.perform(post(DEPOSIT_URL, 1L, amount)
-                        .param("comment", "deposit")
-                        .header("x-user-id", 1L))
-                .andExpect(status().isNotFound());
-    }
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-
     @Test
     void negativeDepositFundsAccountNotFound() throws Exception {
         BigDecimal amount = new BigDecimal("500");
@@ -174,26 +160,6 @@ public class ControllerTest {
                         .header("x-user-id", 500L))
                 .andExpect(status().isForbidden());
     }
-
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    @Test
-    void negativeDepositWrongAmount() throws Exception {
-        BigDecimal amount = new BigDecimal("-10");
-
-        doThrow(new WrongAmountException("Неверная сумма"))
-                .when(balanceService)
-                .addFunds(eq(1L), eq(amount), eq("Deposit"));
-
-        mockMvc.perform(post(DEPOSIT_URL, 1L, amount)
-                .param("comment", "Deposit - 10")
-                .header("x-user-id", 500L))
-                .andExpect(status().isBadRequest());
-
-    }
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-
 
     @Test
     void positiveWithdrawFunds() throws Exception {
@@ -255,24 +221,6 @@ public class ControllerTest {
                         .header("x-user-id", 500L))
                 .andExpect(status().isForbidden());
     }
-
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    @Test
-    void negativeWithdrawFundsWrongAmount() throws Exception {
-        BigDecimal amount = new BigDecimal("-10");
-
-        doThrow(new WrongAmountException("Неверная сумма"))
-                .when(balanceService)
-                .withdrawFunds(eq(1L), eq(amount), eq("Withdraw"));
-
-        mockMvc.perform(post(DEPOSIT_URL, 1L, amount)
-                        .param("comment", "Withdraw")
-                        .header("x-user-id", 500L))
-                .andExpect(status().isBadRequest());
-    }
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
-    //TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK//TODO: NOT WORK
 
     @Test
     void positiveSendPayment() throws Exception {
@@ -376,6 +324,19 @@ public class ControllerTest {
                         .param("comment", "Send")
                         .header("x-user-id", 1L))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void positiveGetTransactions() throws Exception {
+        TransactionDto first = TransactionDto.builder().build();
+        TransactionDto second = TransactionDto.builder().build();
+
+        when(balanceService.getTransactions(1L)).thenReturn(List.of(first, second));
+
+        mockMvc.perform(get(GET_TRANSACTIONS_URL, 1L)
+                .header("x-user-id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
 }

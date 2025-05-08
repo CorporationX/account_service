@@ -11,5 +11,5 @@ CREATE TABLE transactions (
 
     CREATE INDEX transactions_balance_id_idx ON transactions (balance_id);
     CREATE INDEX transactions_type_idx ON transactions (type);
-    CREATE INDEX transactions_created_at_idx ON transactions (created_at);
+    CREATE INDEX transactions_created_at_idx ON transactions (amount);
 );

@@ -1,6 +1,5 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.TransactionType;
 import lombok.Builder;
 
@@ -11,7 +10,8 @@ import java.time.LocalDateTime;
 public record TransactionDto(
         BigDecimal amount,
         long  balanceId,
-        TransactionType type
+        TransactionType type,
+        LocalDateTime time
 ) {
 
 }
