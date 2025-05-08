@@ -3,6 +3,7 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountViewDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,7 +137,13 @@ public class AccountService {
         accountValidator.validateStatus(account, newStatus);
         account.setAccountStatus(newStatus);
         Optional.ofNullable(closedAt).ifPresent(account::setClosedAt);
-        Account updatedAccount = accountHelper.saveAccount(account);
-        return accountMapper.toViewDto(updatedAccount);
+
+        try {
+            Account updatedAccount = accountHelper.saveAccount(account);
+            return accountMapper.toViewDto(updatedAccount);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            log.error("Optimistic lock failed after retries for account {}", account.getId(), ex);
+            throw new AccountOperationConflictException("Could not update account due to concurrent modifications");
+        }
     }
 }

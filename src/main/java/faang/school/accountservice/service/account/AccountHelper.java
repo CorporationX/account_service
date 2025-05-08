@@ -7,6 +7,8 @@ import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -78,16 +80,17 @@ public class AccountHelper {
     /**
      * Сохраняет учетную запись в репозитории.
      *
-     * @param account      учетная запись для сохранения
+     * @param account учетная запись для сохранения
      * @return сохраненная учетная запись
      * @throws AccountOperationConflictException если возникает конфликт при сохранении учетной записи
      */
+    @Retryable(
+            retryFor = {ObjectOptimisticLockingFailureException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 100)
+    )
     public Account saveAccount(Account account) {
-        try {
-            return accountRepository.save(account);
-        } catch (ObjectOptimisticLockingFailureException e) {
-            log.error("Optimistic locking failure while saving account: {}", account, e);
-            throw new AccountOperationConflictException("Optimistic locking failure while saving account");
-        }
+        log.debug("Attempting to save account {}", account.getId());
+        return accountRepository.save(account);
     }
 }
