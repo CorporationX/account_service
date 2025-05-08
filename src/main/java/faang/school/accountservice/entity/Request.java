@@ -15,7 +15,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -46,7 +48,8 @@ public class Request {
     @Column(name = "is_open")
     private boolean isOpen;
 
-    @Column(name = "input_data", nullable = false, length = 1024)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "input_data", columnDefinition = "jsonb", nullable = false, length = 1024)
     private String inputData;
 
     @Enumerated(EnumType.STRING)

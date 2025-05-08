@@ -47,6 +47,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public RequestResponseDto createRequest(RequestCreationDto requestCreationDto) {
         Optional<Request> requestOptional = requestRepository.findById(requestCreationDto.getIdempotencyToken());
         if (requestOptional.isPresent()) {

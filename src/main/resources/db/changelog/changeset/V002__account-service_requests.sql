@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS requests(
     request_type VARCHAR(32) NOT NULL,
     lock_id BIGINT NOT NULL,
     is_open BOOLEAN NOT NULL,
-    input_data VARCHAR(1024) NOT NULL,
+    input_data JSONB NOT NULL,
     request_status VARCHAR(32) NOT NULL,
     status_details VARCHAR(256),
     created_at TIMESTAMP NOT NULL,
