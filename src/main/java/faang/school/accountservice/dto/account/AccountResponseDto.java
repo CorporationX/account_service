@@ -1,5 +1,6 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
+import faang.school.accountservice.dto.CurrencyDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
