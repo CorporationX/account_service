@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.concurrent.CompletionException;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -45,6 +46,11 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Error> handleExceptionWithStatusInternalServerError(CompletionException ex) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(getErrorResponse(ex));
+    }
+
+    @ExceptionHandler(JsonDeserializationException.class)
+    public ResponseEntity<Error> handleJsonDeserializationException(JsonDeserializationException ex) {
+        return ResponseEntity.status(BAD_REQUEST).body(getErrorResponse(ex));
     }
 
     private Error getErrorResponse(Exception e) {
