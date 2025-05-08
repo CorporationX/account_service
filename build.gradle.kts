@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
 }
 
+
 group = "faang.school"
 version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -24,8 +25,6 @@ dependencies {
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation ("org.springframework.retry:spring-retry:1.3.1")
-
 
     /**
      * Database
