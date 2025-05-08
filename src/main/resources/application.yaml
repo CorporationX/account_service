@@ -17,6 +17,20 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  data:
+    kafka:
+      bootstrap-servers: localhost:9092
+      consumer:
+        group-id: payment-group
+        auto-offset-reset: earliest
+      producer:
+        acks: "1"
+      topics:
+        payment-operation:
+          name: "payment-operation-topic"
+          partitions: 3
+          replicas: 1
+
   profiles:
     active: local
 
