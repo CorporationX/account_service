@@ -25,6 +25,13 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.kafka:spring-kafka")
 
+    implementation("org.springframework.retry:spring-retry:2.0.5")
+    implementation("org.springframework:spring-aspects:5.3.23")
+
+    /**
+     * Swagger
+     */
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 
     /**
      * Database
