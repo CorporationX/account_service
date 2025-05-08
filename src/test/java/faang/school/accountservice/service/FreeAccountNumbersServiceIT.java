@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.exception.AccountNumberNotFoundException;
 import faang.school.accountservice.exception.InvalidBatchSizeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
@@ -124,6 +125,16 @@ public void testNegativeGeneratedAccountNumbersBatchSize() {
     public void testNegativeRetrieveAccountNumberTypeNull () {
         assertThrows(NullPointerException.class, () -> {
             freeAccountNumbersService.retrieveAccountNumber(null,Object::notify);
+        });
+    }
+
+    @Test
+    public void testNegativeRetrieveAccountNumber () {
+        assertThrows(AccountNumberNotFoundException.class, () -> {
+            freeAccountNumbersService
+                    .retrieveAccountNumber(AccountType.CREDIT, number -> {
+                    });
+
         });
     }
 }
