@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.component.AccountNumberGenerator;
 import faang.school.accountservice.dto.FreeAccountNumberDto;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
@@ -10,10 +11,12 @@ import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.service.account.FreeAccountNumbersServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -45,6 +49,9 @@ public class FreeAccountNumbersServiceTest {
 
     @Autowired
     private AccountNumbersSequenceRepository sequenceRepo;
+
+    @MockBean
+    private AccountNumberGenerator numberGenerator;
 
     private final String TYPE = "SAVINGS";
     private final String PREFIX = "ACC";
@@ -105,11 +112,14 @@ public class FreeAccountNumbersServiceTest {
         sequenceRepo.save(sequence);
 
         String expectedNumber = PREFIX + String.format("%0" + (TOTAL_LENGTH - PREFIX.length()) + "d", 6);
+
+        Mockito.when(numberGenerator.generate(PREFIX, TOTAL_LENGTH, 6L)).thenReturn(expectedNumber);
+
         String result = numbersService.withNewAccountNumber(TYPE, number -> number, PREFIX, TOTAL_LENGTH);
-        assertEquals(expectedNumber, result, "Should generate a new account number based on sequence");
+        assertEquals(expectedNumber, result);
 
         AccountNumbersSequence updated = sequenceRepo.findById(TYPE).orElseThrow();
-        assertEquals(6L, updated.getCurrentValue(), "Sequence currentValue should be incremented");
+        assertEquals(6L, updated.getCurrentValue());
     }
 
     @Test

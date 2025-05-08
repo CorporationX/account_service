@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.component.AccountNumberGenerator;
 import faang.school.accountservice.dto.FreeAccountNumberDto;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
@@ -10,6 +11,7 @@ import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,8 +23,12 @@ import java.util.function.Function;
 public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService {
     private final FreeAccountNumbersRepository numbersRepository;
     private final AccountNumbersSequenceRepository sequenceRepository;
+    private final AccountNumberGenerator accountNumberGenerator;
+
+    private static final int MAX_RETRIES = 3;
 
     @Override
+    @Transactional
     public FreeAccountNumberDto addFreeAccountNumber(String accountType, String accountNumber) {
         log.info("Adding free account number {} for type {}", accountNumber, accountType);
         FreeAccountNumber.Key key = new FreeAccountNumber.Key(accountType, accountNumber);
@@ -41,7 +47,7 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
     public <R> R withNewAccountNumber(String accountType, Function<String, R> action, String prefix, int totalLength) {
         log.info("withNewAccountNumber: trying free number for type={}", accountType);
 
-        String number = fetchFreeOrGenerate(accountType, prefix, totalLength);
+        String number = fetchFreeOrGenerateWithRetry(accountType, prefix, totalLength);
         R result = action.apply(number);
 
         log.debug("withNewAccountNumber: action applied, returning result");
@@ -57,11 +63,24 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         }
     }
 
-    private String fetchFreeOrGenerate(String accountType, String prefix, int totalLength) {
+    private String fetchFreeOrGenerateWithRetry(String accountType, String prefix, int totalLength) {
         return numbersRepository
                 .findFirstByKeyAccountTypeOrderByCreatedAtAsc(accountType)
                 .map(this::useFree)
-                .orElseGet(() -> generateNew(accountType, prefix, totalLength));
+                .orElseGet(() -> {
+                    int attempt = 0;
+                    while (true) {
+                        try {
+                            return generateNew(accountType, prefix, totalLength);
+                        } catch (OptimisticLockingFailureException e) {
+                            if (++attempt >= MAX_RETRIES) {
+                                log.error("Optimistic locking failure: attempts exceeded max retries", e);
+                                throw e;
+                            }
+                            log.warn("WithNewAccountNumber: optimistic lock conflict, retrying (attempt {})", attempt);
+                        }
+                    }
+                });
     }
 
     private String useFree(FreeAccountNumber free) {
@@ -79,11 +98,17 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         AccountNumbersSequence seq = findSequence(accountType);
         long next = seq.getCurrentValue() + 1;
         seq.setCurrentValue(next);
-        sequenceRepository.save(seq);
+        sequenceRepository.saveAndFlush(seq);
         log.info("withNewAccountNumber: sequence incremented to {}", next);
 
-        String numberPart = String.format("%0" + (totalLength - prefix.length()) + "d", next);
-        String number = prefix + numberPart;
+        String number = accountNumberGenerator.generate(prefix, totalLength, next);
+
+        FreeAccountNumber.Key key = new FreeAccountNumber.Key(accountType, number);
+        if (numbersRepository.existsById(key)) {
+            log.warn("WithNewAccountNumber: generated number {} already exists, will retry", number);
+            throw new OptimisticLockingFailureException("Optimistic locking failure");
+        }
+
         log.info("withNewAccountNumber: generated new number {}", number);
         return number;
     }

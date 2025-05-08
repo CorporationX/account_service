@@ -12,10 +12,8 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
 
-import static faang.school.accountservice.constants.Constants.SEQUENCE_TABLE;
-
 @Entity
-@Table(name = SEQUENCE_TABLE)
+@Table(name = "account_numbers_sequence")
 @Getter
 @Setter
 @NoArgsConstructor
