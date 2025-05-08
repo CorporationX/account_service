@@ -52,7 +52,7 @@ public class BaseContextTest {
     private static final RedisContainer REDIS_CONTAINER =
             new RedisContainer(DockerImageName.parse("redis/redis-stack:latest"));
 
-    private static final Logger log = LoggerFactory.getLogger(BaseContextTest.class);
+    protected static final Logger log = LoggerFactory.getLogger(BaseContextTest.class);
 
     @DynamicPropertySource
     static void postgresqlProperties(DynamicPropertyRegistry registry) {

@@ -30,8 +30,8 @@ public class BalanceControllerTestConstants extends BaseContextTest {
     protected static final String INVALID_BALANCE_MSG = "should be more than 0";
     protected static final String BALANCE_NOT_FOUND_MSG = "Balance with id " + NOT_EXISTS_ID + " not exists";
     protected static final String FIND_INVALID_BALANCE_ID_MSG = "find.balanceId: " + INVALID_BALANCE_ID_MSG;
-    protected static final String UPDATE_INVALID_BALANCE_ID_MSG = "{\"id\":\"" + INVALID_BALANCE_ID_MSG + "\"}";
-    protected static final String INVALID_ACTUAL_BALANCE_MSG = "{\"actualBalance\":\"" + INVALID_BALANCE_MSG + "\"}";
+    protected static final String UPDATE_INVALID_BALANCE_ID_MSG = "id — " + INVALID_BALANCE_ID_MSG;
+    protected static final String INVALID_ACTUAL_BALANCE_MSG = "actualBalance — " + INVALID_BALANCE_MSG;
     protected static final String INVALID_AUTHORIZATION_BALANCE_MSG =
-            "{\"authorizationBalance\":\"" + INVALID_BALANCE_MSG + "\"}";
+            "authorizationBalance — " + INVALID_BALANCE_MSG;
 }

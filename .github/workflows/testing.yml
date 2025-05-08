@@ -1,4 +1,4 @@
-name: Test User Service App
+name: Test Account Service App
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew test --stacktrace --info
 
       - name: Run Build
         run: ./gradlew build
