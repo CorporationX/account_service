@@ -110,8 +110,7 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toDto(savedRequest);
     }
 
-    @Transactional
-    protected RequestDto requestBalancer(Long userId, UUID idempotencyToken) {
+    private RequestDto requestBalancer(Long userId, UUID idempotencyToken) {
         try {
             RequestDto requestDto = userQueues.get(userId).take();
             log.info("Processing request for userId = {}", userId);
@@ -131,19 +130,7 @@ public class RequestServiceImpl implements RequestService {
                     }
                 }
             }
-
-            request.setUserId(userId);
-            request.setLockValue(userId);
-            request.setOpen(true);
-            IdempotencyToken token = new IdempotencyToken();
-            token.setToken(idempotencyToken);
-            token.setRequest(request);
-            request.setIdempotencyToken(token);
-            log.info("request = {}", request);
-            Request savedRequest = requestRepository.save(request);
-            savedRequest.setStatus(RequestStatus.COMPLETED);
-            log.info("saved request have token : {}", savedRequest.getIdempotencyToken());
-            log.info("Request for userId = {} processed successfully", userId);
+            Request savedRequest = setValues(request, userId, idempotencyToken);
             return requestMapper.toDto(savedRequest);
 
         } catch (InterruptedException e) {
@@ -152,6 +139,22 @@ public class RequestServiceImpl implements RequestService {
 
             throw new RequestProcessingException("Error processing request for user with id = " + userId);
         }
+    }
+
+    private Request setValues(Request request, Long userId, UUID idempotencyToken) {
+        request.setUserId(userId);
+        request.setLockValue(userId);
+        request.setOpen(true);
+        IdempotencyToken token = new IdempotencyToken();
+        token.setToken(idempotencyToken);
+        token.setRequest(request);
+        request.setIdempotencyToken(token);
+        log.info("request = {}", request);
+        Request savedRequest = requestRepository.save(request);
+        savedRequest.setStatus(RequestStatus.COMPLETED);
+        log.info("saved request have token : {}", savedRequest.getIdempotencyToken());
+        log.info("Request for userId = {} processed successfully", userId);
+        return savedRequest;
     }
 
     private boolean isInputDataEqual(Request existRequest, Request request) {
