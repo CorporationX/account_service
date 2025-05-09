@@ -34,7 +34,7 @@ public class SavingsAccountController {
 
     @GetMapping("/account/{accountId}")
     public ResponseEntity<SavingsAccountResponseDto> getByAccountId(
-            @PathVariable Long accountId
+            @PathVariable String accountId
     ) {
         SavingsAccountResponseDto response = savingsAccountService
                 .getSavingsAccountById(accountId);

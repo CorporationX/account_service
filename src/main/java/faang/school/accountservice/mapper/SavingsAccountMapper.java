@@ -13,7 +13,6 @@ import org.mapstruct.ReportingPolicy;
 public interface SavingsAccountMapper {
 
     @Mapping(target = "accountId", source = "account.id")
-    @Mapping(target = "tariffId", source = "tariff.id")
     @Mapping(target = "createdAt", dateFormat = "dd.MM.yyyy HH:mm")
     @Mapping(target = "updatedAt", dateFormat = "dd.MM.yyyy HH:mm")
     SavingsAccountResponseDto toSavingsAccountResponseDto(SavingsAccount account);

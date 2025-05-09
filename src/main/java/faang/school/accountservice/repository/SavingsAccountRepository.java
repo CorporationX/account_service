@@ -4,10 +4,11 @@ import faang.school.accountservice.entity.SavingsAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
-    Optional<SavingsAccount> findByAccountId(Long accountId);
+    Optional<SavingsAccount> findByAccountId(String accountId);
 
     @Query(value = """
             SELECT CASE WHEN (COUNT(sa) > 0) THEN TRUE ELSE FALSE END
@@ -15,4 +16,11 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             WHERE sa.accountId = :accountId
     """)
     boolean existsByAccountId(String accountId);
+
+    @Query(value = """
+            SELECT sa
+            FROM SavingsAccount sa
+            WHERE sa.account.status = 'ACTIVE'
+    """)
+    List<SavingsAccount> findAllActiveAccountsForInterestCalculation();
 }

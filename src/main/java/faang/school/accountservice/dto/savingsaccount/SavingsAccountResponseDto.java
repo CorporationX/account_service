@@ -11,7 +11,6 @@ public class SavingsAccountResponseDto {
     private Long id;
     private Long accountId;
     private BigDecimal balance;
-    private Long tariffId;
     private List<Long> tariffHistory;
     private LocalDateTime lastInterestDate;
     private Long version;

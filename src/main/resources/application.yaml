@@ -1,6 +1,9 @@
 app:
   optimistic-lock-backoff-delay: 100
   optimistic-lock-max-attempts: 5
+  calculate-daily-interest:
+    schedule:
+      cron: "0 0 0 * * ?"
 
 spring:
   datasource:

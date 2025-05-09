@@ -7,10 +7,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Mapper(
         componentModel = "spring",
+        imports = {Collections.class, LocalDateTime.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface TariffMapper {
@@ -21,11 +24,11 @@ public interface TariffMapper {
     )
     @Mapping(target = "createdAt", expression = "java(LocalDateTime.now())")
     @Mapping(target = "updatedAt", expression = "java(LocalDateTime.now())")
-    public Tariff toTariff(TariffCreationDto dto);
+    Tariff toTariff(TariffCreationDto dto);
 
     @Mapping(target = "createdAt", dateFormat = "dd.MM.yyyy HH:mm")
     @Mapping(target = "updatedAt", dateFormat = "dd.MM.yyyy HH:mm")
-    public TariffResponseDto toTariffResponseDto(Tariff tariff);
+    TariffResponseDto toTariffResponseDto(Tariff tariff);
 
-    public List<TariffResponseDto> toTariffResponseDtoList(List<Tariff> tariffs);
+    List<TariffResponseDto> toTariffResponseDtoList(List<Tariff> tariffs);
 }
