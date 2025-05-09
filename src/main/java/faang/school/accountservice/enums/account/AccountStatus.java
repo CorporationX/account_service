@@ -1,4 +1,4 @@
-package faang.school.accountservice.enums;
+package faang.school.accountservice.enums.account;
 
 public enum AccountStatus {
     ACTIVE,

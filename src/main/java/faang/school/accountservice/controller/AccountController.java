@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.AccountRequestDto;
-import faang.school.accountservice.dto.AccountResponseDto;
+import faang.school.accountservice.dto.account.AccountRequestDto;
+import faang.school.accountservice.dto.account.AccountResponseDto;
 import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

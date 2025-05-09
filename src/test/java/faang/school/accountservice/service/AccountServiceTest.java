@@ -1,15 +1,15 @@
-package faang.school.accountservice;
+package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountRequestDto;
-import faang.school.accountservice.dto.AccountResponseDto;
-import faang.school.accountservice.dto.AccountTypeDto;
 import faang.school.accountservice.dto.CurrencyDto;
-import faang.school.accountservice.dto.OwnerTypeDto;
-import faang.school.accountservice.dto.AccountStatusDto;
+import faang.school.accountservice.dto.account.AccountRequestDto;
+import faang.school.accountservice.dto.account.AccountResponseDto;
+import faang.school.accountservice.dto.account.AccountStatusDto;
+import faang.school.accountservice.dto.account.AccountTypeDto;
+import faang.school.accountservice.dto.account.OwnerTypeDto;
 import faang.school.accountservice.entity.Account;
-import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.enums.account.AccountStatus;
+import faang.school.accountservice.enums.account.AccountType;
+import faang.school.accountservice.enums.account.OwnerType;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
