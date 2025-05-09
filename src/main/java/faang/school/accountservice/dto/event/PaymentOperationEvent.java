@@ -6,12 +6,13 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 public record PaymentOperationEvent(
+        UUID idempotencyToken,
         OperationType operationType,
         Long senderId,
-        OwnerType senderType,
         Long receiverId,
         OwnerType receiverType,
         BigDecimal amount,

@@ -24,7 +24,7 @@ spring:
         group-id: payment-group
         auto-offset-reset: earliest
       producer:
-        acks: "1"
+        acks: all
       topics:
         payment-operation:
           name: "payment-operation-topic"
