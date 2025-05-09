@@ -1,11 +1,12 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
+import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
-import faang.school.accountservice.service.account.AccountHelper;
+import faang.school.accountservice.service.account.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,9 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -27,7 +30,7 @@ import static org.mockito.Mockito.when;
 class BalanceServiceTest {
 
     @Mock
-    private AccountHelper accountHelper;
+    private AccountService accountService;
 
     @Mock
     private BalanceHelper balanceHelper;
@@ -44,16 +47,17 @@ class BalanceServiceTest {
     private final Long accountId = 1L;
     private final BigDecimal amount = new BigDecimal("1000.00");
     private final BalanceViewDto balanceViewDto = new BalanceViewDto();
+    private final Balance balance = new Balance();
 
     @Test
     @DisplayName("Создание баланса, когда счет существует")
     public void givenExistingAccount_whenCreateBalanceForAccountBalance_thenSaveBalance() {
         Account account = new Account();
-        when(accountHelper.getAccountById(accountId)).thenReturn(account);
+        when(accountService.getAccountById(accountId)).thenReturn(account);
 
         balanceService.createBalanceForAccount(accountId);
 
-        verify(accountHelper).getAccountById(accountId);
+        verify(accountService).getAccountById(accountId);
         verify(balanceRepository).save(argThat(balance ->
                 balance.getAccount().equals(account)));
     }
@@ -85,13 +89,12 @@ class BalanceServiceTest {
     public void givenExistingBalance_whenGetBalance_thenReturnActualBalance() {
         Balance balance = new Balance();
 
-        when(balanceHelper.getBalance(accountId)).thenReturn(balance);
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceMapper.toViewDto(balance)).thenReturn(balanceViewDto);
 
         BalanceViewDto result = balanceService.getBalance(accountId);
 
         assertNotNull(result);
-        verify(balanceHelper).getBalance(accountId);
     }
 
     @Test
@@ -114,5 +117,29 @@ class BalanceServiceTest {
 
         assertEquals(balanceViewDto, result);
         verify(balanceHelper).executeBalanceOperation(eq(accountId), any());
+    }
+
+    @Test
+    @DisplayName("Получение баланса, когда счет существует")
+    public void givenExistingAccountId_whenGetBalanceEntity_thenReturnBalance() {
+        when(balanceRepository.findByAccountId(accountId))
+                .thenReturn(Optional.of(balance));
+
+        Balance result = balanceService.getBalanceEntity(accountId);
+
+        assertNotNull(result);
+        assertEquals(balance, result);
+        verify(balanceRepository).findByAccountId(accountId);
+    }
+
+    @Test
+    @DisplayName("Получение баланса, когда счет не существует - должен выбросить исключение")
+    public void givenNonExistingAccountId_whenGetBalanceEntity_thenThrowException() {
+        when(balanceRepository.findByAccountId(accountId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(AccountNotFoundException.class, () ->
+                balanceService.getBalanceEntity(accountId));
+        verify(balanceRepository).findByAccountId(accountId);
     }
 }

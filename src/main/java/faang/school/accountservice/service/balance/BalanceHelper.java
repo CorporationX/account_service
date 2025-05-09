@@ -1,11 +1,9 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
-import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.BalanceOperationConflictException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Balance;
-import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -18,22 +16,13 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 @Slf4j
 public class BalanceHelper {
-    private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
-
-    public Balance getBalance(Long accountId) {
-        return balanceRepository.findByAccountId(accountId)
-                .orElseThrow(() -> {
-                    log.error("Account not found for authorization. Account ID: {}", accountId);
-                    return new AccountNotFoundException(
-                            String.format("Account not found with ID: %d", accountId));
-                });
-    }
+    private final BalanceService balanceService;
 
     @Transactional
     public BalanceViewDto executeBalanceOperation(Long accountId, Consumer<Balance> action) {
         try {
-            Balance balance = getBalance(accountId);
+            Balance balance = balanceService.getBalanceEntity(accountId);
             action.accept(balance);
             return balanceMapper.toViewDto(balance);
         } catch (ObjectOptimisticLockingFailureException exception) {

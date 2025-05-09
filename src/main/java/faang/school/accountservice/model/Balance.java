@@ -19,6 +19,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+/**
+ * Сущность баланса счёта.
+ *
+ * <p>Поддерживает операции:
+ * <ul>
+ *   <li>Резервирование средств ({@link #authorize})</li>
+ *   <li>Пополнение счёта ({@link #deposit})</li>
+ *   <li>Списание средств ({@link #clear})</li>
+ *   <li>Отмена резервирования ({@link #cancelAuthorization})</li>
+ * </ul>
+ */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,28 +38,49 @@ import java.time.Instant;
 @Table(name = "balance")
 public class Balance {
 
+    /**
+     * Уникальный идентификатор баланса
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Счёт, к которому относится данный баланс
+     */
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
+    /**
+     * Текущий доступный баланс
+     */
     @Column(name = "actual_balance", nullable = false, precision = 19, scale = 4)
     private BigDecimal actualBalance = BigDecimal.ZERO;
 
+    /**
+     * Сумма зарезервированных средств
+     */
     @Column(name = "authorized_balance", nullable = false, precision = 19, scale = 4)
     private BigDecimal authorizedBalance = BigDecimal.ZERO;
 
+    /**
+     * Дата и время открытия баланса.
+     */
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    /**
+     * Дата и время последнего обновления
+     */
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /**
+     * Версия для оптимистичной блокировки
+     */
     @Version
     @Column(name = "version", nullable = false)
     private Long version;

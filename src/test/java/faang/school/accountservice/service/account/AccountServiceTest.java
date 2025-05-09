@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -84,13 +85,13 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             when(accountMapper.toViewDto(account)).thenReturn(accountViewDto);
 
             AccountViewDto result = accountService.getAccount(accountId);
 
             assertEquals(accountViewDto, result);
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountMapper).toViewDto(account);
         }
 
@@ -98,10 +99,10 @@ class AccountServiceTest {
         @DisplayName("Получение счета с несуществующим ID")
         void givenInvalidId_WhenGetAccount_ThenThrowsNotFoundException() {
             Long accountId = 999L;
-            when(accountHelper.getAccountById(accountId)).thenThrow(new AccountNotFoundException("Account not found"));
+            when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
 
             assertThrows(AccountNotFoundException.class, () -> accountService.getAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
         }
     }
 
@@ -178,7 +179,7 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
 
-            when(accountHelper.generateAccountNumber()).thenReturn("1234567890123456");
+            when(accountHelper.generateUniqueAccountNumber()).thenReturn("1234567890123456");
             when(accountMapper.toEntity(createDto)).thenReturn(account);
             when(accountHelper.saveAccount(any(Account.class))).thenReturn(account);
             when(accountMapper.toViewDto(account)).thenReturn(accountViewDto);
@@ -187,7 +188,7 @@ class AccountServiceTest {
             AccountViewDto result = accountService.openAccount(createDto);
 
             assertEquals(accountViewDto, result);
-            verify(accountHelper).generateAccountNumber();
+            verify(accountHelper).generateUniqueAccountNumber();
             verify(accountMapper).toEntity(createDto);
             verify(balanceService).createBalanceForAccount(account.getId());
             verify(accountHelper).saveAccount(any(Account.class));
@@ -230,7 +231,7 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.BLOCKED)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doNothing().when(accountValidator).validateBlock(account);
             when(accountHelper.saveAccount(any(Account.class))).thenReturn(blockedAccount);
             when(accountMapper.toViewDto(blockedAccount)).thenReturn(accountViewDto);
@@ -238,7 +239,7 @@ class AccountServiceTest {
             AccountViewDto result = accountService.blockAccount(accountId);
 
             assertEquals(accountViewDto, result);
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateBlock(account);
             verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(blockedAccount);
@@ -254,12 +255,12 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.BLOCKED)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doThrow(new AccountOperationConflictException("Account is already blocked"))
                     .when(accountValidator).validateBlock(account);
 
             assertThrows(AccountOperationConflictException.class, () -> accountService.blockAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateBlock(account);
         }
 
@@ -273,12 +274,12 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doThrow(new AccountAlreadyClosedException("Cannot modify closed account"))
                     .when(accountValidator).validateBlock(account);
 
             assertThrows(AccountAlreadyClosedException.class, () -> accountService.blockAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateBlock(account);
         }
     }
@@ -320,7 +321,7 @@ class AccountServiceTest {
                     .closedAt(Instant.now())
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doNothing().when(accountValidator).validateClose(account);
             when(accountHelper.saveAccount(any(Account.class))).thenReturn(closedAccount);
             when(accountMapper.toViewDto(closedAccount)).thenReturn(accountViewDto);
@@ -328,7 +329,7 @@ class AccountServiceTest {
             AccountViewDto result = accountService.closeAccount(accountId);
 
             assertEquals(accountViewDto, result);
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateClose(account);
             verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(closedAccount);
@@ -344,12 +345,12 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doThrow(new AccountOperationConflictException("Cannot close account with non-zero balance"))
                     .when(accountValidator).validateClose(account);
 
             assertThrows(AccountOperationConflictException.class, () -> accountService.closeAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateClose(account);
         }
 
@@ -363,12 +364,12 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doThrow(new AccountAlreadyClosedException("Cannot modify closed account"))
                     .when(accountValidator).validateClose(account);
 
             assertThrows(AccountAlreadyClosedException.class, () -> accountService.closeAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateClose(account);
         }
     }
@@ -408,7 +409,7 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doNothing().when(accountValidator).validateUnblock(account);
             when(accountHelper.saveAccount(any(Account.class))).thenReturn(unblockedAccount);
             when(accountMapper.toViewDto(unblockedAccount)).thenReturn(accountViewDto);
@@ -416,7 +417,7 @@ class AccountServiceTest {
             AccountViewDto result = accountService.unblockAccount(accountId);
 
             assertEquals(accountViewDto, result);
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateUnblock(account);
             verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(unblockedAccount);
@@ -432,12 +433,12 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doThrow(new AccountOperationConflictException("Account is not blocked, cannot unblock"))
                     .when(accountValidator).validateUnblock(account);
 
             assertThrows(AccountOperationConflictException.class, () -> accountService.unblockAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateUnblock(account);
         }
 
@@ -451,13 +452,52 @@ class AccountServiceTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            when(accountHelper.getAccountById(accountId)).thenReturn(account);
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
             doThrow(new AccountAlreadyClosedException("Cannot modify closed account"))
                     .when(accountValidator).validateUnblock(account);
 
             assertThrows(AccountAlreadyClosedException.class, () -> accountService.unblockAccount(accountId));
-            verify(accountHelper).getAccountById(accountId);
+            verify(accountRepository).findById(accountId);
             verify(accountValidator).validateUnblock(account);
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты для метода getAccountById")
+    class GetAccountByIdTests {
+
+        @Test
+        @DisplayName("Успешное получение счета по ID")
+        void givenValidId_WhenGetAccountById_ThenReturnsAccount() {
+            Long accountId = 1L;
+            Account account = Account.builder()
+                    .id(accountId)
+                    .accountNumber("1234567890123456")
+                    .ownerType(OwnerType.USER)
+                    .ownerId(1L)
+                    .accountType(AccountType.PERSONAL_SETTLEMENT)
+                    .currency(Currency.USD)
+                    .accountStatus(AccountStatus.ACTIVE)
+                    .build();
+
+            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+            Account result = accountService.getAccountById(accountId);
+
+            assertEquals(account, result);
+            verify(accountRepository).findById(accountId);
+        }
+
+        @Test
+        @DisplayName("Получение счета с несуществующим ID")
+        void givenInvalidId_WhenGetAccountById_ThenThrowsNotFoundException() {
+            Long accountId = 999L;
+            when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+
+            AccountNotFoundException exception = assertThrows(AccountNotFoundException.class,
+                    () -> accountService.getAccountById(accountId));
+            assertEquals("Account not found with id: 999", exception.getMessage());
+            verify(accountRepository).findById(accountId);
         }
     }
 }

@@ -1,11 +1,12 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
+import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
-import faang.school.accountservice.service.account.AccountHelper;
+import faang.school.accountservice.service.account.AccountService;
 import faang.school.accountservice.validation.BalanceValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 @Slf4j
 public class BalanceService {
-    private final AccountHelper accountHelper;
+    private final AccountService accountService;
     private final BalanceHelper balanceHelper;
     private final BalanceValidator balanceValidator;
     private final BalanceRepository balanceRepository;
@@ -31,7 +32,7 @@ public class BalanceService {
      */
     @Transactional
     public void createBalanceForAccount(Long accountId) {
-        Account account = accountHelper.getAccountById(accountId);
+        Account account = accountService.getAccountById(accountId);
         Balance balance = new Balance();
         balance.setAccount(account);
         balanceRepository.save(balance);
@@ -93,7 +94,7 @@ public class BalanceService {
      * @return DTO с представлением баланса
      */
     public BalanceViewDto getBalance(Long accountId) {
-        Balance balance = balanceHelper.getBalance(accountId);
+        Balance balance = getBalanceEntity(accountId);
         log.debug("Balance retrieved for account: {}", accountId);
         return balanceMapper.toViewDto(balance);
     }
@@ -110,5 +111,14 @@ public class BalanceService {
             balance.deposit(amount);
             log.debug("Deposited {} to account ID: {}", amount, accountId);
         });
+    }
+
+    public Balance getBalanceEntity(Long accountId) {
+        return balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> {
+                    log.error("Account not found for authorization. Account ID: {}", accountId);
+                    return new AccountNotFoundException(
+                            String.format("Account not found with ID: %d", accountId));
+                });
     }
 }
