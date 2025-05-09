@@ -7,3 +7,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__create_free_account_numbers.sql
   - include:
       file: db/changelog/changeset/V004__create_account_numbers_sequence.sql
+  - include:
+      file: db/changelog/changeset/V005__add_context_and_scheduled_at_to_requests.sql
+  - include:
+      file: db/changelog/changeset/V006__create_request_task.sql

@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -70,4 +72,13 @@ public class Request {
     @Version
     @Column(name = "version", nullable = false)
     private int version;
+
+    @Column(name = "context")
+    private String context;
+
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduled_at;
+
+    @OneToMany(mappedBy = "request")
+    private List<RequestTask> tasks;
 }
