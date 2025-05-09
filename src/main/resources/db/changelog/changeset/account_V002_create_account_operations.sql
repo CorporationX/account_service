@@ -13,7 +13,7 @@ CREATE TABLE account_operations(
     CHECK(operation_type IN ('AUTHORIZATION', 'CLEARING', 'CANCELLATION')),
 
     operation_status VARCHAR(20) NOT NULL
-    CHECK(operation_status IN ('PENDING', 'COMPLETED', 'FAILED')),
+    CHECK(operation_status IN ('COMPLETED', 'FAILED')),
 
     error_message VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),

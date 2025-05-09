@@ -4,9 +4,7 @@ import faang.school.accountservice.entity.AccountNumberSequence;
 import faang.school.accountservice.enums.CardType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountNumberSequence, String> {
 
     @Query(nativeQuery = true, value = """

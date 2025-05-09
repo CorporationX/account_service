@@ -5,12 +5,10 @@ import faang.school.accountservice.dto.OperationType;
 import faang.school.accountservice.model.AccountOperation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public interface AccountOperationRepository extends JpaRepository<AccountOperation, UUID> {
 
     boolean existsByPaymentOperationId(UUID paymentOperationId);

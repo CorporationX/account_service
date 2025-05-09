@@ -14,6 +14,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,26 +37,19 @@ public class AccountOperationService {
 
     @Transactional
     public void processAuthorization(@NotNull @Valid AuthorizationMessage message) {
-        if (accountOperationRepository.existsByPaymentOperationId(message.getOperationId())) {
+        UUID operationId = message.getOperationId();
+        if (accountOperationRepository.existsByPaymentOperationId(operationId)) {
             log.debug("Authorization operation with id {} has already been processed.", message.getOperationId());
             return;
         }
 
         AccountOperation operation =
                 accountOperationMapper.authMessageToAccountOperation(message);
-        try {
-            operation.setOperationStatus(OperationStatus.COMPLETED);
 
-            balanceService.reserveFounds(operation);
-
-            accountOperationRepository.save(operation);
-        } catch (Exception e) {
-            log.debug("Authorization {} has failed with exception {}", message.getOperationId(), e.getMessage());
-            operation.setOperationStatus(OperationStatus.FAILED);
-            operation.setErrorMessage(e.getMessage());
-
-            accountOperationRepository.save(operation);
-        }
+        processOperation(operation,
+                operationId,
+                OperationType.AUTHORIZATION,
+                () -> balanceService.reserveFounds(operation));
     }
 
     @Transactional
@@ -67,24 +63,16 @@ public class AccountOperationService {
         if (accountOperationRepository
                 .existsByPaymentOperationIdAndOperationType(operationId, OperationType.CLEARING)) {
             log.debug("Clearing operation with id {} has already been processed.", operationId);
+            return;
         }
 
         AccountOperation operation =
                 accountOperationMapper.cloneOperation(authOperation, operationId);
-        try {
-            operation.setOperationType(OperationType.CLEARING);
 
-            operation = accountOperationRepository.save(operation);
-
-            balanceService.clearBalance(operation);
-        } catch (Exception e) {
-            log.debug("Clearing operation {} has failed with exception {}", operationId, e.getMessage());
-            operation.setOperationType(OperationType.CLEARING);
-            operation.setOperationStatus(OperationStatus.FAILED);
-            operation.setErrorMessage(e.getMessage());
-
-            accountOperationRepository.save(operation);
-        }
+        processOperation(operation,
+                operationId,
+                OperationType.CLEARING,
+                () -> balanceService.clearBalance(operation));
     }
 
     @Transactional
@@ -95,26 +83,20 @@ public class AccountOperationService {
                 .findAuthOperation(message.getAuthorizationId(), OperationType.AUTHORIZATION, OperationStatus.COMPLETED)
                 .orElseThrow(() -> new OperationNotFound("The operation has not found."));
 
-        if (accountOperationRepository.existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION)) {
+        if (accountOperationRepository.
+                existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION)) {
             log.debug("Cancel operation with id {} has already been processed.", operationId);
+            return;
+
         }
 
         AccountOperation operation =
                 accountOperationMapper.cloneOperation(authOperation, operationId);
-        try {
-            operation.setOperationType(OperationType.CANCELLATION);
 
-            operation = accountOperationRepository.save(operation);
-
-            balanceService.cancelBalance(operation);
-        } catch (Exception e) {
-            log.debug("Cancelling operation {} has failed with exception {}", operationId, e.getMessage());
-            operation.setOperationType(OperationType.CANCELLATION);
-            operation.setOperationStatus(OperationStatus.FAILED);
-            operation.setErrorMessage(e.getMessage());
-
-            accountOperationRepository.save(operation);
-        }
+        processOperation(operation,
+                operationId,
+                OperationType.CANCELLATION,
+                () -> balanceService.cancelBalance(operation));
     }
 
     public AccountOperationResponse getOperation(@NotNull UUID operationId) {
@@ -127,5 +109,33 @@ public class AccountOperationService {
         String message = operation.getErrorMessage();
 
         return new AccountOperationResponse(id, status, type, message);
+    }
+
+    @Retryable(
+            retryFor = {RuntimeException.class},
+            backoff = @Backoff(delay = 1000),
+            maxAttempts = 3
+    )
+    private void processOperation(AccountOperation operation,
+                                  UUID operationId,
+                                  OperationType operationType,
+                                  Runnable balanceOperation) {
+        operation.setOperationType(operationType);
+        operation.setOperationStatus(OperationStatus.COMPLETED);
+        accountOperationRepository.save(operation);
+
+        balanceOperation.run();
+    }
+
+    @Recover
+    private void recoverOperationFailure(Exception e,
+                                         AccountOperation operation,
+                                         UUID operationId,
+                                         OperationType operationType,
+                                         Runnable balanceOperation) {
+        log.error("{} operation {} has failed with exception {}", operationType, operationId, e.getMessage());
+        operation.setOperationStatus(OperationStatus.FAILED);
+        operation.setErrorMessage(e.getMessage());
+        accountOperationRepository.save(operation);
     }
 }
