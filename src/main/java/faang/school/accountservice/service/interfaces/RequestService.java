@@ -9,7 +9,7 @@ import java.util.function.Function;
 public interface RequestService {
 
     <T> T processRequest(
-            UUID idempotencyToken,
+            String idempotencyToken,
             Long userId,
             RequestType type,
             String lockKey,
