@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.AccountRequestDto;
-import faang.school.accountservice.dto.AccountResponseDto;
+import faang.school.accountservice.dto.account.AccountRequestDto;
+import faang.school.accountservice.dto.account.AccountResponseDto;
 
 public interface AccountService {
     AccountResponseDto getAccount(String accountNumber);
