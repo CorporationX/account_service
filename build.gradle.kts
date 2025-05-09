@@ -24,6 +24,7 @@ dependencies {
     implementation("org.springframework.retry:spring-retry:2.0.2")
     implementation("org.aspectj:aspectjweaver:1.9.20")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
