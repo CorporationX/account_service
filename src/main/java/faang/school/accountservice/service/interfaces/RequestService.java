@@ -3,7 +3,7 @@ package faang.school.accountservice.service.interfaces;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestType;
 
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public interface RequestService {
@@ -13,7 +13,7 @@ public interface RequestService {
             Long userId,
             RequestType type,
             String lockKey,
-            Object input,
+            Map<String, Object> input,
             Function<Request, T> handler
     );
 }

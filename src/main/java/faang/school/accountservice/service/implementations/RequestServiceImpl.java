@@ -30,7 +30,7 @@ public class RequestServiceImpl implements RequestService {
             Long userId,
             RequestType type,
             String lockKey,
-            Object input,
+            Map<String, Object> input,
             Function<Request, T> handler
     ) {
         Request request = requestRepository.findById(idempotencyToken)
