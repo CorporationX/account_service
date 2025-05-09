@@ -5,18 +5,17 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,18 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты для AccountHelper")
+@SpringBootTest
 class AccountHelperTest {
 
-    @Mock
+    @MockBean
     private AccountRepository accountRepository;
 
-    @InjectMocks
+    @Autowired
     private AccountHelper accountHelper;
 
     @Nested
@@ -117,7 +114,7 @@ class AccountHelperTest {
 
             IllegalStateException exception = assertThrows(IllegalStateException.class,
                     () -> accountHelper.generateAccountNumber());
-            assertEquals("Не удалось сгенерировать уникальный номер счёта", exception.getMessage());
+            assertEquals("Failed to generate unique account number", exception.getMessage());
             verify(accountRepository, times(11)).existsByAccountNumber(any(String.class));
         }
     }
@@ -138,11 +135,10 @@ class AccountHelperTest {
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
-            String errorMessage = "Failed to save the account";
 
             when(accountRepository.save(account)).thenReturn(account);
 
-            Account result = accountHelper.saveAccount(account, errorMessage);
+            Account result = accountHelper.saveAccount(account);
 
             assertEquals(account, result);
             verify(accountRepository).save(account);
@@ -155,16 +151,19 @@ class AccountHelperTest {
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
+                    .version(1)
                     .build();
-            String errorMessage = "Failed to save the account";
 
             when(accountRepository.save(account))
                     .thenThrow(new ObjectOptimisticLockingFailureException("Optimistic locking failure", null));
 
-            AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
-                    () -> accountHelper.saveAccount(account, errorMessage));
-            assertEquals(errorMessage, exception.getMessage());
-            verify(accountRepository).save(account);
+            assertThrows(
+                    ObjectOptimisticLockingFailureException.class,
+                    () -> accountHelper.saveAccount(account),
+                    "Ожидалось, что будет выброшен ObjectOptimisticLockingFailureException"
+            );
+
+            verify(accountRepository, times(5)).save(account);
         }
     }
 }

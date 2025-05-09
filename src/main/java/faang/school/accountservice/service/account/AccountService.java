@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,7 @@ public class AccountService {
      *
      * @param accountId идентификатор счета
      * @return данные счета в формате {@link AccountViewDto}
-     * @throws AccountNotFoundException AccountNo если счет не найден
+     * @throws AccountNotFoundException если счет не найден
      */
     @Transactional(readOnly = true)
     public AccountViewDto getAccount(Long accountId) {
@@ -76,8 +77,7 @@ public class AccountService {
         account.setAccountNumber(accountNumber);
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setVersion(0);
-
-        Account savedAccount = accountHelper.saveAccount(account, "Failed to save the account");
+        Account savedAccount = accountHelper.saveAccount(account);
         balanceService.createBalanceForAccount(savedAccount.getId());
         return accountMapper.toViewDto(savedAccount);
     }
@@ -140,7 +140,13 @@ public class AccountService {
         accountValidator.validateStatus(account, newStatus);
         account.setAccountStatus(newStatus);
         Optional.ofNullable(closedAt).ifPresent(account::setClosedAt);
-        Account updatedAccount = accountHelper.saveAccount(account, "Failed to update account status");
-        return accountMapper.toViewDto(updatedAccount);
+
+        try {
+            Account updatedAccount = accountHelper.saveAccount(account);
+            return accountMapper.toViewDto(updatedAccount);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            log.error("Optimistic lock failed after retries for account {}", account.getId(), ex);
+            throw new AccountOperationConflictException("Could not update account due to concurrent modifications");
+        }
     }
 }

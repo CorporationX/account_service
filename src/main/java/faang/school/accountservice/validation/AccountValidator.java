@@ -6,7 +6,7 @@ import faang.school.accountservice.exception.AccountAlreadyClosedException;
 import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.service.balance.BalanceService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ import java.math.BigDecimal;
  */
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AccountValidator {
     private final BalanceService balanceService;
 
@@ -45,10 +45,7 @@ public class AccountValidator {
      */
     public void validateBlock(Account account) {
         validateNotClosed(account);
-        if (account.getAccountStatus() == AccountStatus.BLOCKED) {
-            log.error("Account ID {} is already blocked", account.getId());
-            throw new AccountOperationConflictException("Account is already blocked");
-        }
+        validateStatus(account, AccountStatus.BLOCKED);
     }
 
     /**
@@ -90,9 +87,6 @@ public class AccountValidator {
      * @throws AccountAlreadyClosedException если счет закрыт
      */
     public void validateNotClosed(Account account) {
-        if (account.getAccountStatus() == AccountStatus.CLOSED) {
-            log.error("Attempt to modify closed account with ID: {}", account.getId());
-            throw new AccountAlreadyClosedException("Cannot modify closed account");
-        }
+        validateStatus(account, AccountStatus.CLOSED);
     }
 }

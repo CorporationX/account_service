@@ -5,9 +5,10 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.exception.AccountAlreadyClosedException;
 import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.account.AccountHelper;
 import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,6 +28,12 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты для AccountValidator")
 class AccountValidatorTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
+    private AccountHelper accountHelper;
 
     @Mock
     private BalanceService balanceService;
@@ -96,7 +103,7 @@ class AccountValidatorTest {
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateBlock(account));
-            assertEquals("Account is already blocked", exception.getMessage());
+            assertEquals("Account is already in the requested state", exception.getMessage());
         }
 
         @Test
@@ -108,9 +115,9 @@ class AccountValidatorTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            AccountAlreadyClosedException exception = assertThrows(AccountAlreadyClosedException.class,
+            AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateBlock(account));
-            assertEquals("Cannot modify closed account", exception.getMessage());
+            assertEquals("Account is already in the requested state", exception.getMessage());
         }
     }
 
@@ -157,9 +164,9 @@ class AccountValidatorTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            AccountAlreadyClosedException exception = assertThrows(AccountAlreadyClosedException.class,
+            AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateUnblock(account));
-            assertEquals("Cannot modify closed account", exception.getMessage());
+            assertEquals("Account is already in the requested state", exception.getMessage());
         }
     }
 
@@ -208,9 +215,9 @@ class AccountValidatorTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            AccountAlreadyClosedException exception = assertThrows(AccountAlreadyClosedException.class,
+            AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateClose(account));
-            assertEquals("Cannot modify closed account", exception.getMessage());
+            assertEquals("Account is already in the requested state", exception.getMessage());
         }
     }
 
@@ -239,9 +246,9 @@ class AccountValidatorTest {
                     .accountStatus(AccountStatus.CLOSED)
                     .build();
 
-            AccountAlreadyClosedException exception = assertThrows(AccountAlreadyClosedException.class,
+            AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateNotClosed(account));
-            assertEquals("Cannot modify closed account", exception.getMessage());
+            assertEquals("Account is already in the requested state", exception.getMessage());
         }
     }
 }

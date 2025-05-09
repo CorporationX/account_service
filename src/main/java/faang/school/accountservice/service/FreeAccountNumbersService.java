@@ -1,0 +1,115 @@
+package faang.school.accountservice.service;
+
+import faang.school.accountservice.dto.FreeAccountDto;
+import faang.school.accountservice.entity.AccountNumberSequence;
+import faang.school.accountservice.entity.FreeAccountNumber;
+import faang.school.accountservice.entity.FreeAccountNumberId;
+import faang.school.accountservice.enums.CardType;
+import faang.school.accountservice.exception.FreeAccountNumberException;
+import faang.school.accountservice.exception.InvalidBatchSizeException;
+import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
+import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+
+/**
+ * Сервис длы работы с банковскими картами
+ */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class FreeAccountNumbersService {
+    private final FreeAccountNumbersRepository freeAccountNumbersRepository;
+    private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
+    private final Object lock = new Object();
+
+    /**
+     * Инициализирует дефолтное значение для каждого CardType если оно еще не проинициализировано в базе.
+     */
+    public void initCards() {
+        List<AccountNumberSequence> notExistedAccounts = Arrays.stream(CardType.values())
+                .filter(cardType ->
+                        !accountNumbersSequenceRepository.existsAccountNumberSequenceByType(cardType))
+                .map(cardType -> new AccountNumberSequence(cardType, 0L))
+                .toList();
+
+        if (notExistedAccounts.isEmpty()) {
+            log.debug("All card type already initialised");
+            return;
+        }
+
+        List<AccountNumberSequence> createdAccounts = accountNumbersSequenceRepository.saveAll(notExistedAccounts);
+        log.debug("New card types initialised: {}",
+                createdAccounts.stream().map(AccountNumberSequence::getType).toList());
+
+    }
+
+    /**
+     * Метод для автогенерации новых уникальных номеров карт
+     *
+     * @param type      Тип карты для которого будут сгенерированы новые карты
+     * @param batchSize Кол-во карт для генерации
+     */
+    @Transactional
+    public void generateAccountNumbersForType(@NotNull CardType type, int batchSize) {
+        log.debug("Start generating accountNumbers for card type {}", type);
+
+        if (batchSize <= 0) {
+            throw new InvalidBatchSizeException("Batch size must be greater than 0");
+        }
+
+        AccountNumberSequence numberSequence = accountNumbersSequenceRepository.incrementAndGet(type.name(), batchSize);
+
+        long currentSequenceNumber = numberSequence.getCount();
+        long previousSequenceNumber = currentSequenceNumber - batchSize;
+
+        log.debug("Card will be generated from: {} to: {}", previousSequenceNumber, currentSequenceNumber);
+
+        List<FreeAccountNumber> generatedFreeAccountNumbers =
+                generateAccountNumbersForType(type, previousSequenceNumber, currentSequenceNumber);
+        freeAccountNumbersRepository.saveAll(generatedFreeAccountNumbers);
+
+        log.debug("Finished generating accountNumbers for card type {}", type);
+    }
+
+
+    /**
+     * Выдает свободный номер карты
+     *
+     * @param type     Тип карты
+     * @param function Функция обработчик
+     * @return Уникальный номер карты для типа
+     */
+    @Transactional
+    public FreeAccountDto getFreeAccountForType(@NotNull CardType type,
+                                                @NotNull Function<FreeAccountNumber, FreeAccountDto> function) {
+        synchronized (lock) {
+            FreeAccountNumber freeAccountNumber = freeAccountNumbersRepository.getFreeAccount(type.name())
+                    .orElseGet(() -> {
+                        generateAccountNumbersForType(type, 1);
+                        return freeAccountNumbersRepository.getFreeAccount(type.name())
+                                .orElseThrow(() ->
+                                        new FreeAccountNumberException("Can't generate card number for type " + type));
+                    });
+            return function.apply(freeAccountNumber);
+        }
+    }
+
+    private List<FreeAccountNumber> generateAccountNumbersForType(@NotNull CardType type, long from, long to) {
+        List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
+        for (long i = from; i < to; i++) {
+            FreeAccountNumberId accountId = new FreeAccountNumberId(type, type.getCardPattern() + i);
+            FreeAccountNumber accountNumber = new FreeAccountNumber(accountId);
+            freeAccountNumbers.add(accountNumber);
+        }
+        return freeAccountNumbers;
+    }
+}
