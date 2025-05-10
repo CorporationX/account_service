@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RequestResponseDto {
+public class RequestInfoDto {
 
     private UUID idempotencyKey;
     private Long userId;

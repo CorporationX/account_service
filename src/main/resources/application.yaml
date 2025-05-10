@@ -5,6 +5,13 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        request_status_notification: request_status_notification_channel
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -13,13 +20,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-  data:
-    redis:
-      port: 6379
-      host: localhost
-      channels:
-        request_status_notification: request_status_notification_channel
 
   task:
     scheduling:
@@ -64,4 +64,13 @@ scheduler:
 
 
 account-service:
-  process-request-cron: "0 */5 * * * *"
+  process-request-cron: "*/30 * * * * *"
+
+payment-service:
+  api-url: http://localhost:9080
+
+retry:
+  payment:
+    max-attempts: 3
+    initial-delay: 1000
+    multiplier: 2

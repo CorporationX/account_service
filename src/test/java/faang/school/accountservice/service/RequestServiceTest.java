@@ -2,7 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.request.RequestCreateDto;
-import faang.school.accountservice.dto.request.RequestResponseDto;
+import faang.school.accountservice.dto.request.RequestInfoDto;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.exception.DuplicateIdempotencyKeyException;
 import faang.school.accountservice.exception.LockedRequestException;
@@ -11,7 +11,6 @@ import faang.school.accountservice.publisher.EventPublisher;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.service.handler.RequestHandler;
 import faang.school.accountservice.service.handler.RequestHandlerFactory;
-import faang.school.accountservice.service.impl.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,12 +27,11 @@ import static faang.school.accountservice.enums.RequestStatus.TODO;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RequestServiceImplTest {
+class RequestServiceTest {
 
     @Mock
     private RequestRepository requestRepository;
@@ -54,12 +52,12 @@ class RequestServiceImplTest {
     private UserContext userContext;
 
     @InjectMocks
-    private RequestServiceImpl requestService;
+    private RequestService requestService;
 
 
     private RequestCreateDto requestCreateDto;
     private Request request;
-    private RequestResponseDto requestResponseDto;
+    private RequestInfoDto requestInfoDto;
     private final Long USER_ID = 1L;
 
     @BeforeEach
@@ -73,7 +71,7 @@ class RequestServiceImplTest {
         request.setRequestStatus(TODO);
         request.setOpen(true);
 
-        requestResponseDto = new RequestResponseDto();
+        requestInfoDto = new RequestInfoDto();
     }
 
     @Test
@@ -81,12 +79,12 @@ class RequestServiceImplTest {
         when(userContext.getUserId()).thenReturn(1L);
         when(requestMapper.toEntity(requestCreateDto)).thenReturn(request);
         when(requestRepository.save(any())).thenReturn(request);
-        when(requestMapper.toDto(request)).thenReturn(requestResponseDto);
+        when(requestMapper.toDto(request)).thenReturn(requestInfoDto);
 
-        RequestResponseDto result = requestService.createRequest(requestCreateDto);
+        RequestInfoDto result = requestService.createRequest(requestCreateDto);
 
         assertNotNull(result);
-        verify(requestRepository, times(1)).save(request);
+        verify(requestRepository).save(request);
     }
 
     @Test
@@ -133,8 +131,8 @@ class RequestServiceImplTest {
 
         requestService.updateRequest(request);
 
-        verify(requestRepository, times(1)).save(request);
-        verify(eventPublisher, times(1)).publish(request);
+        verify(requestRepository).save(request);
+        verify(eventPublisher).publish(request);
     }
 
     @Test
@@ -147,7 +145,7 @@ class RequestServiceImplTest {
 
         requestService.processRequests();
 
-        verify(requestHandler, times(1)).handle(request);
-        verify(requestRepository, times(1)).save(request);
+        verify(requestHandler).handle(request);
+        verify(requestRepository).save(request);
     }
 }

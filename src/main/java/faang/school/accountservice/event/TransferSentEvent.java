@@ -1,16 +1,22 @@
 package faang.school.accountservice.event;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TransferSentEvent extends Event {
 
     private Long senderId;
-    private Long receiverId;
+    private Long recipientId;
 }

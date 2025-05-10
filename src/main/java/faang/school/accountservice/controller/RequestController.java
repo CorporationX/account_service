@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.request.RequestCreateDto;
-import faang.school.accountservice.dto.request.RequestResponseDto;
+import faang.school.accountservice.dto.request.RequestInfoDto;
 import faang.school.accountservice.service.RequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +25,12 @@ public class RequestController {
     private final RequestService requestService;
 
     @PostMapping
-    public ResponseEntity<RequestResponseDto> createRequest(@Valid @RequestBody RequestCreateDto dto) {
+    public ResponseEntity<RequestInfoDto> createRequest(@Valid @RequestBody RequestCreateDto dto) {
         return ResponseEntity.ok(requestService.createRequest(dto));
     }
 
     @GetMapping("/{idempotencyKey}")
-    public ResponseEntity<RequestResponseDto> getRequest(@PathVariable UUID idempotencyKey) throws AccessDeniedException {
+    public ResponseEntity<RequestInfoDto> getRequest(@PathVariable UUID idempotencyKey) throws AccessDeniedException {
         return ResponseEntity.ok(requestService.getRequest(idempotencyKey));
     }
 

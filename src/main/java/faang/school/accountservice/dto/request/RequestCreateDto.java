@@ -4,12 +4,14 @@ import faang.school.accountservice.enums.RequestType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Map;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,7 +23,9 @@ public class RequestCreateDto {
     @NotNull
     private RequestType requestType;
 
+    @NotNull
     private Map<String, Object> inputData;
 
     private String description;
+
 }
