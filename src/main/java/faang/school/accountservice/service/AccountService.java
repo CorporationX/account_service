@@ -5,7 +5,7 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.exception.NotFoundException;
+import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
@@ -86,7 +86,7 @@ public class AccountService {
     private Account getAccountById(long id) {
         Optional<Account> account = accountRepository.findById(id);
         if (account.isEmpty()) {
-            throw new NotFoundException("Account not found");
+            throw new AccountNotFoundException("Account not found");
         }
         return account.get();
     }

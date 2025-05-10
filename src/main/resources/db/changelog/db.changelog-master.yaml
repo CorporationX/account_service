@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V001__account-service_account.sql
             db/changelog/changeset/V001_create-balance-table.sql
             db/changelog/changeset/V001_create-transactions-table.sql
+  - include:
+      file: db/changelog/changeset/V002__add_tables_link_savings_account.sql
