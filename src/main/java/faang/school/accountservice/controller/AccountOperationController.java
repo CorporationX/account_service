@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountOperationResponse;
-import faang.school.accountservice.service.AccountOperationService;
+import faang.school.accountservice.service.account.AccountOperationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;

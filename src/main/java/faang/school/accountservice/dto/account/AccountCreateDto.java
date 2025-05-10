@@ -1,7 +1,7 @@
 package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.dto.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

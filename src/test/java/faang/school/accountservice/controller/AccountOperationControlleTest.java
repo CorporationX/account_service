@@ -5,7 +5,7 @@ import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.AccountOperationResponse;
 import faang.school.accountservice.dto.OperationStatus;
 import faang.school.accountservice.dto.OperationType;
-import faang.school.accountservice.service.AccountOperationService;
+import faang.school.accountservice.service.account.AccountOperationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

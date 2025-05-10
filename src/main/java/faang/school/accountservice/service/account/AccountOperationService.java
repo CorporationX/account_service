@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.dto.AccountOperationResponse;
 import faang.school.accountservice.dto.OperationStatus;
@@ -10,13 +10,11 @@ import faang.school.accountservice.exception.OperationNotFound;
 import faang.school.accountservice.mapper.AccountOperationMapper;
 import faang.school.accountservice.model.AccountOperation;
 import faang.school.accountservice.repository.AccountOperationRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +32,7 @@ public class AccountOperationService {
     private final AccountOperationRepository accountOperationRepository;
     private final AccountOperationMapper accountOperationMapper;
     private final BalanceService balanceService;
+    private final OperationProcessor operationProcessor;
 
     @Transactional
     public void processAuthorization(@NotNull @Valid AuthorizationMessage message) {
@@ -46,7 +45,7 @@ public class AccountOperationService {
         AccountOperation operation =
                 accountOperationMapper.authMessageToAccountOperation(message);
 
-        processOperation(operation,
+        operationProcessor.processOperation(operation,
                 operationId,
                 OperationType.AUTHORIZATION,
                 () -> balanceService.reserveFounds(operation));
@@ -69,7 +68,7 @@ public class AccountOperationService {
         AccountOperation operation =
                 accountOperationMapper.cloneOperation(authOperation, operationId);
 
-        processOperation(operation,
+        operationProcessor.processOperation(operation,
                 operationId,
                 OperationType.CLEARING,
                 () -> balanceService.clearBalance(operation));
@@ -93,7 +92,7 @@ public class AccountOperationService {
         AccountOperation operation =
                 accountOperationMapper.cloneOperation(authOperation, operationId);
 
-        processOperation(operation,
+        operationProcessor.processOperation(operation,
                 operationId,
                 OperationType.CANCELLATION,
                 () -> balanceService.cancelBalance(operation));
@@ -109,33 +108,5 @@ public class AccountOperationService {
         String message = operation.getErrorMessage();
 
         return new AccountOperationResponse(id, status, type, message);
-    }
-
-    @Retryable(
-            retryFor = {RuntimeException.class},
-            backoff = @Backoff(delay = 1000),
-            maxAttempts = 3
-    )
-    private void processOperation(AccountOperation operation,
-                                  UUID operationId,
-                                  OperationType operationType,
-                                  Runnable balanceOperation) {
-        operation.setOperationType(operationType);
-        operation.setOperationStatus(OperationStatus.COMPLETED);
-        accountOperationRepository.save(operation);
-
-        balanceOperation.run();
-    }
-
-    @Recover
-    private void recoverOperationFailure(Exception e,
-                                         AccountOperation operation,
-                                         UUID operationId,
-                                         OperationType operationType,
-                                         Runnable balanceOperation) {
-        log.error("{} operation {} has failed with exception {}", operationType, operationId, e.getMessage());
-        operation.setOperationStatus(OperationStatus.FAILED);
-        operation.setErrorMessage(e.getMessage());
-        accountOperationRepository.save(operation);
     }
 }

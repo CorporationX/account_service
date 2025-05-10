@@ -6,6 +6,8 @@ import faang.school.accountservice.exception.EntityNotFound;
 import faang.school.accountservice.model.AccountOperation;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.service.balance.BalanceAuditService;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validation.BalanceValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

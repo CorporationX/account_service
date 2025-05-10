@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.exception.EntityNotFound;
 import faang.school.accountservice.model.AccountOperation;

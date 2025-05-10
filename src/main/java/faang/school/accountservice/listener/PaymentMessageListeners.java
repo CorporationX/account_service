@@ -3,7 +3,7 @@ package faang.school.accountservice.listener;
 import faang.school.accountservice.dto.message.AuthorizationMessage;
 import faang.school.accountservice.dto.message.CancellationMessage;
 import faang.school.accountservice.dto.message.ClearingMessage;
-import faang.school.accountservice.service.AccountOperationService;
+import faang.school.accountservice.service.account.AccountOperationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

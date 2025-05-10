@@ -11,6 +11,9 @@ import faang.school.accountservice.exception.OperationNotFound;
 import faang.school.accountservice.mapper.AccountOperationMapper;
 import faang.school.accountservice.model.AccountOperation;
 import faang.school.accountservice.repository.AccountOperationRepository;
+import faang.school.accountservice.service.account.AccountOperationService;
+import faang.school.accountservice.service.account.OperationProcessor;
+import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,6 +47,9 @@ class AccountOperationServiceTest {
 
     @Mock
     private BalanceService balanceService;
+
+    @Mock
+    private OperationProcessor operationProcessor;
 
     @InjectMocks
     private AccountOperationService accountOperationService;
@@ -104,15 +110,17 @@ class AccountOperationServiceTest {
 
             when(accountOperationRepository.existsByPaymentOperationId(paymentOperationId)).thenReturn(false);
             when(accountOperationMapper.authMessageToAccountOperation(authorizationMessage)).thenReturn(operation);
-            when(accountOperationRepository.save(any(AccountOperation.class))).thenReturn(operation);
 
             accountOperationService.processAuthorization(authorizationMessage);
 
             verify(accountOperationRepository, times(1)).existsByPaymentOperationId(paymentOperationId);
             verify(accountOperationMapper, times(1)).authMessageToAccountOperation(authorizationMessage);
-            verify(balanceService, times(1)).reserveFounds(operation);
-            verify(accountOperationRepository, times(1)).save(operation);
-            assertEquals(OperationStatus.COMPLETED, operation.getOperationStatus());
+            verify(operationProcessor, times(1)).processOperation(
+                    eq(operation),
+                    eq(paymentOperationId),
+                    eq(OperationType.AUTHORIZATION),
+                    any(Runnable.class)
+            );
         }
 
         @Test
@@ -123,29 +131,7 @@ class AccountOperationServiceTest {
 
             verify(accountOperationRepository, times(1)).existsByPaymentOperationId(paymentOperationId);
             verify(accountOperationMapper, never()).authMessageToAccountOperation(any());
-            verify(balanceService, never()).reserveFounds(any());
-            verify(accountOperationRepository, never()).save(any());
-        }
-
-        @Test
-        void givenReserveFoundsFailure_whenProcessAuthorization_thenOperationSavedAsFailed() {
-            AccountOperation operation = new AccountOperation();
-            operation.setId(UUID.randomUUID());
-            operation.setPaymentOperationId(paymentOperationId);
-
-            when(accountOperationRepository.existsByPaymentOperationId(paymentOperationId)).thenReturn(false);
-            when(accountOperationMapper.authMessageToAccountOperation(authorizationMessage)).thenReturn(operation);
-            doThrow(new RuntimeException("Insufficient funds")).when(balanceService).reserveFounds(operation);
-            when(accountOperationRepository.save(any(AccountOperation.class))).thenReturn(operation);
-
-            accountOperationService.processAuthorization(authorizationMessage);
-
-            verify(accountOperationRepository, times(1)).existsByPaymentOperationId(paymentOperationId);
-            verify(accountOperationMapper, times(1)).authMessageToAccountOperation(authorizationMessage);
-            verify(balanceService, times(1)).reserveFounds(operation);
-            verify(accountOperationRepository, times(1)).save(operation);
-            assertEquals(OperationStatus.FAILED, operation.getOperationStatus());
-            assertEquals("Insufficient funds", operation.getErrorMessage());
+            verify(operationProcessor, never()).processOperation(any(), any(), any(), any());
         }
     }
 
@@ -164,7 +150,6 @@ class AccountOperationServiceTest {
             when(accountOperationRepository.existsByPaymentOperationIdAndOperationType(operationId, OperationType.CLEARING))
                     .thenReturn(false);
             when(accountOperationMapper.cloneOperation(authOperation, operationId)).thenReturn(clearingOperation);
-            when(accountOperationRepository.save(any(AccountOperation.class))).thenReturn(clearingOperation);
 
             accountOperationService.processClearing(clearingMessage);
 
@@ -173,9 +158,12 @@ class AccountOperationServiceTest {
             verify(accountOperationRepository, times(1))
                     .existsByPaymentOperationIdAndOperationType(operationId, OperationType.CLEARING);
             verify(accountOperationMapper, times(1)).cloneOperation(authOperation, operationId);
-            verify(accountOperationRepository, times(1)).save(clearingOperation);
-            verify(balanceService, times(1)).clearBalance(clearingOperation);
-            assertEquals(OperationType.CLEARING, clearingOperation.getOperationType());
+            verify(operationProcessor, times(1)).processOperation(
+                    eq(clearingOperation),
+                    eq(operationId),
+                    eq(OperationType.CLEARING),
+                    any(Runnable.class)
+            );
         }
 
         @Test
@@ -190,35 +178,7 @@ class AccountOperationServiceTest {
                     .findAuthOperation(authorizationId, OperationType.AUTHORIZATION, OperationStatus.COMPLETED);
             verify(accountOperationRepository, never()).existsByPaymentOperationIdAndOperationType(any(), any());
             verify(accountOperationMapper, never()).cloneOperation(any(), any());
-            verify(balanceService, never()).clearBalance(any());
-            verify(accountOperationRepository, never()).save(any());
-        }
-
-        @Test
-        void givenClearBalanceFailure_whenProcessClearing_thenOperationSavedAsFailed() {
-            AccountOperation clearingOperation = new AccountOperation();
-            clearingOperation.setId(operationId);
-            clearingOperation.setOperationType(OperationType.CLEARING);
-
-            when(accountOperationRepository.findAuthOperation(authorizationId, OperationType.AUTHORIZATION, OperationStatus.COMPLETED))
-                    .thenReturn(Optional.of(authOperation));
-            when(accountOperationRepository.existsByPaymentOperationIdAndOperationType(operationId, OperationType.CLEARING))
-                    .thenReturn(false);
-            when(accountOperationMapper.cloneOperation(authOperation, operationId)).thenReturn(clearingOperation);
-            when(accountOperationRepository.save(any(AccountOperation.class))).thenReturn(clearingOperation);
-            doThrow(new RuntimeException("Insufficient funds")).when(balanceService).clearBalance(clearingOperation);
-
-            accountOperationService.processClearing(clearingMessage);
-
-            verify(accountOperationRepository, times(1))
-                    .findAuthOperation(authorizationId, OperationType.AUTHORIZATION, OperationStatus.COMPLETED);
-            verify(accountOperationRepository, times(1))
-                    .existsByPaymentOperationIdAndOperationType(operationId, OperationType.CLEARING);
-            verify(accountOperationMapper, times(1)).cloneOperation(authOperation, operationId);
-            verify(accountOperationRepository, times(2)).save(clearingOperation);
-            verify(balanceService, times(1)).clearBalance(clearingOperation);
-            assertEquals(OperationStatus.FAILED, clearingOperation.getOperationStatus());
-            assertEquals("Insufficient funds", clearingOperation.getErrorMessage());
+            verify(operationProcessor, never()).processOperation(any(), any(), any(), any());
         }
     }
 
@@ -237,7 +197,6 @@ class AccountOperationServiceTest {
             when(accountOperationRepository.existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION))
                     .thenReturn(false);
             when(accountOperationMapper.cloneOperation(authOperation, operationId)).thenReturn(cancellationOperation);
-            when(accountOperationRepository.save(any(AccountOperation.class))).thenReturn(cancellationOperation);
 
             accountOperationService.processCancellation(cancellationMessage);
 
@@ -246,9 +205,12 @@ class AccountOperationServiceTest {
             verify(accountOperationRepository, times(1))
                     .existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION);
             verify(accountOperationMapper, times(1)).cloneOperation(authOperation, operationId);
-            verify(accountOperationRepository, times(1)).save(cancellationOperation);
-            verify(balanceService, times(1)).cancelBalance(cancellationOperation);
-            assertEquals(OperationType.CANCELLATION, cancellationOperation.getOperationType());
+            verify(operationProcessor, times(1)).processOperation(
+                    eq(cancellationOperation),
+                    eq(operationId),
+                    eq(OperationType.CANCELLATION),
+                    any(Runnable.class)
+            );
         }
 
         @Test
@@ -263,35 +225,7 @@ class AccountOperationServiceTest {
                     .findAuthOperation(authorizationId, OperationType.AUTHORIZATION, OperationStatus.COMPLETED);
             verify(accountOperationRepository, never()).existsByPaymentOperationIdAndOperationType(any(), any());
             verify(accountOperationMapper, never()).cloneOperation(any(), any());
-            verify(balanceService, never()).cancelBalance(any());
-            verify(accountOperationRepository, never()).save(any());
-        }
-
-        @Test
-        void givenCancelBalanceFailure_whenProcessCancellation_thenOperationSavedAsFailed() {
-            AccountOperation cancellationOperation = new AccountOperation();
-            cancellationOperation.setId(operationId);
-            cancellationOperation.setOperationType(OperationType.CANCELLATION);
-
-            when(accountOperationRepository.findAuthOperation(authorizationId, OperationType.AUTHORIZATION, OperationStatus.COMPLETED))
-                    .thenReturn(Optional.of(authOperation));
-            when(accountOperationRepository.existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION))
-                    .thenReturn(false);
-            when(accountOperationMapper.cloneOperation(authOperation, operationId)).thenReturn(cancellationOperation);
-            when(accountOperationRepository.save(any(AccountOperation.class))).thenReturn(cancellationOperation);
-            doThrow(new RuntimeException("Insufficient funds")).when(balanceService).cancelBalance(cancellationOperation);
-
-            accountOperationService.processCancellation(cancellationMessage);
-
-            verify(accountOperationRepository, times(1))
-                    .findAuthOperation(authorizationId, OperationType.AUTHORIZATION, OperationStatus.COMPLETED);
-            verify(accountOperationRepository, times(1))
-                    .existsByPaymentOperationIdAndOperationType(operationId, OperationType.CANCELLATION);
-            verify(accountOperationMapper, times(1)).cloneOperation(authOperation, operationId);
-            verify(accountOperationRepository, times(2)).save(cancellationOperation);
-            verify(balanceService, times(1)).cancelBalance(cancellationOperation);
-            assertEquals(OperationStatus.FAILED, cancellationOperation.getOperationStatus());
-            assertEquals("Insufficient funds", cancellationOperation.getErrorMessage());
+            verify(operationProcessor, never()).processOperation(any(), any(), any(), any());
         }
     }
 
