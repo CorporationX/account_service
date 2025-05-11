@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    servlet:
+      path: /api/v1
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -16,6 +20,19 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+app:
+  service:
+    free-account-numbers: default
+
+account:
+  number:
+    prefixes:
+      DEBIT: 4200
+      SAVINGS: 5326
+    batch:
+      size: 500
+      fallback-size: 50
 
 server:
   port: 8090
