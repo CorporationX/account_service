@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changeset/account_V002__create_request_table.sql
   - include:
       file: db/changelog/changeset/account_V003_create_balance_table.sql
+  - include:
+      file: db/changelog/changeset/account_V004__create_account_numbers.sql
