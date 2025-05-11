@@ -1,7 +1,10 @@
 package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.DataConversionException;
 import faang.school.accountservice.exception.ErrorMessage;
+import faang.school.accountservice.exception.InvalidUserException;
+import faang.school.accountservice.exception.RequestNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
@@ -25,6 +28,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorMessage> handleIllegalState(IllegalStateException e) {
+        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
+    @ExceptionHandler(DataConversionException.class)
+    public ResponseEntity<ErrorMessage> handleConversation(DataConversionException e) {
+        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+    }
+
+    @ExceptionHandler(RequestNotFoundException.class)
+    public ResponseEntity<ErrorMessage> handleRequestNotFound(RequestNotFoundException e) {
+        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+    }
+
+    @ExceptionHandler(InvalidUserException.class)
+    public ResponseEntity<ErrorMessage> handleInvalidUser(InvalidUserException e) {
         ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }

@@ -128,7 +128,7 @@ public class AccountServiceImplTest {
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> accountService.blockAccount(accountId));
 
-        assertTrue(ex.getMessage().contains("Cannot block a closed account"));
+        assertTrue(ex.getMessage().contains("Cannot block an account that is already closed or frozen."));
     }
 
     @Test
