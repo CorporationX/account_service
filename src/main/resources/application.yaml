@@ -5,6 +5,10 @@ spring:
     username: user
     password: password
 
+  data:
+    jdbc:
+      repositories:
+        enabled: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
