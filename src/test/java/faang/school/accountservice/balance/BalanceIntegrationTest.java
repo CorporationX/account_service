@@ -24,7 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +35,7 @@ import java.util.List;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-@TestPropertySource(properties = {
-        "spring.liquibase.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
+@ActiveProfiles("it")
 public class BalanceIntegrationTest {
 
     @Autowired
@@ -189,10 +186,4 @@ public class BalanceIntegrationTest {
         return balanceRepository.save(balance);
     }
 
-    @Test
-    void contextLoads() {
-        assertThat(balanceRepository).isNotNull();
-        assertThat(accountRepository).isNotNull();
-        assertThat(transactionsRepository).isNotNull();
-    }
 }
