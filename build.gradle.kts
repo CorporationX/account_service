@@ -5,6 +5,7 @@ plugins {
     id("org.liquibase.gradle") version "2.2.0"
 }
 
+
 group = "faang.school"
 version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
