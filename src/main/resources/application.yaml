@@ -5,6 +5,13 @@ spring:
     username: user
     password: password
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        request_status_notification: request_status_notification_channel
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -13,6 +20,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  task:
+    scheduling:
+      pool:
+        size: 5
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -50,3 +62,15 @@ scheduler:
   cron-deposit: "0 0 0 * * *"
   cron-credit: "0 0 0 * * *"
 
+
+account-service:
+  process-request-cron: "*/30 * * * * *"
+
+payment-service:
+  api-url: http://localhost:9080
+
+retry:
+  payment:
+    max-attempts: 3
+    initial-delay: 1000
+    multiplier: 2
