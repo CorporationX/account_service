@@ -48,8 +48,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(getErrorResponse(ex));
     }
 
-    @ExceptionHandler(JsonDeserializationException.class)
-    public ResponseEntity<Error> handleJsonDeserializationException(JsonDeserializationException ex) {
+    @ExceptionHandler({
+            JsonDeserializationException.class,
+            JsonSerializationException.class,
+    })
+    public ResponseEntity<Error> handleJsonSerializationExceptions(Exception ex) {
         return ResponseEntity.status(BAD_REQUEST).body(getErrorResponse(ex));
     }
 

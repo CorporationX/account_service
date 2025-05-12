@@ -21,13 +21,19 @@ spring:
     kafka:
       bootstrap-servers: localhost:9092
       consumer:
-        group-id: payment-group
+        group-id: account-group
         auto-offset-reset: earliest
       producer:
         acks: all
+        enable-idempotence: true
+        delivery-timeout-ms: 5000
       topics:
         payment-operation:
           name: "payment-operation-topic"
+          partitions: 3
+          replicas: 1
+        payment-response:
+          name: "payment-response-topic"
           partitions: 3
           replicas: 1
 

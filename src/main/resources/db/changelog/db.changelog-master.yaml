@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__account-service_create_request_and_idmpt_token.sql
   - include:
       file: db/changelog/changeset/V004__account-service_create_index_to_request.sql
+  - include:
+      file: db/changelog/changeset/V010__response_outbox_created.sql

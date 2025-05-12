@@ -14,6 +14,8 @@ public record KafkaProperties(
     ) {}
 
     public record Producer(
-            String acks
+            String acks,
+            boolean enableIdempotence,
+            int deliveryTimeoutMs
     ) {}
 }

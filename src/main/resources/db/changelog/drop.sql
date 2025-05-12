@@ -3,6 +3,7 @@ DROP TABLE tariff_history;
 DROP TABLE tariff;
 DROP TABLE savings_account;
 DROP TABLE account;
+DROP TABLE response_outbox;
 
 
 
