@@ -47,6 +47,11 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     /**
+     * Kafka
+     */
+    implementation ("org.springframework.kafka:spring-kafka")
+
+    /**
      * Test containers
      */
     implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))

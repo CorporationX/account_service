@@ -1,7 +1,9 @@
 package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.config.kafka.KafkaPublisher;
 import faang.school.accountservice.dto.Request.RequestDto;
+import faang.school.accountservice.dto.Request.RequestEventPub;
 import faang.school.accountservice.dto.Request.RequestStatusDto;
 import faang.school.accountservice.entity.IdempotencyToken;
 import faang.school.accountservice.entity.Request;
@@ -40,22 +42,23 @@ public class RequestServiceImpl implements RequestService {
     private final RequestMapper requestMapper;
     private final UserContext userContext;
     private final TokenRepository tokenRepository;
+    private final KafkaPublisher kafkaPublisher;
     private final Map<Long, BlockingQueue<RequestDto>> userQueues = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     @Override
     @Transactional
-    public String createRequest(RequestDto requestDto, UUID idempotencyToken) {
+    public String createRequest(RequestDto requestDto, String idempotencyToken) {
 
         Long userId = userContext.getUserId();
         requestDto.setUserId(userId);
         BlockingQueue<RequestDto> userQueue = userQueues.computeIfAbsent(userId, k -> new LinkedBlockingQueue<>());
         try {
             userQueue.put(requestDto);
-            //TODO Оповещение о добавлении в очередь
             log.info("Request for userId = {} added to the queue", userId);
+            kafkaPublisher.publish(new RequestEventPub(null,requestDto.getUserId(),"In Queue", "Request add in queue"));
             CompletableFuture<RequestDto> futureRequest = CompletableFuture
-                    .supplyAsync(() -> requestBalancer(userId, idempotencyToken), executorService);
+                    .supplyAsync(() -> requestBalancer(userId, UUID.fromString(idempotencyToken)), executorService);
 
             futureRequest.thenAccept(result -> {
                 log.info("Request with input data completed {}", result.getInputData());
@@ -64,7 +67,7 @@ public class RequestServiceImpl implements RequestService {
                 log.info("Request with id = {} set open/closed flag = false", request.getId());
                 request.setLockValue(FREE_FLAG_VALUE);
                 log.info("Request with id = {} set lock value = free", request.getId());
-                //TODO оповвещение о готовности
+                kafkaPublisher.publish(new RequestEventPub(request.getId(),requestDto.getUserId(),"Complete", "Request completed"));
             });
 
             return REQUEST_IN_PROCESSING;
@@ -85,7 +88,7 @@ public class RequestServiceImpl implements RequestService {
         request.setStatusDetails(requestStatusDto.getStatusDetails());
         Request savedRequest = requestRepository.save(request);
         log.info("Request with id = {} status was update", savedRequest.getId());
-        //TODO оповещение о смене статуса
+        kafkaPublisher.publish(new RequestEventPub(requestId,request.getUserId(), request.getStatus().name(), "Request status was updated"));
         return requestMapper.toDto(savedRequest);
     }
 
@@ -96,7 +99,7 @@ public class RequestServiceImpl implements RequestService {
         request.setOpen(isOpen);
         Request savedRequest = requestRepository.save(request);
         log.info("Request with id = {} open/close flag was update", savedRequest.getId());
-        //TODO оповещение о открытии\ закрытии запроса
+        kafkaPublisher.publish(new RequestEventPub(requestId,request.getUserId(), String.valueOf(request.isOpen()), "Request open/close flag was update"));
         return requestMapper.toDto(savedRequest);
     }
 
@@ -114,10 +117,9 @@ public class RequestServiceImpl implements RequestService {
         try {
             RequestDto requestDto = userQueues.get(userId).take();
             log.info("Processing request for userId = {}", userId);
-            //TODO Оповещение о смене статуса запроса
             Request request = requestMapper.toEntity(requestDto);
             request.setStatus(RequestStatus.IN_PROGRESS);
-
+            kafkaPublisher.publish(new RequestEventPub(request.getId(),request.getUserId(), request.getStatus().name(), "Request status was updated"));
             Optional<IdempotencyToken> tokenOpt = tokenRepository.findByToken(idempotencyToken);
             if (tokenOpt.isPresent()) {
                 Request existingRequest = tokenOpt.get().getRequest();
@@ -125,7 +127,7 @@ public class RequestServiceImpl implements RequestService {
                     if (isInputDataEqual(existingRequest, request)) {
                         log.info("Request already exists for userId = {}", userId);
                         existingRequest.setStatus(RequestStatus.REPEATING);
-                        //TODO Оповещение о смене статуса запроса
+                        kafkaPublisher.publish(new RequestEventPub(request.getId(),request.getUserId(), request.getStatus().name(), "Request status was updated"));
                         return requestMapper.toDto(existingRequest);
                     }
                 }
