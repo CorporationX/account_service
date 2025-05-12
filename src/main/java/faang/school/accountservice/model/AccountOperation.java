@@ -26,7 +26,7 @@ import java.util.UUID;
 @Getter
 public class AccountOperation {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "payment_operation_id", nullable = false)
@@ -57,7 +57,7 @@ public class AccountOperation {
     private OperationStatus operationStatus;
 
     @Column(name = "error_message")
-    String errorMessage;
+    private String errorMessage;
 
     @CreationTimestamp
     @Column(name = "created_at")

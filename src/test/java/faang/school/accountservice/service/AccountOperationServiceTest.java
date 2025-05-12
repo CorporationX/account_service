@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountOperationResponse;
+import faang.school.accountservice.dto.AccountOperationViewDto;
 import faang.school.accountservice.dto.Currency;
 import faang.school.accountservice.dto.OperationStatus;
 import faang.school.accountservice.dto.OperationType;
@@ -243,7 +243,7 @@ class AccountOperationServiceTest {
 
             when(accountOperationRepository.findById(operationId)).thenReturn(Optional.of(operation));
 
-            AccountOperationResponse response = accountOperationService.getOperation(operationId);
+            AccountOperationViewDto response = accountOperationService.getOperation(operationId);
 
             verify(accountOperationRepository, times(1)).findById(operationId);
             assertEquals(authorizationId, response.id());

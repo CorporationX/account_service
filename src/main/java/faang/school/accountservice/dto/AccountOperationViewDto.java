@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
 @Schema(description = "DTO for response about account operation status")
-public record AccountOperationResponse(
+public record AccountOperationViewDto(
 
         @Schema(description = "Unique identifier of the operation",
                 example = "123e4567-e89b-12d3-a456-426614174000")

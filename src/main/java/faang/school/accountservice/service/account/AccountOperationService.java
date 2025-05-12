@@ -1,6 +1,6 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.dto.AccountOperationResponse;
+import faang.school.accountservice.dto.AccountOperationViewDto;
 import faang.school.accountservice.dto.OperationStatus;
 import faang.school.accountservice.dto.OperationType;
 import faang.school.accountservice.dto.message.AuthorizationMessage;
@@ -98,7 +98,7 @@ public class AccountOperationService {
                 () -> balanceService.cancelBalance(operation));
     }
 
-    public AccountOperationResponse getOperation(@NotNull UUID operationId) {
+    public AccountOperationViewDto getOperation(@NotNull UUID operationId) {
         AccountOperation operation = accountOperationRepository.findById(operationId)
                 .orElseThrow(() -> new OperationNotFound("The operation has not found."));
 
@@ -107,6 +107,6 @@ public class AccountOperationService {
         OperationType type = operation.getOperationType();
         String message = operation.getErrorMessage();
 
-        return new AccountOperationResponse(id, status, type, message);
+        return new AccountOperationViewDto(id, status, type, message);
     }
 }

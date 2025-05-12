@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.config.context.UserContext;
-import faang.school.accountservice.dto.AccountOperationResponse;
+import faang.school.accountservice.dto.AccountOperationViewDto;
 import faang.school.accountservice.dto.OperationStatus;
 import faang.school.accountservice.dto.OperationType;
 import faang.school.accountservice.service.account.AccountOperationService;
@@ -38,13 +38,13 @@ class AccountOperationControllerTest {
     private UserContext userContext;
 
     private UUID operationId;
-    private AccountOperationResponse response;
+    private AccountOperationViewDto response;
 
     @BeforeEach
     void setUp() {
         operationId = UUID.randomUUID();
         operationId = UUID.randomUUID();
-        response = new AccountOperationResponse(
+        response = new AccountOperationViewDto(
                 operationId,
                 OperationStatus.COMPLETED,
                 OperationType.AUTHORIZATION,

@@ -77,6 +77,7 @@ public class BalanceService {
         balanceAuditService.setAudit(recipientBalance, operation.getId());
     }
 
+    @Transactional
     public void cancelBalance(@NotNull AccountOperation operation) {
         UUID senderAccountId = operation.getSenderAccountId();
         BigDecimal amount = operation.getAmount();

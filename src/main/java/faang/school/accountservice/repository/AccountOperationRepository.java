@@ -13,10 +13,12 @@ public interface AccountOperationRepository extends JpaRepository<AccountOperati
 
     boolean existsByPaymentOperationId(UUID paymentOperationId);
 
-    @Query("SELECT ac FROM  AccountOperation ac " +
-            "WHERE ac.operationType = :type " +
-            "AND ac.operationStatus = :status " +
-            "AND ac.paymentOperationId = :id")
+    @Query("""
+            SELECT ac FROM  AccountOperation ac
+            WHERE ac.operationType = :type
+            AND ac.operationStatus = :status
+            AND ac.paymentOperationId = :id
+            """)
     Optional<AccountOperation> findAuthOperation(UUID id, OperationType type, OperationStatus status);
 
     boolean existsByPaymentOperationIdAndOperationType(UUID paymentOperationId, OperationType type);

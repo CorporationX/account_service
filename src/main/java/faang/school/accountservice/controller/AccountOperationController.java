@@ -1,6 +1,6 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.AccountOperationResponse;
+import faang.school.accountservice.dto.AccountOperationViewDto;
 import faang.school.accountservice.service.account.AccountOperationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +26,8 @@ public class AccountOperationController {
             description = "Retrieves detailed information about an account operation by its ID"
     )
     @GetMapping
-    public ResponseEntity<AccountOperationResponse> getOperation(@RequestBody @NotNull UUID id) {
-        AccountOperationResponse response = accountOperationService.getOperation(id);
+    public ResponseEntity<AccountOperationViewDto> getOperation(@RequestBody @NotNull UUID id) {
+        AccountOperationViewDto response = accountOperationService.getOperation(id);
 
         return ResponseEntity.ok(response);
     }

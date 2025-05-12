@@ -25,15 +25,21 @@ public class BalanceValidator {
     public void authValidation(Balance balance, AccountOperation operation) {
         if (!balance.getCurrency().equals(operation.getCurrency())) {
             throw new BalanceValidationException(
-                    "Account currency " + balance.getCurrency() +
-                            " doesn't match operation currency " + operation.getCurrency()
+                    String.format(
+                            "Account currency %s doesn't match operation currency %s",
+                            balance.getCurrency(),
+                            operation.getCurrency()
+                    )
             );
         }
         if (balance.getClearBalance().compareTo(operation.getAmount()) < 0) {
             throw new BalanceValidationException(
-                    "Insufficient funds in account " + operation.getSenderAccountId() +
-                            ". Available: " + balance.getClearBalance() +
-                            ", Required: " + operation.getAmount()
+                    String.format(
+                            "Insufficient funds in account %s. Available: %s, Required: %s",
+                            operation.getSenderAccountId(),
+                            balance.getClearBalance(),
+                            operation.getAmount()
+                    )
             );
         }
     }
@@ -41,15 +47,21 @@ public class BalanceValidator {
     public void clearValidation(Balance senderBalance, Balance recipientBalance, BigDecimal amount) {
         if (!senderBalance.getCurrency().equals(recipientBalance.getCurrency())) {
             throw new BalanceValidationException(
-                    "Currency mismatch between accounts. Sender: " + senderBalance.getCurrency() +
-                            ", Recipient: " + recipientBalance.getCurrency()
+                    String.format(
+                            "Currency mismatch between accounts. Sender: %s, Recipient: %s",
+                            senderBalance.getCurrency(),
+                            recipientBalance.getCurrency()
+                    )
             );
         }
         if (senderBalance.getAuthBalance().compareTo(amount) < 0) {
             throw new BalanceValidationException(
-                    "Insufficient reserved funds in account " + senderBalance.getAccountId() +
-                            " for clearing. Available: " + senderBalance.getAuthBalance() +
-                            ", Required: " + amount
+                    String.format(
+                            "Insufficient reserved funds in account %s for clearing. Available: %s, Required: %s",
+                            senderBalance.getAccountId(),
+                            senderBalance.getAuthBalance(),
+                            amount
+                    )
             );
         }
     }
@@ -57,9 +69,12 @@ public class BalanceValidator {
     public void cancelValidation(Balance balance, BigDecimal amount) {
         if (balance.getAuthBalance().compareTo(amount) < 0) {
             throw new BalanceValidationException(
-                    "Insufficient reserved funds in account " + balance.getAccountId() +
-                            " for cancellation. Available: " + balance.getAuthBalance() +
-                            ", Required: " + amount
+                    String.format(
+                            "Insufficient reserved funds in account %s for cancellation. Available: %s, Required: %s",
+                            balance.getAccountId(),
+                            balance.getAuthBalance(),
+                            amount
+                    )
             );
         }
     }
