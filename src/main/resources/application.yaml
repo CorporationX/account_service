@@ -55,3 +55,11 @@ thread-pool-setting:
     size: 3
     timeout: 30
     hours: 24
+
+account:
+  number:
+    batch:
+      size: 100
+    crone:
+      debit: "0 0 0  * * *"
+      credit: "0 0 0  * * *"
