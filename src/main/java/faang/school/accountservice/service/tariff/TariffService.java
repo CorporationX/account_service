@@ -11,4 +11,5 @@ public interface TariffService {
     TariffResponseDto updateTariffRate(Long tariffId, BigDecimal newRate);
     TariffResponseDto getTariff(Long tariffId);
     List<TariffResponseDto> getAllTariffs();
+    boolean existsTariffById(Long tariffId);
 }

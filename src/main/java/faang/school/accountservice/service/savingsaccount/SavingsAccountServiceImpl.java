@@ -14,6 +14,8 @@ import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffRepository;
+import faang.school.accountservice.service.account.AccountService;
+import faang.school.accountservice.service.tariff.TariffService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,13 +26,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static faang.school.accountservice.messages.ErrorMessages.ACCOUNT_NOT_FOUND;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SavingsAccountServiceImpl implements SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final AccountRepository accountRepository;
-    private final TariffRepository tariffRepository;
+    private final TariffService tariffService;
     private final SavingsAccountMapper savingsAccountMapper;
 
     @Override
@@ -61,7 +65,9 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             Long savingsAccountId, Long newTariffId
     ) {
         SavingsAccount savingsAccount = findSavingsAccountById(savingsAccountId);
-        existsTariffById(newTariffId);
+        if (tariffService.existsTariffById(newTariffId)) {
+            throw new TariffNotFoundException(String.format("Tariff not found with id: %d", newTariffId));
+        }
         savingsAccount.addTariffId(newTariffId);
         savingsAccountRepository.save(savingsAccount);
         return savingsAccountMapper.toSavingsAccountResponseDto(savingsAccount);
@@ -86,18 +92,12 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     }
 
     private void existsSavingsAccountByAccountId(String accountId) {
-        if (savingsAccountRepository.existsByAccountId(accountId)) {
-            String message = String.format("Tariff not found with id: %s", accountId);
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND.formatted(accountId)));
+        if (savingsAccountRepository.existsByAccount(account)) {
+            String message = String.format("Savings account already exists with id: %s", accountId);
             log.error(message);
             throw new IllegalStateException(message);
-        }
-    }
-
-    private void existsTariffById(Long tariffId) {
-        if (tariffRepository.existsById(tariffId)) {
-            String message = String.format("Tariff not found with id: %d", tariffId);
-            log.error(message);
-            throw new TariffNotFoundException(message);
         }
     }
 

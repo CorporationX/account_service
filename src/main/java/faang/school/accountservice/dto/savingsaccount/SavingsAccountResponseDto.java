@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class SavingsAccountResponseDto {
     private Long id;
-    private Long accountId;
+    private String accountId;
     private BigDecimal balance;
     private List<Long> tariffHistory;
     private LocalDateTime lastInterestDate;

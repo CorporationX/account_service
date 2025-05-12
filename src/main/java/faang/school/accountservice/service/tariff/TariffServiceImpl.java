@@ -59,6 +59,18 @@ public class TariffServiceImpl implements TariffService {
         return tariffMapper.toTariffResponseDtoList(tariffs);
     }
 
+    @Override
+    @Transactional
+    public boolean existsTariffById(Long tariffId) {
+        if (!tariffRepository.existsById(tariffId)) {
+            String message = String.format("Tariff not found with id: %d", tariffId);
+            log.error(message);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private void validateNewRate(BigDecimal newRate, Long tariffId) {
         if (newRate == null) {
             log.error("New rate is null for tariff with id: {}", tariffId);

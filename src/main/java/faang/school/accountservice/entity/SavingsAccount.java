@@ -70,8 +70,8 @@ public class SavingsAccount {
         updatedAt = LocalDateTime.now();
     }
 
-    public boolean addTariffId(Long tariffId) {
-        return tariffHistory.add(tariffId);
+    public void addTariffId(Long tariffId) {
+        tariffHistory.add(tariffId);
     }
 
     public Long getCurrentTariffId() {
