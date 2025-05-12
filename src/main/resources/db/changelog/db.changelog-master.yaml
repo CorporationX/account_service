@@ -4,6 +4,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V002__add_tables_link_savings_account.sql
   - include:
-      file: db/changelog/changeset/V003_create-balance-table.sql
+      file: db/changelog/changeset/V002__unique_account_numbers.sql
   - include:
-      file: db/changelog/changeset/V004_create-transactions-table.sql
+      file: db/changelog/changeset/V003__create_balance_table.sql
+  - include:
+      file: db/changelog/changeset/V004__create_transactions_table.sql
