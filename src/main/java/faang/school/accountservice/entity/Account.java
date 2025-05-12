@@ -11,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -38,6 +40,10 @@ public class Account {
 
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
+
+    @OneToOne
+    @JoinColumn(name = "balance_id", nullable = false)
+    private Balance balance;
 
     @Column(name = "owner_id", length = 64)
     private long ownerId;

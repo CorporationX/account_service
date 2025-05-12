@@ -12,6 +12,7 @@ public interface AccountMapper {
     ResponseAccountDto toDto(Account account);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "balance", ignore = true)
     @Mapping(target = "number", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createAt", ignore = true)

@@ -33,7 +33,7 @@ public class Balance {
     private long id;
 
     @OneToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id")
     private Account account;
 
     @Column(name = "authorization_balance")
@@ -48,7 +48,7 @@ public class Balance {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_at", nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createAt;
 
     @UpdateTimestamp

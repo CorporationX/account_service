@@ -1,10 +1,13 @@
 CREATE TABLE balance (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    account_id BIGINT NOT NULL,
+    account_id BIGINT,
     authorization_balance DOUBLE PRECISION NOT NULL,
     actual_balance DOUBLE PRECISION NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version INTEGER DEFAULT 0 NOT NULL
 );
-CREATE INDEX balance_account_id ON balance(account_id);
+
+ALTER TABLE account
+ADD COLUMN balance_id BIGINT NOT NULL
+CONSTRAINT fk_account_balance REFERENCES balance(id);
