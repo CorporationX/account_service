@@ -17,9 +17,29 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  profiles:
+    active: local
+
 server:
   port: 8090
 
 logging:
   level:
-    root: info
+    root: debug
+
+cron-setting:
+  tariff-rate-calculator: 0 0 */2 * * *
+
+thread-pool-setting:
+  tariff-rate-calculator:
+    size: 3
+    timeout: 30
+    hours: 24
+
+account:
+  number:
+    batch:
+      size: 100
+    crone:
+      debit: "0 0 0  * * *"
+      credit: "0 0 0  * * *"
