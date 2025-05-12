@@ -4,7 +4,7 @@ DROP TABLE tariff;
 DROP TABLE savings_account;
 DROP TABLE account;
 DROP TABLE response_outbox;
-
-
-
-
+DROP TABLE free_account_numbers;
+DROP TABLE account_numbers_sequence;
+DROP TABLE idempotency_token;
+DROP TABLE request;
