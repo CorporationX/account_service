@@ -4,12 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import java.util.Map;
+
 import faang.school.accountservice.dto.Error;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.concurrent.CompletionException;
 
@@ -17,7 +16,7 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
- 
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -84,7 +83,8 @@ public class GlobalExceptionHandler {
                         "message", e.getMessage()
                 ));
     }
-  @ExceptionHandler({
+
+    @ExceptionHandler({
             AccountNotFoundException.class,
             TariffNotFoundException.class
     })
@@ -120,6 +120,6 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .build();
     }
-  
+
 }
 

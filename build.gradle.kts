@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
+    id("org.liquibase.gradle") version "2.2.0"
 }
 
 group = "faang.school"
@@ -32,6 +33,11 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    liquibaseRuntime("org.liquibase:liquibase-core:4.23.1")
+    liquibaseRuntime("org.postgresql:postgresql:42.6.0")
+    liquibaseRuntime("org.yaml:snakeyaml:1.33")
+    liquibaseRuntime("ch.qos.logback:logback-classic:1.4.11")
+    liquibaseRuntime("org.yaml:snakeyaml:2.0")
 
     /**
      * Utils & Logging
@@ -68,4 +74,21 @@ val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true 
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
+}
+
+liquibase {
+    activities {
+        register("main") {
+            this.arguments = mapOf(
+                "changelogFile" to "db/changelog/db.changelog-master.yaml",
+                "url" to "jdbc:postgresql://localhost:5432/your_db",
+                "username" to "your_user",
+                "password" to "your_pass",
+                "classpath" to sourceSets.main.get().runtimeClasspath.asPath,
+                "driver" to "org.postgresql.Driver",
+                "logLevel" to "debug"
+            )
+        }
+    }
+    runList = "main"
 }

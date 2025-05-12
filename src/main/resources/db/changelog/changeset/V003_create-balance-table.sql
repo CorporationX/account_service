@@ -1,4 +1,4 @@
-CREATE TABLE account_balance (
+CREATE TABLE IF NOT EXISTS account_balance (
 
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     account_id bigint NOT NULL REFERENCES account(id) ON DELETE CASCADE,
