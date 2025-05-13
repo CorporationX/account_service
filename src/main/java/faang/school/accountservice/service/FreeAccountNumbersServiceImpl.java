@@ -93,7 +93,6 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                 },
                 () -> throwWithLogging(new IllegalStateException("Failed to obtain account number after generation"))
         );
-
     }
 
     private FreeAccountNumber buildFreeAccountNumber(AccountNumberType type, long accountNumber) {
@@ -106,7 +105,7 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                 .build();
     }
 
-    private FreeAccountNumber createAccountNumber(AccountNumberType type, long numberPrefix, long number) {
+    private FreeAccountNumber createAccountNumber(AccountNumberType type, Integer numberPrefix, long number) {
         long accountNumber = numberPrefix * ACCOUNT_NUMBER_MULTIPLIER + number;
         log.debug("Generated '{}' account number: {}", type, accountNumber);
 
