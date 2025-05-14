@@ -3,8 +3,11 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,17 +34,26 @@ class BalanceServiceTest {
     private BalanceRepository balanceRepository;
 
     @Mock
+    private BalanceAuditRepository balanceAuditRepository;
+
+    @Mock
     private AccountRepository accountRepository;
 
     @Mock
     private BalanceMapper balanceMapper;
+
+    @Mock
+    private BalanceAuditMapper balanceAuditMapper;
 
     @InjectMocks
     private BalanceService balanceService;
 
     private Long accountId = 1L;
     BalanceDto balanceDto;
+    Balance savedBalance;
+    BalanceAudit audit;
 
+    Account account = new Account();
 
     @BeforeEach
     void setUp() {
@@ -50,25 +62,43 @@ class BalanceServiceTest {
                 .actualBalance(new BigDecimal("100"))
                 .authorizedBalance(new BigDecimal("50"))
                 .build();
+
+         savedBalance = Balance.builder()
+                .account(account)
+                .authorizedBalance(BigDecimal.ZERO)
+                .actualBalance(BigDecimal.ZERO)
+                .version(0)
+                .build();
+
+         audit = BalanceAudit.builder()
+                .account(account)
+                .balanceVersion(savedBalance.getVersion())
+                .authorizedBalance(savedBalance.getAuthorizedBalance())
+                .actualBalance(savedBalance.getActualBalance())
+                .operationId(null)
+                .build();
     }
 
     @Nested
     class Create {
         @Test
         void success() {
-            Account account = new Account();
+            account.setId(accountId);
+
             when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(balanceMapper.toDto(any(Balance.class))).thenReturn(balanceDto);
+            when(balanceRepository.save(any(Balance.class))).thenReturn(savedBalance);
+            when(balanceAuditMapper.toAudit(any(Balance.class), nullable(Long.class))).thenReturn(audit);
+            when(balanceMapper.toDto(savedBalance)).thenReturn(balanceDto);
 
             BalanceDto result = balanceService.create(accountId);
 
-            ArgumentCaptor<Balance> captor = ArgumentCaptor.forClass(Balance.class);
-
-            verify(balanceRepository).save(captor.capture());
-            verify(balanceMapper).toDto(captor.capture());
+            verify(accountRepository).findById(accountId);
+            verify(balanceRepository).save(any(Balance.class));
+            verify(balanceAuditMapper).toAudit(any(Balance.class), nullable(Long.class));
+            verify(balanceAuditRepository).save(any(BalanceAudit.class));
+            verify(balanceMapper).toDto(savedBalance);
 
             assertEquals(balanceDto, result);
-            assertEquals(account, captor.getValue().getAccount());
         }
     }
 

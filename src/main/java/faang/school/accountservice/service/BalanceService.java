@@ -3,8 +3,11 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
+import faang.school.accountservice.entity.BalanceAudit;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class BalanceService {
 
     private final BalanceRepository balanceRepository;
-
+    private final BalanceAuditRepository balanceAuditRepository;
     private final AccountRepository accountRepository;
 
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     private final RetryTemplate retryTemplate;
 
@@ -43,7 +47,10 @@ public class BalanceService {
                 .account(account)
                 .build();
 
-        balanceRepository.save(balance);
+        balance = balanceRepository.save(balance);
+        BalanceAudit audit = balanceAuditMapper.toAudit(balance, null);
+
+        balanceAuditRepository.save(audit);
         return balanceMapper.toDto(balance);
     }
 
@@ -54,7 +61,11 @@ public class BalanceService {
         balance.setActualBalance(balanceDto.getActualBalance());
         balance.setAuthorizedBalance(balanceDto.getAuthorizedBalance());
 
-        balanceRepository.save(balance);
+        balance = balanceRepository.save(balance);
+
+        BalanceAudit audit = balanceAuditMapper.toAudit(balance, null);// Todo: тут null я смогу изменит ток после того как сделают операций
+        balanceAuditRepository.save(audit);
+
         return balanceMapper.toDto(balance);
     }
 
