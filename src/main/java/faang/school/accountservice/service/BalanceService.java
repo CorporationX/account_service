@@ -47,8 +47,8 @@ public class BalanceService {
                 .account(account)
                 .build();
 
-        balance =  balanceRepository.save(balance);
-        BalanceAudit audit =  balanceAuditMapper.toAudit(balance,null);
+        balance = balanceRepository.save(balance);
+        BalanceAudit audit = balanceAuditMapper.toAudit(balance, null);
 
         balanceAuditRepository.save(audit);
         return balanceMapper.toDto(balance);
@@ -61,9 +61,9 @@ public class BalanceService {
         balance.setActualBalance(balanceDto.getActualBalance());
         balance.setAuthorizedBalance(balanceDto.getAuthorizedBalance());
 
-        balance =  balanceRepository.save(balance);
+        balance = balanceRepository.save(balance);
 
-        BalanceAudit audit = balanceAuditMapper.toAudit(balance,null);// тут null я смогу изменит ток после того как сделают операций
+        BalanceAudit audit = balanceAuditMapper.toAudit(balance, null);// Todo: тут null я смогу изменит ток после того как сделают операций
         balanceAuditRepository.save(audit);
 
         return balanceMapper.toDto(balance);

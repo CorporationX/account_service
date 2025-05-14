@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
-@Component("globalHandler")
+@Component("apiHandlerV3")
 public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
