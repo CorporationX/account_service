@@ -24,9 +24,11 @@ import java.util.Objects;
 @Setter
 public class FreeAccountNumber {
     @EmbeddedId
-    @AttributeOverrides({@AttributeOverride(name = "accountType", column = @Column(name = "account_type",
-            nullable = false, length = 50)), @AttributeOverride(name = "accountNumber",
-            column = @Column(name = "account_number", nullable = false, length = 20))
+    @AttributeOverrides({
+            @AttributeOverride(name = "accountType",
+                    column = @Column(name = "account_type", nullable = false, length = 50)),
+            @AttributeOverride(name = "accountNumber",
+                    column = @Column(name = "account_number", nullable = false, length = 20))
     })
     private Key key;
 
