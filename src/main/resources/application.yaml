@@ -1,6 +1,9 @@
 app:
   optimistic-lock-backoff-delay: 100
   optimistic-lock-max-attempts: 5
+  calculate-daily-interest:
+    schedule:
+      cron: "0 0 0 * * ?"
   requests-thread-pool-size: 8
 
 spring:
@@ -14,7 +17,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true

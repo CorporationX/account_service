@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__create_free_account_numbers.sql
   - include:
       file: db/changelog/changeset/V004__create_account_numbers_sequence.sql
+  - include:
+      file: db/changelog/changeset/V005__account-service_saving-account_tariff_init.sql
