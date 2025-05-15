@@ -29,7 +29,7 @@ public class BalanceController {
 
     @GetMapping
     public ResponseEntity<ResponseBalanceDto> getBalanceByAccountId(@PathVariable @Min(1) Long accountId) {
-        log.info("Received request to get balance for account ID: {}", accountId);
+        log.info("GET request to fetch balance for account ID: {}", accountId);
         return ResponseEntity.ok(balanceConverter.getBalanceByAccountId(accountId));
     }
 
@@ -37,6 +37,7 @@ public class BalanceController {
     public ResponseEntity<ResponseBalanceDto> replenish(
             @PathVariable @Min(1) Long accountId,
             @Valid @RequestBody BalanceOperationRequest request) {
+        log.info("POST request to replenish balance for account ID: {}, amount: {}", accountId, request.getAmount());
         return ResponseEntity.ok(balanceConverter.replenish(accountId, request.getAmount()));
     }
 
@@ -44,6 +45,7 @@ public class BalanceController {
     public ResponseEntity<ResponseBalanceDto> createBalance(
             @PathVariable @Min(1) Long accountId,
             @Valid @RequestBody BalanceOperationRequest request) {
+        log.info("POST request to create balance for account ID: {}, initial amount: {}", accountId, request.getAmount());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(balanceConverter.createBalance(accountId, request.getAmount()));
     }
@@ -52,6 +54,7 @@ public class BalanceController {
     public ResponseEntity<ResponseBalanceDto> authorize(
             @PathVariable @Min(1) Long accountId,
             @Valid @RequestBody BalanceOperationRequest request) {
+        log.info("POST request to authorize payment for account ID: {}, amount: {}", accountId, request.getAmount());
         return ResponseEntity.ok(balanceConverter.authorize(accountId, request.getAmount()));
     }
 
@@ -59,6 +62,7 @@ public class BalanceController {
     public ResponseEntity<ResponseBalanceDto> clear(
             @PathVariable @Min(1) Long accountId,
             @Valid @RequestBody BalanceOperationRequest request) {
+        log.info("POST request to clear balance for account ID: {}, amount: {}", accountId, request.getAmount());
         return ResponseEntity.ok(balanceConverter.clear(accountId, request.getAmount()));
     }
 
@@ -66,7 +70,8 @@ public class BalanceController {
     public ResponseEntity<ResponseBalanceDto> cancelAuthorization(
             @PathVariable @Min(1) Long accountId,
             @Valid @RequestBody BalanceOperationRequest request) {
-    return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(balanceConverter.cancelAuthorization(accountId, request.getAmount()));
+        log.info("DELETE request to cancel authorization for account ID: {}, amount: {}", accountId, request.getAmount());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(balanceConverter.cancelAuthorization(accountId, request.getAmount()));
     }
 }
