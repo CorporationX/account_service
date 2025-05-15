@@ -2,6 +2,10 @@ app:
   optimistic-lock-backoff-delay: 100
   optimistic-lock-max-attempts: 5
   requests-thread-pool-size: 8
+  request:
+    scheduler:
+      interval: 500
+
 
 spring:
   datasource:

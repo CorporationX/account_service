@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.request.RequestTaskStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,7 +43,7 @@ public class RequestTask {
     private String handler;
 
     @Column(name = "status", nullable = false, length = 32)
-    private String status;
+    private RequestTaskStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

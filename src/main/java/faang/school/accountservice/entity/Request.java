@@ -77,7 +77,7 @@ public class Request {
     private String context;
 
     @Column(name = "scheduled_at")
-    private LocalDateTime scheduled_at;
+    private LocalDateTime scheduledAt;
 
     @OneToMany(mappedBy = "request")
     private List<RequestTask> tasks;
