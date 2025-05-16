@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
-import faang.school.accountservice.service.balance.BalanceService;
+import faang.school.accountservice.service.balance.BalanceService2;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +22,7 @@ import java.math.BigDecimal;
         description = "API for managing account balances and authorizations")
 @RequestMapping("balance/{accountId}")
 public class BalanceController {
-    private final BalanceService balanceService;
+    private final BalanceService2 balanceService2;
 
     @Operation(
             summary = "Authorize funds",
@@ -31,7 +31,7 @@ public class BalanceController {
     @PostMapping("/authorize")
     public BalanceViewDto authorizeAmount(@NotNull @PathVariable Long accountId,
                                           @NotNull @RequestParam @Positive BigDecimal amount) {
-        return balanceService.authorizeAmount(accountId, amount);
+        return balanceService2.authorizeAmount(accountId, amount);
     }
 
     @Operation(
@@ -40,7 +40,7 @@ public class BalanceController {
     @PostMapping("/clear")
     public BalanceViewDto clearAuthorizedAmount(@NotNull @PathVariable Long accountId,
                                                 @NotNull @RequestParam @Positive BigDecimal amount) {
-        return balanceService.clearAuthorizedAmount(accountId, amount);
+        return balanceService2.clearAuthorizedAmount(accountId, amount);
     }
 
     @Operation(
@@ -49,7 +49,7 @@ public class BalanceController {
     @PostMapping("/deposit")
     public BalanceViewDto depositAmount(@NotNull @PathVariable Long accountId,
                                         @NotNull @RequestParam @Positive BigDecimal amount) {
-        return balanceService.depositAmount(accountId, amount);
+        return balanceService2.depositAmount(accountId, amount);
     }
 
     @Operation(
@@ -58,7 +58,7 @@ public class BalanceController {
     @PostMapping("/cancel-auth")
     public BalanceViewDto cancelAuthorization(@NotNull @PathVariable Long accountId,
                                               @NotNull @RequestParam @Positive BigDecimal amount) {
-        return balanceService.cancelAuthorization(accountId, amount);
+        return balanceService2.cancelAuthorization(accountId, amount);
     }
 
     @Operation(
@@ -66,6 +66,6 @@ public class BalanceController {
             description = "Retrieves complete balance information")
     @GetMapping
     public BalanceViewDto getAvailableBalance(@NotNull @PathVariable @Positive Long accountId) {
-        return balanceService.getBalance(accountId);
+        return balanceService2.getBalance(accountId);
     }
 }

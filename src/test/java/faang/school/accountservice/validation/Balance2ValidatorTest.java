@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-class BalanceValidatorTest {
+class Balance2ValidatorTest {
 
     @InjectMocks
-    private BalanceValidator balanceValidator;
+    private BalanceValidator2 balanceValidator2;
 
     @Test
     @DisplayName("Когда баланс достаточный, исключения не должно быть")
@@ -25,7 +25,7 @@ class BalanceValidatorTest {
         BigDecimal balance = new BigDecimal("1000.00");
         BigDecimal amount = new BigDecimal("500.00");
 
-        assertDoesNotThrow(() -> balanceValidator.validateActualBalanceSufficiency(balance, amount));
+        assertDoesNotThrow(() -> balanceValidator2.validateActualBalanceSufficiency(balance, amount));
     }
 
     @Test
@@ -35,7 +35,7 @@ class BalanceValidatorTest {
         BigDecimal amount = new BigDecimal("500.00");
 
         InsufficientFundsException exception = assertThrows(InsufficientFundsException.class,
-                () -> balanceValidator.validateActualBalanceSufficiency(balance, amount));
+                () -> balanceValidator2.validateActualBalanceSufficiency(balance, amount));
         assertTrue(exception.getMessage().contains(String.format("Insufficient account balance. Available: %s, Required: %s",
                 balance, amount)));
     }
@@ -46,7 +46,7 @@ class BalanceValidatorTest {
         BigDecimal balance = new BigDecimal("500.00");
         BigDecimal amount = new BigDecimal("500.00");
 
-        assertDoesNotThrow(() -> balanceValidator.validateActualBalanceSufficiency(balance, amount));
+        assertDoesNotThrow(() -> balanceValidator2.validateActualBalanceSufficiency(balance, amount));
     }
 
     @Test
@@ -55,7 +55,7 @@ class BalanceValidatorTest {
         BigDecimal authBalance = new BigDecimal("800.00");
         BigDecimal amount = new BigDecimal("400.00");
 
-        assertDoesNotThrow(() -> balanceValidator.validateAuthorizedBalanceSufficiency(authBalance, amount));
+        assertDoesNotThrow(() -> balanceValidator2.validateAuthorizedBalanceSufficiency(authBalance, amount));
     }
 
     @Test
@@ -65,7 +65,7 @@ class BalanceValidatorTest {
         BigDecimal amount = new BigDecimal("500.00");
 
         InsufficientFundsException exception = assertThrows(InsufficientFundsException.class,
-                () -> balanceValidator.validateAuthorizedBalanceSufficiency(authBalance, amount));
+                () -> balanceValidator2.validateAuthorizedBalanceSufficiency(authBalance, amount));
         assertTrue(exception.getMessage().contains(String.format("Insufficient reserved funds. Available: %s, Required: %s",
                 authBalance, amount)));
     }

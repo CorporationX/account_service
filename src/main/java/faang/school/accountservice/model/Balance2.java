@@ -36,7 +36,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Table(name = "balance")
-public class Balance {
+public class Balance2 {
 
     /**
      * Уникальный идентификатор баланса

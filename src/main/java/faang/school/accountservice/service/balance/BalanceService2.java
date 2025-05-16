@@ -2,12 +2,12 @@ package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.mapper.BalanceMapper2;
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.Balance;
-import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.model.Balance2;
+import faang.school.accountservice.repository.BalanceRepository2;
 import faang.school.accountservice.service.account.AccountService;
-import faang.school.accountservice.validation.BalanceValidator;
+import faang.school.accountservice.validation.BalanceValidator2;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +18,12 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BalanceService {
+public class BalanceService2 {
     private final AccountService accountService;
     private final BalanceHelper balanceHelper;
-    private final BalanceValidator balanceValidator;
-    private final BalanceRepository balanceRepository;
-    private final BalanceMapper balanceMapper;
+    private final BalanceValidator2 balanceValidator2;
+    private final BalanceRepository2 balanceRepository2;
+    private final BalanceMapper2 balanceMapper;
 
     /**
      * Создает новый баланс для указанного счета.
@@ -33,9 +33,9 @@ public class BalanceService {
     @Transactional
     public void createBalanceForAccount(Long accountId) {
         Account account = accountService.getAccountById(accountId);
-        Balance balance = new Balance();
-        balance.setAccount(account);
-        balanceRepository.save(balance);
+        Balance2 balance2 = new Balance2();
+        balance2.setAccount(account);
+        balanceRepository2.save(balance2);
         log.debug("Created balance for account ID: {}", accountId);
     }
 
@@ -49,7 +49,7 @@ public class BalanceService {
     public BalanceViewDto authorizeAmount(Long accountId, BigDecimal amount) {
         return balanceHelper.executeBalanceOperation(accountId, balance -> {
             BigDecimal actualBalance = balance.getActualBalance();
-            balanceValidator.validateActualBalanceSufficiency(actualBalance, amount);
+            balanceValidator2.validateActualBalanceSufficiency(actualBalance, amount);
             balance.authorize(amount);
             log.debug("Authorized {} for account ID: {}", amount, accountId);
         });
@@ -65,7 +65,7 @@ public class BalanceService {
     public BalanceViewDto clearAuthorizedAmount(Long accountId, BigDecimal amount) {
         return balanceHelper.executeBalanceOperation(accountId, balance -> {
             BigDecimal authorizedBalance = balance.getAuthorizedBalance();
-            balanceValidator.validateAuthorizedBalanceSufficiency(authorizedBalance, amount);
+            balanceValidator2.validateAuthorizedBalanceSufficiency(authorizedBalance, amount);
             balance.clear(amount);
             log.debug("Cleared {} for account ID: {}", amount, accountId);
         });
@@ -81,7 +81,7 @@ public class BalanceService {
     public BalanceViewDto cancelAuthorization(Long accountId, BigDecimal amount) {
         return balanceHelper.executeBalanceOperation(accountId, balance -> {
             BigDecimal authorizedBalance = balance.getAuthorizedBalance();
-            balanceValidator.validateAuthorizedBalanceSufficiency(authorizedBalance, amount);
+            balanceValidator2.validateAuthorizedBalanceSufficiency(authorizedBalance, amount);
             balance.cancelAuthorization(amount);
             log.debug("Cancelled authorization {} for account ID: {}", amount, accountId);
         });
@@ -94,9 +94,9 @@ public class BalanceService {
      * @return DTO с представлением баланса
      */
     public BalanceViewDto getBalance(Long accountId) {
-        Balance balance = getBalanceEntity(accountId);
+        Balance2 balance2 = getBalanceEntity(accountId);
         log.debug("Balance retrieved for account: {}", accountId);
-        return balanceMapper.toViewDto(balance);
+        return balanceMapper.toViewDto(balance2);
     }
 
     /**
@@ -113,8 +113,8 @@ public class BalanceService {
         });
     }
 
-    public Balance getBalanceEntity(Long accountId) {
-        return balanceRepository.findByAccountId(accountId)
+    public Balance2 getBalanceEntity(Long accountId) {
+        return balanceRepository2.findByAccountId(accountId)
                 .orElseThrow(() -> {
                     log.error("Account not found for authorization. Account ID: {}", accountId);
                     return new AccountNotFoundException(

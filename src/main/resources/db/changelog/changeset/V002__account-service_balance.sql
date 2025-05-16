@@ -1,4 +1,4 @@
-CREATE TABLE balance (
+CREATE TABLE balance2 (
     id BIGSERIAL PRIMARY KEY,
     account_id BIGINT NOT NULL,
     authorized_balance DECIMAL(19, 4) NOT NULL DEFAULT 0,
@@ -10,4 +10,4 @@ CREATE TABLE balance (
     CONSTRAINT fk_balance_account FOREIGN KEY (account_id) REFERENCES account(id)
 );
 
-CREATE INDEX balance_account_id_idx ON balance (account_id);
+CREATE INDEX balance_account_id_idx ON balance2 (account_id);

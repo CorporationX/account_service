@@ -2,8 +2,8 @@ package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.exception.BalanceOperationConflictException;
-import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.mapper.BalanceMapper2;
+import faang.school.accountservice.model.Balance2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -16,15 +16,15 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 @Slf4j
 public class BalanceHelper {
-    private final BalanceMapper balanceMapper;
-    private final BalanceService balanceService;
+    private final BalanceMapper2 balanceMapper;
+    private final BalanceService2 balanceService2;
 
     @Transactional
-    public BalanceViewDto executeBalanceOperation(Long accountId, Consumer<Balance> action) {
+    public BalanceViewDto executeBalanceOperation(Long accountId, Consumer<Balance2> action) {
         try {
-            Balance balance = balanceService.getBalanceEntity(accountId);
-            action.accept(balance);
-            return balanceMapper.toViewDto(balance);
+            Balance2 balance2 = balanceService2.getBalanceEntity(accountId);
+            action.accept(balance2);
+            return balanceMapper.toViewDto(balance2);
         } catch (ObjectOptimisticLockingFailureException exception) {
             log.error("Optimistic lock conflict for balance operation", exception);
             throw new BalanceOperationConflictException(

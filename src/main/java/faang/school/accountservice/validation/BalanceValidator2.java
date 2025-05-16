@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Component
 @Slf4j
-public class BalanceValidator {
+public class BalanceValidator2 {
     private static final String ACTUAL_BALANCE_ERROR =
             "Insufficient account balance. Available: %s, Required: %s";
     private static final String AUTHORIZED_BALANCE_ERROR =
