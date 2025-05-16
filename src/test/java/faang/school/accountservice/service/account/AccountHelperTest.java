@@ -2,7 +2,7 @@ package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.dto.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;

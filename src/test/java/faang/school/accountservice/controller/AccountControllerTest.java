@@ -4,7 +4,7 @@ import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountViewDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.dto.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.service.account.AccountService;

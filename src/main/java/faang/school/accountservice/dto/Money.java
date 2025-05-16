@@ -1,7 +1,6 @@
 package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import faang.school.accountservice.enums.Currency;
 
 import java.math.BigDecimal;
 

@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V002__account-service_balance.sql
   - include:
       file: db/changelog/changeset/V003__account-service_remove_balance_from_account.sql
+  - include:
+      file: db/changelog/changeset/account_V002_create_account_operations.sql
