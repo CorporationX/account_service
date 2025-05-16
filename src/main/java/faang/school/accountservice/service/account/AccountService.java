@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,28 +127,6 @@ public class AccountService {
     }
 
     /**
-     * Обновляет статус счета и, при необходимости, время закрытия.
-     *
-     * @param account   счет для обновления
-     * @param newStatus новый статус счета
-     * @param closedAt  время закрытия (может быть null)
-     * @return данные обновленного счета в формате {@link AccountViewDto}
-     */
-    private AccountViewDto updateAccountStatus(Account account, AccountStatus newStatus, Instant closedAt) {
-        accountValidator.validateStatus(account, newStatus);
-        account.setAccountStatus(newStatus);
-        account.setClosedAt(closedAt);
-
-        try {
-            Account updatedAccount = accountHelper.saveAccount(account);
-            return accountMapper.toViewDto(updatedAccount);
-        } catch (ObjectOptimisticLockingFailureException ex) {
-            log.error("Optimistic lock failed after retries for account {}", account.getId(), ex);
-            throw new AccountOperationConflictException("Could not update account due to concurrent modifications");
-        }
-    }
-
-    /**
      * Получает учетную запись по идентификатору.
      *
      * @param accountId идентификатор учетной записи
@@ -162,5 +139,21 @@ public class AccountService {
                     log.error("Account not found with id: {}", accountId);
                     return new AccountNotFoundException(String.format("Account not found with id: %d", accountId));
                 });
+    }
+
+    /**
+     * Обновляет статус счета и, при необходимости, время закрытия.
+     *
+     * @param account   счет для обновления
+     * @param newStatus новый статус счета
+     * @param closedAt  время закрытия (может быть null)
+     * @return данные обновленного счета в формате {@link AccountViewDto}
+     */
+    private AccountViewDto updateAccountStatus(Account account, AccountStatus newStatus, Instant closedAt) {
+        accountValidator.validateStatus(account, newStatus);
+        account.setAccountStatus(newStatus);
+        account.setClosedAt(closedAt);
+        account = accountHelper.saveAccount(account);
+        return accountMapper.toViewDto(account);
     }
 }

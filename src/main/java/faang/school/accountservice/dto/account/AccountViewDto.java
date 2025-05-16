@@ -28,5 +28,5 @@ public class AccountViewDto {
     private Instant updatedAt;
     private Instant closedAt;
     private Integer version;
-    private Long balance;
+    private Long balanceId;
 }

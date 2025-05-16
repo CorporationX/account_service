@@ -58,14 +58,14 @@ public class AccountHelper {
      * @return сохраненная учетная запись
      * @throws AccountOperationConflictException если возникает конфликт при сохранении учетной записи
      */
-    @Retryable(
-            retryFor = {ObjectOptimisticLockingFailureException.class},
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 100)
-    )
     public Account saveAccount(Account account) {
-        log.debug("Attempting to save account {}", account.getId());
-        return accountRepository.save(account);
+        try {
+            log.debug("Attempting to save account {}", account.getId());
+            return accountRepository.save(account);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            log.error("Optimistic lock failed after retries for account {}", account.getId(), ex);
+            throw new AccountOperationConflictException("Could not update account due to concurrent modifications");
+        }
     }
 
     private String generateValidAccountNumber() {

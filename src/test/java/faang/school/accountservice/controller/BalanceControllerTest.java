@@ -29,13 +29,13 @@ public class BalanceControllerTest {
     @MockBean
     private UserContext userContext;
 
-    Long accountId = 1L;
-    BigDecimal amount = new BigDecimal("1000.00");
-    BalanceViewDto balanceViewDto = new BalanceViewDto();
+    private final Long accountId = 1L;
+    private final BigDecimal amount = new BigDecimal("1000.00");
+    private final BalanceViewDto balanceViewDto = new BalanceViewDto();
 
     @Test
     @DisplayName("При валидных данных возвращает DTO")
-    void authorize_Amount_WhenValidRequest_ReturnsDto() throws Exception {
+    public void authorize_Amount_WhenValidRequest_ReturnsDto() throws Exception {
         when(balanceService.authorizeAmount(accountId, amount)).thenReturn(balanceViewDto);
 
         mockMvc.perform(post("/balance/{accountId}/authorize", accountId)
@@ -48,7 +48,7 @@ public class BalanceControllerTest {
 
     @Test
     @DisplayName("Пи успешном клиринге возвращает DTO")
-    void clear_AuthorizedAmount_WhenValidRequest_ReturnsDto() throws Exception {
+    public void clear_AuthorizedAmount_WhenValidRequest_ReturnsDto() throws Exception {
         when(balanceService.clearAuthorizedAmount(accountId, amount)).thenReturn(balanceViewDto);
 
         mockMvc.perform(post("/balance/{accountId}/clear", accountId)
@@ -59,7 +59,7 @@ public class BalanceControllerTest {
 
     @Test
     @DisplayName("Пополнение счета")
-    void deposit_Amount_WithPositiveAmount_ReturnsUpdatedBalance() throws Exception {
+    public void deposit_Amount_WithPositiveAmount_ReturnsUpdatedBalance() throws Exception {
         when(balanceService.depositAmount(accountId, amount)).thenReturn(balanceViewDto);
 
         mockMvc.perform(post("/balance/{accountId}/deposit", accountId)
@@ -70,7 +70,7 @@ public class BalanceControllerTest {
 
     @Test
     @DisplayName("Отменяет авторизацию")
-    void cancelAuthorization_WhenValidRequest_ReturnsDto() throws Exception {
+    public void cancelAuthorization_WhenValidRequest_ReturnsDto() throws Exception {
         when(balanceService.cancelAuthorization(accountId, amount)).thenReturn(balanceViewDto);
 
         mockMvc.perform(post("/balance/{accountId}/cancel-auth", accountId)
@@ -81,7 +81,7 @@ public class BalanceControllerTest {
 
     @Test
     @DisplayName("При существующем счете возвращает баланс")
-    void getBalance_WhenAccountExists_ReturnsBalance() throws Exception {
+    public void getBalance_WhenAccountExists_ReturnsBalance() throws Exception {
         when(balanceService.getBalance(accountId)).thenReturn(balanceViewDto);
 
         mockMvc.perform(get("/balance/{accountId}", accountId)
