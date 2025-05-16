@@ -2,6 +2,7 @@ package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.dto.request.RequestCreationDto;
 import faang.school.accountservice.dto.request.RequestResponseDto;
+import faang.school.accountservice.dto.request.RequestStatusResponseDto;
 import faang.school.accountservice.dto.request.RequestUpdateDto;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestStatus;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -89,5 +91,14 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestOptional.get();
         updateMapper.updateRequestFromDto(requestUpdateDto, requestOptional.get());
         return requestMapper.requestToRequestResponseDto(request);
+    }
+
+    @Override
+    public RequestStatusResponseDto getStatus(UUID id) {
+        Request request = requestRepository.findById(id)
+                .orElseThrow(() -> new RequestNotFoundException(id.toString()));
+        return new RequestStatusResponseDto(
+                request.getIdempotencyToken(),
+                request.getStatus());
     }
 }

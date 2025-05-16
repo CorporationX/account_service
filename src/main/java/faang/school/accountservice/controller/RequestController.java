@@ -4,8 +4,6 @@ import faang.school.accountservice.dto.request.RequestCreationDto;
 import faang.school.accountservice.dto.request.RequestResponseDto;
 import faang.school.accountservice.dto.request.RequestStatusResponseDto;
 import faang.school.accountservice.dto.request.RequestUpdateDto;
-import faang.school.accountservice.entity.Request;
-import faang.school.accountservice.exception.RequestNotFoundException;
 import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.service.request.RequestService;
 import jakarta.validation.Valid;
@@ -51,9 +49,6 @@ public class RequestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RequestStatusResponseDto> getStatus(@Valid @NotNull @PathVariable UUID id) {
-        Request request = requestRepository.findById(id).orElseThrow(() ->
-                new RequestNotFoundException(id.toString()));
-        return ResponseEntity.ok(new RequestStatusResponseDto(request.getIdempotencyToken(),
-                request.getStatus()));
+        return ResponseEntity.ok(requestService.getStatus(id));
     }
 }

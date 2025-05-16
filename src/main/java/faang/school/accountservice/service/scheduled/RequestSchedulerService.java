@@ -11,6 +11,8 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -43,6 +45,9 @@ public class RequestSchedulerService {
 
     private Map<String, ThreadPoolExecutor> executorsByType;
 
+    @Value("${app.request.scheduler.page-size:100}")
+    private int pageSize;
+
     @Value("${app.request.scheduler.interval}")
     private long schedulerInterval;
 
@@ -64,28 +69,38 @@ public class RequestSchedulerService {
 
     public void processScheduledRequests() {
         try {
-            List<Request> scheduledRequests = requestRepository
-                    .findAllByStatusAndScheduledAtBefore(RequestStatus.IN_PROGRESS, LocalDateTime.now());
+            int pageNumber = 0;
+            Page<Request> requestPage;
 
-            for (Request request : scheduledRequests) {
-                ThreadPoolExecutor executor = executorsByType.get(request.getType());
+            do {
+                requestPage = requestRepository
+                        .findAllByStatusAndScheduledAtBefore(
+                                RequestStatus.IN_PROGRESS,
+                                LocalDateTime.now(),
+                                PageRequest.of(pageNumber, pageSize));
+                for (Request request : requestPage.getContent()) {
+                    ThreadPoolExecutor executor = executorsByType.get(request.getType());
 
-                if (executor == null) {
-                    String errorMsg = EXECUTOR_NOT_FOUND + request.getType();
-                    log.warn(errorMsg);
-                    continue;
-                }
-
-                executor.submit(() -> {
-                    try {
-                        requestExecutorService.execute(request.getIdempotencyToken());
-                    } catch (Exception e) {
-                        String errorMsg = String.format(EXECUTION_FAILED, request.getIdempotencyToken(), e.getMessage());
-                        log.error(errorMsg, e);
-                        throw new RuntimeException(errorMsg);
+                    if (executor == null) {
+                        String errorMsg = EXECUTOR_NOT_FOUND + request.getType();
+                        log.warn(errorMsg);
+                        continue;
                     }
-                });
+
+                    executor.submit(() -> {
+                        try {
+                            requestExecutorService.execute(request.getIdempotencyToken());
+                        } catch (Exception e) {
+                            String errorMsg = String.format(EXECUTION_FAILED, request.getIdempotencyToken(), e.getMessage());
+                            log.error(errorMsg, e);
+                            throw new RuntimeException(errorMsg);
+                        }
+                    });
+                }
+                pageNumber++;
             }
+            while (requestPage.hasNext());
+
         } catch (Exception e) {
             log.error(PROCESS_ERROR, e);
             throw new RequestSchedulerServiceException(PROCESS_ERROR);
@@ -99,7 +114,7 @@ public class RequestSchedulerService {
             scheduler.shutdownNow();
 
             for (ThreadPoolExecutor executor : executorsByType.values()) {
-                executor.shutdownNow();
+                executor.shutdown();
                 try {
                     if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
                         log.warn(EXECUTOR_TIMEOUT_WARNING);

@@ -5,6 +5,7 @@ app:
   request:
     scheduler:
       interval: 500
+      page-size: 100
 
 
 spring:
