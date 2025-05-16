@@ -54,7 +54,6 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto updateStatus(RequestDto requestDto) {
         Request request = getRequestIfPresent(requestDto);
         request.setRequestStatus(requestDto.getRequestStatus());
-        requestRepository.save(request);
         return requestMapper.toDto(request);
     }
 

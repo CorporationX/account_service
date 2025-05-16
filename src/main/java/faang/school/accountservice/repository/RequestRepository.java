@@ -16,9 +16,6 @@ public interface RequestRepository extends CrudRepository<Request, Long> {
 
     Optional<Request> findByIdempotencyToken(UUID idempotencyToken);
 
-    @Query("SELECT r FROM Request r WHERE r.userId = :userId AND r.isOpen = true")
-    List<Request> findByUserIdAndIsOpen(@Param("userId") Long userId);
-
     @Query("SELECT r FROM Request r WHERE r.updatedAt >= :timestamp")
     List<Request> findRecentlyUpdated(@Param("timestamp") Instant timestamp);
 

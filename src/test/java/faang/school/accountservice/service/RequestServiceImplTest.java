@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.enums.RequestStatus;
+import faang.school.accountservice.exception.InvalidUserException;
 import faang.school.accountservice.mapper.RequestMapperImpl;
 import faang.school.accountservice.repository.RequestRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -106,9 +108,18 @@ public class RequestServiceImplTest {
     }
 
     @Test
+    public void testCreateRequestThrowsException() {
+        when(requestRepository.findByLockValueAndIsOpen(requestDto.getUserId())).thenReturn(List.of(request));
+
+        InvalidUserException exception =
+                assertThrows(InvalidUserException.class, () -> requestService.createRequest(requestDto));
+        assertEquals("User with id " + requestDto.getUserId() + " has open operations",
+                exception.getMessage());
+    }
+
+    @Test
     public void testUpdateStatusSuccessfully() {
         when(requestRepository.findByIdempotencyToken(any(UUID.class))).thenReturn(Optional.of(request));
-        when(requestRepository.save(any(Request.class))).thenReturn(request);
         when(requestMapper.toDto(any(Request.class))).thenReturn(requestDto);
 
         requestDto.setRequestStatus(RequestStatus.DONE);
@@ -116,7 +127,6 @@ public class RequestServiceImplTest {
         RequestDto result = requestService.updateStatus(requestDto);
 
         assertEquals(RequestStatus.DONE, result.getRequestStatus());
-        verify(requestRepository).save(request);
     }
 
     @Test
