@@ -10,7 +10,7 @@ import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.balance.BalanceService2;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validation.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
     private final AccountHelper accountHelper;
-    private final BalanceService2 balanceService2;
+    private final BalanceService balanceService;
 
     /**
      * Получает информацию о счете по его идентификатору.
@@ -76,7 +76,7 @@ public class AccountService {
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setVersion(0);
         account = accountHelper.saveAccount(account);
-        balanceService2.createBalanceForAccount(account.getId());
+        balanceService.createBalanceForAccount(account.getId());
         return accountMapper.toViewDto(account);
     }
 

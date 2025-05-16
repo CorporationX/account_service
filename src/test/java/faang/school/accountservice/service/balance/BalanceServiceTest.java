@@ -2,10 +2,10 @@ package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.exception.AccountNotFoundException;
-import faang.school.accountservice.mapper.BalanceMapper2;
+import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.Balance2;
-import faang.school.accountservice.repository.BalanceRepository2;
+import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.account.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class Balance2ServiceTest {
+class BalanceServiceTest {
 
     @Mock
     private AccountService accountService;
@@ -36,18 +36,18 @@ class Balance2ServiceTest {
     private BalanceHelper balanceHelper;
 
     @Mock
-    private BalanceRepository2 balanceRepository2;
+    private BalanceRepository balanceRepository;
 
     @Mock
-    private BalanceMapper2 balanceMapper;
+    private BalanceMapper balanceMapper;
 
     @InjectMocks
-    private BalanceService2 balanceService2;
+    private BalanceService balanceService;
 
     private final Long accountId = 1L;
     private final BigDecimal amount = new BigDecimal("1000.00");
     private final BalanceViewDto balanceViewDto = new BalanceViewDto();
-    private final Balance2 balance2 = new Balance2();
+    private final Balance balance = new Balance();
 
     @Test
     @DisplayName("Создание баланса, когда счет существует")
@@ -55,10 +55,10 @@ class Balance2ServiceTest {
         Account account = new Account();
         when(accountService.getAccountById(accountId)).thenReturn(account);
 
-        balanceService2.createBalanceForAccount(accountId);
+        balanceService.createBalanceForAccount(accountId);
 
         verify(accountService).getAccountById(accountId);
-        verify(balanceRepository2).save(argThat(balance ->
+        verify(balanceRepository).save(argThat(balance ->
                 balance.getAccount().equals(account)));
     }
 
@@ -67,7 +67,7 @@ class Balance2ServiceTest {
     public void givenValidAmount_whenAuthorize_thenAuthorizeAmountBalance() {
         when(balanceHelper.executeBalanceOperation(eq(accountId), any())).thenReturn(balanceViewDto);
 
-        BalanceViewDto result = balanceService2.authorizeAmount(accountId, amount);
+        BalanceViewDto result = balanceService.authorizeAmount(accountId, amount);
 
         assertEquals(balanceViewDto, result);
         verify(balanceHelper).executeBalanceOperation(eq(accountId), any());
@@ -78,7 +78,7 @@ class Balance2ServiceTest {
     public void givenSufficientAuthBalance_whenClear_thenClearAuthorizedAmountAmount() {
         when(balanceHelper.executeBalanceOperation(eq(accountId), any())).thenReturn(balanceViewDto);
 
-        BalanceViewDto result = balanceService2.clearAuthorizedAmount(accountId, amount);
+        BalanceViewDto result = balanceService.clearAuthorizedAmount(accountId, amount);
 
         assertEquals(balanceViewDto, result);
         verify(balanceHelper).executeBalanceOperation(eq(accountId), any());
@@ -87,12 +87,12 @@ class Balance2ServiceTest {
     @Test
     @DisplayName("Возвращает баланс")
     public void givenExistingBalance_whenGetBalance_thenReturnActualBalance() {
-        Balance2 balance2 = new Balance2();
+        Balance balance = new Balance();
 
-        when(balanceRepository2.findByAccountId(accountId)).thenReturn(Optional.of(balance2));
-        when(balanceMapper.toViewDto(balance2)).thenReturn(balanceViewDto);
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+        when(balanceMapper.toViewDto(balance)).thenReturn(balanceViewDto);
 
-        BalanceViewDto result = balanceService2.getBalance(accountId);
+        BalanceViewDto result = balanceService.getBalance(accountId);
 
         assertNotNull(result);
     }
@@ -102,7 +102,7 @@ class Balance2ServiceTest {
     public void givenValidAmount_whenDeposit_Amount_thenIncreaseBalance() {
         when(balanceHelper.executeBalanceOperation(eq(accountId), any())).thenReturn(balanceViewDto);
 
-        BalanceViewDto result = balanceService2.depositAmount(accountId, amount);
+        BalanceViewDto result = balanceService.depositAmount(accountId, amount);
 
         assertEquals(balanceViewDto, result);
         verify(balanceHelper).executeBalanceOperation(eq(accountId), any());
@@ -113,7 +113,7 @@ class Balance2ServiceTest {
     public void givenSufficientAuthBalance_whenCancelAuthorization_thenCancelAuth() {
         when(balanceHelper.executeBalanceOperation(eq(accountId), any())).thenReturn(balanceViewDto);
 
-        BalanceViewDto result = balanceService2.cancelAuthorization(accountId, amount);
+        BalanceViewDto result = balanceService.cancelAuthorization(accountId, amount);
 
         assertEquals(balanceViewDto, result);
         verify(balanceHelper).executeBalanceOperation(eq(accountId), any());
@@ -122,24 +122,24 @@ class Balance2ServiceTest {
     @Test
     @DisplayName("Получение баланса, когда счет существует")
     public void givenExistingAccountId_whenGetBalanceEntity_thenReturnBalance() {
-        when(balanceRepository2.findByAccountId(accountId))
-                .thenReturn(Optional.of(balance2));
+        when(balanceRepository.findByAccountId(accountId))
+                .thenReturn(Optional.of(balance));
 
-        Balance2 result = balanceService2.getBalanceEntity(accountId);
+        Balance result = balanceService.getBalanceEntity(accountId);
 
         assertNotNull(result);
-        assertEquals(balance2, result);
-        verify(balanceRepository2).findByAccountId(accountId);
+        assertEquals(balance, result);
+        verify(balanceRepository).findByAccountId(accountId);
     }
 
     @Test
     @DisplayName("Получение баланса, когда счет не существует - должен выбросить исключение")
     public void givenNonExistingAccountId_whenGetBalanceEntity_thenThrowException() {
-        when(balanceRepository2.findByAccountId(accountId))
+        when(balanceRepository.findByAccountId(accountId))
                 .thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
-                balanceService2.getBalanceEntity(accountId));
-        verify(balanceRepository2).findByAccountId(accountId);
+                balanceService.getBalanceEntity(accountId));
+        verify(balanceRepository).findByAccountId(accountId);
     }
 }

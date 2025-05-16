@@ -120,5 +120,5 @@ public class Account {
      * Баланс счёта
      */
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Balance2 balance2;
+    private Balance balance;
 }

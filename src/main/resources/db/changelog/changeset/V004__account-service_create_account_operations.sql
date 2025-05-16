@@ -20,7 +20,7 @@ CREATE TABLE account_operations(
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE balance(
+CREATE TABLE balanceDMS(
     account_id UUID PRIMARY KEY,
     auth_balance DECIMAL(19,4) NOT NULL DEFAULT 0,
     clear_balance DECIMAL(19,4) NOT NULL DEFAULT 0,

@@ -9,7 +9,7 @@ import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.account.AccountHelper;
-import faang.school.accountservice.service.balance.BalanceService2;
+import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class AccountValidatorTest {
     private AccountHelper accountHelper;
 
     @Mock
-    private BalanceService2 balanceService2;
+    private BalanceService balanceService;
 
     @InjectMocks
     private AccountValidator accountValidator;
@@ -184,7 +184,7 @@ class AccountValidatorTest {
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
-            when(balanceService2.getBalance(account.getId())).thenReturn(balanceViewDto);
+            when(balanceService.getBalance(account.getId())).thenReturn(balanceViewDto);
 
             assertDoesNotThrow(() -> accountValidator.validateClose(account));
         }
@@ -199,7 +199,7 @@ class AccountValidatorTest {
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
                     .build();
-            when(balanceService2.getBalance(account.getId())).thenReturn(balanceViewDto);
+            when(balanceService.getBalance(account.getId())).thenReturn(balanceViewDto);
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateClose(account));

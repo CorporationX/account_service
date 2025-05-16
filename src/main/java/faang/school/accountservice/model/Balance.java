@@ -1,38 +1,105 @@
 package faang.school.accountservice.model;
 
-import faang.school.accountservice.dto.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.Instant;
 
+/**
+ * Сущность баланса счёта.
+ *
+ * <p>Поддерживает операции:
+ * <ul>
+ *   <li>Резервирование средств ({@link #authorize})</li>
+ *   <li>Пополнение счёта ({@link #deposit})</li>
+ *   <li>Списание средств ({@link #clear})</li>
+ *   <li>Отмена резервирования ({@link #cancelAuthorization})</li>
+ * </ul>
+ */
 @Entity
-@Table(name = "balance")
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "balance")
 public class Balance {
+
+    /**
+     * Уникальный идентификатор баланса
+     */
     @Id
-    @Column(name = "account_id")
-    private UUID accountId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "auth_balance", nullable = false)
-    private BigDecimal authBalance;
+    /**
+     * Счёт, к которому относится данный баланс
+     */
+    @OneToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
-    @Column(name = "clear_balance", nullable = false)
-    private BigDecimal clearBalance;
+    /**
+     * Текущий доступный баланс
+     */
+    @Column(name = "actual_balance", nullable = false, precision = 19, scale = 4)
+    private BigDecimal actualBalance = BigDecimal.ZERO;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency_code", nullable = false, length = 3)
-    private Currency currency;
+    /**
+     * Сумма зарезервированных средств
+     */
+    @Column(name = "authorized_balance", nullable = false, precision = 19, scale = 4)
+    private BigDecimal authorizedBalance = BigDecimal.ZERO;
 
+    /**
+     * Дата и время открытия баланса.
+     */
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    /**
+     * Дата и время последнего обновления
+     */
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
+
+    /**
+     * Версия для оптимистичной блокировки
+     */
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    public void authorize(BigDecimal amount) {
+        actualBalance = actualBalance.subtract(amount);
+        authorizedBalance = authorizedBalance.add(amount);
+    }
+
+    public void clear(BigDecimal amount) {
+        authorizedBalance = authorizedBalance.subtract(amount);
+    }
+
+    public void deposit(BigDecimal amount) {
+        actualBalance = actualBalance.add(amount);
+    }
+
+    public void cancelAuthorization(BigDecimal amount) {
+        authorizedBalance = authorizedBalance.subtract(amount);
+        actualBalance = actualBalance.add(amount);
+    }
 }

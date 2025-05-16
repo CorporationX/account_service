@@ -12,7 +12,7 @@ import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.service.balance.BalanceService2;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validation.AccountValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -54,7 +54,7 @@ class AccountServiceTest {
     private AccountHelper accountHelper;
 
     @Mock
-    private BalanceService2 balanceService2;
+    private BalanceService balanceService;
 
     @InjectMocks
     private AccountService accountService;
@@ -184,13 +184,13 @@ class AccountServiceTest {
             when(accountHelper.saveAccount(any(Account.class))).thenReturn(account);
             when(accountMapper.toViewDto(account)).thenReturn(accountViewDto);
 
-            doNothing().when(balanceService2).createBalanceForAccount(account.getId());
+            doNothing().when(balanceService).createBalanceForAccount(account.getId());
             AccountViewDto result = accountService.openAccount(createDto);
 
             assertEquals(accountViewDto, result);
             verify(accountHelper).generateUniqueAccountNumber();
             verify(accountMapper).toEntity(createDto);
-            verify(balanceService2).createBalanceForAccount(account.getId());
+            verify(balanceService).createBalanceForAccount(account.getId());
             verify(accountHelper).saveAccount(any(Account.class));
             verify(accountMapper).toViewDto(account);
         }

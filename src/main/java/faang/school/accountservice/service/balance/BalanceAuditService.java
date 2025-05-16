@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.model.BalanceDMS;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import jakarta.transaction.Transactional;
@@ -23,8 +23,8 @@ public class BalanceAuditService {
     private final BalanceAuditRepository balanceAuditRepository;
 
     @Transactional
-    public void setAudit(Balance balance, UUID operationId) {
-        BalanceAudit audit = balanceMapper.toBalanceAudit(balance, operationId);
+    public void setAudit(BalanceDMS balanceDMS, UUID operationId) {
+        BalanceAudit audit = balanceMapper.toBalanceAudit(balanceDMS, operationId);
         balanceAuditRepository.save(audit);
     }
 }

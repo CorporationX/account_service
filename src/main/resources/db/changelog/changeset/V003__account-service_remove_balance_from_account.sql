@@ -1,1 +1,1 @@
-ALTER TABLE account DROP COLUMN balance2;
+ALTER TABLE account DROP COLUMN balance;
