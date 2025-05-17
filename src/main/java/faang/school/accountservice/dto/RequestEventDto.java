@@ -2,6 +2,7 @@ package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.NonNull;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public record RequestEventDto(
         @NonNull
         RequestType requestType,
         long blockValue,
-        @NonNull
+        @NotEmpty
         Map<String, Object> body,
         RequestStatus requestStatus,
         String details,
