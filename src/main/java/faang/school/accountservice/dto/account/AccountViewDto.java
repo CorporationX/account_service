@@ -1,16 +1,15 @@
 package faang.school.accountservice.dto.account;
 
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.dto.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.enums.AccountStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Getter
@@ -29,5 +28,5 @@ public class AccountViewDto {
     private Instant updatedAt;
     private Instant closedAt;
     private Integer version;
-    private BigDecimal balance;
+    private Long balanceId;
 }

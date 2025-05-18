@@ -1,9 +1,12 @@
 package faang.school.accountservice.validation;
 
+import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.AccountAlreadyClosedException;
 import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.service.balance.BalanceService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +18,9 @@ import java.math.BigDecimal;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AccountValidator {
+    private final BalanceService balanceService;
 
     /**
      * Проверяет, что новый статус отличается от текущего.
@@ -67,7 +72,9 @@ public class AccountValidator {
      */
     public void validateClose(Account account) {
         validateNotClosed(account);
-        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+        BalanceViewDto balanceViewDto = balanceService.getBalance(account.getId());
+        BigDecimal availableBalance = balanceViewDto.getActualBalance();
+        if (availableBalance.compareTo(BigDecimal.ZERO) != 0) {
             log.error("Attempt to close account with non-zero balance for account ID: {}", account.getId());
             throw new AccountOperationConflictException("Cannot close account with non-zero balance");
         }

@@ -1,132 +1,72 @@
 package faang.school.accountservice.validation;
 
-import faang.school.accountservice.dto.Currency;
-import faang.school.accountservice.exception.BalanceValidationException;
-import faang.school.accountservice.model.AccountOperation;
-import faang.school.accountservice.model.Balance;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
+import faang.school.accountservice.exception.InsufficientFundsException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class BalanceValidatorTest {
+class BalanceValidatorTest {
 
+    @InjectMocks
     private BalanceValidator balanceValidator;
-    private Balance senderBalance;
-    private Balance recipientBalance;
-    private AccountOperation operation;
-    private BigDecimal amount;
-    private UUID accountId1;
-    private UUID accountId2;
 
-    @BeforeEach
-    void setUp() {
-        balanceValidator = new BalanceValidator();
+    @Test
+    @DisplayName("Когда баланс достаточный, исключения не должно быть")
+    public void givenSufficientBalance_whenValidateActualBalanceSufficiency_thenNoException() {
+        BigDecimal balance = new BigDecimal("1000.00");
+        BigDecimal amount = new BigDecimal("500.00");
 
-        accountId1 = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        accountId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
-
-        senderBalance = new Balance();
-        senderBalance.setAccountId(accountId1);
-        senderBalance.setCurrency(Currency.USD);
-        senderBalance.setClearBalance(new BigDecimal("1000"));
-        senderBalance.setAuthBalance(new BigDecimal("500"));
-
-        recipientBalance = new Balance();
-        recipientBalance.setAccountId(accountId2);
-        recipientBalance.setCurrency(Currency.USD);
-        recipientBalance.setClearBalance(new BigDecimal("2000"));
-        recipientBalance.setAuthBalance(new BigDecimal("1000"));
-
-        operation = new AccountOperation();
-        operation.setCurrency(Currency.USD);
-        operation.setAmount(new BigDecimal("500"));
-        operation.setSenderAccountId(accountId1);
-
-        amount = new BigDecimal("400");
+        assertDoesNotThrow(() -> balanceValidator.validateActualBalanceSufficiency(balance, amount));
     }
 
-    @Nested
-    class authAuthorizationTest {
+    @Test
+    @DisplayName("Когда баланс недостаточный, должно выброситься исключение")
+    public void givenInsufficientBalance_whenValidateActualBalanceSufficiency_thenThrowException() {
+        BigDecimal balance = new BigDecimal("300.00");
+        BigDecimal amount = new BigDecimal("500.00");
 
-        @Test
-        void givenValidData_whenAuthValidation_thenSuccess() {
-            assertDoesNotThrow(() -> balanceValidator.authValidation(senderBalance, operation));
-        }
-
-        @Test
-        void givenCurrencyMismatch_whenAuthValidation_thenThrowsException() {
-            operation.setCurrency(Currency.EUR);
-
-            BalanceValidationException exception = assertThrows(BalanceValidationException.class,
-                    () -> balanceValidator.authValidation(senderBalance, operation));
-            assertEquals("Account currency USD doesn't match operation currency EUR", exception.getMessage());
-        }
-
-        @Test
-        void givenInsufficientFunds_whenAuthValidation_ThrowsException() {
-            senderBalance.setClearBalance(new BigDecimal("400"));
-
-            BalanceValidationException exception = assertThrows(BalanceValidationException.class,
-                    () -> balanceValidator.authValidation(senderBalance, operation));
-            assertEquals("Insufficient funds in account " + accountId1 + ". Available: 400, Required: 500",
-                    exception.getMessage());
-        }
+        InsufficientFundsException exception = assertThrows(InsufficientFundsException.class,
+                () -> balanceValidator.validateActualBalanceSufficiency(balance, amount));
+        assertTrue(exception.getMessage().contains(String.format("Insufficient account balance. Available: %s, Required: %s",
+                balance, amount)));
     }
 
-    @Nested
-    class ClearValidationTest {
+    @Test
+    @DisplayName("Когда баланс равен сумме, не должно быть исключения")
+    public void givenEqualBalanceAndAmount_whenValidateActualBalanceSufficiency_thenNoException() {
+        BigDecimal balance = new BigDecimal("500.00");
+        BigDecimal amount = new BigDecimal("500.00");
 
-        @Test
-        void givenValidData_whenClearValidation_thenSuccess() {
-            assertDoesNotThrow(() -> balanceValidator.clearValidation(senderBalance, recipientBalance, amount));
-        }
-
-        @Test
-        void givenCurrencyMismatch_whenClearValidation_thenThrowsException() {
-            recipientBalance.setCurrency(Currency.EUR);
-
-            BalanceValidationException exception = assertThrows(BalanceValidationException.class,
-                    () -> balanceValidator.clearValidation(senderBalance, recipientBalance, amount));
-            assertEquals("Currency mismatch between accounts. Sender: USD, Recipient: EUR", exception.getMessage());
-        }
-
-        @Test
-        void givenInsufficientFunds_whenClearValidation_thenThrowsException() {
-            senderBalance.setAuthBalance(new BigDecimal("300"));
-
-            BalanceValidationException exception = assertThrows(BalanceValidationException.class,
-                    () -> balanceValidator.clearValidation(senderBalance, recipientBalance, amount));
-            assertEquals("Insufficient reserved funds in account " + accountId1 + " for clearing. Available: 300, Required: 400",
-                    exception.getMessage());
-        }
+        assertDoesNotThrow(() -> balanceValidator.validateActualBalanceSufficiency(balance, amount));
     }
 
-    @Nested
-    class CancelValidationTest {
+    @Test
+    @DisplayName("Когда авторизационный баланс достаточный, не должно быть исключения")
+    public void givenSufficientAuthBalance_whenValidateAuthorizedBalanceSufficiency_thenNoException() {// given
+        BigDecimal authBalance = new BigDecimal("800.00");
+        BigDecimal amount = new BigDecimal("400.00");
 
-        @Test
-        void givenValidData_whenCancelValidation_thenSuccess() {
-            assertDoesNotThrow(() -> balanceValidator.cancelValidation(senderBalance, amount));
-        }
+        assertDoesNotThrow(() -> balanceValidator.validateAuthorizedBalanceSufficiency(authBalance, amount));
+    }
 
-        @Test
-        void givenInsufficientFunds_whenCancelValidation_thenThrowsException() {
-            senderBalance.setAuthBalance(new BigDecimal("300"));
+    @Test
+    @DisplayName("Когда авторизационный баланс недостаточный, должно выброситься исключение")
+    public void givenInsufficientAuthBalance_whenValidateAuthorizedBalanceSufficiency_thenThrowException() {
+        BigDecimal authBalance = new BigDecimal("200.00");
+        BigDecimal amount = new BigDecimal("500.00");
 
-            BalanceValidationException exception = assertThrows(BalanceValidationException.class,
-                    () -> balanceValidator.cancelValidation(senderBalance, amount));
-            assertEquals("Insufficient reserved funds in account " + accountId1 + " for cancellation. Available: 300, Required: 400",
-                    exception.getMessage());
-        }
+        InsufficientFundsException exception = assertThrows(InsufficientFundsException.class,
+                () -> balanceValidator.validateAuthorizedBalanceSufficiency(authBalance, amount));
+        assertTrue(exception.getMessage().contains(String.format("Insufficient reserved funds. Available: %s, Required: %s",
+                authBalance, amount)));
     }
 }

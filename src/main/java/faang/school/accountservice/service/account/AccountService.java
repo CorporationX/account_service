@@ -3,23 +3,23 @@ package faang.school.accountservice.service.account;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountViewDto;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.exception.AccountOperationConflictException;
-import faang.school.accountservice.model.Account;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.exception.AccountAlreadyClosedException;
+import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.balance.BalanceService;
 import faang.school.accountservice.validation.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
 
 /**
  * Сервис для работы с банковскими счетами.
@@ -33,6 +33,7 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final AccountValidator accountValidator;
     private final AccountHelper accountHelper;
+    private final BalanceService balanceService;
 
     /**
      * Получает информацию о счете по его идентификатору.
@@ -43,7 +44,7 @@ public class AccountService {
      */
     @Transactional(readOnly = true)
     public AccountViewDto getAccount(Long accountId) {
-        Account account = accountHelper.getAccountById(accountId);
+        Account account = getAccountById(accountId);
         return accountMapper.toViewDto(account);
     }
 
@@ -69,14 +70,14 @@ public class AccountService {
      */
     @Transactional
     public AccountViewDto openAccount(AccountCreateDto createDto) {
-        String accountNumber = accountHelper.generateAccountNumber();
+        String accountNumber = accountHelper.generateUniqueAccountNumber();
         Account account = accountMapper.toEntity(createDto);
         account.setAccountNumber(accountNumber);
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setVersion(0);
-        account.setBalance(BigDecimal.ZERO);
-        Account savedAccount = accountHelper.saveAccount(account);
-        return accountMapper.toViewDto(savedAccount);
+        account = accountHelper.saveAccount(account);
+        balanceService.createBalanceForAccount(account.getId());
+        return accountMapper.toViewDto(account);
     }
 
     /**
@@ -89,7 +90,7 @@ public class AccountService {
      */
     @Transactional
     public AccountViewDto blockAccount(Long accountId) {
-        Account account = accountHelper.getAccountById(accountId);
+        Account account = getAccountById(accountId);
         accountValidator.validateBlock(account);
         return updateAccountStatus(account, AccountStatus.BLOCKED, null);
     }
@@ -105,7 +106,7 @@ public class AccountService {
      */
     @Transactional
     public AccountViewDto closeAccount(Long accountId) {
-        Account account = accountHelper.getAccountById(accountId);
+        Account account = getAccountById(accountId);
         accountValidator.validateClose(account);
         return updateAccountStatus(account, AccountStatus.CLOSED, Instant.now());
     }
@@ -120,9 +121,24 @@ public class AccountService {
      */
     @Transactional
     public AccountViewDto unblockAccount(Long accountId) {
-        Account account = accountHelper.getAccountById(accountId);
+        Account account = getAccountById(accountId);
         accountValidator.validateUnblock(account);
-        return updateAccountStatus(account, AccountStatus.ACTIVE, Instant.now());
+        return updateAccountStatus(account, AccountStatus.ACTIVE, null);
+    }
+
+    /**
+     * Получает учетную запись по идентификатору.
+     *
+     * @param accountId идентификатор учетной записи
+     * @return учетная запись
+     * @throws AccountNotFoundException если учетная запись не найдена
+     */
+    public Account getAccountById(Long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> {
+                    log.error("Account not found with id: {}", accountId);
+                    return new AccountNotFoundException(String.format("Account not found with id: %d", accountId));
+                });
     }
 
     /**
@@ -136,14 +152,8 @@ public class AccountService {
     private AccountViewDto updateAccountStatus(Account account, AccountStatus newStatus, Instant closedAt) {
         accountValidator.validateStatus(account, newStatus);
         account.setAccountStatus(newStatus);
-        Optional.ofNullable(closedAt).ifPresent(account::setClosedAt);
-
-        try {
-            Account updatedAccount = accountHelper.saveAccount(account);
-            return accountMapper.toViewDto(updatedAccount);
-        } catch (ObjectOptimisticLockingFailureException ex) {
-            log.error("Optimistic lock failed after retries for account {}", account.getId(), ex);
-            throw new AccountOperationConflictException("Could not update account due to concurrent modifications");
-        }
+        account.setClosedAt(closedAt);
+        account = accountHelper.saveAccount(account);
+        return accountMapper.toViewDto(account);
     }
 }

@@ -13,7 +13,7 @@ import faang.school.accountservice.model.AccountOperation;
 import faang.school.accountservice.repository.AccountOperationRepository;
 import faang.school.accountservice.service.account.AccountOperationService;
 import faang.school.accountservice.service.account.OperationProcessor;
-import faang.school.accountservice.service.balance.BalanceService;
+import faang.school.accountservice.service.balance.BalanceDMSService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ class AccountOperationServiceTest {
     private AccountOperationMapper accountOperationMapper;
 
     @Mock
-    private BalanceService balanceService;
+    private BalanceDMSService balanceDMSService;
 
     @Mock
     private OperationProcessor operationProcessor;

@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 
@@ -55,7 +54,6 @@ class AccountControllerTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .createdAt(Instant.now())
                     .build();
 
@@ -97,7 +95,6 @@ class AccountControllerTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
             Page<AccountViewDto> page = new PageImpl<>(Collections.singletonList(accountViewDto), pageable, 1);
 
@@ -131,7 +128,6 @@ class AccountControllerTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountService.openAccount(createDto)).thenReturn(accountViewDto);
@@ -159,7 +155,6 @@ class AccountControllerTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.BLOCKED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountService.blockAccount(accountId)).thenReturn(accountViewDto);
@@ -198,7 +193,6 @@ class AccountControllerTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.CLOSED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountService.closeAccount(accountId)).thenReturn(accountViewDto);
@@ -237,7 +231,6 @@ class AccountControllerTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             when(accountService.unblockAccount(accountId)).thenReturn(accountViewDto);

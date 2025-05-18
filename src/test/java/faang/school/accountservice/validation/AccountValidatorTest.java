@@ -1,5 +1,6 @@
 package faang.school.accountservice.validation;
 
+import faang.school.accountservice.dto.balance.BalanceViewDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.dto.Currency;
@@ -8,6 +9,7 @@ import faang.school.accountservice.exception.AccountOperationConflictException;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.account.AccountHelper;
+import faang.school.accountservice.service.balance.BalanceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты для AccountValidator")
@@ -31,6 +34,9 @@ class AccountValidatorTest {
 
     @Mock
     private AccountHelper accountHelper;
+
+    @Mock
+    private BalanceService balanceService;
 
     @InjectMocks
     private AccountValidator accountValidator;
@@ -81,7 +87,6 @@ class AccountValidatorTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             assertDoesNotThrow(() -> accountValidator.validateBlock(account));
@@ -131,7 +136,6 @@ class AccountValidatorTest {
                     .accountType(AccountType.PERSONAL_SETTLEMENT)
                     .currency(Currency.USD)
                     .accountStatus(AccountStatus.BLOCKED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             assertDoesNotThrow(() -> accountValidator.validateUnblock(account));
@@ -173,12 +177,14 @@ class AccountValidatorTest {
         @Test
         @DisplayName("Успешная валидация для закрытия счета с нулевым балансом")
         void givenZeroBalanceAccount_WhenValidateClose_ThenPasses() {
+            BalanceViewDto balanceViewDto = new BalanceViewDto();
+            balanceViewDto.setActualBalance(BigDecimal.ZERO);
             Account account = Account.builder()
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(BigDecimal.ZERO)
                     .build();
+            when(balanceService.getBalance(account.getId())).thenReturn(balanceViewDto);
 
             assertDoesNotThrow(() -> accountValidator.validateClose(account));
         }
@@ -186,12 +192,14 @@ class AccountValidatorTest {
         @Test
         @DisplayName("Закрытие счета с ненулевым балансом")
         void givenNonZeroBalanceAccount_WhenValidateClose_ThenThrowsConflictException() {
+            BalanceViewDto balanceViewDto = new BalanceViewDto();
+            balanceViewDto.setActualBalance(BigDecimal.TEN);
             Account account = Account.builder()
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.ACTIVE)
-                    .balance(new BigDecimal("100.00"))
                     .build();
+            when(balanceService.getBalance(account.getId())).thenReturn(balanceViewDto);
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,
                     () -> accountValidator.validateClose(account));
@@ -205,7 +213,6 @@ class AccountValidatorTest {
                     .id(1L)
                     .accountNumber("1234567890123456")
                     .accountStatus(AccountStatus.CLOSED)
-                    .balance(BigDecimal.ZERO)
                     .build();
 
             AccountOperationConflictException exception = assertThrows(AccountOperationConflictException.class,

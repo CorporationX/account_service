@@ -10,7 +10,7 @@ import faang.school.accountservice.exception.OperationNotFound;
 import faang.school.accountservice.mapper.AccountOperationMapper;
 import faang.school.accountservice.model.AccountOperation;
 import faang.school.accountservice.repository.AccountOperationRepository;
-import faang.school.accountservice.service.balance.BalanceService;
+import faang.school.accountservice.service.balance.BalanceDMSService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ import java.util.UUID;
 public class AccountOperationService {
     private final AccountOperationRepository accountOperationRepository;
     private final AccountOperationMapper accountOperationMapper;
-    private final BalanceService balanceService;
+    private final BalanceDMSService balanceDMSService;
     private final OperationProcessor operationProcessor;
 
     @Transactional
@@ -48,7 +48,7 @@ public class AccountOperationService {
         operationProcessor.processOperation(operation,
                 operationId,
                 OperationType.AUTHORIZATION,
-                () -> balanceService.reserveFounds(operation));
+                () -> balanceDMSService.reserveFounds(operation));
     }
 
     @Transactional
@@ -71,7 +71,7 @@ public class AccountOperationService {
         operationProcessor.processOperation(operation,
                 operationId,
                 OperationType.CLEARING,
-                () -> balanceService.clearBalance(operation));
+                () -> balanceDMSService.clearBalance(operation));
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class AccountOperationService {
         operationProcessor.processOperation(operation,
                 operationId,
                 OperationType.CANCELLATION,
-                () -> balanceService.cancelBalance(operation));
+                () -> balanceDMSService.cancelBalance(operation));
     }
 
     public AccountOperationViewDto getOperation(@NotNull UUID operationId) {
