@@ -56,8 +56,10 @@ class RequestServiceImplTest {
     private RequestEventsOutboxProcessor requestEventsOutboxProcessor;
 
     @Spy
+    @SuppressWarnings("unused")
     private RequestMapper requestMapper = Mappers.getMapper(RequestMapper.class);
     @Spy
+    @SuppressWarnings("unused")
     private RequestEventMapper requestEventMapper = Mappers.getMapper(RequestEventMapper.class);
 
     @Captor
@@ -390,7 +392,7 @@ class RequestServiceImplTest {
         DataValidationException exception = assertThrows(DataValidationException.class, () ->
                 requestService.updateRequestBodyByToken(requestToken, newBody));
 
-        assertTrue(exception.getMessage().contains("already done"));
+        assertTrue(exception.getMessage().contains("already DONE"));
         verify(requestRepository, never()).save(any());
         verify(requestEventService, never()).create(any());
         verify(requestEventsOutboxProcessor, never()).newRequestEventsAdded();
@@ -415,14 +417,14 @@ class RequestServiceImplTest {
         DataValidationException exception = assertThrows(DataValidationException.class, () ->
                 requestService.updateRequestBodyByToken(requestToken, newBody));
 
-        assertTrue(exception.getMessage().contains("already cancelled"));
+        assertTrue(exception.getMessage().contains("already CANCELLED"));
         verify(requestRepository, never()).save(any());
         verify(requestEventService, never()).create(any());
         verify(requestEventsOutboxProcessor, never()).newRequestEventsAdded();
     }
 
     @Test
-    public void testUpdateRequestBodyByToken_shouldStillUpdateBody_whenBodyIsEmpty_() {
+    public void testUpdateRequestBodyByToken_shouldStillUpdateBody_whenBodyIsEmpty() {
         // Arrange
         var requestToken = UUID.randomUUID();
         var request = Request.builder()

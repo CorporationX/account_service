@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +29,14 @@ public class RequestEventsOutboxProcessor {
     private enum Token {INSTANCE}
 
     public static final int EXECUTOR_FINISH_WAITING_TIMEOUT_SECONDS = 5;
-    public static final int PAUSE_TIMEOUT_MS = 1000;
-    public static final int REQUEST_EVENTS_BATCH_SIZE = 100;
+
+    @Value("${request-events-outbox-processor-pause-timeout_ms}")
+    @SuppressWarnings("unused")
+    private int pauseTimeoutMs;
+
+    @Value("${request-events-outbox-processor-request-events-batch-size}")
+    @SuppressWarnings("unused")
+    private int requestEventsBatchSize;
 
     private final BlockingQueue<Token> signalQueue = new LinkedBlockingQueue<>();
     private final RequestEventService requestEventService;
@@ -95,7 +102,7 @@ public class RequestEventsOutboxProcessor {
 
     private List<RequestEventEvent> fetchRequestEvents() {
         try {
-            return requestEventService.getEventsSortedByCreationDate(REQUEST_EVENTS_BATCH_SIZE);
+            return requestEventService.getEventsSortedByCreationDate(requestEventsBatchSize);
         } catch (DataAccessException ex) {
             log.error("Cannot retrieve request events from database: {}", ex.getMessage(), ex);
             pause();
@@ -106,7 +113,7 @@ public class RequestEventsOutboxProcessor {
 
     private void pause() {
         try {
-            Thread.sleep(PAUSE_TIMEOUT_MS);
+            Thread.sleep(pauseTimeoutMs);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             log.error("Unexpected interrupted exception on pause: {}", ex.getMessage(), ex);

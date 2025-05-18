@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RequestEventsOutboxProcessorTest {
 
+    public static final int PAUSE_TIMEOUT_MS = 1000;
+    public static final int REQUEST_EVENTS_BATCH_SIZE = 100;
+
     @Mock
     private RequestEventService requestEventService;
     @Mock
@@ -60,6 +64,9 @@ public class RequestEventsOutboxProcessorTest {
 
         testEvents = List.of(getTestRequestEventEvent(), getTestRequestEventEvent());
         testExecutor = Executors.newSingleThreadExecutor();
+
+        ReflectionTestUtils.setField(processor, "pauseTimeoutMs", PAUSE_TIMEOUT_MS);
+        ReflectionTestUtils.setField(processor, "requestEventsBatchSize", REQUEST_EVENTS_BATCH_SIZE);
     }
 
     @AfterEach
@@ -106,7 +113,7 @@ public class RequestEventsOutboxProcessorTest {
 
         processor.newRequestEventsAdded();
 
-        TimeUnit.MILLISECONDS.sleep(RequestEventsOutboxProcessor.PAUSE_TIMEOUT_MS + 200);
+        TimeUnit.MILLISECONDS.sleep(PAUSE_TIMEOUT_MS + 200);
 
         verify(requestEventsPublisher).publish(oneMoreEvent);
     }
@@ -120,7 +127,7 @@ public class RequestEventsOutboxProcessorTest {
         // Act
         startProcessor();
         processor.newRequestEventsAdded();
-        TimeUnit.MILLISECONDS.sleep(RequestEventsOutboxProcessor.PAUSE_TIMEOUT_MS + 200);
+        TimeUnit.MILLISECONDS.sleep(PAUSE_TIMEOUT_MS + 200);
 
         // Assert
         verify(requestEventService, atLeast(1)).getEventsSortedByCreationDate(anyInt());

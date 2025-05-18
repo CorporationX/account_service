@@ -93,8 +93,10 @@ public class RequestServiceImpl implements RequestService {
             throw new DataValidationException("Request %s is already closed".formatted(requestToken));
         }
 
-        throw new DataValidationException("Request %s is already %s".formatted(requestToken,
-                request.getRequestStatus().name()));
+        if (request.getRequestStatus() == RequestStatus.DONE || request.getRequestStatus() == RequestStatus.CANCELLED) {
+            throw new DataValidationException("Request %s is already %s".formatted(requestToken,
+                    request.getRequestStatus().name()));
+        }
     }
 
     private boolean doesUserExist(long userId) {
