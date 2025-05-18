@@ -82,6 +82,10 @@ public class Account {
     @Column(name = "version", nullable = false)
     private int version;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Balance balance;
+
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private SavingsAccount savingsAccount;
+
 }
