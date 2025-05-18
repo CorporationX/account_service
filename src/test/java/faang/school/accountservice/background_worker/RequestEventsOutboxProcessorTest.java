@@ -60,7 +60,8 @@ public class RequestEventsOutboxProcessorTest {
 
     @BeforeEach
     public void setUp() {
-        processor = new RequestEventsOutboxProcessor(requestEventService, requestEventsPublisher);
+        processor = new RequestEventsOutboxProcessor(requestEventService, requestEventsPublisher,
+                Executors.newSingleThreadExecutor());
 
         testEvents = List.of(getTestRequestEventEvent(), getTestRequestEventEvent());
         testExecutor = Executors.newSingleThreadExecutor();

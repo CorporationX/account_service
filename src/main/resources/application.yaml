@@ -46,3 +46,8 @@ services:
   payment-service:
     host: localhost
     port: 9080
+
+outbox-processor:
+  pause-timeout-ms: 1000
+  request-events-batch-size: 100
+  threads-pool-size: 1

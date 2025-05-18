@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -33,25 +33,37 @@ public class RequestEventsOutboxProcessor {
 
     public static final int EXECUTOR_FINISH_WAITING_TIMEOUT_SECONDS = 5;
 
-    @Value("${request-events-outbox-processor-pause-timeout_ms}")
+    /**
+     * Pause duration in ms
+     */
+    @Value("${outbox-processor.pause-timeout-ms}")
     @SuppressWarnings("unused")
     private int pauseTimeoutMs;
 
-    @Value("${request-events-outbox-processor-request-events-batch-size}")
+    /**
+     * Size of fetching events chunk
+     */
+    @Value("${outbox-processor.request-events-batch-size}")
     @SuppressWarnings("unused")
     private int requestEventsBatchSize;
 
+    /**
+     * Blocking queue to waiting for request events
+     */
     private final BlockingQueue<Token> signalQueue = new LinkedBlockingQueue<>();
     private final RequestEventService requestEventService;
     private final RequestEventsPublisher requestEventsPublisher;
 
-    private ExecutorService executor;
+    @Qualifier("outboxProcessorPool")
+    private final ExecutorService executor;
+    /**
+     * This future processes request events in background
+     */
     private Future<?> processingRequestEventsTask;
 
     @PostConstruct
     @SuppressWarnings("unused")
     public void init() {
-        executor = Executors.newSingleThreadExecutor();
         processingRequestEventsTask = executor.submit(this::processRequestEvents);
     }
 
