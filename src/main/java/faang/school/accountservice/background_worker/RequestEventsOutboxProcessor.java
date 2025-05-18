@@ -21,6 +21,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class to process request events in background
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -61,10 +64,16 @@ public class RequestEventsOutboxProcessor {
         stopProcessing();
     }
 
+    /**
+     * Notified internal background worker to events have been added
+     */
     public void newRequestEventsAdded() {
         signalQueue.add(Token.INSTANCE);
     }
 
+    /**
+     * Gracefully stop background thread
+     */
     private void stopProcessing() {
         executor.shutdown();
         processingRequestEventsTask.cancel(false);
@@ -82,14 +91,19 @@ public class RequestEventsOutboxProcessor {
         }
     }
 
+    /**
+     * Process request events.
+     */
     private void processRequestEvents() {
         while (!Thread.currentThread().isInterrupted()) {
             signalQueue.clear();
 
             var eventsToPublish = fetchRequestEvents();
             if (eventsToPublish.isEmpty()) {
+                // There are not any events to process -> wait
                 waitForNextEvents();
             } else {
+                // Process retrieved events and delete processed ones from DB
                 List<UUID> eventIdsToDelete = new ArrayList<>();
                 eventsToPublish.forEach(eventToPublish -> publishEvent(eventToPublish, eventIdsToDelete));
 
@@ -100,6 +114,10 @@ public class RequestEventsOutboxProcessor {
         }
     }
 
+    /**
+     * Fetch data from DB, pause if fetching has been failed.
+     * @return fetched data
+     */
     private List<RequestEventEvent> fetchRequestEvents() {
         try {
             return requestEventService.getEventsSortedByCreationDate(requestEventsBatchSize);
@@ -111,6 +129,9 @@ public class RequestEventsOutboxProcessor {
         }
     }
 
+    /**
+     * Just pause pauseTimeoutMs milliseconds
+     */
     private void pause() {
         try {
             Thread.sleep(pauseTimeoutMs);
@@ -120,6 +141,12 @@ public class RequestEventsOutboxProcessor {
         }
     }
 
+    /**
+     * Publish event to REDIS by requestEventsPublisher
+     * @param eventToPublish event to publish, obviously
+     * @param eventIdsToDelete List is contained processed events to delete theirs after processing.
+     *                         Method add new event to list after publishing is succeeded
+     */
     private void publishEvent(RequestEventEvent eventToPublish, List<UUID> eventIdsToDelete) {
         try {
             requestEventsPublisher.publish(eventToPublish);
@@ -130,6 +157,9 @@ public class RequestEventsOutboxProcessor {
         }
     }
 
+    /**
+     * Wait for newRequestEventsAdded has been called to start retrieving events by requestEventService
+     */
     private void waitForNextEvents() {
         try {
             signalQueue.take();
