@@ -12,7 +12,7 @@ public interface BalanceService {
 
     Balance authorize(Long accountId, BigDecimal amount);
 
-    Balance clear(Long accountId, BigDecimal amount);
+    Balance clear(Long accountId, BigDecimal amount, BigDecimal authorizedAmount);
 
     Balance cancelAuthorization(Long accountId, BigDecimal amount);
 

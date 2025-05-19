@@ -31,8 +31,8 @@ public class BalanceConverter {
         return balanceMapper.toResponseBalanceDto(balanceService.authorize(accountId, amount));
     }
 
-    public ResponseBalanceDto clear(Long accountId, BigDecimal amount) {
-        return balanceMapper.toResponseBalanceDto(balanceService.clear(accountId, amount));
+    public ResponseBalanceDto clear(Long accountId, BigDecimal amount, BigDecimal authorizedAmount) {
+        return balanceMapper.toResponseBalanceDto(balanceService.clear(accountId, amount, authorizedAmount));
     }
 
     public ResponseBalanceDto cancelAuthorization(Long accountId, BigDecimal amount) {

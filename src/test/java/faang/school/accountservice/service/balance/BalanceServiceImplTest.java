@@ -48,6 +48,7 @@ class BalanceServiceImplTest {
         balance = new Balance();
         balance.setActualBalance(BigDecimal.valueOf(500));
         balance.setAuthorizedBalance(BigDecimal.ZERO);
+        balance.setAccount(new Account());
     }
 
     @Test
@@ -94,16 +95,12 @@ class BalanceServiceImplTest {
 
     @Test
     void testAuthorizeSuccessfulAuthorization() {
-        Balance balance = new Balance();
-        balance.setActualBalance(BigDecimal.valueOf(500));
-        balance.setAuthorizedBalance(BigDecimal.ZERO);
-
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
 
         Balance result = balanceService.authorize(accountId, amount);
 
-        assertEquals(BigDecimal.valueOf(400), result.getActualBalance());
+        assertEquals(BigDecimal.valueOf(500), result.getActualBalance());
         assertEquals(amount, result.getAuthorizedBalance());
         verify(balanceRepository).save(balance);
     }
@@ -125,16 +122,29 @@ class BalanceServiceImplTest {
 
     @Test
     void testAuthorizeInsufficientFundsThrowsException() {
-        Balance balance = new Balance();
         balance.setActualBalance(BigDecimal.TEN);
-
+        balance.setAuthorizedBalance(BigDecimal.ZERO);
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> balanceService.authorize(accountId, amount));
 
-        assertEquals("Insufficient actual funds", exception.getMessage());
+        assertEquals("Insufficient available funds for authorization", exception.getMessage());
         verify(balanceRepository, never()).save(any());
+    }
+
+    @Test
+    void testAuthorizeWithExistingAuthorizedBalance() {
+        balance.setActualBalance(BigDecimal.valueOf(500));
+        balance.setAuthorizedBalance(BigDecimal.valueOf(50));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.save(balance)).thenReturn(balance);
+
+        Balance result = balanceService.authorize(accountId, amount);
+
+        assertEquals(BigDecimal.valueOf(500), result.getActualBalance());
+        assertEquals(BigDecimal.valueOf(150), result.getAuthorizedBalance());
+        verify(balanceRepository).save(balance);
     }
 
     @Test
@@ -146,23 +156,33 @@ class BalanceServiceImplTest {
     }
 
     @Test
+    void testAuthorizeNullAmountThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> balanceService.authorize(accountId, null));
+
+        assertEquals("Amount cannot be null", exception.getMessage());
+        verifyNoInteractions(balanceRepository);
+    }
+
+    @Test
     void testClearSuccessfulClear() {
-        Balance balance = new Balance();
+        balance.setActualBalance(BigDecimal.valueOf(500));
         balance.setAuthorizedBalance(BigDecimal.valueOf(150));
 
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
 
-        Balance result = balanceService.clear(accountId, amount);
+        Balance result = balanceService.clear(accountId, amount, BigDecimal.valueOf(150));
 
-        assertEquals(BigDecimal.valueOf(50), result.getAuthorizedBalance());
+        assertEquals(BigDecimal.valueOf(400), result.getActualBalance());
+        assertEquals(BigDecimal.ZERO, result.getAuthorizedBalance());
         verify(balanceRepository).save(balance);
     }
 
     @Test
     void testClearNegativeAmountThrowsException() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> balanceService.clear(accountId, BigDecimal.valueOf(-1)));
+                () -> balanceService.clear(accountId, BigDecimal.valueOf(-1), BigDecimal.valueOf(100)));
 
         assertEquals("Clear amount must be positive", exception.getMessage());
         verifyNoInteractions(balanceRepository);
@@ -171,20 +191,18 @@ class BalanceServiceImplTest {
     @Test
     void testClearZeroAmountThrowsException() {
         assertThrows(IllegalArgumentException.class,
-                () -> balanceService.clear(accountId, BigDecimal.ZERO));
+                () -> balanceService.clear(accountId, BigDecimal.ZERO, BigDecimal.valueOf(100)));
     }
 
     @Test
     void testClearInsufficientAuthorizedFundsThrowsException() {
-        Balance balance = new Balance();
         balance.setAuthorizedBalance(BigDecimal.TEN);
-
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> balanceService.clear(accountId, amount));
+                () -> balanceService.clear(accountId, amount, BigDecimal.valueOf(150)));
 
-        assertEquals("Insufficient authorized funds", exception.getMessage());
+        assertEquals("Insufficient authorized funds for clearing", exception.getMessage());
         verify(balanceRepository, never()).save(any());
     }
 
@@ -193,14 +211,59 @@ class BalanceServiceImplTest {
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> balanceService.clear(accountId, amount));
+                () -> balanceService.clear(accountId, amount, BigDecimal.valueOf(150)));
+    }
+
+    @Test
+    void testClearNullAmountThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> balanceService.clear(accountId, null, BigDecimal.valueOf(150)));
+
+        assertEquals("Amount cannot be null", exception.getMessage());
+        verifyNoInteractions(balanceRepository);
+    }
+
+    @Test
+    void testClearNullAuthorizedAmountThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> balanceService.clear(accountId, BigDecimal.valueOf(100), null));
+
+        assertEquals("Amount cannot be null", exception.getMessage());
+        verifyNoInteractions(balanceRepository);
+    }
+
+    @Test
+    void testClearAmountGreaterThanAuthorizedThrowsException() {
+        balance.setActualBalance(BigDecimal.valueOf(500));
+        balance.setAuthorizedBalance(BigDecimal.valueOf(150));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> balanceService.clear(accountId, BigDecimal.valueOf(200), BigDecimal.valueOf(150)));
+
+        assertEquals("Clear amount cannot be greater than authorized amount", exception.getMessage());
+        verify(balanceRepository, never()).save(any());
+    }
+
+    @Test
+    void testClearPartialAmount() {
+        balance.setActualBalance(BigDecimal.valueOf(500));
+        balance.setAuthorizedBalance(BigDecimal.valueOf(150));
+
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.save(balance)).thenReturn(balance);
+
+        Balance result = balanceService.clear(accountId, BigDecimal.valueOf(50), BigDecimal.valueOf(150));
+
+        assertEquals(BigDecimal.valueOf(450), result.getActualBalance());
+        assertEquals(BigDecimal.ZERO, result.getAuthorizedBalance());
+        verify(balanceRepository).save(balance);
     }
 
     @Test
     void testCancelAuthorizationSuccessfulCancellation() {
-        Balance balance = new Balance();
         balance.setAuthorizedBalance(BigDecimal.valueOf(150));
-        balance.setActualBalance(BigDecimal.valueOf(200));
+        balance.setActualBalance(BigDecimal.valueOf(500));
 
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
@@ -208,7 +271,7 @@ class BalanceServiceImplTest {
         Balance result = balanceService.cancelAuthorization(accountId, amount);
 
         assertEquals(BigDecimal.valueOf(50), result.getAuthorizedBalance());
-        assertEquals(BigDecimal.valueOf(300), result.getActualBalance());
+        assertEquals(BigDecimal.valueOf(500), result.getActualBalance());
         verify(balanceRepository).save(balance);
     }
 
@@ -229,7 +292,6 @@ class BalanceServiceImplTest {
 
     @Test
     void testCancelAuthorizationInsufficientAuthorizedFundsThrowsException() {
-        Balance balance = new Balance();
         balance.setAuthorizedBalance(BigDecimal.TEN);
         balance.setActualBalance(BigDecimal.valueOf(500));
 
@@ -251,8 +313,16 @@ class BalanceServiceImplTest {
     }
 
     @Test
+    void testCancelAuthorizationNullAmountThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> balanceService.cancelAuthorization(accountId, null));
+
+        assertEquals("Amount cannot be null", exception.getMessage());
+        verifyNoInteractions(balanceRepository);
+    }
+
+    @Test
     void testCancelAuthorizationFullAmountCancellation() {
-        Balance balance = new Balance();
         balance.setAuthorizedBalance(amount);
         balance.setActualBalance(BigDecimal.valueOf(500));
 
@@ -262,14 +332,15 @@ class BalanceServiceImplTest {
         Balance result = balanceService.cancelAuthorization(accountId, amount);
 
         assertEquals(BigDecimal.ZERO, result.getAuthorizedBalance());
-        assertEquals(BigDecimal.valueOf(600), result.getActualBalance());
+        assertEquals(BigDecimal.valueOf(500), result.getActualBalance());
+        verify(balanceRepository).save(balance);
     }
 
     @Test
-    void testCancelAuthorizationVerifyActualBalanceCalculation() {
-        Balance balance = new Balance();
+    void testCancelAuthorizationVerifyActualBalanceUnchanged() {
+        BigDecimal initialActualBalance = BigDecimal.valueOf(250);
         balance.setAuthorizedBalance(BigDecimal.valueOf(150));
-        balance.setActualBalance(BigDecimal.valueOf(250));
+        balance.setActualBalance(initialActualBalance);
 
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
@@ -277,20 +348,19 @@ class BalanceServiceImplTest {
         Balance result = balanceService.cancelAuthorization(accountId, BigDecimal.valueOf(70));
 
         assertEquals(BigDecimal.valueOf(80), result.getAuthorizedBalance());
-        assertEquals(BigDecimal.valueOf(320), result.getActualBalance());
+        assertEquals(initialActualBalance, result.getActualBalance());
+        verify(balanceRepository).save(balance);
     }
 
     @Test
     void testReplenishSuccessfulReplenishment() {
-        Balance balance = new Balance();
-        balance.setActualBalance(BigDecimal.valueOf(500));
-
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
 
         Balance result = balanceService.replenish(accountId, amount);
 
         assertEquals(BigDecimal.valueOf(600), result.getActualBalance());
+        assertEquals(BigDecimal.ZERO, result.getAuthorizedBalance());
         verify(balanceRepository).save(balance);
     }
 
@@ -319,9 +389,7 @@ class BalanceServiceImplTest {
 
     @Test
     void testReplenishVerifyDecimalPrecision() {
-        Balance balance = new Balance();
         balance.setActualBalance(new BigDecimal("500.50"));
-
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
 
@@ -332,9 +400,7 @@ class BalanceServiceImplTest {
 
     @Test
     void testReplenishFromZeroBalance() {
-        Balance balance = new Balance();
         balance.setActualBalance(BigDecimal.ZERO);
-
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
 
@@ -345,15 +411,22 @@ class BalanceServiceImplTest {
 
     @Test
     void testReplenishLargeAmount() {
-        Balance balance = new Balance();
         balance.setActualBalance(BigDecimal.valueOf(1_000_000));
-
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceRepository.save(balance)).thenReturn(balance);
 
         Balance result = balanceService.replenish(accountId, BigDecimal.valueOf(500_000));
 
         assertEquals(BigDecimal.valueOf(1_500_000), result.getActualBalance());
+    }
+
+    @Test
+    void testReplenishNullAmountThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> balanceService.replenish(accountId, null));
+
+        assertEquals("Amount cannot be null", exception.getMessage());
+        verifyNoInteractions(balanceRepository);
     }
 
     @Test

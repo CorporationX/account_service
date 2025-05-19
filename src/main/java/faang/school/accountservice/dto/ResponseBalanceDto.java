@@ -3,7 +3,7 @@ package faang.school.accountservice.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 public class ResponseBalanceDto {
@@ -13,6 +13,6 @@ public class ResponseBalanceDto {
     private BigDecimal authorizedBalance;
     private BigDecimal actualBalance;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

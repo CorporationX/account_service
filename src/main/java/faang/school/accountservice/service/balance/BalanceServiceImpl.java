@@ -47,21 +47,16 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Transactional
-    @Retryable(
-            value = OptimisticLockException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 100))
     @Override
     public Balance authorize(Long accountId, BigDecimal amount) {
         log.info("Authorizing amount: {} for accountId: {}", amount, accountId);
         validateAmountPositive(amount, "Authorization amount must be positive");
 
         Balance balance = findByAccountId(accountId);
-        validateSufficientFunds(balance.getActualBalance(), amount, "Insufficient actual funds");
+        BigDecimal availableBalance = balance.getActualBalance().subtract(balance.getAuthorizedBalance());
+        validateSufficientFunds(availableBalance, amount, "Insufficient available funds for authorization");
 
-        balance.setActualBalance(balance.getActualBalance().subtract(amount));
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
-
         return saveBalance(balance);
     }
 
@@ -71,14 +66,23 @@ public class BalanceServiceImpl implements BalanceService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 100))
     @Override
-    public Balance clear(Long accountId, BigDecimal amount) {
-        log.info("Clearing authorized amount: {} for accountId: {}", amount, accountId);
+    public Balance clear(Long accountId, BigDecimal amount, BigDecimal authorizedAmount) {
+        log.info("Clearing (settling) authorized amount: {} (from total authorized: {}) for accountId: {}", 
+                amount, authorizedAmount, accountId);
         validateAmountPositive(amount, "Clear amount must be positive");
+        validateAmountPositive(authorizedAmount, "Authorized amount must be positive");
 
         Balance balance = findByAccountId(accountId);
-        validateSufficientFunds(balance.getAuthorizedBalance(), amount, "Insufficient authorized funds");
+        validateSufficientFunds(balance.getAuthorizedBalance(), authorizedAmount, 
+                "Insufficient authorized funds for clearing");
+        
+        if (amount.compareTo(authorizedAmount) > 0) {
+            throw new IllegalArgumentException("Clear amount cannot be greater than authorized amount");
+        }
 
-        balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(amount));
+        balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(authorizedAmount));
+        balance.setActualBalance(balance.getActualBalance().subtract(amount));
+
         return saveBalance(balance);
     }
 
@@ -96,8 +100,6 @@ public class BalanceServiceImpl implements BalanceService {
         validateSufficientFunds(balance.getAuthorizedBalance(), amount, "Insufficient authorized funds to cancel");
 
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(amount));
-        balance.setActualBalance(balance.getActualBalance().add(amount));
-
         return saveBalance(balance);
     }
 
@@ -129,6 +131,9 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     private void validateAmountPositive(BigDecimal amount, String errorMessage) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(errorMessage);
         }

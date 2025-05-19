@@ -12,4 +12,8 @@ public class BalanceOperationRequest {
     @NotNull
     @PositiveOrZero
     private BigDecimal amount;
+
+    @NotNull
+    @PositiveOrZero
+    private BigDecimal authorizedAmount;
 }

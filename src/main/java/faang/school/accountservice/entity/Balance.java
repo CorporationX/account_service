@@ -19,7 +19,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @NoArgsConstructor
@@ -53,12 +53,12 @@ public class Balance {
     private BigDecimal actualBalance;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, insertable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at")
+    private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", updatable = false, insertable = false)
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 
     @Version
     @Column(name = "version")
