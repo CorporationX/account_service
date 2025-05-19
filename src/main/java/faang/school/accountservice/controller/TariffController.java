@@ -19,19 +19,22 @@ public class TariffController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public TariffDto createTariff(@RequestBody @Validated(TariffDto.Create.class) TariffDto tariffDto) {
+    public TariffDto createTariff(
+            @RequestBody @Validated(TariffDto.Create.class) TariffDto tariffDto) {
         return tariffService.createTariff(tariffDto);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/{id}")
-    public TariffDto updateTariffById(@Positive @PathVariable Long id, @RequestParam BigDecimal rate) {
+    @PutMapping()
+    public TariffDto updateTariffById(@Positive @PathVariable Long id,
+                                      @RequestParam @Positive BigDecimal rate) {
         return tariffService.updateTariff(id, rate);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{id}")
-    public TariffDto getTariffById(@Positive @PathVariable Long id) {
+    @GetMapping()
+    public TariffDto getTariffById(
+            @Positive @PathVariable Long id) {
         return tariffService.getTariff(id);
     }
 }

@@ -2,6 +2,7 @@ package faang.school.accountservice.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,9 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-
-import jakarta.persistence.Entity;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -53,11 +51,4 @@ public class SavingsAccount {
 
     @Column(name = "updated_at", insertable = false)
     private LocalDateTime updatedAt;
-
-
-
-
-
-
-
 }

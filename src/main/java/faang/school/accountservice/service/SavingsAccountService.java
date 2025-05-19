@@ -71,7 +71,7 @@ public class SavingsAccountService {
             throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
         }
 
-        List<Object[]> savingsAccounts = savingsAccountRepository.getSavingsAccountsWithLastTariffRate(numbers);
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.getSavingsAccountsWithLastTariffRate(numbers);
         if (savingsAccounts.isEmpty()) {
             throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
         }
@@ -80,32 +80,14 @@ public class SavingsAccountService {
                 .toList();
     }
 
-    private SavingsAccountDto mapToSavingsAccountDto(Object[] obj) {
-        Long id = ((Number) obj[0]).longValue();
-        Long tariffId = ((Number) obj[1]).longValue();
-        BigDecimal rate = (BigDecimal) obj[2];
-        LocalDateTime lastDatePercent = convertObjectToLocalDateTime(obj[3]);
-        LocalDateTime createdAt = convertObjectToLocalDateTime(obj[4]);
-        LocalDateTime updatedAt = convertObjectToLocalDateTime(obj[5]);
+    private SavingsAccountDto mapToSavingsAccountDto(SavingsAccount account) {
+        Long id = account.getId();
+        LocalDateTime lastDatePercent = account.getLastDatePercent();
+        LocalDateTime createdAt = account.getCreatedAt();
+        LocalDateTime updatedAt = account.getUpdatedAt();
 
         return SavingsAccountDto.builder()
-                .id(id).tariffId(tariffId).rate(rate).lastDatePercent(lastDatePercent)
+                .id(id).lastDatePercent(lastDatePercent)
                 .createdAt(createdAt).updatedAt(updatedAt).build();
     }
-
-    private LocalDateTime convertObjectToLocalDateTime(Object obj) {
-        if (obj == null) return null;
-        LocalDateTime createdAt;
-        if (obj instanceof Timestamp) {
-            createdAt = ((Timestamp) obj).toLocalDateTime();
-        } else if (obj instanceof Instant) {
-            createdAt = LocalDateTime.ofInstant((Instant) obj, ZoneId.systemDefault());
-        } else {
-            throw new IllegalArgumentException("Unsupported data type: " + obj.getClass());
-        }
-        return createdAt;
-    }
-
-
-
 }

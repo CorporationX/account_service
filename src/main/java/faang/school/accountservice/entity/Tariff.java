@@ -35,7 +35,4 @@ public class Tariff {
 
     @OneToMany(mappedBy = "tariff")
     List<TariffHistory> tariffHistories;
-
-
-
 }

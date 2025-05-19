@@ -56,6 +56,6 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
             "LEFT JOIN last_savings_account_rate last_sar ON last_sar.tariff_id = last_th.savings_account_tariff_id AND last_sar.rn = 1 " +
             "WHERE sa.account_number IN :numbers",
             nativeQuery = true)
-    List<Object[]> getSavingsAccountsWithLastTariffRate(@Param("numbers") List<String> numbers);
+    List<SavingsAccount> getSavingsAccountsWithLastTariffRate(@Param("numbers") List<String> numbers);
 }
 

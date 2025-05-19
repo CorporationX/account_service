@@ -40,5 +40,4 @@ public class TariffHistory {
     @JoinColumn(name = "savings_account_tariff_id", nullable = false)
     @JsonIgnore
     private Tariff tariff;
-
 }

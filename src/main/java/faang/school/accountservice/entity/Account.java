@@ -4,19 +4,17 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,17 +63,15 @@ public class Account {
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime  updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "closed_at")
-    private LocalDateTime  closedAt;
+    private LocalDateTime closedAt;
 
     @Version
     @Column(name = "version", nullable = false)
