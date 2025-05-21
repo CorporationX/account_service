@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import faang.school.accountservice.converter.JsonConverter;
 import faang.school.accountservice.dto.RequestDto;
 import faang.school.accountservice.dto.RequestInput;
 import faang.school.accountservice.entity.Request;
@@ -41,6 +42,9 @@ public class RequestServiceImplTest {
 
     @Spy
     private ObjectMapper objectMapper;
+
+    @Spy
+    private JsonConverter converter;
 
     @Mock
     private NotificationService notificationService;
@@ -87,7 +91,7 @@ public class RequestServiceImplTest {
                 .amount(BigDecimal.TEN)
                 .currency(Currency.RUB)
                 .build();
-        Map<String, Object> result = requestService.convertToMap(input);
+        Map<String, Object> result = converter.convertToMap(input);
 
         assertNotNull(result);
         assertEquals("acc1", result.get("sourceAccount"));
@@ -132,7 +136,6 @@ public class RequestServiceImplTest {
     @Test
     public void testUpdateIsOpenSuccessfully() {
         when(requestRepository.findByIdempotencyToken(any(UUID.class))).thenReturn(Optional.of(request));
-        when(requestRepository.save(any(Request.class))).thenReturn(request);
         when(requestMapper.toDto(any(Request.class))).thenReturn(requestDto);
 
         requestDto.setIsOpen(false);
@@ -140,7 +143,6 @@ public class RequestServiceImplTest {
         RequestDto result = requestService.updateIsOpen(requestDto);
 
         assertFalse(result.getIsOpen());
-        verify(requestRepository).save(request);
     }
 
     @Test

@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface RequestMapper {
 
     @Mapping(target = "requestInput", ignore = true)
+    @Mapping(target = "isOpen", ignore = true)
     RequestDto toDto(Request request);
 
     @Mapping(target = "inputData", ignore = true)

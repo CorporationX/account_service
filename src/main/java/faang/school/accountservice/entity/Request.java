@@ -28,11 +28,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "request", indexes = {
-        @Index(name = "idx_request_idempotency_token", columnList = "idempotency_token"),
-        @Index(name = "idx_request_user_id", columnList = "user_id"),
-        @Index(name = "idx_request_lock_value_open", columnList = "lock_value, is_open", unique = true)
-})
+@Table(name = "request")
 public class Request {
 
     @Id
