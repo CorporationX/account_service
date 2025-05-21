@@ -1,0 +1,14 @@
+package faang.school.accountservice.service;
+
+import faang.school.accountservice.dto.RequestDto;
+
+public interface RequestService {
+
+    RequestDto createRequest(RequestDto requestDto);
+
+    RequestDto updateStatus(RequestDto requestDto);
+
+    RequestDto updateIsOpen(RequestDto requestDto);
+
+    RequestDto updateInputData(RequestDto requestDto);
+}
