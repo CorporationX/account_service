@@ -47,10 +47,6 @@ logging:
   level:
     root: info
 
-retry:
-  max-attempts: 5
-  delay: 100 # milliseconds
-
 account:
   number-length: 12
   type:
@@ -73,6 +69,6 @@ payment-service:
 
 retry:
   payment:
-    max-attempts: 3
+    max-attempts: 5
     initial-delay: 1000
     multiplier: 2

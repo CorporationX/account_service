@@ -1,4 +1,4 @@
-package faang.school.accountservice.handler;
+package faang.school.accountservice.exception.handler;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

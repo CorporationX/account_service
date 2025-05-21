@@ -12,6 +12,8 @@ import java.util.List;
 public interface SavingsAccountMapper {
 
     @Mapping(source = "account.id", target = "accountId")
+    @Mapping(target = "tariffId", ignore = true)
+    @Mapping(target = "rate", ignore = true)
     SavingsAccountDto toSavingsAccountDto(SavingsAccount savingsAccount);
 
     @Mapping(source = "account.id", target = "accountId")
