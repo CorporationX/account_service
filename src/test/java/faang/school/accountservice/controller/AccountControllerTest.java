@@ -9,7 +9,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.handler.GlobalExceptionHandler;
+import faang.school.accountservice.exception_handler.GlobalExceptionHandler;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +83,7 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.accountType").value(AccountType.PERSONAL.name()))
                 .andExpect(jsonPath("$.currency").value(Currency.USD.name()))
                 .andExpect(jsonPath("$.balance").value(BigDecimal.valueOf(0.00)))
-                .andExpect(jsonPath("$.status").value(AccountStatus.ACTIVE.name()));;
+                .andExpect(jsonPath("$.status").value(AccountStatus.ACTIVE.name()));
 
         verify(accountService, times(1)).open(request);
     }
@@ -123,7 +123,7 @@ class AccountControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].accountNumber").value(accountResponse.accountNumber().toString()))
+                .andExpect(jsonPath("$[0].accountNumber").value(accountResponse.accountNumber()))
                 .andExpect(jsonPath("$[0].ownerId").value(accountResponse.ownerId()))
                 .andExpect(jsonPath("$[0].ownerType").value(accountResponse.ownerType().name()))
                 .andExpect(jsonPath("$[0].accountType").value(accountResponse.accountType().name()))
