@@ -18,6 +18,7 @@ public class ErrorMessages {
     public static final String PROCESS_ERROR = "Error while processing scheduled requests";
     public static final String SHUTDOWN_ERROR = "Error during shutdown of RequestSchedulerService";
     public static final String EXECUTOR_SHUTDOWN_INTERRUPTED = "Executor shutdown interrupted";
+    public static final String INVALID_STATUS_TRANSITION_MESSAGE = "Cannot set status to IN_PROGRESS. Current status: %s";
 
     //Object mapper
     public static final String FAILED_TO_CONVERT_MAP_TO_JSON = "Failed to convert map to JSON";

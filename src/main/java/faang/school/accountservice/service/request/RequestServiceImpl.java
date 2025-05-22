@@ -97,8 +97,6 @@ public class RequestServiceImpl implements RequestService {
     public RequestStatusResponseDto getStatus(UUID id) {
         Request request = requestRepository.findById(id)
                 .orElseThrow(() -> new RequestNotFoundException(id.toString()));
-        return new RequestStatusResponseDto(
-                request.getIdempotencyToken(),
-                request.getStatus());
+        return requestMapper.requestToRequestStatusResponseDto(request);
     }
 }

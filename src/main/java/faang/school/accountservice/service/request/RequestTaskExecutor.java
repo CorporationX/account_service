@@ -29,7 +29,7 @@ public class RequestTaskExecutor {
     public void executeTaskWithNewTx(Request request, RequestTask task, RequestTaskHandler handler) {
         try {
             executeTask(request, task, handler);
-        } catch (Exception e) {
+        } catch (RuntimeException  e) {
             log.error(String.format(ERROR_REQUEST_TASK, task.getId()), e);
             task.setStatus(RequestTaskStatus.FAILED);
             request.setStatus(RequestStatus.FAILED);

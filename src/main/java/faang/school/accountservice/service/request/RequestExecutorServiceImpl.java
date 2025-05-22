@@ -18,8 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import static faang.school.accountservice.messages.ErrorMessages.HANDLER_NOT_FOUND;
-import static faang.school.accountservice.messages.ErrorMessages.REQUEST_TASK_EXECUTION_FAILED;
+import static faang.school.accountservice.messages.ErrorMessages.*;
 
 @Slf4j
 @Service
@@ -34,6 +33,11 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
     @Transactional
     public void execute(UUID requestId) {
         Request request = getRequest(requestId);
+
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new IllegalStateException(String.format(INVALID_STATUS_TRANSITION_MESSAGE, request.getStatus()));
+        }
+
         request.setStatus(RequestStatus.IN_PROGRESS);
         requestRepository.save(request);
 
@@ -48,7 +52,7 @@ public class RequestExecutorServiceImpl implements RequestExecutorService {
                 executor.executeTaskWithNewTx(request, task, handler);
             } catch (Exception e) {
                 log.error(REQUEST_TASK_EXECUTION_FAILED, e);
-                throw new RequestExecutorException(REQUEST_TASK_EXECUTION_FAILED );
+                return;
             }
         }
         request.setStatus(RequestStatus.COMPLETED);
