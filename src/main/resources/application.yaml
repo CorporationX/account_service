@@ -68,6 +68,8 @@ payment-service:
   api-url: http://localhost:9080
 
 retry:
+  max-attempts: 5
+  delay: 100 # milliseconds
   payment:
     max-attempts: 5
     initial-delay: 1000
