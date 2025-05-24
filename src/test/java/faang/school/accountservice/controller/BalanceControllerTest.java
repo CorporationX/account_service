@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.BalanceDto;
-import faang.school.accountservice.handler.GlobalExceptionHandler;
+import faang.school.accountservice.exception.handler.GlobalExceptionHandler;
 import faang.school.accountservice.service.BalanceService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

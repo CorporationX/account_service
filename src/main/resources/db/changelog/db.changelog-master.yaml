@@ -15,3 +15,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V004__account-service_balance_audit.sql
   - include:
       file: db/changelog/changeset/V004__account-service_request-table-change-types.sql
+  - include:
+      file: db/changelog/changeset/V005__account-service_account_and_traffics.sql

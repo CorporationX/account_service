@@ -52,7 +52,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
         return createErrorResponse(HttpStatus.NOT_FOUND, ex);
     }
-
     private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, Exception exception) {
         String message = exception.getMessage();
         log.error("Error: {}", message, exception);

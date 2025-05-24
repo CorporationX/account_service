@@ -11,7 +11,9 @@ spring:
       host: localhost
       channels:
         request_status_notification: request_status_notification_channel
-
+    jdbc:
+      repositories:
+        enabled: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -69,6 +71,6 @@ retry:
   max-attempts: 5
   delay: 100 # milliseconds
   payment:
-    max-attempts: 3
+    max-attempts: 5
     initial-delay: 1000
     multiplier: 2

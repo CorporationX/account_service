@@ -4,10 +4,14 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
@@ -24,5 +28,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
         return findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with number " + accountNumber));
     }
+
+    @Query(value = "SELECT a.number FROM account a WHERE a.owner_id = :ownerId", nativeQuery = true)
+    List<String> findNumbersByOwnerId(@Param("ownerId") Long ownerId);
 
 }
