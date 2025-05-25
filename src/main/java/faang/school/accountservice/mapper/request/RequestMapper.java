@@ -2,10 +2,7 @@ package faang.school.accountservice.mapper.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.dto.request.RequestCreationDto;
-import faang.school.accountservice.dto.request.RequestResponseDto;
-import faang.school.accountservice.dto.request.RequestStatusDto;
-import faang.school.accountservice.dto.request.RequestTypeDto;
+import faang.school.accountservice.dto.request.*;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.enums.request.RequestType;
@@ -29,6 +26,10 @@ public interface RequestMapper {
     @Mapping(source = "status", target = "status")
     @Mapping(source = "inputData", target = "inputData")
     RequestResponseDto requestToRequestResponseDto(Request entity);
+
+    @Mapping(source = "idempotencyToken", target = "idempotencyToken")
+    @Mapping(source = "status", target = "status")
+    RequestStatusResponseDto requestToRequestStatusResponseDto(Request request);
 
     default String mapInputDataToJson(Map<String, Object> inputData) {
         if (inputData == null) {
