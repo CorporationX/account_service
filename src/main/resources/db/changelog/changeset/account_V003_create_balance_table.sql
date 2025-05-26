@@ -15,7 +15,9 @@ CREATE TABLE balance
     updated_at         TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     version            INTEGER        NOT NULL DEFAULT 1,
     FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE,
-    CONSTRAINT positive_version CHECK (version >= 0)
+    CONSTRAINT positive_version CHECK (version >= 0),
+    CONSTRAINT positive_authorized_balance CHECK (authorized_balance >= 0),
+    CONSTRAINT positive_actual_balance CHECK (actual_balance >= 0)
 );
 
 CREATE INDEX idx_balance_account_id ON balance(account_id);
