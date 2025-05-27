@@ -7,6 +7,17 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+  mail:
+    subject: Request status updated
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -26,3 +37,16 @@ server:
 logging:
   level:
     root: info
+
+executor:
+  core-pool-size: 5
+  max-pool-size: 10
+  queue-capacity: 100
+  thread-name-prefix: Async-Executor-
+
+scheduler:
+  updated-time: 30000
+
+user-service:
+  host: localhost
+  port: 8080
