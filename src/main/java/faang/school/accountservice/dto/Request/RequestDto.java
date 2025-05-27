@@ -1,0 +1,38 @@
+package faang.school.accountservice.dto.Request;
+
+import faang.school.accountservice.enums.RequestStatus;
+import faang.school.accountservice.enums.RequestType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class RequestDto {
+
+    private Long id;
+    @NotBlank
+    private RequestType requestType;
+    private boolean isOpen;
+    @NotNull
+    private Long userId;
+    @NotBlank
+    private Map<String, Object> inputData;
+    private RequestStatus status;
+    private String statusDetails;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+}
