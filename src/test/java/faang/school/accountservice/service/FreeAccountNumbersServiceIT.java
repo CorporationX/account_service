@@ -102,34 +102,35 @@ public class FreeAccountNumbersServiceIT {
     }
 
     @Test
-    public void testNegativeGeneratedAccountNumbersBatchSize0(){
+    public void testNegativeGeneratedAccountNumbersBatchSize0() {
         assertThrows(InvalidBatchSizeException.class, () -> {
             freeAccountNumbersService.generatedAccountNumbers(AccountType.CREDIT, 0);
-    });
+        });
     }
 
-@Test
-public void testNegativeGeneratedAccountNumbersBatchSize() {
-    assertThrows(InvalidBatchSizeException.class, () -> {
-        freeAccountNumbersService.generatedAccountNumbers(AccountType.DEBIT, -6);
-    });
-}
+    @Test
+    public void testNegativeGeneratedAccountNumbersBatchSize() {
+        assertThrows(InvalidBatchSizeException.class, () -> {
+            freeAccountNumbersService.generatedAccountNumbers(AccountType.DEBIT, -6);
+        });
+    }
 
     @Test
-    public void testNegativeGeneratedAccountNumbersTypeNull () {
+    public void testNegativeGeneratedAccountNumbersTypeNull() {
         assertThrows(NullPointerException.class, () -> {
             freeAccountNumbersService.generatedAccountNumbers(null, 10);
         });
     }
+
     @Test
-    public void testNegativeRetrieveAccountNumberTypeNull () {
+    public void testNegativeRetrieveAccountNumberTypeNull() {
         assertThrows(NullPointerException.class, () -> {
-            freeAccountNumbersService.retrieveAccountNumber(null,Object::notify);
+            freeAccountNumbersService.retrieveAccountNumber(null, Object::notify);
         });
     }
 
     @Test
-    public void testNegativeRetrieveAccountNumber () {
+    public void testNegativeRetrieveAccountNumber() {
         assertThrows(AccountNumberNotFoundException.class, () -> {
             freeAccountNumbersService
                     .retrieveAccountNumber(AccountType.CREDIT, number -> {

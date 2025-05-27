@@ -4,11 +4,10 @@ import faang.school.accountservice.dto.Request.RequestDto;
 import faang.school.accountservice.dto.Request.RequestStatusDto;
 
 import java.util.Map;
-import java.util.UUID;
 
 public interface RequestService {
 
-    String createRequest(RequestDto requestDto, UUID idempotencyToken);
+    String createRequest(RequestDto requestDto, String idempotencyToken);
 
     RequestDto updateRequestStatus(Long requestId, RequestStatusDto requestStatusDto);
 

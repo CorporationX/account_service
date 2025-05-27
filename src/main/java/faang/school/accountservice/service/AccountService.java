@@ -1,14 +1,18 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -16,11 +20,18 @@ import java.util.Optional;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final BalanceRepository balanceRepository;
+    private final UserContext userContext;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper) {
+    public AccountService(AccountRepository accountRepository,
+                          AccountMapper accountMapper,
+                          BalanceRepository balanceRepository,
+                          UserContext userContext) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
+        this.balanceRepository = balanceRepository;
+        this.userContext = userContext;
     }
 
     public AccountDto getAccount(long id) {
@@ -38,10 +49,18 @@ public class AccountService {
                 existingAccount.setStatus(AccountStatus.ACTIVE);
                 existingAccount.setClosedAt(null);
                 Account updatedAccount = accountRepository.save(existingAccount);
+
+                Balance balance = Balance.builder()
+                        .account(updatedAccount)
+                        .currentBalance(BigDecimal.ZERO)
+                        .availableBalance(BigDecimal.ZERO)
+                        .build();
+                balanceRepository.save(balance);
                 return accountMapper.toDto(updatedAccount);
             }
         }
         Account newAccount = accountMapper.toEntity(accountDto);
+        newAccount.setOwnerId(userContext.getUserId());
         accountRepository.save(newAccount);
         return accountMapper.toDto(newAccount);
     }

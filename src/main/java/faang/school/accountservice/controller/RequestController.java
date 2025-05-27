@@ -23,7 +23,7 @@ public class RequestController {
 
     @PostMapping
     public String create(@RequestBody RequestDto requestDto) {
-        UUID idempotencyToken = UUID.randomUUID();
+        String idempotencyToken = UUID.randomUUID().toString();
         return requestService.createRequest(requestDto, idempotencyToken);
     }
 

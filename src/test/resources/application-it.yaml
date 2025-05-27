@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user
+    password: password
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8090
+
+logging:
+  level:
+    root: debug
+
+cron-setting:
+  tariff-rate-calculator: 0 0 */2 * * *
+
+thread-pool-setting:
+  tariff-rate-calculator:
+    size: 3
+    timeout: 30
+    hours: 24
+
+account:
+  number:
+    batch:
+      size: 100
+    crone:
+      debit: "0 0 0  * * *"
+      credit: "0 0 0  * * *"

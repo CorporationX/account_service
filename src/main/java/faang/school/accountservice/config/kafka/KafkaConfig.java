@@ -1,9 +1,12 @@
 package faang.school.accountservice.config.kafka;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
+import faang.school.accountservice.dto.Request.RequestEventPub;
 import faang.school.accountservice.config.properties.KafkaProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +34,7 @@ public class KafkaConfig {
         config.put(ProducerConfig.ACKS_CONFIG, kafkaProperties.producer().acks());
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, kafkaProperties.producer().enableIdempotence());
         config.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, kafkaProperties.producer().deliveryTimeoutMs());
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return new DefaultKafkaProducerFactory<>(config);
     }
@@ -58,5 +61,20 @@ public class KafkaConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
+    }
+
+
+    @Bean
+    public ProducerFactory<String, RequestEventPub> producerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, host);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, com.fasterxml.jackson.databind.ser.std.StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(config);
+    }
+
+    @Bean
+    public KafkaTemplate<String, RequestEventPub> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 }

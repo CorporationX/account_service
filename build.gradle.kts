@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
+    id("org.liquibase.gradle") version "2.2.0"
 }
 
 
@@ -25,6 +26,7 @@ dependencies {
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+    implementation("org.springframework.retry:spring-retry:2.0.5")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
@@ -33,6 +35,11 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    liquibaseRuntime("org.liquibase:liquibase-core:4.23.1")
+    liquibaseRuntime("org.postgresql:postgresql:42.6.0")
+    liquibaseRuntime("org.yaml:snakeyaml:1.33")
+    liquibaseRuntime("ch.qos.logback:logback-classic:1.4.11")
+    liquibaseRuntime("org.yaml:snakeyaml:2.0")
 
     /**
      * Utils & Logging
@@ -46,6 +53,11 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+    /**
+     * Kafka
+     */
+    implementation ("org.springframework.kafka:spring-kafka")
 
     /**
      * Test containers
@@ -73,4 +85,21 @@ val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true 
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
+}
+
+liquibase {
+    activities {
+        register("main") {
+            this.arguments = mapOf(
+                "changelogFile" to "db/changelog/db.changelog-master.yaml",
+                "url" to "jdbc:postgresql://localhost:5432/your_db",
+                "username" to "your_user",
+                "password" to "your_pass",
+                "classpath" to sourceSets.main.get().runtimeClasspath.asPath,
+                "driver" to "org.postgresql.Driver",
+                "logLevel" to "debug"
+            )
+        }
+    }
+    runList = "main"
 }
