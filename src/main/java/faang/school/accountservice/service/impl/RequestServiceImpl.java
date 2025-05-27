@@ -1,7 +1,7 @@
 package faang.school.accountservice.service.impl;
 
 import faang.school.accountservice.config.context.UserContext;
-import faang.school.accountservice.config.kafka.KafkaPublisher;
+import faang.school.accountservice.publisher.KafkaPublisher;
 import faang.school.accountservice.dto.Request.RequestDto;
 import faang.school.accountservice.dto.Request.RequestEventPub;
 import faang.school.accountservice.dto.Request.RequestStatusDto;

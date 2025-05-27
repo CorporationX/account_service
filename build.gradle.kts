@@ -5,7 +5,6 @@ plugins {
     id("org.liquibase.gradle") version "2.2.0"
 }
 
-
 group = "faang.school"
 version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -53,11 +52,6 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
-
-    /**
-     * Kafka
-     */
-    implementation ("org.springframework.kafka:spring-kafka")
 
     /**
      * Test containers

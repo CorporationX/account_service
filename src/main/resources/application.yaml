@@ -9,15 +9,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    template:
-      default-topic: request-status-topic
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -41,6 +36,7 @@ spring:
           name: "payment-response-topic"
           partitions: 3
           replicas: 1
+        request-status: request-status-topic
 
   profiles:
     active: local
