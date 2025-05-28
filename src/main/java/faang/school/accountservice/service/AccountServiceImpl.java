@@ -92,4 +92,10 @@ public class AccountServiceImpl implements AccountService {
             throw e;
         }
     }
+
+    @Override
+    public Account getAccountEntity(Long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(id));
+    }
 }

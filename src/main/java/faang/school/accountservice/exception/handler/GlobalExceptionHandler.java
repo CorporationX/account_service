@@ -1,8 +1,10 @@
 package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.ConcurrentModificationException;
 import faang.school.accountservice.exception.DataConversionException;
 import faang.school.accountservice.exception.ErrorMessage;
+import jakarta.persistence.EntityNotFoundException;
 import faang.school.accountservice.exception.InvalidUserException;
 import faang.school.accountservice.exception.RecipientNotFoundException;
 import faang.school.accountservice.exception.RequestNotFoundException;
@@ -36,6 +38,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleIllegalState(IllegalStateException e) {
         ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
+    @ExceptionHandler(ConcurrentModificationException.class)
+    public ResponseEntity<ErrorMessage> handleConcurrentModificationException(ConcurrentModificationException e) {
+        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException e) {
+        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException e) {
+        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
     }
 
     @ExceptionHandler(DataConversionException.class)
