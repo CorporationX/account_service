@@ -60,6 +60,9 @@ executor:
 
 scheduler:
   updated-time: 30000
+  account-numbers-generation:
+    debit: "0 0 0/12 * * *"
+    savings: "0 30 0/12 * * *"
 
 user-service:
   host: localhost
