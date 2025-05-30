@@ -40,3 +40,8 @@ server:
 logging:
   level:
     root: info
+
+scheduler:
+  account-numbers-generation:
+    debit: "0 0 0/12 * * *"
+    savings: "0 30 0/12 * * *"
