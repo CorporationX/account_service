@@ -45,3 +45,9 @@ scheduler:
   account-numbers-generation:
     debit: "0 0 0/12 * * *"
     savings: "0 30 0/12 * * *"
+
+retry:
+  account-number:
+    generation:
+      max-attempts: 3
+      delay: 1000

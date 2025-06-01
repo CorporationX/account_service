@@ -5,12 +5,18 @@ import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountNumberType;
+import faang.school.accountservice.exception.accountnumber.AccountNumberSequenceNotFoundException;
+import faang.school.accountservice.exception.accountnumber.NoAvailableAccountNumberException;
+import faang.school.accountservice.exception.accountnumber.UnknownAccountNumberTypeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,15 +46,20 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
 
     @Override
     @Transactional
+    @Retryable(
+            value = OptimisticLockException.class,
+            maxAttemptsExpression = "#{${retry.account-number.generation.max-attempts}}",
+            backoff = @Backoff(delayExpression = "#{${retry.account-number.generation.delay}}")
+    )
     public void generateAccountNumbers(AccountNumberType type, int batchSize) {
         log.info("Starting generate '{}' account numbers...", type);
         Integer numberPrefix = accountNumberProperties.getPrefixes().get(type);
 
         if (numberPrefix == null) {
-            throwWithLogging(new IllegalArgumentException(String.format("Unknown account number type: %s", type)));
+            throw new UnknownAccountNumberTypeException(String.format("Unknown account number type: %s", type));
         }
 
-        Optional<AccountNumbersSequence> sequence = accountNumbersSequenceRepository.findByTypeForUpdate(type);
+        Optional<AccountNumbersSequence> sequence = accountNumbersSequenceRepository.findByTypeWithOptimisticLock(type);
         sequence.ifPresentOrElse(
                 accountNumbersSequence -> {
                     long initialCounterValue = accountNumbersSequence.getCounter();
@@ -62,9 +73,11 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
                     freeAccountNumbersRepository.saveAll(freeAccountNumbers);
                     log.info("Generating successfully '{}' account numbers", type);
                 },
-                () -> throwWithLogging(new IllegalArgumentException(
-                        String.format("Sequence not found by '%s' type", type))
-                )
+                () -> {
+                    throw new AccountNumberSequenceNotFoundException(
+                            String.format("Sequence not found by '%s' type", type)
+                    );
+                }
         );
     }
 
@@ -75,7 +88,7 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         Optional<FreeAccountNumber> accountNumber = freeAccountNumbersRepository.findFirstByTypeForUpdate(type.name());
 
         if (accountNumber.isEmpty()) {
-            accountNumbersSequenceRepository.findByTypeForUpdate(type);
+            accountNumbersSequenceRepository.lockForGeneration(type);
             accountNumber = freeAccountNumbersRepository.findFirstByTypeForUpdate(type.name());
 
             if (accountNumber.isEmpty()) {
@@ -91,7 +104,9 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
 
                     numberConsumer.accept(number);
                 },
-                () -> throwWithLogging(new IllegalStateException("Failed to obtain account number after generation"))
+                () -> {
+                    throw new NoAvailableAccountNumberException("Failed to obtain account number after generation");
+                }
         );
     }
 
@@ -110,10 +125,5 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         log.debug("Generated '{}' account number: {}", type, accountNumber);
 
         return buildFreeAccountNumber(type, accountNumber);
-    }
-
-    private void throwWithLogging(RuntimeException exception) {
-        log.error(exception.getMessage());
-        throw exception;
     }
 }

@@ -5,6 +5,9 @@ import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.enums.AccountNumberType;
+import faang.school.accountservice.exception.accountnumber.AccountNumberSequenceNotFoundException;
+import faang.school.accountservice.exception.accountnumber.NoAvailableAccountNumberException;
+import faang.school.accountservice.exception.accountnumber.UnknownAccountNumberTypeException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +79,7 @@ public class FreeAccountNumbersServiceImplTest {
     @Test
     @DisplayName("generateAccountNumbers - unknown account number type")
     public void testGenerateAccountNumbersWithUnknownType() {
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(UnknownAccountNumberTypeException.class,
                 () -> service.generateAccountNumbers(AccountNumberType.DEBIT, BATCH_SIZE));
 
         assertEquals("Unknown account number type: DEBIT", exception.getMessage());
@@ -87,7 +90,7 @@ public class FreeAccountNumbersServiceImplTest {
     public void TestGenerateAccountNumbersNotFoundSequence() {
         when(properties.getPrefixes()).thenReturn(prefixes);
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(AccountNumberSequenceNotFoundException.class,
                 () -> service.generateAccountNumbers(AccountNumberType.DEBIT, BATCH_SIZE));
 
         assertEquals("Sequence not found by 'DEBIT' type", exception.getMessage());
@@ -101,7 +104,7 @@ public class FreeAccountNumbersServiceImplTest {
         sequence.setCounter(1L);
 
         when(properties.getPrefixes()).thenReturn(prefixes);
-        when(sequenceRepository.findByTypeForUpdate(AccountNumberType.DEBIT))
+        when(sequenceRepository.findByTypeWithOptimisticLock(AccountNumberType.DEBIT))
                 .thenReturn(Optional.of(sequence));
 
         service.generateAccountNumbers(AccountNumberType.DEBIT, BATCH_SIZE);
@@ -121,7 +124,7 @@ public class FreeAccountNumbersServiceImplTest {
     public void testReceiveAccountNumberWithEmptyNumber() {
         doNothing().when(service).generateAccountNumbers(AccountNumberType.DEBIT, FALLBACK_BATCH_SIZE);
 
-        Exception exception = assertThrows(IllegalStateException.class,
+        Exception exception = assertThrows(NoAvailableAccountNumberException.class,
                 () -> service.receiveAccountNumber(AccountNumberType.DEBIT, System.out::println));
 
         assertEquals("Failed to obtain account number after generation", exception.getMessage());

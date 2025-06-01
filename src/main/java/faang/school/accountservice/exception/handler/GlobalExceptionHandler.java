@@ -2,12 +2,17 @@ package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.ErrorMessage;
+import faang.school.accountservice.exception.accountnumber.AccountNumberSequenceNotFoundException;
+import faang.school.accountservice.exception.accountnumber.NoAvailableAccountNumberException;
+import faang.school.accountservice.exception.accountnumber.UnknownAccountNumberTypeException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,5 +32,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleIllegalState(IllegalStateException e) {
         ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
+    @ExceptionHandler(UnknownAccountNumberTypeException.class)
+    public void handleUnknownAccountNumberType(UnknownAccountNumberTypeException e) {
+        log.error("Failed to process account number type: {}", e.getMessage(), e);
+    }
+
+    @ExceptionHandler(AccountNumberSequenceNotFoundException.class)
+    public void handleAccountNumberSequenceNotFound(AccountNumberSequenceNotFoundException e) {
+        log.error("Account number sequence error: {}", e.getMessage(), e);
+    }
+
+    @ExceptionHandler(NoAvailableAccountNumberException.class)
+    public void handleNoAvailableAccountNumber(NoAvailableAccountNumberException e) {
+        log.error("Account number unavailable", e);
     }
 }

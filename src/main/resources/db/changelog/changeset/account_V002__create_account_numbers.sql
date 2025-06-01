@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS free_account_numbers (
 
 CREATE TABLE IF NOT EXISTS account_numbers_sequence (
     type VARCHAR(16) NOT NULL PRIMARY KEY,
-    counter BIGINT NOT NULL DEFAULT 1
+    counter BIGINT NOT NULL DEFAULT 1,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 INSERT INTO account_numbers_sequence (type)
