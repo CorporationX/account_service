@@ -6,6 +6,9 @@ import faang.school.accountservice.exception.ErrorMessage;
 import faang.school.accountservice.exception.InvalidUserException;
 import faang.school.accountservice.exception.RecipientNotFoundException;
 import faang.school.accountservice.exception.RequestNotFoundException;
+import faang.school.accountservice.exception.accountnumber.AccountNumberSequenceNotFoundException;
+import faang.school.accountservice.exception.accountnumber.NoAvailableAccountNumberException;
+import faang.school.accountservice.exception.accountnumber.UnknownAccountNumberTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +19,8 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.util.Arrays;
 
-@RestControllerAdvice
 @Slf4j
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountNotFoundException.class)
@@ -65,5 +68,20 @@ public class GlobalExceptionHandler {
         log.error("Email recipient not found in UserService. Error: {}", e.getMessage());
         ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+    }
+
+    @ExceptionHandler(UnknownAccountNumberTypeException.class)
+    public void handleUnknownAccountNumberType(UnknownAccountNumberTypeException e) {
+        log.error("Failed to process account number type: {}", e.getMessage(), e);
+    }
+
+    @ExceptionHandler(AccountNumberSequenceNotFoundException.class)
+    public void handleAccountNumberSequenceNotFound(AccountNumberSequenceNotFoundException e) {
+        log.error("Account number sequence error: {}", e.getMessage(), e);
+    }
+
+    @ExceptionHandler(NoAvailableAccountNumberException.class)
+    public void handleNoAvailableAccountNumber(NoAvailableAccountNumberException e) {
+        log.error("Account number unavailable", e);
     }
 }

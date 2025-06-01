@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    servlet:
+      path: /api/v1
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -28,6 +32,19 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+app:
+  service:
+    free-account-numbers: default
+
+account:
+  number:
+    prefixes:
+      DEBIT: 4200
+      SAVINGS: 5326
+    batch:
+      size: 500
+      fallback-size: 50
+
 server:
   port: 8090
 
@@ -43,6 +60,15 @@ executor:
 
 scheduler:
   updated-time: 30000
+  account-numbers-generation:
+    debit: "0 0 0/12 * * *"
+    savings: "0 30 0/12 * * *"
+
+retry:
+  account-number:
+    generation:
+      max-attempts: 3
+      delay: 1000
 
 user-service:
   host: localhost
