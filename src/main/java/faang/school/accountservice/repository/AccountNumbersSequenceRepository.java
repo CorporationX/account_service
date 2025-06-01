@@ -14,7 +14,11 @@ import java.util.Optional;
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountNumbersSequence, String> {
 
+    @Lock(value = LockModeType.OPTIMISTIC)
+    @Query("SELECT s FROM AccountNumbersSequence s WHERE s.type = :type")
+    Optional<AccountNumbersSequence> findByTypeWithOptimisticLock(@Param("type") AccountNumberType type);
+
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM AccountNumbersSequence s WHERE s.type = :type")
-    Optional<AccountNumbersSequence> findByTypeForUpdate(@Param("type") AccountNumberType type);
+    void lockForGeneration(@Param("type") AccountNumberType type);
 }
