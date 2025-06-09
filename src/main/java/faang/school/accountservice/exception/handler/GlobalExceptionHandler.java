@@ -27,6 +27,12 @@ public class GlobalExceptionHandler {
         return buildResponse(e);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgumentException(Exception e) {
+        return buildResponse(e);
+    }
+
     @ExceptionHandler({InternalError.class, NonUniqueResultException.class,
             DataIntegrityViolationException.class, InternalException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
