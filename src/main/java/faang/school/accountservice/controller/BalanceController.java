@@ -31,14 +31,15 @@ public class BalanceController {
 
     @GetMapping("/{accountId}/balance")
     public ResponseEntity<BalanceResponseDto> getBalance(@PathVariable long accountId,
-                                                         @RequestHeader("x-user-id") long userId) {
+                                                         @RequestHeader("x-user-id") Long userId) {
         validateAccountId(accountId);
+
         return ResponseEntity.ok(balanceService.getBalance(accountId));
     }
 
     @PostMapping("/{accountId}/balance")
     public ResponseEntity<BalanceResponseDto> createBalance(@PathVariable long accountId,
-                                                            @RequestHeader("x-user-id") long userId) {
+                                                            @RequestHeader("x-user-id") Long userId) {
         validateAccountId(accountId);
         BalanceResponseDto response = balanceService.createBalance(accountId);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -50,25 +51,16 @@ public class BalanceController {
 
     @PutMapping("/{accountId}/balance")
     public ResponseEntity<BalanceResponseDto> updateBalance(@PathVariable long accountId,
-                                                            @RequestHeader("x-user-id") long userId,
+                                                            @RequestHeader("x-user-id") Long userId,
                                                             @RequestBody @Valid BalanceOperationDto balanceOperationDto) {
-        validateAccountIdWithDto(accountId, balanceOperationDto.getAccountId());
-        return ResponseEntity.ok(balanceService.updateBalance(balanceOperationDto));
+        validateAccountId(accountId);
+        return ResponseEntity.ok(balanceService.updateBalance(accountId, balanceOperationDto));
     }
 
     private void validateAccountId(long accountId) {
         if (accountId <= 0) {
             log.error("Invalid account ID: {}", accountId);
-            throw new IllegalArgumentException("Account ID must be a positive number");
-        }
-    }
-
-    private void validateAccountIdWithDto(long pathAccountId, long dtoAccountId) {
-        validateAccountId(pathAccountId);
-        validateAccountId(dtoAccountId);
-        if (pathAccountId != dtoAccountId) {
-            log.error("Account ID mismatch: pathAccountId={}, dtoAccountId={}", pathAccountId, dtoAccountId);
-            throw new IllegalArgumentException("Account ID in path and DTO must match");
+            throw new IllegalArgumentException("Account ID must be 1 or greater");
         }
     }
 }

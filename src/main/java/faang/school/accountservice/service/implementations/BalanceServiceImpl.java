@@ -8,6 +8,7 @@ import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.service.interfaces.BalanceService;
+import faang.school.accountservice.strategy.BalanceOperationStrategy;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
+    private final List<BalanceOperationStrategy> balanceOperationStrategies;
 
     private final AccountRepository accountRepository;
 
@@ -37,7 +40,7 @@ public class BalanceServiceImpl implements BalanceService {
         log.info("Create account balance for account ID: {}", accountId);
         Account account = findAccountByAccountId(accountId);
         if (account.getBalance() != null) {
-            log.info("Balance already exists for account ID: {}", accountId);
+            log.error("Balance already exists for account ID: {}", accountId);
             throw new EntityExistsException("Balance already exists for account: " + accountId);
         }
         Balance balance = Balance.builder()
@@ -62,26 +65,15 @@ public class BalanceServiceImpl implements BalanceService {
             retryFor = OptimisticLockingFailureException.class,
             backoff = @Backoff(delay = 1000)
     )
-    public BalanceResponseDto updateBalance(BalanceOperationDto dto) {
-        log.info("Update account balance for account ID: {}", dto.getAccountId());
-        Balance balance = findBalanceByAccountId(dto.getAccountId());
+    public BalanceResponseDto updateBalance(Long accountId, BalanceOperationDto dto) {
+        log.info("Update account balance for account ID: {}", accountId);
+        Balance balance = findBalanceByAccountId(accountId);
 
-        switch (dto.getOperationType()) {
-            case AUTHORIZE:
-                balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(dto.getAmount()));
-                break;
-            case CLEAR:
-                balance.setActualBalance(balance.getActualBalance().subtract(dto.getAmount()));
-                break;
-            case DEPOSIT:
-                balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(dto.getAmount()));
-                balance.setActualBalance(balance.getActualBalance().add(dto.getAmount()));
-                break;
-            case WITHDRAW:
-                balance.setAuthorizedBalance(balance.getAuthorizedBalance().subtract(dto.getAmount()));
-                balance.setActualBalance(balance.getActualBalance().subtract(dto.getAmount()));
-                break;
-        }
+        BalanceOperationStrategy strategy = balanceOperationStrategies.stream()
+                .filter(o -> o.isApplicable(dto.getOperationType()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported operation type: " + dto.getOperationType()));
+        strategy.apply(balance, dto.getAmount());
 
         balance.setUpdatedAt(LocalDateTime.now());
 

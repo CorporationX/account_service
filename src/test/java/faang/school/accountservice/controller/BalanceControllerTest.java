@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(BalanceController.class)
 @AutoConfigureMockMvc
-class BalanceControllerIntegrationTest {
+class BalanceControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -74,17 +73,17 @@ class BalanceControllerIntegrationTest {
 
     @Test
     void testUpdateBalanceWhenReturnUpdatedBalance() throws Exception {
+        long accountId = 3L;
         BalanceOperationDto operationDto = new BalanceOperationDto();
-        operationDto.setAccountId(3L);
         operationDto.setAmount(new BigDecimal("100.00"));
         operationDto.setOperationType(OperationType.DEPOSIT);
 
-        BalanceResponseDto responseDto = new BalanceResponseDto(20L, 3L,
+        BalanceResponseDto responseDto = new BalanceResponseDto(20L, accountId,
                 new BigDecimal("200.00"), new BigDecimal("200.00"), LocalDateTime.now(), LocalDateTime.now());
 
-        when(balanceService.updateBalance(any())).thenReturn(responseDto);
+        when(balanceService.updateBalance(accountId, operationDto)).thenReturn(responseDto);
 
-        mockMvc.perform(put("/api/v1/accounts/{accountId}/balance", 3L)
+        mockMvc.perform(put("/api/v1/accounts/{accountId}/balance", accountId)
                         .header("x-user-id", "321")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(operationDto)))

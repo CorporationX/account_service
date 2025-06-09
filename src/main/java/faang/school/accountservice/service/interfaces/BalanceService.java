@@ -7,7 +7,7 @@ public interface BalanceService {
 
     BalanceResponseDto createBalance(Long accountId);
 
-    BalanceResponseDto updateBalance(BalanceOperationDto balanceOperationDto);
+    BalanceResponseDto updateBalance(Long accountId, BalanceOperationDto balanceOperationDto);
 
     BalanceResponseDto getBalance(Long accountId);
 }
