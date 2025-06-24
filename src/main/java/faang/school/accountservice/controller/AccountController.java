@@ -4,9 +4,6 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/account")
@@ -31,15 +28,5 @@ public class AccountController {
     @PatchMapping("/{ownerId}/close")
     public AccountDto closeAccount(@PathVariable Long ownerId) {
         return service.closeAccount(ownerId);
-    }
-
-    @PatchMapping("/{ownerId}/add")
-    public void addBalance(@PathVariable Long ownerId, @RequestParam("amount") double amount) {
-        service.addBalance(ownerId, BigDecimal.valueOf(amount));
-    }
-
-    @PatchMapping("/{ownerId}/spend")
-    public void spendBalance(@PathVariable Long ownerId, @RequestParam("amount") double amount) {
-        service.spendBalance(ownerId, BigDecimal.valueOf(amount));
     }
 }
