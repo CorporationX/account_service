@@ -21,8 +21,12 @@ import java.time.LocalDateTime;
 public class Account {
 
     @Id
-    @Column(length = 20, nullable = false, unique = true)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, unique = true)
+    private long id;
+
+    @Column(name = "number", length = 20, nullable = false, unique = true)
+    private String number;
 
     @Column(name = "owner", nullable = false)
     private Owner owner;
@@ -70,21 +74,21 @@ public class Account {
 
     @PrePersist
     public void assignId() {
-        if (id == null) {
-            this.id = generatePremiumNumericId();
+        if (number == null) {
+            this.number = generateNumber();
         }
     }
     //случайная генерация id
-    private Long generatePremiumNumericId() {
-        Long timePart = System.currentTimeMillis();
+    private String generateNumber() {
         SecureRandom random = new SecureRandom();
         StringBuilder randomPart = new StringBuilder();
+        Long timePart = System.currentTimeMillis();
+        randomPart.append(timePart);
         int randomPartLength = random.nextInt(12, 21) - String.valueOf(timePart).length();
 
-        randomPart.append(random.nextInt(1, 10));
         for (int i = 1; i < randomPartLength; i++) {
             randomPart.append(random.nextInt(10));
         }
-        return timePart + Long.parseLong(randomPart.toString());
+        return randomPart.toString();
     }
 }
