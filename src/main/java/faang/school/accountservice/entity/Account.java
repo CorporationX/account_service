@@ -11,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 @Data
@@ -23,7 +24,7 @@ public class Account {
 
     @Id
     @Column(length = 20, nullable = false, unique = true)
-    private String id;
+    private Long id;
 
     @Column(name = "balance", precision = 19, scale = 4, nullable = false)
     @NotNull
@@ -67,5 +68,26 @@ public class Account {
 
     public enum Owner {
         PROJECT, USER
+    }
+
+    @PrePersist
+    public void assignId() {
+        if (id == null) {
+            this.id = generatePremiumNumericId();
+        }
+    }
+    //случайная генерация id
+    private Long generatePremiumNumericId() {
+        Long timePart = System.currentTimeMillis(); // 13 цифр
+
+        SecureRandom random = new SecureRandom();
+        int randomPartLength = random.nextInt(12, 21) - String.valueOf(timePart).length();
+        StringBuilder randomPart = new StringBuilder();
+
+        for (int i = 0; i < randomPartLength; i++) {
+            randomPart.append(random.nextInt(10));
+        }
+
+        return timePart + Long.parseLong(randomPart.toString());
     }
 }
