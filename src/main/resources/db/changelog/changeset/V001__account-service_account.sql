@@ -1,5 +1,6 @@
 CREATE TABLE accounts (
-    id bigint primary key,
+    id bigint AUTO_INCREMENT PRIMARY KEY,
+    number VARCHAR(20) NOT NULL,
     owner VARCHAR(16) NOT NULL,
     owner_id bigint NOT NULL,
     type VARCHAR(32) NOT NULL,
@@ -9,6 +10,6 @@ CREATE TABLE accounts (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     closed_at TIMESTAMP,
     version VARCHAR(16)
-);
+) AUTO_INCREMENT = 0;
 
 CREATE INDEX owner_idx ON accounts(owner_id)
