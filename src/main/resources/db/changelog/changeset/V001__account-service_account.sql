@@ -1,6 +1,5 @@
 CREATE TABLE accounts (
     id bigint primary key,
-    balance DECIMAL(19, 4) NOT NULL DEFAULT 0.0,
     owner VARCHAR(16) NOT NULL,
     owner_id bigint NOT NULL,
     type VARCHAR(32) NOT NULL,
