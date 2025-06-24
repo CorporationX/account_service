@@ -16,8 +16,8 @@ public class AccountService {
     private final AccountRepository repository;
     private final AccountMapper mapper;
 
-    public AccountDto getAccount(Long ownerId) {
-        return repository.findById(ownerId).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
+    public AccountDto getAccount(Long id) {
+        return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
     }
 
     @Transactional
@@ -29,16 +29,16 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountDto blockAccount(Long ownerId) {
-        Account account = repository.findById(ownerId).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
+    public AccountDto blockAccount(Long id) {
+        Account account = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
         account.setStatus(Account.Status.FROZEN);
         repository.save(account);
         return mapper.toDto(account);
     }
 
     @Transactional
-    public AccountDto closeAccount(Long ownerId) {
-        Account account = repository.findById(ownerId).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
+    public AccountDto closeAccount(Long id) {
+        Account account = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
         account.setStatus(Account.Status.CLOSED);
         account.setClosedAt(LocalDateTime.now());
         repository.save(account);

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService service;
 
-    @GetMapping("/{ownerId}")
-    public AccountDto getAccount(@PathVariable Long ownerId) {
-        return service.getAccount(ownerId);
+    @GetMapping("/{id}")
+    public AccountDto getAccount(@PathVariable Long id) {
+        return service.getAccount(id);
     }
 
     @PostMapping("/open")
@@ -20,13 +20,13 @@ public class AccountController {
         return service.openAccount(accountDto);
     }
 
-    @PatchMapping("/{ownerId}/block")
-    public AccountDto blockAccount(@PathVariable Long ownerId) {
-        return service.blockAccount(ownerId);
+    @PatchMapping("/{id}/block")
+    public AccountDto blockAccount(@PathVariable Long id) {
+        return service.blockAccount(id);
     }
 
-    @PatchMapping("/{ownerId}/close")
-    public AccountDto closeAccount(@PathVariable Long ownerId) {
-        return service.closeAccount(ownerId);
+    @PatchMapping("/{id}/close")
+    public AccountDto closeAccount(@PathVariable Long id) {
+        return service.closeAccount(id);
     }
 }
