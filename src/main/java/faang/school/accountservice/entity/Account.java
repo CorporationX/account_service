@@ -2,7 +2,6 @@ package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
@@ -25,10 +23,6 @@ public class Account {
     @Id
     @Column(length = 20, nullable = false, unique = true)
     private Long id;
-
-    @Column(name = "balance", precision = 19, scale = 4, nullable = false)
-    @NotNull
-    private BigDecimal balance;
 
     @Column(name = "owner", nullable = false)
     private Owner owner;
@@ -54,6 +48,10 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
 
     @Column(name = "version")
     private String version;

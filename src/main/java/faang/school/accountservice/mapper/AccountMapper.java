@@ -11,6 +11,7 @@ public interface AccountMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "closedAt", ignore = true)
     Account toEntity(AccountDto accountDto);
 
     AccountDto toDto(Account account);
