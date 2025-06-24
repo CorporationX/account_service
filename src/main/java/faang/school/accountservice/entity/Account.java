@@ -78,16 +78,15 @@ public class Account {
     }
     //случайная генерация id
     private Long generatePremiumNumericId() {
-        Long timePart = System.currentTimeMillis(); // 13 цифр
-
+        Long timePart = System.currentTimeMillis();
         SecureRandom random = new SecureRandom();
-        int randomPartLength = random.nextInt(12, 21) - String.valueOf(timePart).length();
         StringBuilder randomPart = new StringBuilder();
+        int randomPartLength = random.nextInt(12, 21) - String.valueOf(timePart).length();
 
-        for (int i = 0; i < randomPartLength; i++) {
+        randomPart.append(random.nextInt(1, 10));
+        for (int i = 1; i < randomPartLength; i++) {
             randomPart.append(random.nextInt(10));
         }
-
         return timePart + Long.parseLong(randomPart.toString());
     }
 }
