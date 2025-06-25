@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "accounts")
+@Table(name = "account")
 public class Account {
 
     @Id
@@ -28,8 +28,8 @@ public class Account {
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
 
-    @Column(name = "owner", nullable = false)
-    private Owner owner;
+    @Column(name = "owner_type", nullable = false)
+    private OwnerType ownerType;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
@@ -68,7 +68,7 @@ public class Account {
         CURRENT, SETTLEMENT, CREDIT, DEPOSIT, BUDGET
     }
 
-    public enum Owner {
+    public enum OwnerType {
         PROJECT, USER
     }
 

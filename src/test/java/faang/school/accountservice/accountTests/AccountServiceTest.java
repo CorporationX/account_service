@@ -42,7 +42,7 @@ public class AccountServiceTest {
 
     @Test
     public void openAccountTest() {
-        AccountDto dto = new AccountDto(1L, Account.Owner.USER, 1, Account.Type.DEPOSIT, Currency.USD, "1");
+        AccountDto dto = new AccountDto(1L, Account.OwnerType.USER, 1, Account.Type.DEPOSIT, Currency.USD, "1");
         Account account = mapper.toEntity(dto);
         account.setStatus(Account.Status.ACTIVE);
         when(repository.save(account)).thenReturn(account);
