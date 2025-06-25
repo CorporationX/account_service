@@ -12,4 +12,4 @@ CREATE TABLE account (
     version VARCHAR(16)
 ) AUTO_INCREMENT = 0;
 
-CREATE INDEX owner_idx ON accounts(number)
+CREATE INDEX owner_idx ON account(number)
