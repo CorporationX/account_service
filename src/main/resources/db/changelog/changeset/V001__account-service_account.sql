@@ -1,7 +1,7 @@
-CREATE TABLE accounts (
+CREATE TABLE account (
     id bigint AUTO_INCREMENT PRIMARY KEY,
     number VARCHAR(20) NOT NULL,
-    owner VARCHAR(16) NOT NULL,
+    ownerType VARCHAR(16) NOT NULL,
     owner_id bigint NOT NULL,
     type VARCHAR(32) NOT NULL,
     currency VARCHAR(16) NOT NULL,
