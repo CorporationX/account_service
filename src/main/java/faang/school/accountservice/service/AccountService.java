@@ -5,6 +5,9 @@ import faang.school.accountservice.dto.UpdateAccountDto;
 
 public interface AccountService {
 
-    AccountDto createAccount(AccountDto accountDto);
-    AccountDto updateAccount(long accountId, UpdateAccountDto accountDto);
+    AccountDto open(AccountDto accountDto);
+    AccountDto get(String accountNumber);
+    void close(String accountNumber);
+    void block(String accountNumber);
+    AccountDto update(long accountId, UpdateAccountDto accountDto);
 }

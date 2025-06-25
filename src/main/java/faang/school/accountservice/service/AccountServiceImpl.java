@@ -19,15 +19,39 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     @Override
-    public AccountDto createAccount(AccountDto accountDto) {
+    public AccountDto open(AccountDto accountDto) {
         Account account = accountRepository.save(accountMapper.toEntity(accountDto));
 
         return accountMapper.toDto(account);
     }
 
     @Override
+    public AccountDto get(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new IllegalArgumentException("No account was found with such number"));
+
+        return accountMapper.toDto(account);
+    }
+
+    @Override
+    public void close(String accountNumber) {
+        int closed = accountRepository.closeAccountByNumber(accountNumber);
+        if (closed == 0) {
+            throw new IllegalArgumentException("No account was closed as no such number was found");
+        }
+    }
+
+    @Override
+    public void block(String accountNumber) {
+        int blocked = accountRepository.blockAccountByNumber(accountNumber);
+        if (blocked == 0) {
+            throw new IllegalArgumentException("No account was blocked as no such number was found");
+        }
+    }
+
+    @Override
     @Transactional
-    public AccountDto updateAccount(long accountId, UpdateAccountDto updateAccountDto) {
+    public AccountDto update(long accountId, UpdateAccountDto updateAccountDto) {
         Account account = accountRepository.getReferenceById(accountId);
         accountMapper.update(updateAccountDto, account);
 
