@@ -5,7 +5,7 @@ import faang.school.accountservice.enums.Currency;
 
 public record AccountDto(
         Long id,
-        Account.OwnerType owner,
+        Account.OwnerType ownerType,
         long ownerId,
         Account.Type type,
         Currency currency,
