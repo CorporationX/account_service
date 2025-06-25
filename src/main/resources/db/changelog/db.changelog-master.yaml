@@ -1,3 +1,4 @@
 databaseChangeLog:
-  - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
+  - comment: "Temporarily no changeSets"
+#  - include:
+#      file: db/changelog/changeset/V001__account-service_account.sql
