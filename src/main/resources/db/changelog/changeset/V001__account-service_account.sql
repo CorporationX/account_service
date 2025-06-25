@@ -9,7 +9,7 @@ CREATE TABLE accounts (
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp,
     closed_at timestamptz DEFAULT NULL,
-    version int DEFAULT 1,
+    version int NOT NULL DEFAULT 1,
     balance decimal,
     description varchar(512)
 );

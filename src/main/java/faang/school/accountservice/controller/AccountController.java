@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.dto.UpdateAccountDto;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,10 +35,5 @@ public class AccountController {
     @PutMapping("/block/{accountNumber}")
     public void block(@PathVariable String accountNumber) {
         accountService.block(accountNumber);
-    }
-
-    @PutMapping("/update/{accountId}")
-    public AccountDto updateAccount(@PathVariable long accountId, @RequestBody UpdateAccountDto updateAccountDto) {
-        return accountService.update(accountId, updateAccountDto);
     }
 }

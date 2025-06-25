@@ -1,11 +1,12 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.dto.UpdateAccountDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
-import jakarta.persistence.OptimisticLockException;
+import faang.school.accountservice.utils.PasswordGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,46 +21,44 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto open(AccountDto accountDto) {
-        Account account = accountRepository.save(accountMapper.toEntity(accountDto));
+        String number;
+        do {
+            number = PasswordGeneratorUtil.generatePassword();
+        } while (accountRepository.findByAccountNumber(number).isPresent());
 
-        return accountMapper.toDto(account);
+        Account account = accountMapper.toEntity(accountDto);
+        account.setStatus(AccountStatus.ACTIVE);
+        account.setNumber(number);
+
+        return accountMapper.toDto(accountRepository.save(account));
     }
 
     @Override
     public AccountDto get(String accountNumber) {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new IllegalArgumentException("No account was found with such number"));
-
+        Account account = getAccountOrThrow(accountNumber);
         return accountMapper.toDto(account);
     }
 
     @Override
+    @Transactional
     public void close(String accountNumber) {
-        int closed = accountRepository.closeAccountByNumber(accountNumber);
-        if (closed == 0) {
-            throw new IllegalArgumentException("No account was closed as no such number was found");
-        }
-    }
-
-    @Override
-    public void block(String accountNumber) {
-        int blocked = accountRepository.blockAccountByNumber(accountNumber);
-        if (blocked == 0) {
-            throw new IllegalArgumentException("No account was blocked as no such number was found");
-        }
+        Account account = getAccountOrThrow(accountNumber);
+        account.close();
     }
 
     @Override
     @Transactional
-    public AccountDto update(long accountId, UpdateAccountDto updateAccountDto) {
-        Account account = accountRepository.getReferenceById(accountId);
-        accountMapper.update(updateAccountDto, account);
+    public void block(String accountNumber) {
+        Account account = getAccountOrThrow(accountNumber);
+        account.block();
+    }
 
-        try {
-            return accountMapper.toDto(accountRepository.save(account));
-        } catch (OptimisticLockException e) {
-            log.warn("Optimistic lock happened try again.");
-            return accountMapper.toDto(account);
-        }
+    private Account getAccountOrThrow(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.error("Account not found: {}", accountNumber);
+                    return new AccountNotFoundException(
+                            "Account not found: " + accountNumber);
+                });
     }
 }
