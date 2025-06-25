@@ -4,7 +4,6 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import faang.school.accountservice.exception.AccountStateException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,15 +17,22 @@ import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @Table(name = "accounts")
 public class Account {
     @Id
@@ -72,29 +78,5 @@ public class Account {
 
     @Version
     @Column(name = "version")
-    private Integer version = 1;
-
-    @Column(name = "balance")
-    private BigDecimal balance;
-
-    @Column(name = "description")
-    private String description;
-
-    public void block() {
-        if (this.status == AccountStatus.CLOSED) {
-            throw new AccountStateException("Closed account cannot be blocked");
-        }
-        if (this.status == AccountStatus.FROZEN) {
-            throw new AccountStateException("Account already blocked");
-        }
-        this.status = AccountStatus.FROZEN;
-    }
-
-    public void close() {
-        if (this.status == AccountStatus.CLOSED) {
-            throw new AccountStateException("Account already closed");
-        }
-        this.status = AccountStatus.CLOSED;
-        this.closedAt = LocalDateTime.now();
-    }
+    private Integer version;
 }
