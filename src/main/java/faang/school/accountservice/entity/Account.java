@@ -32,7 +32,7 @@ public class Account {
     private OwnerType ownerType;
 
     @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    private long ownerId;
 
     @Column(name = "type", nullable = false)
     private Type type;
