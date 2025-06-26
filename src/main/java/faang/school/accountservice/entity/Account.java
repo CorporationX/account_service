@@ -39,7 +39,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", length = 32, unique = true, nullable = false)
+    @Column(name = "number", length = 20, unique = true, nullable = false)
     @Size(min = 12, max = 20)
     @Pattern(regexp = "\\d+")
     private String number;

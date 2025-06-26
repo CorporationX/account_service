@@ -57,9 +57,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    /**
-     *  Swagger
-     */
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 }
 
