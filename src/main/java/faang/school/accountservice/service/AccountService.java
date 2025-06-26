@@ -28,15 +28,16 @@ public class AccountService {
     @Transactional
     public AccountDto openAccount(AccountDto dto) {
         Account newAccount = Account.builder()
-                .id(dto.id())
                 .ownerType(dto.ownerType())
                 .ownerId(dto.ownerId())
                 .type(dto.type())
                 .currency(dto.currency())
                 .status(Status.ACTIVE)
-                .build();
+                .build(); // id and number will be auto generated
+
         Account savedAccount = repository.save(newAccount);
         return mapper.toDto(savedAccount);
+
     }
 
     @Transactional
