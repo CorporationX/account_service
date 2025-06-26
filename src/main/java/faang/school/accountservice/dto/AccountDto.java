@@ -1,15 +1,15 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
 
 public record AccountDto(
         long id,
         String number,
-        Account.OwnerType ownerType,
+        OwnerType ownerType,
         long ownerId,
-        Account.Type type,
-        Currency currency,
-        String version
+        AccountType type,
+        Currency currency
 ) {
 }

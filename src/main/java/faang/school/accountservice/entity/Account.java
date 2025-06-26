@@ -1,6 +1,9 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,9 +11,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
+
+import static faang.school.accountservice.utils.AccountUtil.generateNumber;
 
 @Data
 @Builder
@@ -26,7 +29,8 @@ public class Account {
     private long id;
 
     @Column(name = "number", length = 20, nullable = false, unique = true)
-    private String number;
+    @Builder.Default
+    private String number = generateNumber();
 
     @Column(name = "owner_type", nullable = false)
     private OwnerType ownerType;
@@ -35,9 +39,9 @@ public class Account {
     private long ownerId;
 
     @Column(name = "type", nullable = false)
-    private Type type;
+    private AccountType type;
 
-    @Column(name = "currency")
+    @Column(name = "currency", nullable = false)
     private Currency currency;
 
     @Column(name = "status", nullable = false)
@@ -57,38 +61,7 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Version
     @Column(name = "version")
-    private String version;
-
-    public enum Status {
-        ACTIVE, CLOSED, FROZEN
-    }
-
-    public enum Type {
-        CURRENT, SETTLEMENT, CREDIT, DEPOSIT, BUDGET
-    }
-
-    public enum OwnerType {
-        PROJECT, USER
-    }
-
-    @PrePersist
-    public void assignId() {
-        if (number == null) {
-            this.number = generateNumber();
-        }
-    }
-    //случайная генерация id
-    private String generateNumber() {
-        SecureRandom random = new SecureRandom();
-        StringBuilder randomPart = new StringBuilder();
-        Long timePart = System.currentTimeMillis();
-        randomPart.append(timePart);
-        int randomPartLength = random.nextInt(12, 21) - String.valueOf(timePart).length();
-
-        for (int i = 1; i < randomPartLength; i++) {
-            randomPart.append(random.nextInt(10));
-        }
-        return randomPart.toString();
-    }
+    private long version;
 }
