@@ -12,8 +12,9 @@ import jakarta.persistence.Version;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,7 +23,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "balance")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -51,8 +53,8 @@ public class Balance {
     private LocalDateTime updatedAt;
 
     @Version
-    @Column(name = "balance_version")
-    private Long balanceVersion;
+    @Column(name = "version")
+    private Long version;
 
     @OneToOne(mappedBy = "balance", fetch = FetchType.LAZY)
     private Account account;

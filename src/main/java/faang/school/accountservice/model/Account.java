@@ -20,17 +20,18 @@ import jakarta.persistence.Version;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "account")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -80,6 +81,6 @@ public class Account {
     private Balance balance;
 
     @Version
-    @Column(name = "account_version")
-    private Long accountVersion;
+    @Column(name = "version")
+    private Long version;
 }
