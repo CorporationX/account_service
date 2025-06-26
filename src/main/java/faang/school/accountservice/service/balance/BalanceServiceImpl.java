@@ -1,6 +1,7 @@
 package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.exceptions.DataValidationException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.BalanceRepository;
@@ -14,6 +15,7 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
 
+
     @Transactional
     public BalanceDto create(BalanceDto balanceDto) {
         Balance balance = balanceMapper.toEntity(balanceDto);
@@ -24,7 +26,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Transactional
     public BalanceDto update(Long id, BalanceDto balanceDto) {
         Balance balance = balanceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Balance not found"));
+                .orElseThrow(() -> new DataValidationException("Balance not found with id: " + id));
         balanceMapper.update(balance, balanceDto);
         Balance updatedBalance = balanceRepository.save(balance);
         return balanceMapper.toDto(updatedBalance);
@@ -32,8 +34,16 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Transactional(readOnly = true)
     public BalanceDto getBalance(Long id) {
-        Balance balance = balanceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Balance not found"));
-        return balanceMapper.toDto(balance);
+        return balanceRepository.findById(id)
+                .map(balanceMapper::toDto)
+                .orElseThrow(() -> new DataValidationException("Balance not found with id: " + id));
+    }
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        if (!balanceRepository.existsById(id)) {
+            throw new DataValidationException("Balance not found with id: " + id);
+        }
+        balanceRepository.deleteById(id);
     }
 }

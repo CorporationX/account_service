@@ -9,14 +9,11 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface BalanceMapper {
+    @Mapping(source = "account.id", target = "accountId")
     BalanceDto toDto(Balance balance);
 
     Balance toEntity(BalanceDto balanceDto);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "accountNumber", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     void update(@MappingTarget Balance balance, BalanceDto dto);
 }

@@ -1,7 +1,7 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.BalanceDto;
-import faang.school.accountservice.service.balance.BalanceService;
+import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,30 +14,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/balance")
+@RequestMapping("/api/v1/account")
 @RequiredArgsConstructor
-public class BalanceController {
-    private final BalanceService balanceService;
+public class AccountController {
+
+    private final AccountService accountService;
 
     @GetMapping("/{id}")
-    public BalanceDto getBalance(@PathVariable Long id) {
-        return balanceService.getBalance(id);
+    public AccountDto getAccount(@PathVariable Long id) {
+        return accountService.getAccount(id);
     }
 
     @PostMapping
-    public BalanceDto create(@RequestBody @Valid BalanceDto request) {
-        return balanceService.create(request);
+    public AccountDto create(@RequestBody @Valid AccountDto accountDto) {
+        return accountService.create(accountDto);
     }
 
     @PutMapping("/{id}")
-    public BalanceDto update(@PathVariable Long id, @RequestBody BalanceDto balanceDto) {
-        return balanceService.update(id, balanceDto);
+    public AccountDto update(@PathVariable Long id, @RequestBody @Valid AccountDto accountDto) {
+        return accountService.update(id, accountDto);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        balanceService.delete(id);
+        accountService.delete(id);
     }
-
-
 }

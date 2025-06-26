@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalanceDto {
+public class AccountDto {
     @NotBlank
     @Pattern(regexp = "\\d{12,20}", message = "Account number must be 12 to 20 digits")
     private String accountNumber;
-    private Long accountId;
+    private Long userId;
+    private Long projectId;
+    private Long balanceId;
 }
