@@ -12,7 +12,7 @@ public class AccountController {
 
     @GetMapping("/{id}")
     public AccountDto getAccount(@PathVariable Long id) {
-        return service.getAccount(id);
+        return service.getAccountDto(id);
     }
 
     @PostMapping("/open")
