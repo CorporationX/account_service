@@ -47,13 +47,9 @@ public class AccountServiceTest {
     @Test
     public void openAccountTest() {
         AccountCreationDto dto = new AccountCreationDto(OwnerType.USER, 1, AccountType.DEPOSIT, Currency.USD);
-        when(repository.save(any())).thenReturn(Account.builder()// id and number will be auto generated
-                .ownerType(dto.ownerType())
-                .ownerId(dto.ownerId())
-                .type(dto.type())
-                .currency(dto.currency())
-                .status(Status.ACTIVE)
-                .build());
+        Account newAccount = mapper.toCreateEntity(dto);
+        newAccount.setStatus(Status.ACTIVE);
+        when(repository.save(any())).thenReturn(newAccount);
         AccountDto savedAcc = service.openAccount(dto);
         assertNotNull(savedAcc);
         assertNotNull(savedAcc.number());
