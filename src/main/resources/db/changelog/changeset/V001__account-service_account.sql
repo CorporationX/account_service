@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS accounts (
     owner_id bigint NOT NULL,
     account_type varchar(32) NOT NULL,
     status varchar(16) NOT NULL DEFAULT 'ACTIVE',
-    created_at timestamptz DEFAULT current_timestamp,
-    updated_at timestamptz DEFAULT current_timestamp,
-    closed_at timestamptz NULL,
+    created_at timestamp DEFAULT current_timestamp,
+    updated_at timestamp DEFAULT current_timestamp,
+    closed_at timestamp NULL,
     version bigint NOT NULL DEFAULT 1
 );
 
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS balances (
     account_id bigint NOT NULL UNIQUE,
     actual_balance numeric(19, 4) NOT NULL DEFAULT 0.00,
     currency varchar(3) NOT NULL,
-    created_at timestamptz DEFAULT current_timestamp,
-    updated_at timestamptz DEFAULT current_timestamp,
+    created_at timestamp DEFAULT current_timestamp,
+    updated_at timestamp DEFAULT current_timestamp,
     version bigint NOT NULL DEFAULT 1,
 
     CONSTRAINT uq_balance_account_id UNIQUE (account_id),

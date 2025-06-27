@@ -6,7 +6,7 @@ plugins {
 
 group = "faang.school"
 version = "1.0"
-//java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
