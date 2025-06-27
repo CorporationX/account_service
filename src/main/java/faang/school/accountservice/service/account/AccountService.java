@@ -1,8 +1,10 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.currency.Currency;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.repository.account.AccountRepository;
+import faang.school.accountservice.service.currency.CurrencyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,19 +16,25 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class AccountService {
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+    private final CurrencyService currencyService;
 
     @Transactional(readOnly = true)
-    public Account getAccountById(UUID uuid) {
-        return accountRepository.findById(uuid)
+    public Account getAccountById(UUID accountId) {
+        return accountRepository.findById(accountId)
                 .orElseThrow(() -> {
-                    log.error("Account with {} not found", uuid);
-                    return new AccountNotFoundException(uuid);
+                    log.error("Account with {} not found", accountId);
+                    return new AccountNotFoundException(accountId);
                 });
     }
 
     @Transactional
-    public Account createAccount(Account account) {
+    public Account createAccount(Account account, UUID currencyId) {
+        Currency currency = currencyService.getCurrencyById(currencyId);
+        account.setCurrency(currency);
+
+        // TODO: сиквенс для номера
+
         Account savedAccount = accountRepository.save(account);
         log.info("Account {} has been saved", savedAccount);
 

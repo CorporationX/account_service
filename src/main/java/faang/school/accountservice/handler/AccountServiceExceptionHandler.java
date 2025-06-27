@@ -3,6 +3,7 @@ package faang.school.accountservice.handler;
 import faang.school.accountservice.dto.error.AccountServiceErrorResponseDto;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.exception.authorization.UserUnauthorizedException;
+import faang.school.accountservice.exception.currency.CurrencyNotFoundException;
 import feign.FeignException;
 import feign.RetryableException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class AccountServiceExceptionHandler {
     static {
         HTTP_STATUS_MAP.put(UserUnauthorizedException.class, HttpStatus.UNAUTHORIZED);
         HTTP_STATUS_MAP.put(AccountNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(CurrencyNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
@@ -39,6 +41,7 @@ public class AccountServiceExceptionHandler {
     @ExceptionHandler({
             UserUnauthorizedException.class,
             AccountNotFoundException.class,
+            CurrencyNotFoundException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,
             RetryableException.class
