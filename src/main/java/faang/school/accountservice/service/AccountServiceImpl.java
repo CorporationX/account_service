@@ -24,14 +24,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto open(AccountDto accountDto) {
-        String number;
-        do {
-            number = PasswordGeneratorUtil.generatePassword();
-        } while (accountRepository.findByAccountNumber(number).isPresent());
-
         Account account = accountMapper.toEntity(accountDto);
         account.setStatus(AccountStatus.ACTIVE);
-        account.setNumber(number);
+        account.setNumber(PasswordGeneratorUtil.generatePassword());
 
         return accountMapper.toDto(accountRepository.save(account));
     }
