@@ -1,5 +1,6 @@
 package faang.school.accountservice.accountTests;
 
+import faang.school.accountservice.dto.AccountCreationDto;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountType;
@@ -45,9 +46,7 @@ public class AccountServiceTest {
 
     @Test
     public void openAccountTest() {
-        AccountDto dto = new AccountDto(1L, null, OwnerType.USER, 1, AccountType.DEPOSIT, Currency.USD);
-        Account account = mapper.toEntity(dto);
-        account.setStatus(Status.ACTIVE);
+        AccountCreationDto dto = new AccountCreationDto(OwnerType.USER, 1, AccountType.DEPOSIT, Currency.USD);
         when(repository.save(any())).thenReturn(Account.builder()// id and number will be auto generated
                 .ownerType(dto.ownerType())
                 .ownerId(dto.ownerId())
@@ -58,7 +57,6 @@ public class AccountServiceTest {
         AccountDto savedAcc = service.openAccount(dto);
         assertNotNull(savedAcc);
         assertNotNull(savedAcc.number());
-        assertNotNull(savedAcc.id());
     }
 
     @Test

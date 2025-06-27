@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.AccountCreationDto;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.Status;
@@ -26,7 +27,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountDto openAccount(AccountDto dto) {
+    public AccountDto openAccount(AccountCreationDto dto) {
         Account newAccount = Account.builder()
                 .ownerType(dto.ownerType())
                 .ownerId(dto.ownerId())

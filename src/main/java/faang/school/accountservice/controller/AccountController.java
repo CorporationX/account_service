@@ -1,5 +1,6 @@
 package faang.school.accountservice.controller;
 
+import faang.school.accountservice.dto.AccountCreationDto;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class AccountController {
     }
 
     @PostMapping("/open")
-    public AccountDto openAccount(@RequestBody AccountDto accountDto) {
+    public AccountDto openAccount(@RequestBody AccountCreationDto accountDto) {
         return service.openAccount(accountDto);
     }
 
