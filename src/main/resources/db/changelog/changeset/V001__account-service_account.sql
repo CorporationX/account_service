@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS balances (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     account_id bigint NOT NULL UNIQUE,
     actual_balance numeric(19, 4) NOT NULL DEFAULT 0.00,
-    currency varchar(3) NOT NULL,
+    currency character(3) NOT NULL,
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
     version bigint NOT NULL DEFAULT 1,
