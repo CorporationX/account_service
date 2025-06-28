@@ -20,6 +20,7 @@ import java.util.UUID;
 public class AccountFacade {
     private final AccountService accountService;
     private final AccountMapper accountMapper;
+
     @Transactional(readOnly = true)
     public AccountResponseDto getAccountById(UUID accountId) {
         Account account = accountService.getAccountById(accountId);

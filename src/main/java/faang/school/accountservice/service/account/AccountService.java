@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -50,12 +51,17 @@ public class AccountService {
 
     @Transactional
     public Account blockAccount(UUID accountId, boolean block) {
-        return updateAccountStatus(accountId, block ? AccountStatus.BLOKE : AccountStatus.OPEN);
+        Account account = updateAccountStatus(accountId, block ? AccountStatus.BLOCKED : AccountStatus.OPEN);
+        log.info("Account has been updated {}", account);
+        return account;
     }
 
     @Transactional
     public Account closeAccount(UUID accountId) {
-        return updateAccountStatus(accountId, AccountStatus.CLOSE);
+        Account account = updateAccountStatus(accountId, AccountStatus.CLOSED);
+        account.setClosedAt(LocalDateTime.now());
+        log.info("Account has been updated {}", account);
+        return account;
     }
 
     private Account updateAccountStatus(UUID accountId, AccountStatus status) {
@@ -69,13 +75,12 @@ public class AccountService {
         }
 
         account.setStatus(status);
-        log.info("Account has been update {}", account);
 
         return account;
     }
 
     private AccountNotFoundException getAccountNotFound(UUID accountId) {
-        log.error("Account with {} not found", accountId);
+        log.error("Account with id {} not found", accountId);
         return new AccountNotFoundException(accountId);
     }
 }

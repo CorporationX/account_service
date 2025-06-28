@@ -19,7 +19,7 @@ public class CurrencyService {
     public Currency getCurrencyById(UUID currencyId) {
         return currencyRepository.findById(currencyId)
                 .orElseThrow(() -> {
-                    log.error("Currency with {} not found", currencyId);
+                    log.error("Currency with id {} not found", currencyId);
                     return new CurrencyNotFoundException(currencyId);
                 });
     }

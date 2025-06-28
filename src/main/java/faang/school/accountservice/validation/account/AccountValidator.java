@@ -12,8 +12,8 @@ import java.util.Objects;
 @Slf4j
 public class AccountValidator {
     public void checkCloseAccount(Account account) {
-        if (Objects.equals(account.getStatus(), AccountStatus.CLOSE)) {
-            log.error("Account with id {} already close", account.getId());
+        if (Objects.equals(account.getStatus(), AccountStatus.CLOSED)) {
+            log.error("Account with id {} already closed", account.getId());
             throw new AccountAlreadyCloseException(account.getId());
         }
     }

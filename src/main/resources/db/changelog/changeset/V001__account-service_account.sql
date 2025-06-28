@@ -9,7 +9,7 @@ CREATE SEQUENCE account_number_seq
 
 CREATE TABLE currency (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL,
     name VARCHAR(64) NOT NULL,
     iso_code VARCHAR(8) NOT NULL UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE currency (
 
 CREATE TABLE account (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL,
 
     number VARCHAR(128) NOT NULL UNIQUE,
@@ -39,5 +39,3 @@ CREATE TABLE account (
         (user_id IS NULL AND project_id IS NOT NULL)
     )
 );
-
-CREATE UNIQUE INDEX idx_account_number_unique ON account (number);

@@ -47,6 +47,6 @@ public class Account extends BaseEntityWithAudit {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
-    @Column(name = "close_at")
-    private LocalDateTime closeAt;
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
 }

@@ -28,14 +28,14 @@ public class AccountValidationTest {
 
     @Test
     public void testCheckCloseAccount_successfully() {
-        account.setStatus(AccountStatus.BLOKE);
+        account.setStatus(AccountStatus.BLOCKED);
 
         assertDoesNotThrow(() -> accountValidator.checkCloseAccount(account));
     }
 
     @Test
     public void testCheckCloseAccount_accountAlreadyClose() {
-        account.setStatus(AccountStatus.CLOSE);
+        account.setStatus(AccountStatus.CLOSED);
 
         assertThrows(AccountAlreadyCloseException.class, () -> accountValidator.checkCloseAccount(account));
     }

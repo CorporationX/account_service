@@ -93,19 +93,19 @@ public class AccountServiceTest {
 
         Account result = accountService.blockAccount(account.getId(), true);
 
-        assertEquals(AccountStatus.BLOKE, result.getStatus());
+        assertEquals(AccountStatus.BLOCKED, result.getStatus());
         verify(accountValidator).checkCloseAccount(account);
         verify(accountRepository).findByIdForUpdate(account.getId());
     }
 
     @Test
     public void testBlockAccount_alreadyInTargetStatus() {
-        account.setStatus(AccountStatus.BLOKE);
+        account.setStatus(AccountStatus.BLOCKED);
         when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
 
         Account result = accountService.blockAccount(account.getId(), true);
 
-        assertEquals(AccountStatus.BLOKE, result.getStatus());
+        assertEquals(AccountStatus.BLOCKED, result.getStatus());
         verify(accountRepository).findByIdForUpdate(account.getId());
     }
 
@@ -120,7 +120,7 @@ public class AccountServiceTest {
 
     @Test
     public void testBlockAccount_accountAlreadyClosed() {
-        account.setStatus(AccountStatus.CLOSE);
+        account.setStatus(AccountStatus.CLOSED);
         when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
         doThrow(new AccountAlreadyCloseException(account.getId())).when(accountValidator).checkCloseAccount(account);
 
@@ -133,7 +133,7 @@ public class AccountServiceTest {
 
     @Test
     public void testUnblockAccount_successfully() {
-        account.setStatus(AccountStatus.BLOKE);
+        account.setStatus(AccountStatus.BLOCKED);
         when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
 
         Account result = accountService.blockAccount(account.getId(), false);
@@ -149,7 +149,7 @@ public class AccountServiceTest {
 
         Account result = accountService.closeAccount(account.getId());
 
-        assertEquals(AccountStatus.CLOSE, result.getStatus());
+        assertEquals(AccountStatus.CLOSED, result.getStatus());
         verify(accountValidator).checkCloseAccount(account);
         verify(accountRepository).findByIdForUpdate(account.getId());
     }
