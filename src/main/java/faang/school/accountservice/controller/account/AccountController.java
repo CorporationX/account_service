@@ -43,7 +43,7 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/user")
+    @PostMapping("/project")
     public ResponseEntity<AccountResponseDto> createAccountForProject
             (@RequestBody @Valid AccountCreateProjectRequestDto accountCreateProjectRequestDto) {
         log.info("Account controller accepted request create account for project {}", accountCreateProjectRequestDto);

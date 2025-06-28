@@ -17,5 +17,5 @@ import java.util.UUID;
 public class BaseEntityWithId {
     @Id
     @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private UUID uuid;
+    private UUID id;
 }

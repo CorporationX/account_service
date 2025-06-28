@@ -1,5 +1,12 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE SEQUENCE account_number_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE currency (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -32,3 +39,5 @@ CREATE TABLE account (
         (user_id IS NULL AND project_id IS NOT NULL)
     )
 );
+
+CREATE UNIQUE INDEX idx_account_number_unique ON account (number);
