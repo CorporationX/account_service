@@ -41,6 +41,9 @@ public class AccountBalance {
     @JoinColumn(name = "account_id", nullable = false, unique = true)
     private Account account;
 
+    @Column(name = "authorized_balance", nullable = false, precision = 19, scale = 4)
+    private BigDecimal authorizedBalance;
+
     @Column(name = "actual_balance", nullable = false, precision = 19, scale = 4)
     private BigDecimal actualBalance;
 
