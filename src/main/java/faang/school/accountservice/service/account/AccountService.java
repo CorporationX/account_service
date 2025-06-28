@@ -1,6 +1,7 @@
 package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.account.AccountOwnerType;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.currency.Currency;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
@@ -31,12 +32,15 @@ public class AccountService {
     }
 
     @Transactional
-    public Account createAccount(Account account, UUID currencyId) {
+    public Account createAccount(Account account, UUID currencyId, AccountOwnerType ownerType) {
         String number = accountNumberGenerator.generateAccountNumber();
         account.setNumber(number);
 
         Currency currency = currencyService.getCurrencyById(currencyId);
         account.setCurrency(currency);
+        account.setStatus(AccountStatus.OPEN);
+        account.setOwnerType(ownerType);
+
 
         Account savedAccount = accountRepository.save(account);
         log.info("Account {} has been saved", savedAccount);
@@ -45,16 +49,16 @@ public class AccountService {
     }
 
     @Transactional
-    public Account blockAccount(UUID id, boolean block) {
-        return updateAccountStatus(id, block ? AccountStatus.BLOKE : AccountStatus.OPEN);
+    public Account blockAccount(UUID accountId, boolean block) {
+        return updateAccountStatus(accountId, block ? AccountStatus.BLOKE : AccountStatus.OPEN);
     }
 
     @Transactional
-    public Account closeAccount(UUID id) {
-        return updateAccountStatus(id, AccountStatus.CLOSE);
+    public Account closeAccount(UUID accountId) {
+        return updateAccountStatus(accountId, AccountStatus.CLOSE);
     }
 
-    public Account updateAccountStatus(UUID accountId, AccountStatus status) {
+    private Account updateAccountStatus(UUID accountId, AccountStatus status) {
         Account account = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> getAccountNotFound(accountId));
         accountValidator.checkCloseAccount(account);

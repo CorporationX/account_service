@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.account.AccountCreateProjectRequestDto;
 import faang.school.accountservice.dto.account.AccountCreateUserRequestDto;
 import faang.school.accountservice.dto.account.AccountResponseDto;
 import faang.school.accountservice.entity.account.Account;
+import faang.school.accountservice.entity.account.AccountOwnerType;
 import faang.school.accountservice.mapper.account.AccountMapper;
 import faang.school.accountservice.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,11 @@ public class AccountFacade {
         log.info("Mapping AccountCreateUserRequestDto to Account entity. DTO content: {}. Entity content: {}.",
                 accountCreateUserRequestDto, account);
 
-        Account savedAccount = accountService.createAccount(account, accountCreateUserRequestDto.getCurrencyId());
+        Account savedAccount = accountService.createAccount(
+                account,
+                accountCreateUserRequestDto.getCurrencyId(),
+                AccountOwnerType.USER
+        );
 
         AccountResponseDto accountResponseDto = accountMapper.toAccountResponseDto(account);
         log.info("Mapping Account entity to AccountResponseDto. Entity content: {}. DTO content: {}.",
@@ -51,11 +56,35 @@ public class AccountFacade {
         log.info("Mapping AccountCreateProjectRequestDto to Account entity. DTO content: {}. Entity content: {}.",
                 accountCreateProjectRequestDto, account);
 
-        Account savedAccount = accountService.createAccount(account, accountCreateProjectRequestDto.getCurrencyId());
+        Account savedAccount = accountService.createAccount(
+                account,
+                accountCreateProjectRequestDto.getCurrencyId(),
+                AccountOwnerType.PROJECT
+        );
 
         AccountResponseDto accountResponseDto = accountMapper.toAccountResponseDto(account);
         log.info("Mapping Account entity to AccountResponseDto. Entity content: {}. DTO content: {}.",
                 savedAccount, accountResponseDto);
+
+        return accountResponseDto;
+    }
+
+    public AccountResponseDto blockAccount(UUID accountId, boolean block) {
+        Account account = accountService.blockAccount(accountId, block);
+
+        AccountResponseDto accountResponseDto = accountMapper.toAccountResponseDto(account);
+        log.info("Mapping Account entity to AccountResponseDto. Entity content: {}. DTO content: {}.",
+                account, accountResponseDto);
+
+        return accountResponseDto;
+    }
+
+    public AccountResponseDto closeAccount(UUID accountId) {
+        Account account = accountService.closeAccount(accountId);
+
+        AccountResponseDto accountResponseDto = accountMapper.toAccountResponseDto(account);
+        log.info("Mapping Account entity to AccountResponseDto. Entity content: {}. DTO content: {}.",
+                account, accountResponseDto);
 
         return accountResponseDto;
     }
