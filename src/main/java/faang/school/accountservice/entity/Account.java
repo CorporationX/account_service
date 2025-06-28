@@ -13,16 +13,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -34,17 +36,19 @@ import java.time.LocalDateTime;
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", nullable = false, updatable = false, unique = true)
+    private UUID id;
 
     @Column(name = "account_number", length = 20, nullable = false, unique = true, updatable = false)
     private String accountNumber;
 
     @Column(name = "user_id", updatable = false)
-    private BigInteger userId;
+    private Long userId;
 
     @Column(name = "project_id", updatable = false)
-    private BigInteger projectId;
+    private Long projectId;
 
     @Column(name = "type", nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
@@ -54,7 +58,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @Column(name = "status", nullable = false, updatable = false)
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
@@ -72,4 +76,6 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Version
+    private Integer version;
 }
