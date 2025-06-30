@@ -87,70 +87,47 @@ public class AccountServiceTest {
     }
 
     @Test
-    public void testBlockAccount_successfully() {
+    public void testUpdateAccountStatus_successfully() {
         account.setStatus(AccountStatus.OPEN);
-        when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
 
-        Account result = accountService.blockAccount(account.getId(), true);
+        Account result = accountService.updateAccountStatus(account.getId(), AccountStatus.BLOCKED);
 
         assertEquals(AccountStatus.BLOCKED, result.getStatus());
         verify(accountValidator).checkCloseAccount(account);
-        verify(accountRepository).findByIdForUpdate(account.getId());
+        verify(accountRepository).findById(account.getId());
     }
 
     @Test
-    public void testBlockAccount_alreadyInTargetStatus() {
+    public void testUpdateAccountStatus_alreadyInTargetStatus() {
         account.setStatus(AccountStatus.BLOCKED);
-        when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
 
-        Account result = accountService.blockAccount(account.getId(), true);
+        Account result = accountService.updateAccountStatus(account.getId(), AccountStatus.BLOCKED);
 
         assertEquals(AccountStatus.BLOCKED, result.getStatus());
-        verify(accountRepository).findByIdForUpdate(account.getId());
+        verify(accountRepository).findById(account.getId());
     }
 
     @Test
     public void testBlockAccount_accountNotFound() {
-        when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.empty());
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class,
-                () -> accountService.blockAccount(account.getId(), true));
-        verify(accountRepository).findByIdForUpdate(account.getId());
+                () -> accountService.updateAccountStatus(account.getId(), AccountStatus.CLOSED));
+        verify(accountRepository).findById(account.getId());
     }
 
     @Test
     public void testBlockAccount_accountAlreadyClosed() {
         account.setStatus(AccountStatus.CLOSED);
-        when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
         doThrow(new AccountAlreadyCloseException(account.getId())).when(accountValidator).checkCloseAccount(account);
 
         assertThrows(AccountAlreadyCloseException.class,
-                () -> accountService.blockAccount(account.getId(), true));
+                () -> accountService.updateAccountStatus(account.getId(), AccountStatus.OPEN));
 
         verify(accountValidator).checkCloseAccount(account);
-        verify(accountRepository).findByIdForUpdate(account.getId());
-    }
-
-    @Test
-    public void testUnblockAccount_successfully() {
-        account.setStatus(AccountStatus.BLOCKED);
-        when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
-
-        Account result = accountService.blockAccount(account.getId(), false);
-
-        assertEquals(AccountStatus.OPEN, result.getStatus());
-        verify(accountValidator).checkCloseAccount(account);
-        verify(accountRepository).findByIdForUpdate(account.getId());
-    }
-
-    @Test
-    public void testCloseAccount_successfully() {
-        when(accountRepository.findByIdForUpdate(account.getId())).thenReturn(Optional.of(account));
-
-        Account result = accountService.closeAccount(account.getId());
-
-        assertEquals(AccountStatus.CLOSED, result.getStatus());
-        verify(accountValidator).checkCloseAccount(account);
-        verify(accountRepository).findByIdForUpdate(account.getId());
+        verify(accountRepository).findById(account.getId());
     }
 }

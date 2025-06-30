@@ -3,6 +3,7 @@ package faang.school.accountservice.controller.account;
 import faang.school.accountservice.dto.account.AccountCreateProjectRequestDto;
 import faang.school.accountservice.dto.account.AccountCreateUserRequestDto;
 import faang.school.accountservice.dto.account.AccountResponseDto;
+import faang.school.accountservice.dto.account.AccountUpdateRequestDto;
 import faang.school.accountservice.facade.account.AccountFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -58,21 +58,13 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PatchMapping("/block/{accountId}")
-    public ResponseEntity<AccountResponseDto> blockAccount(@PathVariable UUID accountId, @RequestParam boolean block) {
-        log.info("Account controller accepted request {} account with id {}", block ? "bloke" : "unblock", accountId);
-        AccountResponseDto response = accountFacade.blockAccount(accountId, block);
+    @PatchMapping
+    public ResponseEntity<AccountResponseDto> updateAccountStatus
+            (@RequestBody AccountUpdateRequestDto accountUpdateRequestDto) {
+        log.info("Account controller accepted request update status for account {}", accountUpdateRequestDto);
+        AccountResponseDto response = accountFacade.updateAccountStatus(accountUpdateRequestDto);
 
-        log.info("Account controller return response {} account {}", block ? "bloke" : "unblock", response);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/close/{accountId}")
-    public ResponseEntity<AccountResponseDto> closeAccount(@PathVariable UUID accountId) {
-        log.info("Account controller accepted request close account with id {}", accountId);
-        AccountResponseDto response = accountFacade.closeAccount(accountId);
-
-        log.info("Account controller return response close account {}", response);
+        log.info("Account controller return response update status for account {}", response);
         return ResponseEntity.ok(response);
     }
 }

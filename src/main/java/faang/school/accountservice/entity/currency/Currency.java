@@ -1,7 +1,7 @@
 package faang.school.accountservice.entity.currency;
 
 import faang.school.accountservice.entity.account.Account;
-import faang.school.accountservice.entity.base.BaseEntityWithAudit;
+import faang.school.accountservice.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -19,7 +19,7 @@ import java.util.List;
 @ToString(exclude = {"accounts"})
 @Entity
 @Table(name = "currency")
-public class Currency extends BaseEntityWithAudit {
+public class Currency extends BaseEntity {
 
     @Column(name = "name", length = 64, nullable = false, updatable = false)
     private String name;

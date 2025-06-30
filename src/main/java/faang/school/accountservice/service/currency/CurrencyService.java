@@ -15,6 +15,7 @@ import java.util.UUID;
 @Slf4j
 public class CurrencyService {
     private final CurrencyRepository currencyRepository;
+
     @Transactional(readOnly = true)
     public Currency getCurrencyById(UUID currencyId) {
         return currencyRepository.findById(currencyId)

@@ -1,6 +1,6 @@
 package faang.school.accountservice.entity.account;
 
-import faang.school.accountservice.entity.base.BaseEntityWithAudit;
+import faang.school.accountservice.entity.base.BaseEntityWithVersion;
 import faang.school.accountservice.entity.currency.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @ToString
 @Entity
 @Table(name = "account")
-public class Account extends BaseEntityWithAudit {
+public class Account extends BaseEntityWithVersion {
 
     @Column(name = "number", nullable = false, unique = true, updatable = false, length = 128)
     private String number;

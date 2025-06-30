@@ -3,6 +3,7 @@ package faang.school.accountservice.handler;
 import faang.school.accountservice.dto.error.AccountServiceErrorResponseDto;
 import faang.school.accountservice.exception.account.AccountAlreadyCloseException;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
+import faang.school.accountservice.exception.account.AccountUpdateConflictException;
 import faang.school.accountservice.exception.authorization.UserUnauthorizedException;
 import faang.school.accountservice.exception.currency.CurrencyNotFoundException;
 import feign.FeignException;
@@ -29,6 +30,7 @@ public class AccountServiceExceptionHandler {
         HTTP_STATUS_MAP.put(UserUnauthorizedException.class, HttpStatus.UNAUTHORIZED);
         HTTP_STATUS_MAP.put(AccountNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(CurrencyNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(AccountUpdateConflictException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(AccountAlreadyCloseException.class, HttpStatus.GONE);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
@@ -44,6 +46,7 @@ public class AccountServiceExceptionHandler {
             UserUnauthorizedException.class,
             AccountNotFoundException.class,
             CurrencyNotFoundException.class,
+            AccountUpdateConflictException.class,
             AccountAlreadyCloseException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,

@@ -1,5 +1,5 @@
-INSERT INTO currency (id, created_at, updated_at, name, iso_code, symbol)
+INSERT INTO currency (id, created_at, updated_at, version, name, iso_code, symbol)
 VALUES
-    (uuid_generate_v4(), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Российский рубль', 'RUB', '₽'),
-    (uuid_generate_v4(), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Доллар США', 'USD', '$'),
-    (uuid_generate_v4(), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Евро', 'EUR', '€');
+    (uuid_generate_v4(), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 'Российский рубль', 'RUB', '₽'),
+    (uuid_generate_v4(), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 'Доллар США', 'USD', '$'),
+    (uuid_generate_v4(), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 'Евро', 'EUR', '€');

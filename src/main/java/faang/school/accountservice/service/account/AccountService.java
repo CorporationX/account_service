@@ -5,11 +5,16 @@ import faang.school.accountservice.entity.account.AccountOwnerType;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.currency.Currency;
 import faang.school.accountservice.exception.account.AccountNotFoundException;
+import faang.school.accountservice.exception.account.AccountUpdateConflictException;
 import faang.school.accountservice.repository.account.AccountRepository;
 import faang.school.accountservice.service.currency.CurrencyService;
 import faang.school.accountservice.validation.account.AccountValidator;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +34,10 @@ public class AccountService {
     @Transactional(readOnly = true)
     public Account getAccountById(UUID accountId) {
         return accountRepository.findById(accountId)
-                .orElseThrow(() -> getAccountNotFound(accountId));
+                .orElseThrow(() -> {
+                    log.error("Account with id {} not found", accountId);
+                    return new AccountNotFoundException(accountId);
+                });
     }
 
     @Transactional
@@ -49,24 +57,14 @@ public class AccountService {
         return savedAccount;
     }
 
+    @Retryable(
+            retryFor = {OptimisticLockException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     @Transactional
-    public Account blockAccount(UUID accountId, boolean block) {
-        Account account = updateAccountStatus(accountId, block ? AccountStatus.BLOCKED : AccountStatus.OPEN);
-        log.info("Account has been updated {}", account);
-        return account;
-    }
-
-    @Transactional
-    public Account closeAccount(UUID accountId) {
-        Account account = updateAccountStatus(accountId, AccountStatus.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
-        log.info("Account has been updated {}", account);
-        return account;
-    }
-
-    private Account updateAccountStatus(UUID accountId, AccountStatus status) {
-        Account account = accountRepository.findByIdForUpdate(accountId)
-                .orElseThrow(() -> getAccountNotFound(accountId));
+    public Account updateAccountStatus(UUID accountId, AccountStatus status) {
+        Account account = getAccountById(accountId);
         accountValidator.checkCloseAccount(account);
 
         if (Objects.equals(account.getStatus(), status)) {
@@ -76,11 +74,18 @@ public class AccountService {
 
         account.setStatus(status);
 
+        if (Objects.equals(account.getStatus(), AccountStatus.CLOSED)) {
+            account.setClosedAt(LocalDateTime.now());
+        }
+
+        log.info("Account has been updated {}", account);
+
         return account;
     }
 
-    private AccountNotFoundException getAccountNotFound(UUID accountId) {
-        log.error("Account with id {} not found", accountId);
-        return new AccountNotFoundException(accountId);
+    @Recover
+    public Account recoverOptimisticLock(OptimisticLockException ex, UUID accountId, AccountStatus status) {
+        String errorMsg = "Failed to update account " + accountId + " after 5 attempts due to concurrent modification";
+        throw new AccountUpdateConflictException(errorMsg);
     }
 }
