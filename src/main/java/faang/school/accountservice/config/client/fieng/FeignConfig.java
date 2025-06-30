@@ -1,4 +1,4 @@
-package faang.school.accountservice.client;
+package faang.school.accountservice.config.client.fieng;
 
 
 import faang.school.accountservice.config.context.UserContext;
