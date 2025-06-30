@@ -18,6 +18,4 @@ public class AccountDto {
     AccountType accountType;
     @NotNull
     Currency currency;
-
-//    BigDecimal balance;
 }

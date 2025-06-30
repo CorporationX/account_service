@@ -4,11 +4,11 @@ import faang.school.accountservice.dto.AccountDto;
 
 public interface AccountService {
 
-    AccountDto open(AccountDto accountDto);
+    AccountDto openAccount(AccountDto accountDto);
 
-    AccountDto get(String accountNumber);
+    AccountDto getAccount(String accountNumber);
 
-    void close(String accountNumber);
+    void closeAccount(String accountNumber);
 
-    void block(String accountNumber);
+    void blockAccount(String accountNumber);
 }

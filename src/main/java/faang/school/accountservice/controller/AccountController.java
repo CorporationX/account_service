@@ -18,22 +18,22 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/{accountNumber}")
-    public AccountDto get(@PathVariable String accountNumber) {
-        return accountService.get(accountNumber);
+    public AccountDto getAccount(@PathVariable String accountNumber) {
+        return accountService.getAccount(accountNumber);
     }
 
-    @PostMapping()
-    public AccountDto open(@RequestBody AccountDto accountDto) {
-        return accountService.open(accountDto);
+    @PostMapping
+    public AccountDto openAccount(@RequestBody AccountDto accountDto) {
+        return accountService.openAccount(accountDto);
     }
 
-    @PutMapping("/close/{accountNumber}")
-    public void close(@PathVariable String accountNumber) {
-        accountService.close(accountNumber);
+    @PutMapping("/{accountNumber}/close")
+    public void closeAccount(@PathVariable String accountNumber) {
+        accountService.closeAccount(accountNumber);
     }
 
-    @PutMapping("/block/{accountNumber}")
-    public void block(@PathVariable String accountNumber) {
-        accountService.block(accountNumber);
+    @PutMapping("/{accountNumber}/block")
+    public void blockAccount(@PathVariable String accountNumber) {
+        accountService.blockAccount(accountNumber);
     }
 }

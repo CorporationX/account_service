@@ -7,7 +7,7 @@ import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.AccountStateException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.utils.PasswordGeneratorUtil;
+import faang.school.accountservice.utils.AccountNumberGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,50 +23,57 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     @Override
-    public AccountDto open(AccountDto accountDto) {
+    public AccountDto openAccount(AccountDto accountDto) {
         Account account = accountMapper.toEntity(accountDto);
         account.setStatus(AccountStatus.ACTIVE);
-        account.setNumber(PasswordGeneratorUtil.generatePassword());
+        account.setNumber(AccountNumberGeneratorUtil.generateAccountNumber());
 
         return accountMapper.toDto(accountRepository.save(account));
     }
 
     @Override
-    public AccountDto get(String accountNumber) {
+    public AccountDto getAccount(String accountNumber) {
         Account account = getAccountOrThrow(accountNumber);
         return accountMapper.toDto(account);
     }
 
     @Override
     @Transactional
-    public void close(String accountNumber) {
+    public void closeAccount(String accountNumber) {
         Account account = getAccountOrThrow(accountNumber);
         if (account.getStatus() == AccountStatus.CLOSED) {
-            throw new AccountStateException("Account already closed");
+            throw new AccountStateException(
+                    String.format("Account with AccountNumber:%s is already closed", accountNumber));
         }
         account.setStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
+
+        accountRepository.save(account);
     }
 
     @Override
     @Transactional
-    public void block(String accountNumber) {
+    public void blockAccount(String accountNumber) {
         Account account = getAccountOrThrow(accountNumber);
         if (account.getStatus() == AccountStatus.CLOSED) {
-            throw new AccountStateException("Closed account cannot be blocked");
+            throw new AccountStateException(
+                    String.format("Account with AccountNumber:%s is already closed", accountNumber));
         }
-        if (account.getStatus() == AccountStatus.FROZEN) {
-            throw new AccountStateException("Account already blocked");
+        if (account.getStatus() == AccountStatus.BLOCKED) {
+            throw new AccountStateException(
+                    String.format("Account with AccountNumber:%s is already blocked", accountNumber));
         }
-        account.setStatus(AccountStatus.FROZEN);
+        account.setStatus(AccountStatus.BLOCKED);
+
+        accountRepository.save(account);
     }
 
     private Account getAccountOrThrow(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> {
-                    log.error("Account not found: {}", accountNumber);
+                    log.error("Account with accountNumber: {} not found.", accountNumber);
                     return new AccountNotFoundException(
-                            "Account not found: " + accountNumber);
+                            String.format("Account with accountNumber: %s not found.", accountNumber));
                 });
     }
 }

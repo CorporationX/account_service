@@ -18,11 +18,11 @@ public class ControllerExceptionHandler {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @ExceptionHandler(AccountNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponseDto handleAccountNotFound(AccountNotFoundException e) {
-        log.error("Account number not found error: {}", e.getMessage());
+        log.error("Account number not found error:", e);
         return new ErrorResponseDto(
-                HttpStatus.BAD_REQUEST.name(),
+                HttpStatus.NOT_FOUND.name(),
                 "Invalid account number was provided.",
                 e.getMessage(),
                 LocalDateTime.now().format(formatter)
@@ -32,7 +32,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(AccountStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponseDto handleAccountState(AccountStateException e) {
-        log.error("Account state error: {}", e.getMessage());
+        log.error("Account state error:", e);
         return new ErrorResponseDto(
                 HttpStatus.CONFLICT.name(),
                 "Invalid status for account.",
