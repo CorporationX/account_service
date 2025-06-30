@@ -1,6 +1,6 @@
 package faang.school.accountservice.listener;
 
-import faang.school.accountservice.AccountCreatedEvent;
+import faang.school.accountservice.event.AccountCreatedEvent;
 import faang.school.accountservice.service.cache.OwnerCacheVersionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package faang.school.accountservice;
+package faang.school.accountservice.event;
 
 import faang.school.accountservice.model.OwnerType;
 

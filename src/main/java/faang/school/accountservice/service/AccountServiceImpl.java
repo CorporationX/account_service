@@ -1,6 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.AccountCreatedEvent;
+import faang.school.accountservice.event.AccountCreatedEvent;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.AccountPreviewDto;
 import faang.school.accountservice.dto.CreateAccountDto;
