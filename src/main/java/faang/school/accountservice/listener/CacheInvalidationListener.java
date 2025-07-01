@@ -18,6 +18,6 @@ public class CacheInvalidationListener {
     public void onAccountCreated(AccountCreatedEvent event) {
         log.info("Transaction committed for new account. Invalidating cache for ownerId: {}, ownerType: {}",
                 event.ownerId(), event.ownerType());
-        ownerCacheVersionService.invalidateAndGetNewVersion(event.ownerId(), event.ownerType());
+        ownerCacheVersionService.invalidateCache(event.ownerId(), event.ownerType());
     }
 }

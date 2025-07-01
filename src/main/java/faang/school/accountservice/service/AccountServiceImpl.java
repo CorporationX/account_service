@@ -43,6 +43,10 @@ public class AccountServiceImpl implements AccountService {
         log.info("Received request to open a new account for userId: {}", createAccountDto.getOwnerId());
         Account account = accountMapper.toEntity(createAccountDto);
         account.setStatus(AccountStatus.ACTIVE);
+
+        // TODO: generate a proper account number
+        account.setAccountNumber(System.currentTimeMillis() + "-" + createAccountDto.getOwnerId());
+
         Account savedAccount = accountRepository.save(account);
 
         eventPublisher.publishEvent(new AccountCreatedEvent(
