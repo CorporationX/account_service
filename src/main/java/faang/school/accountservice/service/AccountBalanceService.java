@@ -30,7 +30,7 @@ public class AccountBalanceService {
         log.info("Starting method get with account ID: {}", accountId);
         AccountBalance accountBalance = balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account balance not found!"));
-        log.info("Successfully retrieved account balance: {}", accountBalance);
+        log.info("Successfully retrieved account balance!");
 
         AccountBalanceDto dto = accountBalanceMapper.toDto(accountBalance);
         dto.setAccountNumber(accountBalance.getAccount().getAccountNumber());

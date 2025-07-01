@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.service.AccountBalanceService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -20,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountBalanceController {
     private final AccountBalanceService accountBalanceService;
 
-    @GetMapping("/{accountNumber}")
-    public AccountBalanceDto get(@NotNull @NotBlank @PathVariable Long accountId) {
+    @GetMapping("/{accountId}")
+    public AccountBalanceDto get(@NotNull @Positive @PathVariable Long accountId) {
         log.info("Starting method get from BalanceController, for account with ID: {}", accountId);
         return accountBalanceService.get(accountId);
     }
