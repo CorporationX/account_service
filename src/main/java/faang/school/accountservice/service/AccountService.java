@@ -3,7 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.exception.account.AccountNotFoundException;
+import faang.school.accountservice.exception.common.RecordNotFoundException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.validator.account.AccountValidator;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +35,14 @@ public class AccountService {
         return getExistingAccount(accountId);
     }
 
+    @Transactional(readOnly = true)
+    public Account getAccountByNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RecordNotFoundException(
+                        String.format("Account with number %s was not found", accountNumber)
+                ));
+    }
+
     @Transactional
     public Account closeAccount(UUID accountId) {
         Account account = getExistingAccount(accountId);
@@ -57,8 +65,10 @@ public class AccountService {
     }
 
 
-    private Account getExistingAccount(UUID accountId) {
+    public Account getExistingAccount(UUID accountId) {
         return accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
+                .orElseThrow(() -> new RecordNotFoundException(
+                        String.format("Account with id %s was not found", accountId)
+                ));
     }
 }

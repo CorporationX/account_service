@@ -43,6 +43,12 @@ public class AccountController {
         return ResponseEntity.ok(accountDto);
     }
 
+    @GetMapping("/numbers/{accountNumber}")
+    public ResponseEntity<ResponseAccountDto> getAccountByNumber(@PathVariable String accountNumber) {
+        ResponseAccountDto accountDto = accountFacade.getAccountByNumber(accountNumber);
+        return ResponseEntity.ok(accountDto);
+    }
+
     @PatchMapping("/close/{accountId}")
     public ResponseEntity<ResponseAccountDto> closeAccountStatus(@PathVariable UUID accountId) {
         ResponseAccountDto accountDto = accountFacade.closeAccount(accountId);

@@ -47,6 +47,14 @@ public class AccountFacade {
         return responseDto;
     }
 
+    public ResponseAccountDto getAccountByNumber(String accountNumber) {
+        Account createdAccount = accountService.getAccountByNumber(accountNumber);
+
+        ResponseAccountDto responseDto = accountMapper.toResponseAccountDto(createdAccount);
+
+        return responseDto;
+    }
+
     public ResponseAccountDto closeAccount(UUID accountId) {
         Account closedAccount = accountService.closeAccount(accountId);
 
