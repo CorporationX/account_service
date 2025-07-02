@@ -41,6 +41,12 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountDto openAccount(CreateAccountDto createAccountDto) {
         log.info("Received request to open a new account for userId: {}", createAccountDto.getOwnerId());
+        if (accountRepository.existsByOwnerIdAndOwnerType(createAccountDto.getOwnerId(),
+                createAccountDto.getOwnerType())) {
+            log.warn("Account already exists for userId: {}, ownerType: {}",
+                    createAccountDto.getOwnerId(), createAccountDto.getOwnerType());
+            throw new DataValidationException("Account already exists for this owner!");
+        }
         Account account = accountMapper.toEntity(createAccountDto);
         account.setStatus(AccountStatus.ACTIVE);
 
@@ -48,7 +54,6 @@ public class AccountServiceImpl implements AccountService {
         account.setAccountNumber(System.currentTimeMillis() + "-" + createAccountDto.getOwnerId());
 
         Account savedAccount = accountRepository.save(account);
-
         eventPublisher.publishEvent(new AccountCreatedEvent(
                 createAccountDto.getOwnerId(),createAccountDto.getOwnerType()
         ));
