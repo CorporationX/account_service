@@ -17,6 +17,18 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 3
+      retry-backoff-ms: 1000
+    topic:
+      request:
+        name: request.topic
+        partitions: 1
+
 server:
   port: 8090
 
