@@ -6,9 +6,12 @@ import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.exception.account.AccountUpdateConflictException;
 import faang.school.accountservice.exception.authorization.UserUnauthorizedException;
 import faang.school.accountservice.exception.currency.CurrencyNotFoundException;
+import faang.school.accountservice.exception.request.DuplicateIdempotencyKeyException;
+import faang.school.accountservice.exception.request.LockedRequestException;
 import feign.FeignException;
 import feign.RetryableException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,6 +38,8 @@ public class AccountServiceExceptionHandler {
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
+        HTTP_STATUS_MAP.put(DuplicateIdempotencyKeyException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(LockedRequestException.class, HttpStatus.TOO_MANY_REQUESTS);
     }
 
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(
@@ -50,7 +55,9 @@ public class AccountServiceExceptionHandler {
             AccountAlreadyCloseException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,
-            RetryableException.class
+            RetryableException.class,
+            DuplicateIdempotencyKeyException.class,
+            LockedRequestException.class
     })
     public ResponseEntity<AccountServiceErrorResponseDto> handleException(Exception ex) {
         ErrorHandler handler = getErrorHandler(ex);
@@ -64,6 +71,24 @@ public class AccountServiceExceptionHandler {
     public ResponseEntity<AccountServiceErrorResponseDto> handleGenericException(Exception ex) {
         log.error("Unhandled exception caught", ex);
         return createErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, ex);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<AccountServiceErrorResponseDto> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String msg = ex.getMessage();
+
+        if (msg.contains("idx_request_user_id")) {
+            log.warn("Идемпотентный запрос уже существует: {}", msg);
+            return createErrorResponse("Запрос уже в обработке", HttpStatus.CONFLICT, ex);
+        }
+
+        if (msg.contains("idx_request_lock_value_open")) {
+            log.warn("Запрос с блокировкой уже активен: {}", msg);
+            return createErrorResponse("Запрос с таким значением блокировки уже открыт", HttpStatus.TOO_MANY_REQUESTS, ex);
+        }
+
+        log.error("Ошибка при сохранении запроса в БД", ex);
+        return createErrorResponse("Невозможно создать запрос", HttpStatus.INTERNAL_SERVER_ERROR, ex);
     }
 
     private HttpStatus getHttpStatus(Throwable ex) {
