@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
+    jacoco
 }
 
 group = "faang.school"
@@ -22,6 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+    implementation("org.springframework.retry:spring-retry:2.0.12")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
@@ -66,4 +68,57 @@ val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true 
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
+}
+
+jacoco {
+    reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
+}
+
+tasks.jacocoTestReport {
+
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/config/**",
+                    "**/controller/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/repository/**",
+                    "**/exception/**",
+                    "**/enums/**",
+                    "**/mapper/**",
+                )
+            }
+        })
+    )
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "PACKAGE" // можно: BUNDLE, PACKAGE, CLASS
+
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
+            }
+
+            excludes = listOf(
+                "school.faang.user_service.config.*",
+                "school.faang.user_service.controller.*",
+                "school.faang.user_service.dto.*",
+                "school.faang.user_service.entity.*",
+                "school.faang.user_service.repository.*",
+                "school.faang.user_service.exception.*",
+            )
+        }
+    }
 }
