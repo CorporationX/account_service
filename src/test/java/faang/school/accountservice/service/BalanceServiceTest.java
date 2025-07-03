@@ -110,7 +110,7 @@ class BalanceServiceTest {
 
     @Test
     void testCreateBalance() {
-        when(accountService.getById(accountId)).thenReturn(expectedAccount);
+        when(accountService.getAccountById(accountId)).thenReturn(expectedAccount);
         when(balanceRepository.existsByAccountId(accountId)).thenReturn(false);
 
         when(balanceRepository.save(any(Balance.class))).thenReturn(expectedBalance);
@@ -121,18 +121,18 @@ class BalanceServiceTest {
         assertEquals(BigDecimal.ZERO, result.getActualAmount());
         assertEquals(BigDecimal.ZERO, result.getAuthorizedAmount());
 
-        verify(accountService, times(1)).getById(accountId);
+        verify(accountService, times(1)).getAccountById(accountId);
         verify(balanceRepository, times(1)).existsByAccountId(accountId);
         verify(balanceRepository, times(1)).save(any(Balance.class));
     }
 
     @Test
     void testCreateBalanceThrowWhenAlreadyExist() {
-        when(accountService.getById(accountId)).thenReturn(expectedAccount);
+        when(accountService.getAccountById(accountId)).thenReturn(expectedAccount);
         when(balanceRepository.existsByAccountId(accountId)).thenReturn(true);
 
         assertThrows(PreConditionFailedException.class, () -> balanceService.createBalance(accountId));
-        verify(accountService, times(1)).getById(accountId);
+        verify(accountService, times(1)).getAccountById(accountId);
         verify(balanceRepository, times(1)).existsByAccountId(accountId);
         verify(balanceRepository, never()).save(any());
     }

@@ -36,7 +36,7 @@ public class BalanceService {
     }
 
     public Balance createBalance(UUID accountId) {
-        return createBalance(accountService.getById(accountId));
+        return createBalance(accountService.getAccountById(accountId));
     }
 
     @Transactional
