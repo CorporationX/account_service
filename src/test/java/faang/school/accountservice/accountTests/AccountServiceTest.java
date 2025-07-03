@@ -33,7 +33,7 @@ public class AccountServiceTest {
     private AccountService service;
 
     @Test
-    public void getAccountTest() {
+    public void getAccountByIdTest() {
         when(repository.findById(1L)).thenReturn(Optional.of(new Account()));
         assertNotNull(service.getAccountDto(1L));
     }
