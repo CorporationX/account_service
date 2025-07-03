@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -48,7 +49,7 @@ public class Account {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "account")
     private Balance balance;
 
     @CreationTimestamp
