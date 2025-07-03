@@ -23,9 +23,3 @@ server:
 logging:
   level:
     root: info
-
-
-jobs:
-  balance:
-    expired:
-      cron:

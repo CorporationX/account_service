@@ -5,7 +5,6 @@ import faang.school.accountservice.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -13,8 +12,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -31,7 +28,4 @@ public class Balance extends BaseEntity {
 
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
-
-    @OneToMany(mappedBy = "balance")
-    private List<AuthorizationBalance> authorizationBalances = new ArrayList<>();
 }
