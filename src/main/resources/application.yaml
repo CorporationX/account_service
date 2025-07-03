@@ -37,6 +37,7 @@ kafka:
   replication-factor: 1
   concurrency: 3
   group: "requests"
+  trusted-packages: "faang.school.accountservice.dto.CreateRequestDto"
   properties:
     security.protocol: SSL
     ssl.truststore.location: /path/to/truststore.jks

@@ -37,7 +37,7 @@ public class RequestService {
 
         Request request = requestMapper.toEntity(createRequestDto);
 
-        request.setStatus(RequestStatus.READY_FOR_EXECUTION);
+        request.setStatus(RequestStatus.IN_PROGRESS);
         request.setIsOpen(false);
 
         requestRepository.save(request);
@@ -60,7 +60,7 @@ public class RequestService {
     public void closeRequest(Request request) {
         request.setIsOpen(false);
         request.setValueLock(null);
-        request.setStatus(RequestStatus.COMPLETED);
+        request.setStatus(RequestStatus.SUCCESS);
 
         requestRepository.save(request);
     }

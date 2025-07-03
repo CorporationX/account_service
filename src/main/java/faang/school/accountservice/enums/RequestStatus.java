@@ -1,9 +1,10 @@
 package faang.school.accountservice.enums;
 
 public enum RequestStatus {
-    READY_FOR_EXECUTION,
+    IN_PROGRESS,
     PENDING,
     PROCESSED,
-    COMPLETED,
-    CANCELLED
+    SUCCESS,
+    CANCELLED,
+    FAILED
 }

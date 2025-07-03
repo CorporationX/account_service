@@ -23,26 +23,30 @@ public class OpenCloseRequest {
     @Async
     @Scheduled(cron = "${cron.expression}")
     public void openRequests() {
-        List<Request> requests = requestRepository.findAll();
+        List<Request> requests = requestRepository.findAllByStatus(RequestStatus.IN_PROGRESS);
 
-        for (Request request : requests) {
-            if (request.getStatus().equals(RequestStatus.READY_FOR_EXECUTION)) {
+        requests.forEach(request -> {
+            try{
                 requestService.openRequest(request);
-                log.info("Request from user id = {} is open", request.getUserId());
+                log.info("Request opened, id = {}", request.getId());
+            }catch(Exception e){
+                log.error("Failed to open request {} {}", request.getId(), e.getMessage());
             }
-        }
+        });
     }
 
     @Async
     @Scheduled(cron = "${cron.expression}")
     public void closeRequests() {
-        List<Request> requests = requestRepository.findAll();
+        List<Request> requests = requestRepository.findAllByStatus(RequestStatus.PROCESSED);
 
-        for (Request request : requests) {
-            if (request.getStatus().equals(RequestStatus.PROCESSED)) {
+        requests.forEach(request -> {
+            try{
                 requestService.closeRequest(request);
-                log.info("Request from user id = {} is close", request.getUserId());
+                log.info("Request close, id = {}", request.getId());
+            } catch (Exception e){
+                log.error("Failed to close request {} {}", request.getId(), e.getMessage());
             }
-        }
+        });
     }
 }

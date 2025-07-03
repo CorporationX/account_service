@@ -29,6 +29,9 @@ public class KafkaConsumerConfig {
     @Value("${kafka.concurrency}")
     private Integer concurrency;
 
+    @Value("${kafka.trusted-packages}")
+    private String trustedPackages;
+
     @Bean
     public ConsumerFactory<String, Object> consumerFactory(){
         Map<String, Object> config = new HashMap<>();
@@ -38,7 +41,7 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        config.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "faang.school.accountservice.dto.CreateRequestDto");
+        config.put(JsonDeserializer.VALUE_DEFAULT_TYPE, trustedPackages);
         config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
         return new DefaultKafkaConsumerFactory<>(config);
