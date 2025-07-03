@@ -18,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+// TODO: аудит листенер
 @MappedSuperclass
 public class BaseEntity {
     @Id
