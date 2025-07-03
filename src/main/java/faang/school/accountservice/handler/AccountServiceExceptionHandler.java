@@ -6,8 +6,6 @@ import faang.school.accountservice.exception.account.AccountNotFoundException;
 import faang.school.accountservice.exception.account.AccountUpdateConflictException;
 import faang.school.accountservice.exception.authorization.UserUnauthorizedException;
 import faang.school.accountservice.exception.currency.CurrencyNotFoundException;
-import faang.school.accountservice.exception.request.DuplicateIdempotencyKeyException;
-import faang.school.accountservice.exception.request.LockedRequestException;
 import feign.FeignException;
 import feign.RetryableException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +36,6 @@ public class AccountServiceExceptionHandler {
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
-        HTTP_STATUS_MAP.put(DuplicateIdempotencyKeyException.class, HttpStatus.CONFLICT);
-        HTTP_STATUS_MAP.put(LockedRequestException.class, HttpStatus.TOO_MANY_REQUESTS);
     }
 
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(
@@ -55,9 +51,7 @@ public class AccountServiceExceptionHandler {
             AccountAlreadyCloseException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,
-            RetryableException.class,
-            DuplicateIdempotencyKeyException.class,
-            LockedRequestException.class
+            RetryableException.class
     })
     public ResponseEntity<AccountServiceErrorResponseDto> handleException(Exception ex) {
         ErrorHandler handler = getErrorHandler(ex);

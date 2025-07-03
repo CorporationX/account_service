@@ -12,7 +12,7 @@ CREATE TABLE request (
     details TEXT,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL,
-    version INTEGER DEFAULT 0
+    version INTEGER NOT NULL
 );
 
 --changeset trytofixme:create_idx_request_user_id_20250702
