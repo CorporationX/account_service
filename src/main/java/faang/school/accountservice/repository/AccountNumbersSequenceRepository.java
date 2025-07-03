@@ -13,6 +13,6 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountS
 
     @Modifying
     @Query("UPDATE AccountSequence a SET a.counter = a.counter + :batchSize WHERE a.accountType = :accountType")
-    int incrementCounter(@Param("accountType") AccountType accountType,
+    void incrementCounter(@Param("accountType") AccountType accountType,
                          @Param("batchSize") int batchSize);
 }

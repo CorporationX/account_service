@@ -1,3 +1,10 @@
+CREATE TABLE IF NOT EXISTS shedlock (
+    name VARCHAR(64) PRIMARY KEY,
+    lock_until TIMESTAMP WITH TIME ZONE,
+    locked_at TIMESTAMP WITH TIME ZONE,
+    locked_by VARCHAR(255)
+);
+
 CREATE TABLE IF NOT EXISTS free_account_numbers (
     type varchar(32) NOT NULL,
     account_number BIGINT NOT NULL,
