@@ -5,5 +5,7 @@ CREATE TABLE balance (
     actual_balance DECIMAL NOT NULL,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL,
-    version int NOT NULL
+    version int NOT NULL,
+
+    CONSTRAINT fk_account_number FOREIGN KEY (account_number) REFERENCES accounts (number)
 );
