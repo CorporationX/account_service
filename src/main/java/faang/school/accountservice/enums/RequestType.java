@@ -1,6 +1,9 @@
 package faang.school.accountservice.enums;
 
 public enum RequestType {
-    REQUEST,
-    OPERATION
+    SEND_NOTIFICATION,
+    PRINT_DOCUMENT,
+    MONEY_TRANSFER,
+    ACHIEVEMENT_RECEIVED,
+    PROJECT_CREATED
 }
