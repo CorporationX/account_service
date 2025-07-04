@@ -68,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
 
-    private Account getAccountOrThrow(String accountNumber) {
+    public Account getAccountOrThrow(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> {
                     log.error("Account with accountNumber: {} not found.", accountNumber);
