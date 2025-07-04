@@ -48,7 +48,7 @@ public class Account {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Balance balance;
 
     @CreationTimestamp
