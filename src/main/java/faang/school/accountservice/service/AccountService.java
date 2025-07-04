@@ -19,6 +19,7 @@ public class AccountService {
 
     private final FreeAccountNumbersService freeAccountNumbersService;
     private final AccountRepository accountRepository;
+    private final BalanceService balanceService;
 
     @Transactional
     public Account createAccount(Account account) {
@@ -27,12 +28,17 @@ public class AccountService {
         account.setAccountNumber(accountNumber);
         account.setStatus(AccountStatus.ACTIVE);
 
-        return accountRepository.save(account);
+        Account newAccount = accountRepository.save(account);
+        balanceService.createBalance(newAccount.getId());
+        return newAccount;
     }
 
     @Transactional(readOnly = true)
     public Account getAccountById(UUID accountId) {
-        return getExistingAccount(accountId);
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new RecordNotFoundException(
+                        String.format("Account with id %s was not found", accountId)
+                ));
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +51,7 @@ public class AccountService {
 
     @Transactional
     public Account closeAccount(UUID accountId) {
-        Account account = getExistingAccount(accountId);
+        Account account = getAccountById(accountId);
         AccountValidator.validateAccountNotClosed(account);
 
         account.setStatus(AccountStatus.CLOSED);
@@ -57,18 +63,10 @@ public class AccountService {
 
     @Transactional
     public Account convertAccountCurrency(UUID accountId, Currency currency) {
-        Account account = getExistingAccount(accountId);
+        Account account = getAccountById(accountId);
         AccountValidator.validateAccountNotClosed(account);
         account.setCurrency(currency);
 
         return accountRepository.save(account);
-    }
-
-
-    public Account getExistingAccount(UUID accountId) {
-        return accountRepository.findById(accountId)
-                .orElseThrow(() -> new RecordNotFoundException(
-                        String.format("Account with id %s was not found", accountId)
-                ));
     }
 }
