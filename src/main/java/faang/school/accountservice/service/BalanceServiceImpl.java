@@ -9,6 +9,7 @@ import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -26,26 +27,42 @@ public class BalanceServiceImpl implements BalanceService {
         return mapper.toDto(balance);
     }
 
+    @Transactional
     @Override
     public BalanceDto createBalance(BalanceDto balanceDto) {
         Account account = accountRepository.findByAccountNumber(balanceDto.getAccountNumber())
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
-        Balance balance = Balance.builder()
-                .account(account)
-                .build();
-//        balance.setActualBalance(balanceDto.getActualBalance());
-//        balance.setAuthorizationBalance(balanceDto.getAuthorizationBalance());
-        balance = balanceRepository.save(balance);
+
+        Balance balance = new Balance();
+        balance.setAccount(account);
+        balance.setAuthorizationBalance(balanceDto.getAuthorizationBalance() != null
+                ? balanceDto.getAuthorizationBalance()
+                : BigDecimal.ZERO);
+        balance.setActualBalance(balanceDto.getActualBalance() != null
+                ? balanceDto.getActualBalance()
+                : BigDecimal.ZERO);
+
+        balanceRepository.save(balance);
 
         return mapper.toDto(balance);
     }
 
+    @Transactional
     @Override
     public BalanceDto updateBalance(BalanceDto balanceDto) {
         Balance balance = balanceRepository.findById(balanceDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Balance not found"));
-//        balance = balanceRepository.updateBalancesByAuthorizationBalanceAndActualBalance
-//                (balanceDto.getAuthorizationBalance(), balanceDto.getActualBalance());
+                .orElseThrow(() -> new EntityNotFoundException("Balance not found for ID: " + balanceDto.getId()));
+
+        if (balanceDto.getAuthorizationBalance() != null) {
+            balance.setAuthorizationBalance(balanceDto.getAuthorizationBalance());
+        }
+        if (balanceDto.getActualBalance() != null) {
+            balance.setActualBalance(balanceDto.getActualBalance());
+        }
+
+        balanceRepository.save(balance);
+
         return mapper.toDto(balance);
     }
 }
+
