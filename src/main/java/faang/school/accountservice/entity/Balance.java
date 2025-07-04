@@ -1,6 +1,5 @@
 package faang.school.accountservice.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,7 +36,7 @@ public class Balance {
     private UUID id;
 
     @JoinColumn(name = "account_id", nullable = false)
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne
     private Account account;
 
     @Builder.Default

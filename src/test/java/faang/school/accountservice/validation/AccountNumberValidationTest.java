@@ -44,19 +44,32 @@ public class AccountNumberValidationTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    public void testValidAccountNumber_ShouldFailValidation() throws Exception {
-        String validAccountNumber = "ACC1234567890";
-        mockMvc.perform(get(getAccountUrlTemplate.formatted(validAccountNumber)).header("x-user-id", 1))
+    @ParameterizedTest
+    @MethodSource("validAccountNumbers")
+    public void testValidAccountNumber_ShouldFailValidation(String accountNumber) throws Exception {
+        mockMvc.perform(get(getAccountUrlTemplate.formatted(accountNumber)).header("x-user-id", 1))
                 .andExpect(status().isOk());
     }
 
+    private Stream<Arguments> validAccountNumbers() {
+        String validAccountNumber_1 = "123456789012";
+        String validAccountNumber_2 = "12345678901234567890";
+        return Stream.of(
+               Arguments.of(validAccountNumber_1),
+               Arguments.of(validAccountNumber_2)
+        );
+    }
+
     private Stream<Arguments> invalidAccountNumbers() {
-        String invalidAccountNumber_1 = "123";
-        String invalidAccountNumber_2 = "ACC123456789";
+        String invalidAccountNumber_1 = "12345678901";
+        String invalidAccountNumber_2 = "123456789012345678901";
+        String invalidAccountNumber_3 = "ACC123456789";
+        String invalidAccountNumber_4 = "012345678901";
         return Stream.of(
                Arguments.of(invalidAccountNumber_1),
                Arguments.of(invalidAccountNumber_2),
+               Arguments.of(invalidAccountNumber_3),
+               Arguments.of(invalidAccountNumber_4),
                null
         );
     }

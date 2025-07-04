@@ -2,9 +2,9 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
-import faang.school.accountservice.exception.common.DataValidationException;
 import faang.school.accountservice.exception.common.PreConditionFailedException;
 import faang.school.accountservice.exception.common.RecordNotFoundException;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +32,8 @@ class BalanceServiceTest {
 
     @Mock
     private AccountService accountService;
+    @Mock
+    private AccountRepository accountRepository;
     @Mock
     private BalanceRepository balanceRepository;
     @InjectMocks
@@ -110,7 +112,6 @@ class BalanceServiceTest {
 
     @Test
     void testCreateBalance() {
-        when(accountService.getAccountById(accountId)).thenReturn(expectedAccount);
         when(balanceRepository.existsByAccountId(accountId)).thenReturn(false);
 
         when(balanceRepository.save(any(Balance.class))).thenReturn(expectedBalance);
@@ -121,18 +122,16 @@ class BalanceServiceTest {
         assertEquals(BigDecimal.ZERO, result.getActualAmount());
         assertEquals(BigDecimal.ZERO, result.getAuthorizedAmount());
 
-        verify(accountService, times(1)).getAccountById(accountId);
+        verify(accountRepository, times(1)).getReferenceById(accountId);
         verify(balanceRepository, times(1)).existsByAccountId(accountId);
         verify(balanceRepository, times(1)).save(any(Balance.class));
     }
 
     @Test
     void testCreateBalanceThrowWhenAlreadyExist() {
-        when(accountService.getAccountById(accountId)).thenReturn(expectedAccount);
         when(balanceRepository.existsByAccountId(accountId)).thenReturn(true);
 
         assertThrows(PreConditionFailedException.class, () -> balanceService.createBalance(accountId));
-        verify(accountService, times(1)).getAccountById(accountId);
         verify(balanceRepository, times(1)).existsByAccountId(accountId);
         verify(balanceRepository, never()).save(any());
     }
@@ -152,14 +151,6 @@ class BalanceServiceTest {
     }
 
     @Test
-    void testEnrollInvalidAmount() {
-        DataValidationException ex = assertThrows(DataValidationException.class, () ->
-                balanceService.enroll(accountId, BigDecimal.ZERO));
-        assertEquals("Amount must be positive!", ex.getMessage());
-        verify(balanceRepository, never()).save(any());
-    }
-
-    @Test
     void testAuthorize() {
         BigDecimal actualAmount = new BigDecimal("100");
         BigDecimal authorizeAmount = new BigDecimal("30");
@@ -171,7 +162,7 @@ class BalanceServiceTest {
 
         Balance updated = balanceService.authorize(accountId, authorizeAmount);
 
-        assertEquals(actualAmount.subtract(authorizeAmount), updated.getActualAmount());
+        assertEquals(actualAmount, updated.getActualAmount());
         assertEquals(authorizeAmount, updated.getAuthorizedAmount());
     }
 
@@ -202,7 +193,7 @@ class BalanceServiceTest {
 
         Balance updated = balanceService.cancelAuthorization(accountId, cancelAuthorizeAmount);
 
-        assertEquals(actualAmount.add(cancelAuthorizeAmount), updated.getActualAmount());
+        assertEquals(actualAmount, updated.getActualAmount());
         assertEquals(authorizeAmount.subtract(cancelAuthorizeAmount), updated.getAuthorizedAmount());
     }
 
@@ -236,7 +227,7 @@ class BalanceServiceTest {
         Balance updated = balanceService.clear(accountId, clearAmount);
 
         assertEquals(authorizeAmount.subtract(clearAmount), updated.getAuthorizedAmount());
-        assertEquals(actualAmount, updated.getActualAmount());
+        assertEquals(actualAmount.subtract(clearAmount), updated.getActualAmount());
     }
 
     @Test

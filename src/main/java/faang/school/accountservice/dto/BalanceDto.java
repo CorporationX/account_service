@@ -8,7 +8,8 @@ import java.util.UUID;
 public record BalanceDto(
         UUID id,
         UUID accountId,
-        BigDecimal balance,
+        BigDecimal actualAmount,
+        BigDecimal authorizedAmount,
         Currency currency
 ) {
 }

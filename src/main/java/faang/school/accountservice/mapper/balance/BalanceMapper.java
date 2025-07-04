@@ -13,7 +13,8 @@ import java.math.RoundingMode;
 public interface BalanceMapper {
 
     @Mapping(source = "account.id", target = "accountId")
-    @Mapping(target = "balance", expression = "java(defaultRound(balance.getActualAmount()))")
+    @Mapping(target = "actualAmount", expression = "java(defaultRound(balance.getActualAmount()))")
+    @Mapping(target = "authorizedAmount", expression = "java(defaultRound(balance.getAuthorizedAmount()))")
     @Mapping(source = "account.currency", target = "currency")
     BalanceDto toDto(Balance balance);
 
