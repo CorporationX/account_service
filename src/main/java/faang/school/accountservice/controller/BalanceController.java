@@ -40,12 +40,12 @@ public class BalanceController {
 
     @PutMapping("/clearing/all/{id}")
     public BalanceDto clearingBalanceAll(@PathVariable("id") Long balanceId) {
-        return balanceService.clearingBalanceAllSum(balanceId);
+        return balanceService.clearingBalance(balanceId);
     }
 
     @PutMapping("/clearing/part/{id}")
     public BalanceDto clearingBalancePart(@PathVariable("id") Long balanceId, @RequestBody Double money) {
-        return balanceService.clearingBalancePartSum(balanceId, money);
+        return balanceService.clearingBalance(balanceId, money);
     }
 
     @PutMapping("/cancel/{id}")

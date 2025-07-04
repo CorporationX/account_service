@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +49,7 @@ class BalanceServiceTest {
         Long id = 1L;
 
         Balance balance = createBalanceWithId(id);
-        balance.setActualBalance(0.);
+        balance.setActualBalance(BigDecimal.valueOf(0.));
 
         when(balanceRepository.findById(id)).thenReturn(Optional.of(balance));
 
@@ -89,10 +90,10 @@ class BalanceServiceTest {
     @Test
     void authBalanceTestException(){
         Long id = 1L;
-        Double money = 1.;
+        double money = 1.;
 
         Balance balance = createBalanceWithId(id);
-        balance.setAuthBalance(money);
+        balance.setAuthBalance(BigDecimal.valueOf(money));
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
@@ -102,10 +103,10 @@ class BalanceServiceTest {
     @Test
     void authBalanceTest(){
         Long id = 1L;
-        Double money = 1.;
+        double money = 1.;
 
         Balance balance = createBalanceWithId(id);
-        balance.setActualBalance(money);
+        balance.setActualBalance(BigDecimal.valueOf(money));
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
@@ -121,7 +122,7 @@ class BalanceServiceTest {
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
-        assertThrows(IllegalArgumentException.class, ()->balanceService.clearingBalanceAllSum(id));
+        assertThrows(IllegalArgumentException.class, ()->balanceService.clearingBalance(id));
 
     }
 
@@ -129,11 +130,11 @@ class BalanceServiceTest {
     void clearingBalanceAllSumTest(){
         Long id = 1L;
         Balance balance = createBalanceWithId(id);
-        balance.setAuthBalance(1.);
+        balance.setAuthBalance(BigDecimal.valueOf(1.));
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
-        BalanceDto result = balanceService.clearingBalanceAllSum(id);
+        BalanceDto result = balanceService.clearingBalance(id);
 
         assertEquals(0, result.actualBalance());
     }
@@ -147,7 +148,7 @@ class BalanceServiceTest {
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
-        assertThrows(IllegalArgumentException.class, ()->balanceService.clearingBalancePartSum(id, money));
+        assertThrows(IllegalArgumentException.class, ()->balanceService.clearingBalance(id, money));
     }
 
     @Test
@@ -156,11 +157,11 @@ class BalanceServiceTest {
         Double money = 1.;
 
         Balance balance = createBalanceWithId(id);
-        balance.setAuthBalance(2.);
+        balance.setAuthBalance(BigDecimal.valueOf(2.));
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
-        BalanceDto result = balanceService.clearingBalancePartSum(id, money);
+        BalanceDto result = balanceService.clearingBalance(id, money);
 
         assertEquals(1., result.actualBalance());
     }
@@ -181,7 +182,7 @@ class BalanceServiceTest {
         Long id = 1L;
 
         Balance balance = createBalanceWithId(id);
-        balance.setAuthBalance(1.);
+        balance.setAuthBalance(BigDecimal.valueOf(1.));
 
         when(balanceRepository.findByIdForUpdate(id)).thenReturn(Optional.of(balance));
 
@@ -193,8 +194,8 @@ class BalanceServiceTest {
     private Balance createBalanceWithId(Long id) {
         return Balance.builder()
                 .id(id)
-                .authBalance(0.)
-                .actualBalance(0.)
+                .authBalance(BigDecimal.valueOf(0.))
+                .actualBalance(BigDecimal.valueOf(0.))
                 .build();
     }
 

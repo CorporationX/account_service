@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -38,10 +39,10 @@ public class Balance {
     private Account account;
 
     @Column(name = "auth_balance", nullable = false, columnDefinition = "NUMERIC(15,2) DEFAULT 0.00")
-    private Double authBalance;
+    private BigDecimal authBalance;
 
     @Column(name = "actual_balance", nullable = false, columnDefinition = "NUMERIC(15,2) DEFAULT 0.00")
-    private Double actualBalance;
+    private BigDecimal actualBalance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -60,10 +61,10 @@ public class Balance {
     @PrePersist
     public void preRersist() {
         if (authBalance == null) {
-            authBalance = 0.;
+            authBalance = new BigDecimal("0.");
         }
         if (actualBalance == null) {
-            actualBalance = 0.;
+            actualBalance = new BigDecimal("0.");
         }
     }
 }

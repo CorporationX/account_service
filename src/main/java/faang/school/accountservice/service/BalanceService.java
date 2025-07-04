@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
@@ -8,6 +9,8 @@ import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +34,12 @@ public class BalanceService {
 
     @Transactional
     public BalanceDto createBalance(Long accountId) {
+        Account account = accountService.getAccountById(accountId);
         Balance balance = Balance.builder()
-                .account(accountService.getAccountById(accountId))
+                .account(account)
                 .build();
+
+        account.setBalance(balance);
 
         balanceRepository.save(balance);
 
@@ -43,7 +49,10 @@ public class BalanceService {
     @Transactional
     public BalanceDto plusBalance(Long balanceId, Double money) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
-        balance.setActualBalance(balance.getActualBalance() + money);
+
+        BigDecimal newActualBalance = balance.getActualBalance().add(BigDecimal.valueOf(money));
+
+        balance.setActualBalance(newActualBalance);
 
         return balanceMapper.toDto(balance);
     }
@@ -52,39 +61,45 @@ public class BalanceService {
     public BalanceDto authBalance(Long balanceId, Double money) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
-        if (balance.getAuthBalance() != 0.) {
+        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) > 0) {
             throw new IllegalArgumentException("There is already money reserved");
         }
 
-        balance.setActualBalance(balance.getActualBalance() - money);
-        balance.setAuthBalance(money);
+        BigDecimal newActualBalance = balance.getActualBalance().subtract(BigDecimal.valueOf(money));
+        balance.setActualBalance(newActualBalance);
+        balance.setAuthBalance(BigDecimal.valueOf(money));
 
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto clearingBalanceAllSum(Long balanceId) {
+    public BalanceDto clearingBalance(Long balanceId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
-        if (balance.getAuthBalance() == 0.) {
+        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
             throw new IllegalArgumentException("Auth Balance is 0");
         }
 
-        balance.setAuthBalance(0.);
+        balance.setAuthBalance(BigDecimal.valueOf(0.));
 
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto clearingBalancePartSum(Long balanceId, Double sum) {
+    public BalanceDto clearingBalance(Long balanceId, Double sum) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
-        if (balance.getAuthBalance() == 0.) {
+        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
             throw new IllegalArgumentException("Auth Balance is 0");
         }
 
-        balance.setActualBalance(balance.getActualBalance() + balance.getAuthBalance() - sum);
-        balance.setAuthBalance(0.);
+        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(sum)) < 0) {
+            throw new IllegalArgumentException("Auth balance is less than required");
+        }
+
+        BigDecimal newActualBalance = balance.getActualBalance().add(balance.getAuthBalance());
+        balance.setActualBalance(newActualBalance.subtract(BigDecimal.valueOf(sum)));
+        balance.setAuthBalance(BigDecimal.valueOf(0.));
 
         return balanceMapper.toDto(balance);
     }
@@ -94,12 +109,13 @@ public class BalanceService {
     public BalanceDto cancelBalance(Long balanceId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
-        if (balance.getAuthBalance() == 0.) {
+        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
             throw new IllegalArgumentException("Cancellation is not possible");
         }
 
-        balance.setActualBalance(balance.getActualBalance() + balance.getAuthBalance());
-        balance.setAuthBalance(0.);
+        BigDecimal newActualBalance = balance.getActualBalance().add(balance.getAuthBalance());
+        balance.setActualBalance(newActualBalance);
+        balance.setAuthBalance(BigDecimal.valueOf(0.));
 
         return balanceMapper.toDto(balance);
     }
