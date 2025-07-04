@@ -64,17 +64,14 @@ class BalanceServiceTest {
 
     @Test
     void authorizeBalance_success() {
-        when(balanceRepository.findByIdForUpdate(balanceId)).thenReturn(Optional.of(balance));
-
         BigDecimal amount = new BigDecimal("300");
-        BigDecimal available = balance.getBalance().subtract(balance.getAuthorizedBalance()); // 800
+        BigDecimal available = balance.getBalance().subtract(balance.getAuthorizedBalance());
 
-        // Проверяем, что валидатор вызывается
+        when(balanceRepository.findByIdForUpdate(balanceId)).thenReturn(Optional.of(balance));
         doNothing().when(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, available);
 
         Balance result = balanceService.authorizeBalance(balanceId, amount);
 
-        // authorizedBalance увеличен
         assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("500"));
         verify(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, available);
     }
@@ -89,30 +86,30 @@ class BalanceServiceTest {
 
     @Test
     void clearAuthorizationBalance_success() {
-        when(balanceRepository.findByIdForUpdate(balanceId)).thenReturn(Optional.of(balance));
-
         BigDecimal amount = new BigDecimal("100");
-        doNothing().when(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, balance.getAuthorizedBalance());
+        BigDecimal authBalance = balance.getAuthorizedBalance();
+
+        when(balanceRepository.findByIdForUpdate(balanceId)).thenReturn(Optional.of(balance));
+        doNothing().when(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, authBalance);
 
         Balance result = balanceService.clearAuthorizationBalance(balanceId, amount);
 
-        assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("100")); // 200 - 100
-        assertThat(result.getBalance()).isEqualByComparingTo(new BigDecimal("900")); // 1000 - 100
-
-        verify(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, balance.getAuthorizedBalance());
+        assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("100"));
+        assertThat(result.getBalance()).isEqualByComparingTo(new BigDecimal("900"));
+        verify(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, authBalance);
     }
 
     @Test
     void cancelAuthorizationBalance_success() {
-        when(balanceRepository.findByIdForUpdate(balanceId)).thenReturn(Optional.of(balance));
-
         BigDecimal amount = new BigDecimal("50");
-        doNothing().when(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, balance.getAuthorizedBalance());
+        BigDecimal authBalance = balance.getAuthorizedBalance();
+
+        when(balanceRepository.findByIdForUpdate(balanceId)).thenReturn(Optional.of(balance));
+        doNothing().when(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, authBalance);
 
         Balance result = balanceService.cancelAuthorizationBalance(balanceId, amount);
 
-        assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("150")); // 200 - 50
-
-        verify(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, balance.getAuthorizedBalance());
+        assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("150"));
+        verify(balanceValidator).validateAmountDoesNotExceedLimit(balanceId, amount, authBalance);
     }
 }
