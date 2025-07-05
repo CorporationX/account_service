@@ -45,10 +45,11 @@ public class AccountBalanceService {
 
         if (!Objects.isNull(account.getAccountNumber()) && !account.getAccountNumber().isBlank()) {
             log.info("Successfully validated account number: {}", account.getAccountNumber());
+
             AccountBalance newAccountBalance = AccountBalance
                     .builder()
                     .account(account)
-                    .authorisedBalance(BigDecimal.ZERO)
+                    .authorizedBalance(BigDecimal.ZERO)
                     .actualBalance(BigDecimal.ZERO)
                     .currency(currency)
                     .build();
@@ -64,12 +65,13 @@ public class AccountBalanceService {
                                            String currency, TransactionType type) {
         log.info("Starting method updateBalance with account ID: {}, amount: {}, currency: {}, type: {}",
                 account.getId(), amount, currency, type);
+
         AccountBalance accountBalance = account.getBalance();
         if (accountBalance.getCurrency().equals(currency)) {
             if (type == TransactionType.OUTPUT && accountBalance.getActualBalance().compareTo(amount) < 0) {
                 log.info("Sufficient funds for transaction type: {}", type);
                 accountBalance.setActualBalance(accountBalance.getActualBalance().subtract(amount));
-                accountBalance.setAuthorisedBalance(accountBalance.getAuthorisedBalance().add(amount));
+                accountBalance.setAuthorizedBalance(accountBalance.getAuthorizedBalance().add(amount));
                 return accountBalanceMapper.toDto(balanceRepository.save(accountBalance));
             }
             if (type == TransactionType.INPUT) {
