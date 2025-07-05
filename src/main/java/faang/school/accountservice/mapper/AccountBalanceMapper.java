@@ -4,7 +4,6 @@ import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.model.AccountBalance;
 import org.mapstruct.Mapper;
 
-
 @Mapper(componentModel = "spring")
 public interface AccountBalanceMapper {
     AccountBalance toEntity(AccountBalanceDto accountBalanceDto);

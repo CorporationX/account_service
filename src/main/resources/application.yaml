@@ -43,3 +43,10 @@ management:
     web:
       exposure:
         include: health,info,metrics,loggers,env,refresh
+
+cache:
+  key:
+    pagination:
+      block-size: 100
+  minutes-ttl: 60
+  minutes-version-ttl: 720
