@@ -11,17 +11,22 @@ public interface AccountNumberSequenceRepository extends JpaRepository<AccountNu
     @Modifying
     @Query(value = """
     UPDATE account_number_sequence
-    SET number = number + :value
-    WHERE type = :type
+    SET number = CAST(CAST(number AS BIGINT) + :value AS VARCHAR)
+    WHERE account_type = :type
     """, nativeQuery = true)
-    void tryIncrement(@Param("type") String type, @Param("value") long value);
+    void tryIncrement(@Param("type") AccountType type, @Param("value") int value);
+
+    @Query(value = """
+    INSERT INTO account_number_sequence (number, type)
+    VALUES (:number, :type)
+    """, nativeQuery = true)
+    void createNewCounter(@Param("type") AccountType type, @Param("number") String initialNumber);
 
     @Query(value = """
     SELECT * FROM account_number_sequence
     WHERE type = :type
-    FOR UPDATE
     """, nativeQuery = true)
-    AccountNumberSequence getByType(@Param("type") String type);
+    AccountNumberSequence getByType(@Param("type") AccountType type);
 
     boolean existsByType(AccountType type);
 }
