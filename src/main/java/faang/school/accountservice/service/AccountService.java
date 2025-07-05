@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class AccountService {
     private final AccountRepository repository;
     private final AccountMapper mapper;
+    private final FreeAccountNumberService numberService;
 
     public AccountDto getAccountDto(Long id) {
         return mapper.toDto(getAccount(id));
@@ -29,7 +30,8 @@ public class AccountService {
     @Transactional
     public AccountDto openAccount(AccountCreationDto dto) {
         Account newAccount = mapper.toCreateEntity(dto);
-        newAccount.setStatus(Status.ACTIVE); // id and number will be auto generated
+        newAccount.setStatus(Status.ACTIVE);
+        newAccount.setNumber(numberService.getNewNumber(dto.type()));
         Account savedAccount = repository.save(newAccount);
         return mapper.toDto(savedAccount);
 
