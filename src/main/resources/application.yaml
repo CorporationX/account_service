@@ -17,6 +17,29 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+      retries: 5
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    topic:
+      payment-authorization-request:
+        name: payment-authorization-request
+        partitions: 1
+      success-payment-authorization-response:
+        name: success-payment-authorization-response
+        partitions: 1
+      failed-payment-authorization-response:
+        name: failed-payment-authorization-response
+        partitions: 1
+
 server:
   port: 8090
 

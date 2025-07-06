@@ -18,6 +18,7 @@ import java.util.UUID;
 public class BalanceRequestDto {
     @NotNull(message = "id is mandatory")
     private UUID id;
+    // TODO: нужно исправить минимальный перевод
     @NotNull(message = "amount is mandatory")
     @Min(value = 0, message = "Amount must be positive")
     private BigDecimal amount;
