@@ -40,7 +40,6 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         accountNumberConsumer.accept(retrieveAccountNumber(type));
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private Long retrieveAccountNumber(AccountType type) {
         FreeAccountNumber accountNumber = freeAccountNumbersRepository.findNextAccountNumberByType(type);
         freeAccountNumbersRepository.deleteById(accountNumber.getId());
