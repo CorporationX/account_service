@@ -5,12 +5,16 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -34,6 +38,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 @Table(name = "accounts")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "account_type", discriminatorType = DiscriminatorType.STRING)
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
