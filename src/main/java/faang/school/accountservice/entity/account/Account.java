@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity.account;
 
+import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.entity.base.BaseEntityWithVersion;
 import faang.school.accountservice.entity.currency.Currency;
 import jakarta.persistence.Column;
@@ -8,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,4 +51,7 @@ public class Account extends BaseEntityWithVersion {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 }
