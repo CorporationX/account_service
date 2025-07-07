@@ -15,7 +15,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -57,8 +56,6 @@ public class FreeAccountNumberServiceTest {
 
     @Test
     void getNewNumber() {
-        sequenceRepository.createNewCounter(AccountType.BUDGET, "3200");
-
         String newNumber = service.getNewNumber(AccountType.BUDGET);
         assertTrue(newNumber.startsWith(AccountType.BUDGET.getNumber()));
         assertTrue(service.getNewNumber(AccountType.BUDGET).length() >= 12);
