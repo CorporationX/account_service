@@ -1,5 +1,6 @@
 CREATE TABLE balance (
     id bigserial PRIMARY KEY,
+    account_id BIGINT NOT NULL,
     account_number varchar(20),
     authorization_balance DECIMAL NOT NULL DEFAULT 0.00,
     actual_balance DECIMAL NOT NULL DEFAULT 0.00,
@@ -7,5 +8,5 @@ CREATE TABLE balance (
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
     version int NOT NULL DEFAULT 0,
 
-    CONSTRAINT fk_account_id FOREIGN KEY (id) REFERENCES accounts (id)
+    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
 );
