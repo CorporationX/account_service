@@ -1,6 +1,7 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.model.AccountBalanceType;
+import faang.school.accountservice.model.FreeAccountNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
