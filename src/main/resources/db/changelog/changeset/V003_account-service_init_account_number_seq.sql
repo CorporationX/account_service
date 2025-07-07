@@ -1,7 +1,7 @@
 CREATE SEQUENCE account_number_seq START 1;
 CREATE TABLE account_number_sequence (
     id BIGINT PRIMARY KEY DEFAULT nextval('account_number_seq'),
-    number VARCHAR(20) NOT NULL,
+    number NUMERIC NOT NULL,
     type VARCHAR(32) NOT NULL,
     version BIGINT DEFAULT 0 NOT NULL
 );
