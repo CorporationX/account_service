@@ -2,6 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.service.BalanceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,12 +24,12 @@ public class BalanceController {
     }
 
     @PostMapping
-    public BalanceDto createBalance(@RequestBody BalanceDto balanceDto) {
+    public BalanceDto createBalance(@RequestBody @Valid BalanceDto balanceDto) {
         return service.createBalance(balanceDto);
     }
 
     @PutMapping()
-    public BalanceDto updateBalance(@RequestBody BalanceDto balanceDto) {
+    public BalanceDto updateBalance(@RequestBody @Valid BalanceDto balanceDto) {
        return service.updateBalance(balanceDto);
     }
 }
