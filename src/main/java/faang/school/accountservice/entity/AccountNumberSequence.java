@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class AccountNumberSequence {
     private Long id;
 
     @Column(name = "number", length = 20, nullable = false)
-    private String number;
+    private BigInteger number;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
