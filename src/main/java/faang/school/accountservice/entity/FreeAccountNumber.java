@@ -22,6 +22,7 @@ public class FreeAccountNumber {
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private AccountType type;
 }
