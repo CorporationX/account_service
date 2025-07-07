@@ -27,6 +27,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092, localhost:9094
+      client-id: account-service
+      acks: all
+      properties:
+        linger:
+          ms: 0
+    topics:
+      request:
+        name: request-event-topic
+        partitions: 1
+        replication-factor: 3
+        dlt:
+          name: ${spring.kafka.topics.request.name}.DLT
+          partitions: 1
+          replication-factor: 3
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -50,21 +67,3 @@ cache:
       block-size: 100
   minutes-ttl: 60
   minutes-version-ttl: 720
-
-  kafka:
-    producer:
-      bootstrap-servers: localhost:9092, localhost:9094
-      client-id: account-service
-      acks: all
-      properties:
-        linger:
-          ms: 0
-    topics:
-      request:
-        name: request-event-topic
-        partitions: 1
-        replication-factor: 3
-        dlt:
-          name: ${spring.kafka.topics.request-event.name}.DLT
-          partitions: 1
-          replication-factor: 3

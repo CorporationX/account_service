@@ -2,7 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.CreateRequestDto;
 import faang.school.accountservice.dto.RequestDto;
-import faang.school.accountservice.enums.RequestStatus;
+import faang.school.accountservice.dto.UpdateStatusDto;
 import faang.school.accountservice.event.RequestEvent;
 import faang.school.accountservice.exception.ConcurrentRequestException;
 import faang.school.accountservice.exception.ConflictException;
@@ -55,11 +55,11 @@ public class RequestService {
     }
 
     @Transactional
-    public void updateStatus(UUID idempotencyKey, RequestStatus requestStatus, String statusDetails) {
-        Request request = validate(idempotencyKey);
+    public void updateStatus(UpdateStatusDto updateStatusDto) {
+        Request request = validate(updateStatusDto.getIdempotencyKey());
 
-        request.setRequestStatus(requestStatus);
-        request.setStatusDetails(statusDetails);
+        request.setRequestStatus(updateStatusDto.getRequestStatus());
+        request.setStatusDetails(updateStatusDto.getStatusDetails());
         Request updated = repository.save(request);
 
         publishEvent(kafkaTopics.getRequestEventsTopic(), "request-status-changed", updated);
@@ -80,7 +80,7 @@ public class RequestService {
                 .orElseThrow(() -> new EntityNotFoundException("Request not found"));
     }
 
-    @Async("taskExecutor")
+    @Async("eventSender")
     public void publishEvent(String topic, String eventType, Request req) {
         RequestEvent event = RequestEvent.builder()
                 .idempotencyKey(req.getIdempotencyKey())

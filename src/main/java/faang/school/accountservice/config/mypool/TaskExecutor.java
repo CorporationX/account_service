@@ -14,7 +14,7 @@ public class TaskExecutor implements DisposableBean {
 
     private ExecutorService executor;
 
-    @Bean(name = "taskExecutor")
+    @Bean(name = "eventSender")
     public ExecutorService taskExecutor() {
         this.executor = Executors.newFixedThreadPool(10);
         return this.executor;

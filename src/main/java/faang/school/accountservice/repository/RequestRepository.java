@@ -12,5 +12,5 @@ public interface RequestRepository extends JpaRepository<Request, UUID> {
 
     Optional<Request> findByLockKeyAndIsOpenTrue(String lockKey);
 
-    List<Request> findByStatusAndIsOpenTrue(RequestStatus status);
+    List<Request> findByRequestStatusAndIsOpenTrue(RequestStatus requestStatus);
 }
