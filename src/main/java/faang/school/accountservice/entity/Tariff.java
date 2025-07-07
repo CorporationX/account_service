@@ -9,10 +9,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.Data;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.OrderBy;
+import jakarta.persistence.CascadeType;
 
 import java.util.ArrayList;
 import java.util.List;
