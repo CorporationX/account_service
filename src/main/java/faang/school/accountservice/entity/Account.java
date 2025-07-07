@@ -29,18 +29,22 @@ public class Account {
     @Column(name = "number", length = 20, nullable = false, unique = true)
     private String number;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
     private OwnerType ownerType;
 
     @Column(name = "owner_id", nullable = false)
     private long ownerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private AccountType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
     private Currency currency;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;
 
