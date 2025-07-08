@@ -1,6 +1,9 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
-      file: db/changelog/changeset/V002__account-service_request.sql
-      file: db/changelog/changeset/V003_account-service_init_account_number_seq.sql
-      file: db/changelog/changeset/V004_account-service_number_free-account-number.sql
+    file: db/changelog/changeset/V001__account-service_account.sql
+  - include:
+    file: db/changelog/changeset/V002__account-service_request.sql
+  - include:
+    file: db/changelog/changeset/V003_account-service_init_account_number_seq.sql
+  - include:
+    file: db/changelog/changeset/V004_account-service_number_free-account-number.sql
