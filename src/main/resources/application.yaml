@@ -23,3 +23,20 @@ server:
 logging:
   level:
     root: info
+
+scheduler:
+  account-number:
+    batch-size: 100
+    cron: "0 0 0 * * ?"
+    lock-name: "reportGenerationTask"
+    lock-at-least-for: "5m"
+    lock-at-most-for: "10m"
+
+shedlock:
+  enabled: true
+  defaults:
+    lock-at-most-for: "10m"
+  provider:
+    jdbc:
+      table-name: "shedlock"
+      use-db-time: true
