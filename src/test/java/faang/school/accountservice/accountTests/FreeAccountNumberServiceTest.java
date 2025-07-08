@@ -1,6 +1,7 @@
 package faang.school.accountservice.accountTests;
 
 import com.redis.testcontainers.RedisContainer;
+import faang.school.accountservice.config.property.AccountTypeProperties;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumberSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumberRepository;
@@ -15,6 +16,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.function.Consumer;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -50,16 +54,29 @@ public class FreeAccountNumberServiceTest {
     private AccountNumberSequenceRepository sequenceRepository;
     @Autowired
     private FreeAccountNumberRepository numberRepository;
-
+    @Autowired
+    private AccountTypeProperties accountTypeProperties;
     @Autowired
     private FreeAccountNumberService service;
 
     @Test
-    void getNewNumber() {
-        String newNumber = service.getNewNumber(AccountType.BUDGET);
-        assertTrue(newNumber.startsWith(AccountType.BUDGET.getNumber()));
-        assertTrue(service.getNewNumber(AccountType.BUDGET).length() >= 12);
-        assertTrue(service.getNewNumber(AccountType.BUDGET).length() <= 20);
+    void getNewNumberTest() {
+        AccountType type = AccountType.BUDGET;
+        String newNumber = service.getNewNumber(type);
+        assertTrue(newNumber.startsWith(accountTypeProperties.getValue(type)));
+        assertTrue(newNumber.length() >= 12);
+        assertTrue(newNumber.length() <= 20);
     }
 
+    @Test
+    void setConsumerTest() {
+        AccountType type = AccountType.BUDGET;
+        Consumer<String> consumer = (number) -> System.out.println("Everything fine");
+        service.setConsumer(type, consumer);
+    }
+
+    @Test
+    void createNewCounterFailTest() {
+        assertThrows(IllegalArgumentException.class, () -> service.createNewCounter(AccountType.BUDGET, "1313"));
+    }
 }
