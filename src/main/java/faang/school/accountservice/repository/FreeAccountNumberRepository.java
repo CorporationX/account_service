@@ -12,13 +12,8 @@ public interface FreeAccountNumberRepository extends JpaRepository<FreeAccountNu
         SELECT * FROM free_account_number
         WHERE type = :type
         ORDER BY id ASC
-        LIMIT 1;
+        LIMIT 1
+        FOR UPDATE
     """, nativeQuery = true)
     Optional<FreeAccountNumber> findFirstByType(@Param("type") String type);
-
-    @Query(value = """
-        SELECT COUNT(id) FROM free_account_number
-        WHERE type = :type
-    """, nativeQuery = true)
-    int findAmountByType(@Param("type") String type);
 }
