@@ -45,3 +45,15 @@ kafka:
 
 cron:
   expression: "0 * * * * *"
+
+account:
+  type:
+    CURRENT: 4200
+    SETTLEMENT: 5200
+    CREDIT: 7700
+    DEPOSIT: 1100
+    BUDGET: 3300
+  number:
+    init-zeros: 8
+    generate-per-time: 5000
+    base-number-length: 4
