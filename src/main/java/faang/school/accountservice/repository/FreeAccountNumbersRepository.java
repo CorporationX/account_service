@@ -33,10 +33,4 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     @Query("SELECT COUNT(f) FROM FreeAccountNumber f WHERE f.accountType = :accountType")
     long countByAccountType(@Param("accountType") AccountType accountType);
-
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM FreeAccountNumber f WHERE f.accountType = :accountType AND f.accountNumber = :accountNumber")
-    int deleteByAccountTypeAndAccountNumber(@Param("accountType") AccountType accountType,
-                                            @Param("accountNumber") String accountNumber);
 }
