@@ -47,10 +47,10 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceDto plusBalance(Long balanceId, Double money) {
+    public BalanceDto plusBalance(Long balanceId, Double count) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
-        BigDecimal newActualBalance = balance.getActualBalance().add(BigDecimal.valueOf(money));
+        BigDecimal newActualBalance = balance.getActualBalance().add(BigDecimal.valueOf(count));
 
         balance.setActualBalance(newActualBalance);
 
@@ -58,16 +58,16 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceDto authBalance(Long balanceId, Double money) {
+    public BalanceDto authBalance(Long balanceId, Double count) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) > 0) {
             throw new IllegalArgumentException("There is already money reserved");
         }
 
-        BigDecimal newActualBalance = balance.getActualBalance().subtract(BigDecimal.valueOf(money));
+        BigDecimal newActualBalance = balance.getActualBalance().subtract(BigDecimal.valueOf(count));
         balance.setActualBalance(newActualBalance);
-        balance.setAuthBalance(BigDecimal.valueOf(money));
+        balance.setAuthBalance(BigDecimal.valueOf(count));
 
         return balanceMapper.toDto(balance);
     }
@@ -86,19 +86,19 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceDto clearingBalance(Long balanceId, Double sum) {
+    public BalanceDto clearingBalance(Long balanceId, Double count) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
             throw new IllegalArgumentException("Auth Balance is 0");
         }
 
-        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(sum)) < 0) {
+        if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(count)) < 0) {
             throw new IllegalArgumentException("Auth balance is less than required");
         }
 
         BigDecimal newActualBalance = balance.getActualBalance().add(balance.getAuthBalance());
-        balance.setActualBalance(newActualBalance.subtract(BigDecimal.valueOf(sum)));
+        balance.setActualBalance(newActualBalance.subtract(BigDecimal.valueOf(count)));
         balance.setAuthBalance(BigDecimal.valueOf(0.));
 
         return balanceMapper.toDto(balance);
