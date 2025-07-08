@@ -1,6 +1,5 @@
 package faang.school.accountservice.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +16,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -30,6 +31,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "balance")
+@DynamicInsert
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,13 +41,12 @@ public class Balance {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @Column(name = "account_number", length = 20, nullable = false)
-    private String accountNumber;
-
-    @Column(name = "authorization_balance", precision = 19, scale = 4, nullable = false)
+    @Column(name = "authorization_balance", precision = 19, scale = 4)
+    @ColumnDefault("0.00")
     private BigDecimal authorizationBalance;
 
-    @Column(name = "actual_balance", precision = 19, scale = 4, nullable = false)
+    @Column(name = "actual_balance", precision = 19, scale = 4)
+    @ColumnDefault("0.00")
     private BigDecimal actualBalance;
 
     @CreationTimestamp

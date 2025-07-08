@@ -23,9 +23,9 @@ public class BalanceController {
         return service.getBalanceById(balanceId);
     }
 
-    @PostMapping
-    public BalanceDto createBalance(@RequestBody @Valid BalanceDto balanceDto) {
-        return service.createBalance(balanceDto);
+    @PostMapping("/{accountId}")
+    public void createBalance(@PathVariable Long accountId) {
+        service.createBalance(accountId);
     }
 
     @PutMapping()

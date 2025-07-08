@@ -9,10 +9,12 @@ import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -23,8 +25,8 @@ public class BalanceServiceImpl implements BalanceService {
     private final AccountRepository accountRepository;
 
     @Override
-    public BalanceDto getBalanceById(Long id) {
-        Balance balance = balanceRepository.findById(id)
+    public BalanceDto getBalanceById(Long balanceId) {
+        Balance balance = balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance not found"));
 
         return mapper.toDto(balance);
@@ -32,51 +34,49 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Transactional
     @Override
-    public BalanceDto createBalance(BalanceDto balanceDto) {
-        String accountNumber = balanceDto.getAccountNumber();
-        Account account = accountRepository.findByAccountNumber(accountNumber)
+    public void createBalance(Long accountId) {
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> {
-                    log.error("Failed to create balance for account {}: Account not found", accountNumber);
+                    log.error("Failed to create balance for account with id {}: Account not found", accountId);
                     return new EntityNotFoundException("Account not found");
                 });
 
-        log.info("Account with number {} found. Starting to create balance", accountNumber);
+        log.info("Account with id {} found. Starting to create balance", accountId);
         Balance balance = new Balance();
         balance.setAccount(account);
-        balance.setAccountNumber(accountNumber);
-        balance.setAuthorizationBalance(isBalanceNotNull(balanceDto)
-                ? balanceDto.getAuthorizationBalance()
-                : BigDecimal.ZERO);
-        balance.setActualBalance(isBalanceNotNull(balanceDto)
-                ? balanceDto.getActualBalance()
-                : BigDecimal.ZERO);
         balanceRepository.save(balance);
         log.info("Balance with id {} successfully created and saved", balance.getId());
-
-        return mapper.toDto(balance);
     }
 
     @Transactional
     @Override
+    @Retryable(retryFor = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100))
     public BalanceDto updateBalance(BalanceDto balanceDto) {
-        if (balanceDto.getId() == null) throw new NullPointerException("Balance id cannot be null");
-        Balance balance = balanceRepository.findById(balanceDto.getId())
-                .orElseThrow(() -> {
-                    log.error("Balance not found for id: {}", balanceDto.getId());
-                    return new EntityNotFoundException("Balance not found");
-                });
+        try {
+            Balance balance = balanceRepository.findById(balanceDto.id())
+                    .orElseThrow(() -> {
+                        log.error("Balance not found for id: {}", balanceDto.id());
+                        return new EntityNotFoundException("Balance not found");
+                    });
 
-        if (isBalanceNotNull(balanceDto)) {
-            balance.setAuthorizationBalance(balanceDto.getAuthorizationBalance());
-            balance.setActualBalance(balanceDto.getActualBalance());
+            balance.setAuthorizationBalance(balanceDto.authorizationBalance());
+            balance.setActualBalance(balanceDto.actualBalance());
+            balanceRepository.save(balance);
+            log.info("Balance with id {} successfully updated", balance.getId());
+
+            return mapper.toDto(balance);
+
+        } catch (OptimisticLockingFailureException ex) {
+            log.warn("Optimistic Locking Failure for balance id: {}. Retrying...", balanceDto.id());
+            throw ex;
         }
-        balanceRepository.save(balance);
-        log.info("Balance with id {} successfully updated", balance.getId());
-
-        return mapper.toDto(balance);
     }
 
-    private boolean isBalanceNotNull(BalanceDto dto) {
-        return dto.getActualBalance() != null && dto.getAuthorizationBalance() != null;
+    @Recover
+    public BalanceDto recover(OptimisticLockingFailureException ex, BalanceDto balanceDto) {
+        log.error("Failed to update balance after multiple retries for id: {}", balanceDto.id());
+        throw new RuntimeException("The balance has been updated by another thread.", ex);
     }
 }

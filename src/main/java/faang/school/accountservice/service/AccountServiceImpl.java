@@ -22,7 +22,6 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final AccountRepository accountRepository;
 
-
     @Override
     public AccountDto openAccount(AccountDto accountDto) {
         Account account = accountMapper.toEntity(accountDto);

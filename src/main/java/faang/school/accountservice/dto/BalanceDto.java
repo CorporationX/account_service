@@ -1,13 +1,15 @@
 package faang.school.accountservice.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-@Data
-public class BalanceDto {
-    private Long id;
-    private String accountNumber;
-    private BigDecimal authorizationBalance;
-    private BigDecimal actualBalance;
+
+public record BalanceDto(
+        @NotNull(message = "Balance id cannot be null")
+        Long id,
+        @NotNull(message = "Authorization balance id cannot be null")
+        BigDecimal authorizationBalance,
+        @NotNull(message = "Actual balance id cannot be null")
+        BigDecimal actualBalance) {
 }
