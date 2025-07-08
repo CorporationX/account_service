@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V002__account-service_account.sql
   - include:
       file: db/changelog/changeset/V003__account-service_account.sql
+  - include:
+      file: db/changelog/changeset/V004__create_free_account_numbers_table.sql
+  - include:
+      file: db/changelog/changeset/V005__create_account_numbers_sequence_table.sql
