@@ -76,7 +76,7 @@ class BalanceServiceTest {
     @Test
     void plusBalanceTest(){
         Long id = 1L;
-        Double money = 1.;
+        double money = 1.;
 
         Balance balance = createBalanceWithId(id);
 
@@ -84,7 +84,7 @@ class BalanceServiceTest {
 
         BalanceDto result = balanceService.plusBalance(id, money);
 
-        assertEquals(money, result.actualBalance());
+        assertEquals(BigDecimal.valueOf(money), result.actualBalance());
     }
 
     @Test
@@ -112,7 +112,7 @@ class BalanceServiceTest {
 
         BalanceDto result = balanceService.authBalance(id, money);
 
-        assertEquals(0, result.actualBalance());
+        assertEquals(BigDecimal.valueOf(0.), result.actualBalance());
     }
 
     @Test
@@ -136,7 +136,7 @@ class BalanceServiceTest {
 
         BalanceDto result = balanceService.clearingBalance(id);
 
-        assertEquals(0, result.actualBalance());
+        assertEquals(BigDecimal.valueOf(0.), result.actualBalance());
     }
 
     @Test
@@ -163,7 +163,7 @@ class BalanceServiceTest {
 
         BalanceDto result = balanceService.clearingBalance(id, money);
 
-        assertEquals(1., result.actualBalance());
+        assertEquals(BigDecimal.valueOf(1.), result.actualBalance());
     }
 
     @Test
@@ -188,7 +188,7 @@ class BalanceServiceTest {
 
         BalanceDto result = balanceService.cancelBalance(id);
 
-        assertEquals(1., result.actualBalance());
+        assertEquals(BigDecimal.valueOf(1.), result.actualBalance());
     }
 
     private Balance createBalanceWithId(Long id) {
