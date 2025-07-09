@@ -9,3 +9,5 @@ CREATE TABLE balance (
 
     CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX idx_balance_account_id ON balance (account_id);
