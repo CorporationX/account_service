@@ -1,7 +1,7 @@
 package faang.school.accountservice.listener.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.accountservice.config.kafka.KafkaPaymentAuthorizationReqTopicProperties;
+import faang.school.accountservice.config.kafka.topics.KafkaPaymentAuthorizationReqTopicProperties;
 import faang.school.accountservice.event.payment.PaymentAuthorizationEventDto;
 import faang.school.accountservice.listener.AbstractKafkaListener;
 import faang.school.accountservice.service.operation.OperationService;

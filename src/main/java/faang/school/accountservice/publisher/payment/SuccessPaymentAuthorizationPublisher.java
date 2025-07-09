@@ -1,6 +1,6 @@
 package faang.school.accountservice.publisher.payment;
 
-import faang.school.accountservice.config.kafka.KafkaSuccessPaymentAuthorizationResTopicProperties;
+import faang.school.accountservice.config.kafka.topics.KafkaSuccessPaymentAuthorizationResTopicProperties;
 import faang.school.accountservice.event.payment.SuccessPaymentAuthorizationEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

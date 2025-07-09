@@ -50,9 +50,10 @@ public class AccountService {
         account.setStatus(AccountStatus.OPEN);
         account.setOwnerType(ownerType);
 
-
         Account savedAccount = accountRepository.save(account);
         log.info("Account {} has been saved", savedAccount);
+
+        // TODO: нужно сразу создвать баланс к аккаунту
 
         return savedAccount;
     }

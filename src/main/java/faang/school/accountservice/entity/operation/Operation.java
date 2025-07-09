@@ -1,6 +1,6 @@
 package faang.school.accountservice.entity.operation;
 
-import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,25 +22,31 @@ public class Operation extends BaseEntity {
     @Column(name = "operation_token", nullable = false, updatable = false, unique = true)
     private UUID operationToken;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = false, updatable = false)
     private Long userId;
 
-    // TODO: не уверен что нужно именно так, если это не оплата, а начисление процентов по НС, то from пустое
     @ManyToOne
-    @JoinColumn(name = "balance_from_id", nullable = false)
-    private Balance balanceFrom;
+    @JoinColumn(name = "account_from_id", updatable = false)
+    private Account accountFrom;
 
     @ManyToOne
-    @JoinColumn(name = "balance_to_id", nullable = false)
-    private Balance balanceTo;
+    @JoinColumn(name = "account_to_id", updatable = false)
+    private Account accountTo;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, updatable = false)
     private OperationType type;
 
     // TODO: пока что не понятно для чего
+    // TODO: если приходит клиринг операции, для баланса в котором проведена авторизация,
+    // TODO: то отправлять в топик ошибок и в payment сервисе запускать повторный клиринг через какое-то время
+    // TODO: можно в account service тоже джобу, которая снимает блокировки раз в n минут
     @Column(name = "locked_by", length = 128)
     private String lockedBy;
+
+    // TODO: json
+    @Column(name = "storage", length = 4000)
+    private String storage;
 
     @Column(name = "active", nullable = false)
     private boolean active = false;

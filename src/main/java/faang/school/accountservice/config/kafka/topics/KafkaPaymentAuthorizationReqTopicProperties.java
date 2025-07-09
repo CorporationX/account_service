@@ -1,4 +1,4 @@
-package faang.school.accountservice.config.kafka;
+package faang.school.accountservice.config.kafka.topics;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "spring.kafka.topic.success-payment-authorization-response")
+@ConfigurationProperties(prefix = "spring.kafka.topic.payment-authorization-request")
 @Configuration
-public class KafkaSuccessPaymentAuthorizationResTopicProperties {
+public class KafkaPaymentAuthorizationReqTopicProperties {
     private String name;
     private int partitions;
 }

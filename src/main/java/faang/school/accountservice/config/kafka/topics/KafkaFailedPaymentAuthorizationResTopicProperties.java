@@ -1,4 +1,4 @@
-package faang.school.accountservice.config.kafka;
+package faang.school.accountservice.config.kafka.topics;
 
 import lombok.Getter;
 import lombok.Setter;
