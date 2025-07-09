@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 import static faang.school.accountservice.utils.AccountUtil.generateNumber;
@@ -46,6 +47,9 @@ public class Account {
 
     @Column(name = "status", nullable = false)
     private Status status;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Balance balance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

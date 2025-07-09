@@ -19,10 +19,10 @@ public class AccountService {
     private final AccountMapper mapper;
 
     public AccountDto getAccountDto(Long id) {
-        return mapper.toDto(getAccount(id));
+        return mapper.toDto(getAccountById(id));
     }
 
-    private Account getAccount(Long id) {
+    public Account getAccountById(Long id) {
         return repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
     }
 
@@ -37,7 +37,7 @@ public class AccountService {
 
     @Transactional
     public AccountDto blockAccount(Long id) {
-        Account account = getAccount(id);
+        Account account = getAccountById(id);
         account.setStatus(Status.FROZEN);
         repository.save(account);
         return mapper.toDto(account);
@@ -45,7 +45,7 @@ public class AccountService {
 
     @Transactional
     public AccountDto closeAccount(Long id) {
-        Account account = getAccount(id);
+        Account account = getAccountById(id);
         account.setStatus(Status.CLOSED);
         account.setClosedAt(LocalDateTime.now());
         repository.save(account);
