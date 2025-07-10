@@ -9,6 +9,9 @@ import faang.school.accountservice.entity.operation.OperationType;
 import faang.school.accountservice.event.payment.FailedPaymentAuthorizationEventDto;
 import faang.school.accountservice.event.payment.PaymentAuthorizationEventDto;
 import faang.school.accountservice.event.payment.SuccessPaymentAuthorizationEventDto;
+import faang.school.accountservice.exception.operation.payment.AccountCurrencyMismatchException;
+import faang.school.accountservice.exception.operation.payment.InvalidAccountOwnerException;
+import faang.school.accountservice.exception.operation.payment.UnauthorizedAccountAccessException;
 import faang.school.accountservice.publisher.payment.FailedPaymentAuthorizationPublisher;
 import faang.school.accountservice.publisher.payment.SuccessPaymentAuthorizationPublisher;
 import faang.school.accountservice.repository.operation.OperationRepository;
@@ -34,7 +37,7 @@ public class OperationService {
     private final FailedPaymentAuthorizationPublisher failedPaymentAuthorizationPublisher;
 
     @Transactional
-    public void createPaymentOperation(PaymentAuthorizationEventDto eventDto) {
+    public void createPaymentOperation(PaymentAuthorizationEventDto paymentEvent) {
         try {
             // 1 - оба аккаунта существуют
             // 2 - валюта существует
@@ -44,38 +47,38 @@ public class OperationService {
             // 6 - нет уже такого токена операции
             // 7 - лок не занят
             // 8 (в event) - сумма не меньше 1 и ровная
-            Account accountFrom = accountService.getAccountById(eventDto.getAccountFromId());
-            Account accountTo = accountService.getAccountById(eventDto.getAccountToId());
-            Currency currency = currencyService.getCurrencyById(eventDto.getCurrencyId());
+            Account accountFrom = accountService.getAccountById(paymentEvent.getAccountFromId());
+            Account accountTo = accountService.getAccountById(paymentEvent.getAccountToId());
+            Currency currency = currencyService.getCurrencyById(paymentEvent.getCurrencyId());
             if (!Objects.equals(accountFrom.getCurrency(), currency) ||
                     !Objects.equals(accountTo.getCurrency(), currency)) {
-                throw new RuntimeException();
+                throw new AccountCurrencyMismatchException("");
             }
             if (!Objects.equals(accountFrom.getOwnerType(), AccountOwnerType.USER)) {
-                throw new RuntimeException();
+                throw new InvalidAccountOwnerException("");
             }
-            if (!Objects.equals(accountFrom.getUserId(), eventDto.getUserId())) {
-                throw new RuntimeException();
+            if (!Objects.equals(accountFrom.getUserId(), paymentEvent.getUserId())) {
+                throw new UnauthorizedAccountAccessException("");
             }
-            balanceService.authorizeBalance(accountFrom.getBalance().getId(), eventDto.getAmount());
+            balanceService.authorizeBalance(accountFrom.getBalance().getId(), paymentEvent.getAmount());
 
-            Operation operation = getPaymentOperation(eventDto, accountFrom, accountTo);
+            Operation operation = buildPaymentOperation(paymentEvent, accountFrom, accountTo);
 
             Operation savedOperation = operationRepository.save(operation);
 
             log.info("Operation {} has been saved", savedOperation);
 
-            SuccessPaymentAuthorizationEventDto successEvent = new SuccessPaymentAuthorizationEventDto(eventDto.getOperationToken());
+            SuccessPaymentAuthorizationEventDto successEvent = new SuccessPaymentAuthorizationEventDto(paymentEvent.getOperationToken());
             successPaymentAuthorizationPublisher.sendMessage(successEvent);
         } catch (RuntimeException ex) {
             log.info("fsd");
         } catch (Exception ex) {
-            FailedPaymentAuthorizationEventDto failedEvent = new FailedPaymentAuthorizationEventDto(eventDto.getOperationToken());
+            FailedPaymentAuthorizationEventDto failedEvent = new FailedPaymentAuthorizationEventDto(paymentEvent.getOperationToken());
             failedPaymentAuthorizationPublisher.sendMessage(failedEvent);
         }
     }
 
-    private Operation getPaymentOperation(PaymentAuthorizationEventDto paymentEvent,
+    private Operation buildPaymentOperation(PaymentAuthorizationEventDto paymentEvent,
                                           Account accountFrom, Account accountTo) {
         Operation operation = new Operation();
         operation.setOperationToken(paymentEvent.getOperationToken());
