@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -32,7 +33,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "balance")
 @Table(name = "accounts")
 public class Account {
     @Id
@@ -62,6 +63,9 @@ public class Account {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
