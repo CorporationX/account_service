@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/balance")
+@RequestMapping("/balance")
 @RequiredArgsConstructor
 public class BalanceController {
     private final BalanceService service;
@@ -28,7 +28,7 @@ public class BalanceController {
         service.createBalance(accountId);
     }
 
-    @PutMapping()
+    @PutMapping
     public BalanceDto updateBalance(@RequestBody @Valid BalanceDto balanceDto) {
        return service.updateBalance(balanceDto);
     }

@@ -37,7 +37,7 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne()
+    @OneToOne(optional = false)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 

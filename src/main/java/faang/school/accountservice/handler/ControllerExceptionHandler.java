@@ -3,6 +3,7 @@ package faang.school.accountservice.handler;
 import faang.school.accountservice.dto.ErrorResponseDto;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.AccountStateException;
+import faang.school.accountservice.exception.BalanceAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +37,18 @@ public class ControllerExceptionHandler {
         return new ErrorResponseDto(
                 HttpStatus.CONFLICT.name(),
                 "Invalid status for account.",
+                e.getMessage(),
+                LocalDateTime.now().format(formatter)
+        );
+    }
+
+    @ExceptionHandler(BalanceAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponseDto handleBalanceAlreadyExists(BalanceAlreadyExistsException e) {
+        log.error("Balance already exists error:", e);
+        return new ErrorResponseDto(
+                HttpStatus.CONFLICT.name(),
+                "Balance already exists",
                 e.getMessage(),
                 LocalDateTime.now().format(formatter)
         );
