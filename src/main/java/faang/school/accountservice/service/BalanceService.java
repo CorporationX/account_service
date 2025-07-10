@@ -6,7 +6,7 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +25,7 @@ public class BalanceService {
                 new EntityNotFoundException("Balance with id = " + balanceId + "not found"));
     }
 
+    @Transactional(readOnly = true)
     public BalanceDto getBalanceById(Long balanceId) {
         Balance balance = balanceRepository.findById(balanceId).orElseThrow(() ->
                 new EntityNotFoundException("Balance with id = " + balanceId + "not found"));

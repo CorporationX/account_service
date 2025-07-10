@@ -8,21 +8,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "balance_audit")
+@Table(name = "balance_audit", uniqueConstraints = @UniqueConstraint(columnNames = "operation_id"))
 public class BalanceAudit {
 
     @Id
@@ -41,6 +47,7 @@ public class BalanceAudit {
     @Column(name = "actual_balance", nullable = false)
     private BigDecimal actualBalance;
 
+    @Setter
     @Column(name = "operation_id", nullable = false)
     private Long operationId;
 
