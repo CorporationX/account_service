@@ -19,6 +19,8 @@ CREATE TABLE balance_transfer (
     created_at TIMESTAMP DEFAULT current_timestamp NOT NULL,
     updated_at TIMESTAMP DEFAULT current_timestamp NOT NULL,
 
+    version INTEGER NOT NULL DEFAULT 1,
+
     CONSTRAINT fk_balance_transfer_source_account
         FOREIGN KEY (source_account_id)
         REFERENCES account(id)

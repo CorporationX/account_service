@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class TransferService {
     private final BalanceService balanceService;
     private final BalanceTransferService balanceTransferService;
@@ -30,8 +30,11 @@ public class TransferService {
 
         BalanceTransfer newBalanceTransfer = null;
         try {
-            accountValidator.validateAccountExistsAndActive(event.getSourceId());
-            accountValidator.validateAccountExistsAndActive(event.getTargetId());
+            accountValidator.validateAccountExists(event.getSourceId());
+            accountValidator.validateAccountExists(event.getTargetId());
+
+            accountValidator.validateAccountAvailable(event.getSourceId());
+            accountValidator.validateAccountAvailable(event.getTargetId());
 
             accountValidator.validateAccountCurrency(event.getSourceId(), event.getCurrency());
             accountValidator.validateAccountCurrency(event.getTargetId(), event.getCurrency());
@@ -89,6 +92,7 @@ public class TransferService {
         return balanceTransfer;
     }
 
+    @Transactional
     public BalanceTransfer cancelAuthorizationTransfer(CancellationRequestEvent event) throws TransferException {
         log.info("Start cancelling transaction {}", event.getTransactionId());
 

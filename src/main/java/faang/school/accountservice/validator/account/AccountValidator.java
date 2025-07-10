@@ -5,8 +5,10 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.exception.common.DataValidationException;
-import faang.school.accountservice.exception.common.PreConditionFailedException;
-import faang.school.accountservice.exception.common.RecordNotFoundException;
+import faang.school.accountservice.exception.transfer.kafka.AccountDifferentCurrencyException;
+import faang.school.accountservice.exception.transfer.kafka.AccountNotAvailableException;
+import faang.school.accountservice.exception.transfer.kafka.AccountNotExistException;
+import faang.school.accountservice.exception.transfer.kafka.NotAllowedOperationException;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.ProjectInfoService;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +33,27 @@ public class AccountValidator {
         }
     }
 
-    public void validateAccountExistsAndActive(UUID accountId) {
+    public void validateAccountExists(UUID accountId) {
+        boolean accountNotExist = !accountRepository.existsById(accountId);
+        if (accountNotExist) {
+            log.error("Account with id {} not found!", accountId);
+            throw new AccountNotExistException("Account with id %s not found!".formatted(accountId));
+        }
+    }
+
+    public void validateAccountAvailable(UUID accountId) {
         boolean accountNotAvailable = !accountRepository.existsByIdAndStatus(accountId, AccountStatus.ACTIVE);
         if (accountNotAvailable) {
-            log.error("Account with id {} not found!", accountId);
-            throw new RecordNotFoundException("Account with id %s not found!".formatted(accountId));
+            log.error("Account with id {} not available!", accountId);
+            throw new AccountNotAvailableException("Account with id %s not available!".formatted(accountId));
         }
     }
 
     public void validateAccountCurrency(UUID accountId, Currency currency) {
         boolean wrongCurrency = !accountRepository.existsByIdAndCurrency(accountId, currency);
         if (wrongCurrency) {
-            log.error("Account with id {} not suitable for {} transfer!", accountId, currency);
-            throw new RecordNotFoundException("Account with id %s and %s currency not found!".formatted(accountId, currency));
+            log.error("Account {} currency must be {}", accountId, currency);
+            throw new AccountDifferentCurrencyException("Account %s currency must be %s".formatted(accountId, currency));
         }
     }
 
@@ -64,7 +74,7 @@ public class AccountValidator {
         }
         if (operationNotAllowedForUser) {
             log.error("User {} not the owner of account {}", userId, source.getId());
-            throw new PreConditionFailedException("Authorization permitted for user %s".formatted(source.getId()));
+            throw new NotAllowedOperationException("Operation permitted for user %s".formatted(source.getId()));
         }
     }
 }

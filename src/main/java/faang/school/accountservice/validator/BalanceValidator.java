@@ -2,6 +2,8 @@ package faang.school.accountservice.validator;
 
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.common.PreConditionFailedException;
+import faang.school.accountservice.exception.transfer.kafka.NotEnoughActualFundsException;
+import faang.school.accountservice.exception.transfer.kafka.NotEnoughAuthorizedFundsException;
 import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,13 +26,13 @@ public class BalanceValidator {
         BigDecimal actualAmount = balance.getActualAmount();
         BigDecimal authorizedAmount = balance.getAuthorizedAmount();
         if (actualAmount.subtract(authorizedAmount).compareTo(amount) < 0) {
-            throw new PreConditionFailedException("Not enough actual funds for authorization!");
+            throw new NotEnoughActualFundsException("Not enough actual funds for authorization!");
         }
     }
 
     public void validateEnoughAuthorizedAmount(Balance balance, BigDecimal amount) {
         if (balance.getAuthorizedAmount().compareTo(amount) < 0) {
-            throw new PreConditionFailedException("Not enough authorized funds!");
+            throw new NotEnoughAuthorizedFundsException("Not enough authorized funds!");
         }
     }
 }
