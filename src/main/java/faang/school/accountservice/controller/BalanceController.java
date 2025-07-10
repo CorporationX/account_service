@@ -28,29 +28,37 @@ public class BalanceController {
         return balanceService.getBalanceById(balanceId);
     }
 
-    @PutMapping("/plus/{id}")
-    public BalanceDto plusBalance(@PathVariable("id") Long balanceId, @RequestBody Double money) {
-        return balanceService.plusBalance(balanceId, money);
+    @PutMapping("/plus/{balanceId}/{operationId}")
+    public BalanceDto plusBalance(@PathVariable("balanceId") Long balanceId,
+                                  @PathVariable("operationId") Long operationId,
+                                  @RequestBody Double money) {
+        return balanceService.plusBalance(balanceId, money, operationId);
     }
 
-    @PutMapping("/auth/{id}")
-    public BalanceDto authBalance(@PathVariable("id") Long balanceId, @RequestBody Double money) {
-        return balanceService.authBalance(balanceId, money);
+    @PutMapping("/auth/{balanceId}/{operationId}")
+    public BalanceDto authBalance(@PathVariable("balanceId") Long balanceId,
+                                  @PathVariable("operationId") Long operationId,
+                                  @RequestBody Double money) {
+        return balanceService.authBalance(balanceId, money, operationId);
     }
 
-    @PutMapping("/clearing/all/{id}")
-    public BalanceDto clearingBalanceAll(@PathVariable("id") Long balanceId) {
-        return balanceService.clearingBalance(balanceId);
+    @PutMapping("/clearing/all/{balanceId}/{operationId}")
+    public BalanceDto clearingBalanceAll(@PathVariable("balanceId") Long balanceId,
+                                         @PathVariable("operationId") Long operationId) {
+        return balanceService.clearingBalance(balanceId, operationId);
     }
 
-    @PutMapping("/clearing/part/{id}")
-    public BalanceDto clearingBalancePart(@PathVariable("id") Long balanceId, @RequestBody Double money) {
-        return balanceService.clearingBalance(balanceId, money);
+    @PutMapping("/clearing/part/{balanceId}/{operationId}")
+    public BalanceDto clearingBalancePart(@PathVariable("balanceId") Long balanceId,
+                                          @PathVariable("operationId") Long operationId,
+                                          @RequestBody Double money) {
+        return balanceService.clearingBalance(balanceId, money, operationId);
     }
 
-    @PutMapping("/cancel/{id}")
-    public BalanceDto cancelBalance(@PathVariable("id") Long balanceId) {
-        return balanceService.cancelBalance(balanceId);
+    @PutMapping("/cancel/{balanceId}/{operationId}")
+    public BalanceDto cancelBalance(@PathVariable("balanceId") Long balanceId,
+                                    @PathVariable("operationId") Long operationId) {
+        return balanceService.cancelBalance(balanceId, operationId);
     }
 
 }

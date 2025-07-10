@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.balance.RequestBalanceAuditDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.EntityNotFoundException;
@@ -19,6 +20,7 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final AccountService accountService;
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditService balanceAuditService;
 
     private Balance getBalanceByIdForUpdate(Long balanceId) {
         return balanceRepository.findByIdForUpdate(balanceId).orElseThrow(() ->
@@ -43,23 +45,24 @@ public class BalanceService {
         account.setBalance(balance);
 
         balanceRepository.save(balance);
-
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto plusBalance(Long balanceId, Double count) {
+    public BalanceDto plusBalance(Long balanceId, Double count, Long operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         BigDecimal newActualBalance = balance.getActualBalance().add(BigDecimal.valueOf(count));
 
         balance.setActualBalance(newActualBalance);
 
+        balanceAuditService.createAudit(new RequestBalanceAuditDto(balance.getAccount().getId(), operationId));
+
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto authBalance(Long balanceId, Double count) {
+    public BalanceDto authBalance(Long balanceId, Double count, Long operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) > 0) {
@@ -70,11 +73,13 @@ public class BalanceService {
         balance.setActualBalance(newActualBalance);
         balance.setAuthBalance(BigDecimal.valueOf(count));
 
+        balanceAuditService.createAudit(new RequestBalanceAuditDto(balance.getAccount().getId(), operationId));
+
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto clearingBalance(Long balanceId) {
+    public BalanceDto clearingBalance(Long balanceId, Long operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
@@ -83,11 +88,13 @@ public class BalanceService {
 
         balance.setAuthBalance(BigDecimal.valueOf(0.));
 
+        balanceAuditService.createAudit(new RequestBalanceAuditDto(balance.getAccount().getId(), operationId));
+
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto clearingBalance(Long balanceId, Double count) {
+    public BalanceDto clearingBalance(Long balanceId, Double count, Long operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
@@ -102,12 +109,14 @@ public class BalanceService {
         balance.setActualBalance(newActualBalance.subtract(BigDecimal.valueOf(count)));
         balance.setAuthBalance(BigDecimal.valueOf(0.));
 
+        balanceAuditService.createAudit(new RequestBalanceAuditDto(balance.getAccount().getId(), operationId));
+
         return balanceMapper.toDto(balance);
     }
 
 
     @Transactional
-    public BalanceDto cancelBalance(Long balanceId) {
+    public BalanceDto cancelBalance(Long balanceId, Long operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
@@ -117,6 +126,8 @@ public class BalanceService {
         BigDecimal newActualBalance = balance.getActualBalance().add(balance.getAuthBalance());
         balance.setActualBalance(newActualBalance);
         balance.setAuthBalance(BigDecimal.valueOf(0.));
+
+        balanceAuditService.createAudit(new RequestBalanceAuditDto(balance.getAccount().getId(), operationId));
 
         return balanceMapper.toDto(balance);
     }

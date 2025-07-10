@@ -14,25 +14,20 @@ import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "balance")
-@ToString
-@EqualsAndHashCode
 public class Balance {
 
     @Id
@@ -43,11 +38,9 @@ public class Balance {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Setter
     @Column(name = "auth_balance", nullable = false, columnDefinition = "NUMERIC(15,2) DEFAULT 0.00")
     private BigDecimal authBalance;
 
-    @Setter
     @Column(name = "actual_balance", nullable = false, columnDefinition = "NUMERIC(15,2) DEFAULT 0.00")
     private BigDecimal actualBalance;
 
