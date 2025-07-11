@@ -5,11 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Immutable;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 
 @Data
 @Entity
+@Immutable
 @Table(name = "balance_audit")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,16 +22,26 @@ public class BalanceAudit {
     private Long id;
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "account_id", nullable = false, updatable = false)
-    private Account account;
+    @JoinColumn(name = "balance_id", nullable = false)
+    private Balance balance;
 
-    @Column(name =  "authorization_balance", precision = 19, scale = 4, updatable = false)
+    @Column(name = "account_id", nullable = false)
+    private Long accountId;
+
+    @Column(name = "version", nullable = false)
+    private Integer version;
+
+    @Column(name = "authorization_balance", precision = 19, scale = 4, nullable = false)
     private BigDecimal authorizationBalance;
 
-    @Column(name = "actual_balance", precision = 19, scale = 4, updatable = false)
+    @Column(name = "actual_balance", precision = 19, scale = 4, nullable = false)
     private BigDecimal actualBalance;
+
+    @Column(name = "operation_id", nullable = false)
+    private Long operationId;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
 }
