@@ -1,12 +1,15 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.account.strategy.AccountTypeSpecifiedAction;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.AccountStateException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import faang.school.accountservice.utils.AccountNumberGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -21,15 +26,32 @@ import java.time.LocalDateTime;
 public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final AccountRepository accountRepository;
+    private final FreeAccountNumbersServiceImpl freeAccountNumbersService;
+    private final List<AccountTypeSpecifiedAction> accountTypeActions;
 
+    @Transactional
     @Override
     public AccountDto openAccount(AccountDto accountDto) {
         Account account = accountMapper.toEntity(accountDto);
         account.setStatus(AccountStatus.ACTIVE);
-        account.setNumber(AccountNumberGeneratorUtil.generateAccountNumber());
+        freeAccountNumbersService.acceptAccountNumber(account.getType(), number -> {
+            account.setNumber(number.toString());
+        });
 
-        return accountMapper.toDto(accountRepository.save(account));
+        Optional<AccountTypeSpecifiedAction> accountTypeSpecifiedActionction = accountTypeActions.stream()
+                .filter(action -> action.getAccountType() == account.getType())
+                .findFirst();
+
+        Account savedAccount;
+        if (accountTypeSpecifiedActionction.isPresent()) {
+            savedAccount = accountTypeSpecifiedActionction.get().createAccount(account);
+        } else {
+            savedAccount = accountRepository.save(account);
+        }
+
+        return accountMapper.toDto(savedAccount);
     }
+
 
     @Override
     public AccountDto getAccount(String accountNumber) {

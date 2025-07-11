@@ -25,7 +25,7 @@ public class TariffRateHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tariff_id", nullable = false)
     private Tariff tariff;
 

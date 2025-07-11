@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Data;
 import jakarta.persistence.CascadeType;
 
@@ -32,4 +33,8 @@ public class Tariff {
     @OneToMany(mappedBy = "tariff", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("effectiveDate ASC")
     private List<TariffRateHistory> rateHistory = new ArrayList<>();
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 }

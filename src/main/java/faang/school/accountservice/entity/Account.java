@@ -46,7 +46,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", length = 20, unique = true, nullable = false)
+    @Column(name = "number", length = 20, nullable = false)
     @Size(min = 12, max = 20)
     @Pattern(regexp = "\\d+")
     private String number;
@@ -58,7 +58,7 @@ public class Account {
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
 
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "account_type", insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private AccountType type;
 
