@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXIST balance_audit (
     id bigserial PRIMARY KEY,
     balance_id BIGINT NOT NULL,
-    account_id BIGINT NOT NULL,
+    account_number varchar(20) NOT NULL
+            CHECK (LENGTH(number) >= 12 AND LENGTH(number) <= 20),
     version INTEGER NOT NULL,
     authorization_balance DECIMAL(19, 4) NOT NULL,
     actual_balance DECIMAL(19, 4) NOT NULL,
@@ -9,7 +10,7 @@ CREATE TABLE IF NOT EXIST balance_audit (
     created_at timestamptz NOT NULL DEFAULT current_timestamp
 
     CONSTRAINT fk_balance_id FOREIGN KEY (balance_id) REFERENCES balance (id)
-    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES accounts (id)
+    CONSTRAINT fk_account_id FOREIGN KEY (account_number) REFERENCES accounts (number)
 )
 
 CREATE FUNCTION prevent_update() RETURNS trigger AS $$

@@ -1,6 +1,8 @@
 package faang.school.accountservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Immutable;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Data
@@ -25,8 +28,9 @@ public class BalanceAudit {
     @JoinColumn(name = "balance_id", nullable = false)
     private Balance balance;
 
-    @Column(name = "account_id", nullable = false)
-    private Long accountId;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "account_number", nullable = false)
+    private String accountNumber;
 
     @Column(name = "version", nullable = false)
     private Integer version;
@@ -43,5 +47,5 @@ public class BalanceAudit {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 }
