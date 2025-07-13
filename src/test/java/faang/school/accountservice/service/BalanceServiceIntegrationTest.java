@@ -17,9 +17,9 @@ public class BalanceServiceIntegrationTest {
     private BalanceService balanceService;
 
     @Test
-    void testEnrollNegativeAmountShouldFailValidation() {
+    void testDepositNegativeAmountShouldFailValidation() {
         assertThrows(ConstraintViolationException.class, () ->
-                balanceService.enroll(UUID.randomUUID(), BigDecimal.ZERO)
+                balanceService.deposit(UUID.randomUUID(), BigDecimal.ZERO)
         );
     }
 
