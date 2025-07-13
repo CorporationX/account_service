@@ -17,8 +17,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "currency")
+@Table(name = "operation")
 public class Operation extends BaseEntity {
+    // TODO: уникальный индекс на тип и токен
     @Column(name = "operation_token", nullable = false, updatable = false, unique = true)
     private UUID operationToken;
 
