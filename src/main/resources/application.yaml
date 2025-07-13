@@ -34,7 +34,7 @@ logging:
 
 scheduler:
   account-number:
-    batch-size: 100
+    batch-size: 10
     cron: "0 0 0 * * ?"
     lock-name: "reportGenerationTask"
     lock-at-least-for: "5m"

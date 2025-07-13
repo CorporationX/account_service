@@ -5,12 +5,16 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -35,12 +39,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString(exclude = "balance")
 @Table(name = "accounts")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "account_type", discriminatorType = DiscriminatorType.STRING)
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", length = 20, unique = true, nullable = false)
+    @Column(name = "number", length = 20, nullable = false)
     @Size(min = 12, max = 20)
     @Pattern(regexp = "\\d+")
     private String number;
@@ -52,7 +58,7 @@ public class Account {
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
 
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "account_type", insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private AccountType type;
 
