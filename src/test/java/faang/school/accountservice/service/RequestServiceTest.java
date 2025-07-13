@@ -29,6 +29,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -43,7 +44,7 @@ public class RequestServiceTest {
     @Mock
     private RequestMapper mapper;
     @Mock
-    private DataSender kafkaDataSender;
+    private EventPublisherService eventPublisherService;
     @Mock
     private KafkaTopics kafkaTopics;
 
@@ -95,7 +96,11 @@ public class RequestServiceTest {
 
         assertEquals(requestDto, result);
         verify(repository).save(requestEntity);
-        verify(kafkaDataSender).send(eq("topic"), any());
+        verify(eventPublisherService).publishEvent(
+                eq("topic"),
+                eq("request-created"),
+                same(requestEntity)
+        );
     }
 
     @Test
@@ -105,8 +110,9 @@ public class RequestServiceTest {
         var result = service.createRequest(createDto);
 
         assertEquals(requestDto, result);
+
         verify(repository, never()).save(any());
-        verifyNoInteractions(kafkaDataSender);
+        verifyNoInteractions(eventPublisherService);
     }
 
     @Test
@@ -145,7 +151,11 @@ public class RequestServiceTest {
         assertEquals(RequestStatus.COMPLETED, requestEntity.getRequestStatus());
         assertEquals("done", requestEntity.getStatusDetails());
         verify(repository).save(requestEntity);
-        verify(kafkaDataSender).send(eq("topic"), any());
+        verify(eventPublisherService).publishEvent(
+                eq("topic"),
+                eq("request-status-changed"),
+                same(requestEntity)
+        );
     }
 
     @Test
@@ -169,7 +179,11 @@ public class RequestServiceTest {
 
         assertFalse(requestEntity.isOpen());
         verify(repository).save(requestEntity);
-        verify(kafkaDataSender).send(eq("topic"), any());
+        verify(eventPublisherService).publishEvent(
+                eq("topic"),
+                eq("request-closed"),
+                same(requestEntity)
+        );
     }
 
     @Test

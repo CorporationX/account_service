@@ -3,21 +3,17 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.CreateRequestDto;
 import faang.school.accountservice.dto.RequestDto;
 import faang.school.accountservice.dto.UpdateStatusDto;
-import faang.school.accountservice.event.RequestEvent;
 import faang.school.accountservice.exception.ConcurrentRequestException;
 import faang.school.accountservice.exception.ConflictException;
-import faang.school.accountservice.kafka.producer.DataSender;
 import faang.school.accountservice.kafka.producer.KafkaTopics;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.model.Request;
 import faang.school.accountservice.repository.RequestRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +23,7 @@ import java.util.UUID;
 public class RequestService {
     private final RequestRepository repository;
     private final RequestMapper mapper;
-    private final DataSender kafkaDataSender;
+    private final EventPublisherService publisherService;
     private final KafkaTopics kafkaTopics;
 
     @Transactional
@@ -50,7 +46,7 @@ public class RequestService {
         Request savedRequest = mapper.toEntity(createRequestDto);
         RequestDto dto = mapper.toDto(repository.save(savedRequest));
 
-        publishEvent(kafkaTopics.getRequestEventsTopic(), "request-created", savedRequest);
+        publisherService.publishEvent(kafkaTopics.getRequestEventsTopic(), "request-created", savedRequest);
         return dto;
     }
 
@@ -62,7 +58,7 @@ public class RequestService {
         request.setStatusDetails(updateStatusDto.getStatusDetails());
         Request updated = repository.save(request);
 
-        publishEvent(kafkaTopics.getRequestEventsTopic(), "request-status-changed", updated);
+        publisherService.publishEvent(kafkaTopics.getRequestEventsTopic(), "request-status-changed", updated);
     }
 
     @Transactional
@@ -72,26 +68,11 @@ public class RequestService {
         request.setOpen(false);
         Request closed = repository.save(request);
 
-        publishEvent(kafkaTopics.getRequestEventsTopic(), "request-closed", closed);
+        publisherService.publishEvent(kafkaTopics.getRequestEventsTopic(), "request-closed", closed);
     }
 
     private Request validate(UUID idempotencyKey) {
         return repository.findById(idempotencyKey)
                 .orElseThrow(() -> new EntityNotFoundException("Request not found"));
-    }
-
-    @Async("eventSender")
-    public void publishEvent(String topic, String eventType, Request req) {
-        RequestEvent event = RequestEvent.builder()
-                .idempotencyKey(req.getIdempotencyKey())
-                .userId(req.getUserId())
-                .requestType(req.getRequestType().name())
-                .currentStatus(req.getRequestStatus().name())
-                .statusDetails(req.getStatusDetails())
-                .eventType(eventType)
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        kafkaDataSender.send(topic, event);
     }
 }
