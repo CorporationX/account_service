@@ -29,11 +29,11 @@ public class FreeAccountNumbersService {
     private final AccountNumbersSequenceRepository sequenceRepository;
     private final FreeAccountNumbersRepository freeNumbersRepository;
 
-    @Transactional(rollbackFor = CreateNewFreeAccNumException.class)
+    @Transactional(rollbackFor = RuntimeException.class)
     public void createOneFreeAccNumberPerType(AccountBalanceType type) {
         log.info("Starting to create a new free account number for type: {}", type);
         if (sequenceRepository.getIncrementedCountByBalanceType(type) == null) {
-            createNewSeqAndAccountNum(type);
+            createNewSequenceAndNewAccountNumber(type);
             return;
         }
         sequenceRepository.incrementCountByBalanceType(type);
@@ -46,7 +46,7 @@ public class FreeAccountNumbersService {
         FreeAccountNumber freeAccountNumber = freeNumbersRepository.findRandomByAccountBalanceType(type);
 
         if (freeAccountNumber == null) {
-            log.warn("No sequence found for type: {}, creating a new one.", type);
+            log.warn("No sequence found for type: {}.", type);
             throw new AbsentFreeAccException("No free account numbers available for type: " + type);
         }
         log.info("Found free account number: {}", freeAccountNumber.getAccountNumber());
@@ -64,16 +64,16 @@ public class FreeAccountNumbersService {
             throw new IllegalArgumentException("Quantity must be greater than 0");
         }
         if (sequenceRepository.getIncrementedCountByBalanceType(type) == null) {
-            createNewSeqAndAccountNum(type);
+            createNewSequenceAndNewAccountNumber(type);
             finalQuantityToCreate -= 1;
         }
-        if (quantity == 1) {
+        if (quantity == 1 && sequenceRepository.getIncrementedCountByBalanceType(type) == null) {
             log.info("Creating one new account number for type: {}", type);
             sequenceRepository.incrementCountByBalanceType(type);
             createNewFreeAccountNumber(type);
             return;
         }
-        incrementSeqAndCreateBatch(type, finalQuantityToCreate);
+        incrementSequenceAndCreateBatch(type, finalQuantityToCreate);
     }
 
     @Transactional(rollbackFor = IllegalArgumentException.class)
@@ -86,7 +86,7 @@ public class FreeAccountNumbersService {
             throw new IllegalArgumentException("Target quantity must be greater than 0");
         }
         if (sequenceRepository.getIncrementedCountByBalanceType(type) == null) {
-            createNewSeqAndAccountNum(type);
+            createNewSequenceAndNewAccountNumber(type);
         }
 
         Integer actualFreeAccountCount = freeNumbersRepository.getActualFreeNumCountByType(type);
@@ -100,8 +100,7 @@ public class FreeAccountNumbersService {
             createNewFreeAccountNumber(type);
             return;
         }
-
-        incrementSeqAndCreateBatch(type, targetQuantity - actualFreeAccountCount);
+        incrementSequenceAndCreateBatch(type, targetQuantity - actualFreeAccountCount);
     }
 
     private void createNewSequenceByType(AccountBalanceType type) {
@@ -114,10 +113,10 @@ public class FreeAccountNumbersService {
 
     private void createNewFreeAccountNumber(AccountBalanceType type) {
         log.info("Creating new free account number for type: {}", type);
-        BigInteger accountNum = getPatternByType(type)
+        BigInteger accountNum = getNumberPatternByBalanceType(type)
                 .add(BigInteger.valueOf(sequenceRepository.getIncrementedCountByBalanceType(type)));
 
-        freeNumbersRepository.save(createObjFreeAccNum(type, accountNum));
+        freeNumbersRepository.save(createNewFreeAccountNumberObject(type, accountNum));
     }
 
     private void createFreeAccountNumbersBatch(AccountBalanceType type, Integer startSequence, Integer quantity) {
@@ -125,13 +124,13 @@ public class FreeAccountNumbersService {
         List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
 
         for (int i = 0; i < quantity; i++) {
-            BigInteger accountNum = getPatternByType(type).add(BigInteger.valueOf(startSequence++));
-            freeAccountNumbers.add(createObjFreeAccNum(type, accountNum));
+            BigInteger accountNum = getNumberPatternByBalanceType(type).add(BigInteger.valueOf(startSequence++));
+            freeAccountNumbers.add(createNewFreeAccountNumberObject(type, accountNum));
         }
         freeNumbersRepository.saveAll(freeAccountNumbers);
     }
 
-    private BigInteger getPatternByType(AccountBalanceType type) {
+    private BigInteger getNumberPatternByBalanceType(AccountBalanceType type) {
         log.info("Selecting selecting pattern for type: {}", type);
         if (type == AccountBalanceType.DEBIT) {
             return debitPattern;
@@ -141,14 +140,14 @@ public class FreeAccountNumbersService {
         throw new IllegalArgumentException("Unknown account balance type: " + type);
     }
 
-    private FreeAccountNumber createObjFreeAccNum(AccountBalanceType type, BigInteger accountNum) {
+    private FreeAccountNumber createNewFreeAccountNumberObject(AccountBalanceType type, BigInteger accountNum) {
         FreeAccountNumber freeAccountNumber = new FreeAccountNumber();
         freeAccountNumber.setAccountBalanceType(type);
         freeAccountNumber.setAccountNumber(String.valueOf(accountNum));
         return freeAccountNumber;
     }
 
-    private void incrementSeqAndCreateBatch(AccountBalanceType type, Integer quantity) {
+    private void incrementSequenceAndCreateBatch(AccountBalanceType type, Integer quantity) {
         log.info("Incrementing sequence and creating batch for type: {}, quantity: {}", type, quantity);
 
         Integer currentCount = sequenceRepository.getIncrementedCountByBalanceType(type);
@@ -162,7 +161,7 @@ public class FreeAccountNumbersService {
         log.info("Successfully created {} account numbers for type: {}", quantity, type);
     }
 
-    private void createNewSeqAndAccountNum(AccountBalanceType type) {
+    private void createNewSequenceAndNewAccountNumber(AccountBalanceType type) {
         log.info("Starting a new sequence for type: {}", type);
         createNewSequenceByType(type);
         sequenceRepository.incrementCountByBalanceType(type);
