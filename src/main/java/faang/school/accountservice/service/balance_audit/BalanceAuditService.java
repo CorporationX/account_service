@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,9 +25,22 @@ public class BalanceAuditService {
     public Balance searchBalance(UUID accountId) {
         Optional<Balance> balanceOptional = balanceRepository.findByAccountId(accountId);
         if (balanceOptional.isEmpty()) {
-            throw new DataValidationException("This account does not exist");
+            throw new NoSuchElementException("This account does not exist");
         }
         return balanceOptional.get();
+    }
+
+    public BalanceAudit saveBalanceAudit(UUID accountId) {
+        Balance balance = searchBalance(accountId);
+
+        BalanceAudit balanceAudit = new BalanceAudit();
+        balanceAudit.setAccountNumber(balance.getAccount().getAccountNumber());
+        balanceAudit.setAuthorizedAmount(balance.getAuthorizedAmount());
+        balanceAudit.setActualAmount(balance.getActualAmount());
+        balanceAudit.setCreatedAt(LocalDateTime.now());
+        balanceAudit.setBalanceVersion(balance.getVersion().longValue());
+
+        return balanceAuditRepository.save(balanceAudit);
     }
 
 }

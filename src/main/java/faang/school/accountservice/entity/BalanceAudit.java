@@ -1,10 +1,7 @@
 package faang.school.accountservice.entity;
 
-import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,7 +18,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 @Getter
 @Setter
 @Builder
@@ -48,19 +44,3 @@ public class BalanceAudit {
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
 }
-
-
-/*
-CREATE TABLE balance_audit (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    account_number varchar(20) UNIQUE NOT NULL,
-    balance_version bigint NOT NULL,
-    authorized_amount NUMERIC(30, 10) NOT NULL,
-    actual_amount NUMERIC(30, 10) NOT NULL,
-    balance_change_id bigint NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
-);
-
-  - include:
-      file: db/changelog/changeset/V003__balance-audit-table-init.sql
- */

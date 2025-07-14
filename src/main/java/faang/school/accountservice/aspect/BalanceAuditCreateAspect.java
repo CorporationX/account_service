@@ -1,6 +1,7 @@
 package faang.school.accountservice.aspect;
 
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.service.balance_audit.BalanceAuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class BalanceAuditCreateAspect {
-    private final BalanceAuditAbstractAspect balanceAuditGetBalanceAspect;
+    private final BalanceAuditService balanceAuditService;
 
     @Around("@annotation(faang.school.accountservice.annotation.BalanceAuditCreateAnnotation)")
     public Object createBalanceAudit(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -25,9 +26,9 @@ public class BalanceAuditCreateAspect {
         }
         Object result = joinPoint.proceed();
 
-        UUID accountId = account.getId();
+        UUID accountId = ((Account) args[0]).getId();
 
-        balanceAuditGetBalanceAspect.saveBalanceAudit(accountId);
+        balanceAuditService.saveBalanceAudit(accountId);
 
         return result;
     }
