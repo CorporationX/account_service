@@ -10,5 +10,5 @@ import org.mapstruct.ReportingPolicy;
 public interface BalanceAuditMapper {
 
     @Mapping(target = "accountNumber", source = "balance.account.number")
-    BalanceAudit toBalanceAudit(Balance balance, Long operationId);
+    BalanceAudit toBalanceAudit(Balance balance);
 }
