@@ -23,9 +23,9 @@ public class FreeAccountNumberService {
     @Value("${account.number.init-zeros}")
     private int initZeros;
     @Value("${account.number.generate-per-time}")
-    private int generate_per_time;
+    private int generatePerTime;
     @Value("${account.number.base-number-length}")
-    private int base_number_length;
+    private int baseNumberLength;
 
     private final FreeAccountNumberRepository freeAccountNumberRepository;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
@@ -48,26 +48,24 @@ public class FreeAccountNumberService {
     }
 
     @Transactional
-    public boolean createNewCounter(AccountType type, String baseNumber) {
+    public void createNewCounter(AccountType type, String baseNumber) {
         if(accountNumberSequenceRepository.existsByType(type)) {
             throw new IllegalArgumentException("Sequence already exists for this type");
         }
-        if(baseNumber.length() != base_number_length) {
+        if(baseNumber.length() != baseNumberLength) {
             throw new IllegalArgumentException("Incorrect base number length");
         }
         String newNumber = baseNumber + "0".repeat(initZeros);
         AccountNumberSequence newSeq = new AccountNumberSequence(null, new BigInteger(newNumber), type, 0);
         accountNumberSequenceRepository.save(newSeq);
-        return true;
     }
 
-    @Transactional
     private FreeAccountNumber generate(AccountType type) { // When amount of free numbers is too low, auto generating new
         List<FreeAccountNumber> toSave = new ArrayList<>();
         AccountNumberSequence seq = accountNumberSequenceRepository.getByType(type.toString());
         BigInteger number = seq.getNumber();
 
-        for (int i = 0; i < generate_per_time; i++) {
+        for (int i = 0; i < generatePerTime; i++) {
             if(!number.toString().startsWith(typeToNumber.getValue(type))) { // to make first 4 numbers immutable
                 number = changeLength(type, seq);
             }
@@ -75,14 +73,13 @@ public class FreeAccountNumberService {
             number = number.add(BigInteger.ONE);
         }
         freeAccountNumberRepository.saveAll(toSave);
-        accountNumberSequenceRepository.tryIncrement(type.toString(), generate_per_time);
+        accountNumberSequenceRepository.tryIncrement(type.toString(), generatePerTime);
 
         return freeAccountNumberRepository.findFirstByType(type.toString()).get();
     }
 
-    @Transactional
     private BigInteger changeLength(AccountType type, AccountNumberSequence seq) {
-        int zeroCount = seq.getNumber().toString().length() - base_number_length + 1; // +1 because we need to increase length
+        int zeroCount = seq.getNumber().toString().length() - baseNumberLength + 1; // +1 because we need to increase length
         String newNumber = typeToNumber.getValue(type) + "0".repeat(zeroCount);
         seq.setNumber(new BigInteger(newNumber));
         accountNumberSequenceRepository.save(seq);
