@@ -137,13 +137,13 @@ class BalanceServiceTest {
     }
 
     @Test
-    void testEnrollAmount() {
+    void testDepositAmount() {
         BigDecimal enrollAmount = new BigDecimal("100.00");
 
         when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(expectedBalance));
         when(balanceRepository.save(any(Balance.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Balance updated = balanceService.enroll(accountId, enrollAmount);
+        Balance updated = balanceService.deposit(accountId, enrollAmount);
 
         assertEquals(enrollAmount, updated.getActualAmount());
         assertEquals(BigDecimal.ZERO, updated.getAuthorizedAmount());

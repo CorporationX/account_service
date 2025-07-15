@@ -4,12 +4,46 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: account-group
+    topics:
+      transfer:
+        consume:
+          authorization-requests-topic:
+            name: authorize-requests
+            consumer-pool-size: 5
+          clear-requests-topic:
+            name: clear-requests
+            consumer-pool-size: 5
+          cancellation-requests-topic:
+            name: cancellation-requests
+            consumer-pool-size: 5
+        publish:
+          authorization-success-topic:
+            name: authorization-success
+          authorization-failed-topic:
+            name: authorization-failed
+          clear-success-topic:
+            name: clear-success
+          clear-failed-topic:
+            name: clear-failed
+          cancellation-success-topic:
+            name: cancellation-success
+          cancellation-failed-topic:
+            name: cancellation-failed
+      dead-letters:
+        transfer-dead-letters-topic:
+          name: transfer-dead-letters
+          default-attempts: 1
+          default-interval-millis: 100
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -23,3 +57,14 @@ server:
 logging:
   level:
     root: info
+
+services:
+  project-service:
+    host: http://localhost
+    port: 8082
+
+executor:
+  balance-transfer:
+    core-pool-size: 20
+    max-pool-size: 50
+    thread-name-prefix: 'BalanceTransfer-'
