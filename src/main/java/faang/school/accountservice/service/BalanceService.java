@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BalanceService {
 
     private final BalanceRepository balanceRepository;
@@ -49,7 +51,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceDto plusBalance(Long balanceId, Double count, Long operationId) {
+    public BalanceDto plusBalance(Long balanceId, Double count, String operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         BigDecimal newActualBalance = balance.getActualBalance().add(BigDecimal.valueOf(count));
@@ -62,7 +64,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceDto authBalance(Long balanceId, Double count, Long operationId) {
+    public BalanceDto authBalance(Long balanceId, Double count, String operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) > 0) {
@@ -73,13 +75,15 @@ public class BalanceService {
         balance.setActualBalance(newActualBalance);
         balance.setAuthBalance(BigDecimal.valueOf(count));
 
+        log.info("________________________________________________________________________Auth Balance is created. BalanceId: {}", balanceId);
+
         balanceAuditService.createAudit(new RequestBalanceAuditDto(balance.getAccount().getId(), operationId));
 
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public BalanceDto clearingBalance(Long balanceId, Long operationId) {
+    public BalanceDto clearingBalance(Long balanceId, String operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
@@ -94,7 +98,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public BalanceDto clearingBalance(Long balanceId, Double count, Long operationId) {
+    public BalanceDto clearingBalance(Long balanceId, Double count, String operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {
@@ -116,7 +120,7 @@ public class BalanceService {
 
 
     @Transactional
-    public BalanceDto cancelBalance(Long balanceId, Long operationId) {
+    public BalanceDto cancelBalance(Long balanceId, String operationId) {
         Balance balance = getBalanceByIdForUpdate(balanceId);
 
         if (balance.getAuthBalance().compareTo(BigDecimal.valueOf(0.)) == 0) {

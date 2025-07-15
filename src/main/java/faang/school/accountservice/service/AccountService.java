@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.AccountCreationDto;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
@@ -24,6 +25,16 @@ public class AccountService {
 
     public Account getAccountById(Long id) {
         return repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nonexistent id"));
+    }
+
+    public Account getAccountByNumber(String number) {
+        return repository.findByNumber(number)
+                .orElseThrow(() -> new IllegalArgumentException("Number " + number + " not found"));
+    }
+
+    public Account getAccountBuOwnerIdAndAccount(Long ownerId, Currency currency){
+        return repository.findByOwnerIdAndCurrency(ownerId, currency)
+                .orElseThrow(()-> new IllegalArgumentException("Owner id " + ownerId + "is not correct"));
     }
 
     @Transactional

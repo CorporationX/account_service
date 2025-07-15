@@ -30,34 +30,34 @@ public class BalanceController {
 
     @PutMapping("/plus/{balanceId}/{operationId}")
     public BalanceDto plusBalance(@PathVariable("balanceId") Long balanceId,
-                                  @PathVariable("operationId") Long operationId,
+                                  @PathVariable("operationId") String operationId,
                                   @RequestBody Double money) {
         return balanceService.plusBalance(balanceId, money, operationId);
     }
 
     @PutMapping("/auth/{balanceId}/{operationId}")
     public BalanceDto authBalance(@PathVariable("balanceId") Long balanceId,
-                                  @PathVariable("operationId") Long operationId,
+                                  @PathVariable("operationId") String operationId,
                                   @RequestBody Double money) {
         return balanceService.authBalance(balanceId, money, operationId);
     }
 
     @PutMapping("/clearing/all/{balanceId}/{operationId}")
     public BalanceDto clearingBalanceAll(@PathVariable("balanceId") Long balanceId,
-                                         @PathVariable("operationId") Long operationId) {
+                                         @PathVariable("operationId") String operationId) {
         return balanceService.clearingBalance(balanceId, operationId);
     }
 
     @PutMapping("/clearing/part/{balanceId}/{operationId}")
     public BalanceDto clearingBalancePart(@PathVariable("balanceId") Long balanceId,
-                                          @PathVariable("operationId") Long operationId,
+                                          @PathVariable("operationId") String operationId,
                                           @RequestBody Double money) {
         return balanceService.clearingBalance(balanceId, money, operationId);
     }
 
     @PutMapping("/cancel/{balanceId}/{operationId}")
     public BalanceDto cancelBalance(@PathVariable("balanceId") Long balanceId,
-                                    @PathVariable("operationId") Long operationId) {
+                                    @PathVariable("operationId") String operationId) {
         return balanceService.cancelBalance(balanceId, operationId);
     }
 

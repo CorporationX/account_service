@@ -33,11 +33,17 @@ kafka:
   topics:
     prod-request: "producer-requests"
     cons-request: "consumer-requests"
-  num-partitions: 2
+    pending-topic: "pending_request"
+  num-partitions: 4
+  partitions:
+    partition-pending-request: 1
+    partition-pending-response: 2
+    partition-open-request: 3
+    partition-clearing: 4
+    partition-clearing-response: 0
   replication-factor: 1
   concurrency: 3
   group: "requests"
-  trusted-packages: "faang.school.accountservice.dto.CreateRequestDto"
   properties:
     security.protocol: SSL
     ssl.truststore.location: /path/to/truststore.jks

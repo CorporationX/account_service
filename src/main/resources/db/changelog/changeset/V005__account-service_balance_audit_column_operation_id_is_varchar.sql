@@ -1,0 +1,1 @@
+ALTER TABLE balance_audit ALTER COLUMN operation_id TYPE VARCHAR(64);
