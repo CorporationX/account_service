@@ -57,37 +57,3 @@ kafka:
 
 cron:
   expression: "0 * * * * *"
-
-user-service:
-  host: localhost
-  port: 8080
-
-kafka:
-  host: "localhost:9092"
-  topics:
-    prod-request: "producer-requests"
-    cons-request: "consumer-requests"
-  num-partitions: 2
-  replication-factor: 1
-  concurrency: 3
-  group: "requests"
-  trusted-packages: "faang.school.accountservice.dto.CreateRequestDto"
-  properties:
-    security.protocol: SSL
-    ssl.truststore.location: /path/to/truststore.jks
-    ssl.truststore.password: password
-
-cron:
-  expression: "0 * * * * *"
-
-account:
-  type:
-    CURRENT: 4200
-    SETTLEMENT: 5200
-    CREDIT: 7700
-    DEPOSIT: 1100
-    BUDGET: 3300
-  number:
-    init-zeros: 8
-    generate-per-time: 5000
-    base-number-length: 4
