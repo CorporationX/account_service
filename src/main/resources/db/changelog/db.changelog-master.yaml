@@ -7,4 +7,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__account-service_balance.sql
   - include:
       file: db/changelog/changeset/V004__account-service_balance_audit.sql
-
+  - include:
+      file: db/changelog/changeset/V005_account-service_init_account_number_seq.sql
+  - include:
+      file: db/changelog/changeset/V006_account-service_number_free_account_number.sql
