@@ -6,6 +6,7 @@ import faang.school.accountservice.mapper.balance.BalanceMapper;
 import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.validation.ValidAccountNumber;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/balances")
 @RequiredArgsConstructor
 @Validated
+@Log4j2
 public class BalanceController {
 
     private final BalanceService balanceService;
