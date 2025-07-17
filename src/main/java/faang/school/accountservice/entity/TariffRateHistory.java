@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -32,10 +33,10 @@ public class TariffRateHistory {
 
     @ManyToOne
     @JoinColumn(name = "tariff_id", nullable = false)
-    private TariffRateHistory tariff;
+    private Tariff tariff;
 
     @Column(name = "rate", nullable = false)
-    private Integer rate;
+    private BigDecimal rate = BigDecimal.ZERO;
 
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp

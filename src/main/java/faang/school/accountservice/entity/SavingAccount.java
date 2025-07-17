@@ -1,15 +1,14 @@
 package faang.school.accountservice.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -25,7 +24,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,7 +39,7 @@ public class SavingAccount {
     @Id
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)// атрибуты что делают
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "id")
     private Account account;
@@ -50,9 +48,8 @@ public class SavingAccount {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    //todo OneToMany(mappedBy = "savingsAccount", cascade = CascadeType.ALL)
-    //todo возможно нужно каскадирование
     @OneToMany(mappedBy = "savingsAccount")
+    @OrderBy("appliedAt ASC")
     private List<SavingsAccountTariffHistory> tariffHistory;
 
     @Column(name = "last_interest_accrual_date")

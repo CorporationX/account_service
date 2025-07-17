@@ -38,7 +38,7 @@ public class SavingsAccountTariffHistory {
 
     @ManyToOne
     @JoinColumn(name = "tariff_id")
-    private SavingsAccountTariff tariff;
+    private Tariff tariff;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
