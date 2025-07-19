@@ -1,7 +1,6 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.exception.AbsentFreeAccException;
-import faang.school.accountservice.exception.CreateNewFreeAccNumException;
 import faang.school.accountservice.model.AccountBalanceType;
 import faang.school.accountservice.model.AccountNumberSequence;
 import faang.school.accountservice.model.FreeAccountNumber;
