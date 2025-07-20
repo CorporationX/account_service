@@ -27,6 +27,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 50
+          batch_versioned_data: true
+          order_inserts: true
+          order_updates: true
   kafka:
     producer:
       bootstrap-servers: localhost:9092, localhost:9094
@@ -67,3 +72,9 @@ cache:
       block-size: 100
   minutes-ttl: 60
   minutes-version-ttl: 720
+
+debit:
+  pattern: 6900000000000000
+
+credit:
+  pattern: 7770000000000000
