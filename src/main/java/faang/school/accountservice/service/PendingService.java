@@ -66,7 +66,7 @@ public class PendingService {
         try {
             Account debitAccount = accountService.getAccountByNumber(clearingDto.getAccountNumber());
             Account replenishmentAccount = accountService
-                    .getAccountBuOwnerIdAndAccount(clearingDto.getRecipientId(), clearingDto.getCurrency());
+                    .getAccountByOwnerIdAndAccount(clearingDto.getRecipientId(), clearingDto.getCurrency());
 
             balanceService.clearingBalance(debitAccount.getBalance().getId(), clearingDto.getOperationId());
             balanceService.plusBalance(replenishmentAccount.getBalance().getId(),

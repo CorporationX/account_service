@@ -32,7 +32,7 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Number " + number + " not found"));
     }
 
-    public Account getAccountBuOwnerIdAndAccount(Long ownerId, Currency currency){
+    public Account getAccountByOwnerIdAndAccount(Long ownerId, Currency currency){
         return repository.findByOwnerIdAndCurrency(ownerId, currency)
                 .orElseThrow(()-> new IllegalArgumentException("Owner id " + ownerId + "is not correct"));
     }
