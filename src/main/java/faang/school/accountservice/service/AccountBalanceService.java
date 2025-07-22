@@ -2,28 +2,34 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountBalanceDto;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.event.BalanceChangeEvent;
 import faang.school.accountservice.mapper.AccountBalanceMapper;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountBalance;
+import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.model.TransactionType;
 import faang.school.accountservice.repository.AccountBalanceRepository;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountBalanceService {
     private final AccountBalanceRepository balanceRepository;
-    private final AccountRepository accountRepository;
     private final AccountBalanceMapper accountBalanceMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public AccountBalanceDto get(Long accountId) {
@@ -53,8 +59,12 @@ public class AccountBalanceService {
                     .actualBalance(BigDecimal.ZERO)
                     .currency(currency)
                     .build();
+
+            AccountBalance saved = balanceRepository.saveAndFlush(newAccountBalance);
             log.info("Successfully created new account balance: {}", newAccountBalance);
-            return accountBalanceMapper.toDto(balanceRepository.save(newAccountBalance));
+
+            eventPublisher.publishEvent(new BalanceChangeEvent(saved, UUID.randomUUID()));
+            return accountBalanceMapper.toDto(saved);
         }
         log.error("This account does not have an account number!");
         throw new IllegalArgumentException("This account does not have an account number!");
@@ -67,22 +77,40 @@ public class AccountBalanceService {
                 account.getId(), amount, currency, type);
 
         AccountBalance accountBalance = account.getBalance();
-        if (accountBalance.getCurrency().equals(currency)) {
-            if (type == TransactionType.OUTPUT && accountBalance.getActualBalance().compareTo(amount) < 0) {
-                log.info("Sufficient funds for transaction type: {}", type);
+        if (!accountBalance.getCurrency().equals(currency)) {
+            log.error("Currency mismatch: balance currency={} vs request currency={}",
+                    accountBalance.getCurrency(), currency);
+            throw new IllegalArgumentException("Your account balance currency does not match the transaction currency!");
+        }
+
+        switch (type) {
+            case OUTPUT -> {
+                if (accountBalance.getActualBalance().compareTo(amount) < 0) {
+                    log.error("Insufficient funds: available={}, required={}",
+                            accountBalance.getActualBalance(), amount);
+                    throw new IllegalArgumentException("Failed to update balance, insufficient funds!");
+                }
                 accountBalance.setActualBalance(accountBalance.getActualBalance().subtract(amount));
                 accountBalance.setAuthorizedBalance(accountBalance.getAuthorizedBalance().add(amount));
-                return accountBalanceMapper.toDto(balanceRepository.save(accountBalance));
+                log.info("OUTPUT applied: new actual={}, new authorized={}",
+                        accountBalance.getActualBalance(), accountBalance.getAuthorizedBalance());
             }
-            if (type == TransactionType.INPUT) {
-                log.info("Sufficient funds for transaction type: {}", type);
+            case INPUT -> {
                 accountBalance.setActualBalance(accountBalance.getActualBalance().add(amount));
-                return accountBalanceMapper.toDto(balanceRepository.save(accountBalance));
+                log.info("INPUT applied: new actual={}", accountBalance.getActualBalance());
             }
-            log.error("Failed to update balance, invalid transaction type or insufficient funds!");
-            throw new IllegalArgumentException("Failed to update balance, invalid transaction type or insufficient funds!");
+            default -> {
+                log.error("Unknown transaction type: {}", type);
+                throw new IllegalArgumentException("Failed to update balance, invalid transaction type!");
+            }
         }
-        log.info("Your account balance currency does not match the transaction currency!");
-        throw new IllegalArgumentException("Your account balance currency does not match the transaction currency!");
+        AccountBalance updated = balanceRepository.saveAndFlush(accountBalance);
+
+        UUID operationId = UUID.randomUUID();
+        eventPublisher.publishEvent(new BalanceChangeEvent(updated, operationId));
+        log.info("Audit record created [balanceId={}, version={}, operationId={}]",
+                updated.getId(), updated.getVersion(), operationId);
+
+        return accountBalanceMapper.toDto(updated);
     }
 }
