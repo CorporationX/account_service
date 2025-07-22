@@ -63,8 +63,7 @@ public class AccountBalanceService {
             AccountBalance saved = balanceRepository.saveAndFlush(newAccountBalance);
             log.info("Successfully created new account balance: {}", newAccountBalance);
 
-            UUID operationId = UUID.randomUUID();
-            eventPublisher.publishEvent(new BalanceChangeEvent(saved, operationId));
+            eventPublisher.publishEvent(new BalanceChangeEvent(saved, UUID.randomUUID()));
             return accountBalanceMapper.toDto(saved);
         }
         log.error("This account does not have an account number!");

@@ -42,11 +42,8 @@ public class BalanceAuditListener {
     }
 
     private void validateEvent(BalanceChangeEvent event) {
-        if (event == null) {
+        if (event == null || event.balance() == null) {
             throw new IllegalArgumentException("Event cannot be null");
-        }
-        if (event.balance() == null) {
-            throw new IllegalArgumentException("Balance cannot be null");
         }
         if (event.operationId() == null) {
             throw new IllegalArgumentException("Operation ID cannot be null");
