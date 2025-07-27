@@ -31,6 +31,8 @@ public class BalanceAudit {
     private Long id;
     @Column(name = "account_number", length = 20, nullable = false, unique = true, updatable = false)
     private String accountNumber;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
     @JoinColumn(name = "balance_version", nullable = false)
     private Long balanceVersion;
     @Column(name = "authorized_amount", precision = 30, scale = 10, nullable = false)

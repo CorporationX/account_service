@@ -39,6 +39,7 @@ public class BalanceAuditService {
         balanceAudit.setActualAmount(balance.getActualAmount());
         balanceAudit.setCreatedAt(LocalDateTime.now());
         balanceAudit.setBalanceVersion(balance.getVersion().longValue());
+        balanceAudit.setUserId(balance.getAccount().getUserId());
 
         return balanceAuditRepository.save(balanceAudit);
     }
