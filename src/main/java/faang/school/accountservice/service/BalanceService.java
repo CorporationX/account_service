@@ -47,6 +47,7 @@ public class BalanceService {
         account.setBalance(balance);
 
         balanceRepository.save(balance);
+
         return balanceMapper.toDto(balance);
     }
 

@@ -10,6 +10,7 @@ import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.FreeAccountNumberService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.*;
 public class AccountServiceTest {
     @Mock
     private AccountRepository repository;
+    @Mock
+    private FreeAccountNumberService numberService;
     @Spy
     private AccountMapperImpl mapper;
 
@@ -49,6 +52,7 @@ public class AccountServiceTest {
         AccountCreationDto dto = new AccountCreationDto(OwnerType.USER, 1, AccountType.DEPOSIT, Currency.USD);
         Account newAccount = mapper.toCreateEntity(dto);
         newAccount.setStatus(Status.ACTIVE);
+        newAccount.setNumber("7700000000000000");
         when(repository.save(any())).thenReturn(newAccount);
         AccountDto savedAcc = service.openAccount(dto);
         assertNotNull(savedAcc);

@@ -11,10 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
-
-import static faang.school.accountservice.utils.AccountUtil.generateNumber;
 
 @Data
 @Builder
@@ -30,8 +27,7 @@ public class Account {
     private long id;
 
     @Column(name = "number", length = 20, nullable = false, unique = true)
-    @Builder.Default
-    private String number = generateNumber();
+    private String number;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
