@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.annotation.BalanceAuditCreateAnnotation;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
@@ -22,6 +23,7 @@ public class AccountService {
     private final BalanceService balanceService;
 
     @Transactional
+    @BalanceAuditCreateAnnotation
     public Account createAccount(Account account) {
         String accountNumber = freeAccountNumbersService.generate();
 
