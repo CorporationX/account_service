@@ -8,10 +8,12 @@ import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BalanceAuditService {
 
     private final BalanceAuditRepository balanceAuditRepository;
@@ -26,6 +28,8 @@ public class BalanceAuditService {
         balanceAudit.setOperationId(requestDto.operationId());
 
         balanceAuditRepository.save(balanceAudit);
+
+        log.info("_____________________________________________________________________audit created, accountId: {}, operationId: {}", requestDto.accountId(), requestDto.operationId());
 
         return balanceAuditMapper.toDto(balanceAudit);
     }

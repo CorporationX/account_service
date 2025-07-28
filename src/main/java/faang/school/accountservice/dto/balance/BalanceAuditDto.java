@@ -6,7 +6,7 @@ public record BalanceAuditDto(
         String accountNumber,
         Double authBalance,
         Double actualBalance,
-        Long operationId,
+        String operationId,
         LocalDateTime createdAt
 ) {
 }

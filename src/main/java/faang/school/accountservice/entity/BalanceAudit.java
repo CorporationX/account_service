@@ -47,8 +47,8 @@ public class BalanceAudit {
     private BigDecimal actualBalance;
 
     @Setter
-    @Column(name = "operation_id", nullable = false)
-    private Long operationId;
+    @Column(name = "operation_id", nullable = false, length = 64)
+    private String operationId;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

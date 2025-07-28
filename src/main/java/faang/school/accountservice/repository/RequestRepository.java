@@ -24,4 +24,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     Optional<Request> findByIdForUpdate(Long id);
 
     List<Request> findAllByStatus(RequestStatus status);
+
+
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM requests WHERE value_lock = ?1 FOR UPDATE
+            """)
+    Optional<Request> findByValueLock(String value);
 }
