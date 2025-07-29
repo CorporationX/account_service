@@ -12,6 +12,7 @@ import faang.school.accountservice.randomizer.OperationRandomizer;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.utils.BalanceAuditHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +32,7 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceMapper mapper;
     private final AccountRepository accountRepository;
     private final RetryProperties retryProperties;
-    private final BalanceAuditMapper balanceAuditMapper;
-    private final BalanceAuditRepository balanceAuditRepository;
-    private final OperationRandomizer operationRandomizer;
+    private final BalanceAuditHandler balanceAuditHandler;
 
     @Override
     public BalanceDto getBalanceById(Long balanceId) {
@@ -69,12 +68,7 @@ public class BalanceServiceImpl implements BalanceService {
                     "Balance for Account with id %d already exists. Constraint violation: %s", accountId,
                     e.getMessage()));
         }
-        BalanceAudit balanceAudit = balanceAuditMapper.toBalanceAudit(balance);
-        balanceAudit.setId(null);
-        balanceAudit.setOperationId(operationRandomizer.randomOperationId());
-        balanceAuditRepository.save(balanceAudit);
-        log.info("BalanceAudit for balance with account number: {}, and operation id: {} was saved",
-                balance.getAccount().getNumber(), balanceAudit.getOperationId());
+        balanceAuditHandler.balanceAuditHandle(balance);
     }
 
     @Transactional
@@ -94,17 +88,9 @@ public class BalanceServiceImpl implements BalanceService {
         balanceRepository.save(balance);
         log.info("Balance with id {} successfully updated", balance.getId());
 
-        BalanceAudit balanceAudit = balanceAuditMapper.toBalanceAudit(balance);
-        balanceAudit.setId(null);
-        balanceAudit.setOperationId(operationRandomizer.randomOperationId());
-        Integer balanceVersion = balanceAudit.getVersion()+1;
-        balanceAudit.setVersion(balanceVersion);
-        balanceAuditRepository.save(balanceAudit);
-        log.info("BalanceAudit for balance with account number: {}, and operation id: {} was saved",
-                balance.getAccount().getNumber(), balanceAudit.getOperationId());
+        balanceAuditHandler.balanceAuditHandle(balance);
 
         return mapper.toDto(balance);
-
     }
 
     @Recover
