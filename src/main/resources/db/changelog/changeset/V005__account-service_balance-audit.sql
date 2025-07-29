@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXIST balance_audit (
     balance_id BIGINT NOT NULL,
     account_number varchar(20) NOT NULL
             CHECK (LENGTH(number) >= 12 AND LENGTH(number) <= 20),
-    version INTEGER NOT NULL,
+    balance_version INTEGER NOT NULL,
     authorization_balance DECIMAL(19, 4) NOT NULL,
     actual_balance DECIMAL(19, 4) NOT NULL,
     operation_id BIGINT NOT NULL,
