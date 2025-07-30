@@ -30,7 +30,7 @@ public class BalanceAudit {
     @Size(min = 12, max = 20)
     private String accountNumber;
 
-    @Column(name = "version", nullable = false, updatable = false)
+    @Column(name = "balance_version", nullable = false, updatable = false)
     private Integer balanceVersion;
 
     @Column(name = "authorization_balance", precision = 19, scale = 4, nullable = false, updatable = false)
