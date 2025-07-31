@@ -8,6 +8,7 @@ import faang.school.accountservice.exception.BalanceAlreadyExistsException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.utils.BalanceAuditHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceMapper mapper;
     private final AccountRepository accountRepository;
     private final RetryProperties retryProperties;
+    private final BalanceAuditHandler balanceAuditHandler;
 
     @Override
     public BalanceDto getBalanceById(Long balanceId) {
@@ -62,6 +64,7 @@ public class BalanceServiceImpl implements BalanceService {
                     "Balance for Account with id %d already exists. Constraint violation: %s", accountId,
                     e.getMessage()));
         }
+        balanceAuditHandler.balanceAuditHandle(balance);
     }
 
     @Transactional
@@ -81,8 +84,9 @@ public class BalanceServiceImpl implements BalanceService {
         balanceRepository.save(balance);
         log.info("Balance with id {} successfully updated", balance.getId());
 
-        return mapper.toDto(balance);
+        balanceAuditHandler.balanceAuditHandle(balance);
 
+        return mapper.toDto(balance);
     }
 
     @Recover

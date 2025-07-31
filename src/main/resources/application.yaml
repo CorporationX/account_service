@@ -32,6 +32,20 @@ logging:
   level:
     root: info
 
+account:
+  number:
+    generation:
+      individual:
+        min-free-numbers: 1000
+      business:
+        min-free-numbers: 1000
+      currency:
+        min-free-numbers: 1000
+      savings:
+        min-free-numbers: 1000
+      credit:
+        min-free-numbers: 1000
+
 scheduler:
   account-number:
     batch-size: 100

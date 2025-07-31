@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.ErrorResponseDto;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.AccountStateException;
 import faang.school.accountservice.exception.BalanceAlreadyExistsException;
+import faang.school.accountservice.exception.BalanceAuditHandlerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -64,5 +65,16 @@ public class ControllerExceptionHandler {
                 e.getMessage(),
                 LocalDateTime.now().format(formatter)
         );
+    }
+
+    @ExceptionHandler(BalanceAuditHandlerException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseDto handleBalanceAuditHandler (BalanceAuditHandlerException e) {
+        log.error("Balance audit handler Error",e);
+        return new ErrorResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                "Balance audit handler Error",
+                e.getMessage(),
+                LocalDateTime.now().format(formatter)
+                );
     }
 }
