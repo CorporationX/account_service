@@ -17,6 +17,10 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    group-id: account_service
+
 server:
   port: 8090
 
