@@ -1,7 +1,7 @@
 
 CREATE TYPE account_type AS ENUM (
   'PERSONAL',
-  'CHECKING_BUSINESS',
+  'BUSINESS',
   'FOREX',
   'SAVINGS'
 );
