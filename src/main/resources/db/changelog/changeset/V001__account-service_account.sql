@@ -1,1 +1,15 @@
--- Write your sql migration here!
+CREATE TABLE account(
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    account_number VARCHAR(20) NOT NULL CHECK (LENGTH(account_number) BETWEEN 12 AND 20) UNIQUE,
+    owner_type VARCHAR(32) NOT NULL,
+    owner_id BIGINT NOT NULL,
+    type VARCHAR(64) NOT NULL,
+    currency VARCHAR(32) NOT NULL,
+    status VARCHAR(32) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    closed_at TIMESTAMP NULL DEFAULT NULL,
+    version INT NOT NULL
+);
+
+CREATE INDEX owner_id_index ON account(id);
