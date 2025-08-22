@@ -47,7 +47,7 @@ public class Account {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;
 
@@ -55,7 +55,7 @@ public class Account {
     @Column(name = "currency", nullable = false)
     private Currency currency;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private AccountStatus status;
 
