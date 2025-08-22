@@ -33,11 +33,11 @@ public class Account {
     private Long id;
 
     @Column(name = "account_number", nullable = false, length = 20, unique = true)
-    private String account_number;
+    private String accountNumber;
 
     @Column(name = "owner_type", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private OwnerType owner_type;
+    private OwnerType type;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
@@ -52,7 +52,7 @@ public class Account {
 
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private AccountStatus status = AccountStatus.ACTIVE;
+    private AccountStatus status;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -71,11 +71,4 @@ public class Account {
     @Version
     @Column(name = "version")
     private Integer version = 1;
-
-    public void setStatus(AccountStatus status) {
-        this.status = status;
-        if (status == AccountStatus.CLOSED) {
-            this.closedAt = LocalDateTime.now();
-        }
-    }
 }
