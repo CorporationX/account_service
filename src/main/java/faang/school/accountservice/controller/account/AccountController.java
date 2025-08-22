@@ -2,6 +2,7 @@ package faang.school.accountservice.controller.account;
 
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,20 @@ public class AccountController {
     @PostMapping
     public AccountDto create(@RequestBody @Valid CreateAccountDto createAccountDto) {
         return accountService.create(createAccountDto);
+    }
+
+    @GetMapping("/{id}")
+    public AccountDto get(@PathVariable Long id) {
+        return accountService.getAccountById(id);
+    }
+
+    @PostMapping("{id}/block")
+    public AccountDto block(@PathVariable Long id) {
+        return accountService.updateAccountStatus(id, AccountStatus.FROZEN);
+    }
+
+    @PostMapping("{id}/close")
+    public AccountDto close(@PathVariable Long id) {
+        return accountService.updateAccountStatus(id, AccountStatus.CLOSED);
     }
 }
