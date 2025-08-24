@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  liquibase:
+    enabled: false
+
+account:
+  number:
+    formats:
+      PERSONAL:
+        prefix: 4200
+        counterDigits: 12
+      BUSINESS:
+        prefix: 5236
+        counterDigits: 12
+      SAVINGS:
+        prefix: 4300
+        counterDigits: 12
+      FOREX:
+        prefix: 5400
+        counterDigits: 12
