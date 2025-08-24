@@ -13,4 +13,4 @@ CREATE TABLE account
     version INT NOT NULL
 );
 
-CREATE INDEX owner_id_index ON account (id);
+CREATE INDEX owner_id_index ON account (owner_id);
