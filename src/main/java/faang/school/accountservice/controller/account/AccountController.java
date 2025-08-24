@@ -3,7 +3,7 @@ package faang.school.accountservice.controller.account;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

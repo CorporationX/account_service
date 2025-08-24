@@ -5,15 +5,11 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
-
 public record CreateAccountDto(
-        @NotNull
-        String accountNumber,
+        @NotNull String accountNumber,
         Long userId,
         Long projectId,
-        @NotNull
-        AccountType accountType,
-        @NotNull
-        Currency currency
+        @NotNull AccountType accountType,
+        @NotNull Currency currency,
+        AccountStatus accountStatus
 ) {}
