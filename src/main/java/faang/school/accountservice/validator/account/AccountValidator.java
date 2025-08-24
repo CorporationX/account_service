@@ -3,16 +3,29 @@ package faang.school.accountservice.validator.account;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.account.AccountOwnershipException;
 import faang.school.accountservice.exception.account.IllegalStatusTransitionException;
+import faang.school.accountservice.repository.AccountRepository;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AccountValidator {
+
+    private final AccountRepository accountRepository;
 
     public void validateCreate(@NonNull CreateAccountDto createAccountDto) {
         checkOwnership(createAccountDto);
+        checkDuplicateAccountNum(createAccountDto.accountNumber());
+    }
+
+    private void checkDuplicateAccountNum(@NonNull String accountNumber) {
+        if(accountRepository.existsByAccountNumber(accountNumber)){
+            throw new DataValidationException("AccountNumber must be unique");
+        }
     }
 
     public void validateStatusTransition(Account account, AccountStatus newStatus) {

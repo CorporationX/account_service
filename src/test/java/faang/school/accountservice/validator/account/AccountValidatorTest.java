@@ -5,15 +5,28 @@ import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.account.AccountOwnershipException;
 import faang.school.accountservice.exception.account.IllegalStatusTransitionException;
+import faang.school.accountservice.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class AccountValidatorTest {
 
-    private final AccountValidator validator = new AccountValidator();
+    @Mock
+    private AccountRepository accountRepository;
+
+    @InjectMocks
+    private AccountValidator validator;
 
     private CreateAccountDto newAccountDto(Long userId, Long projectId) {
         return new CreateAccountDto("123456789012",
@@ -48,6 +61,28 @@ class AccountValidatorTest {
     void validateCreateOkWhenOnlyProjectPresent() {
         assertDoesNotThrow(() -> validator.validateCreate(newAccountDto(null, 2L)));
     }
+
+    @Test
+    void validateCreateThrowsWhenAccountNumberAlreadyExists() {
+        CreateAccountDto dto = newAccountDto(1L, null);
+        when(accountRepository.existsByAccountNumber(dto.accountNumber())).thenReturn(true);
+
+        assertThrows(DataValidationException.class,
+                () -> validator.validateCreate(dto));
+
+        verify(accountRepository).existsByAccountNumber(dto.accountNumber());
+    }
+
+    @Test
+    void validateCreatePassesWhenAccountNumberIsUnique() {
+        CreateAccountDto dto = newAccountDto(1L, null);
+        when(accountRepository.existsByAccountNumber(dto.accountNumber())).thenReturn(false);
+
+        assertDoesNotThrow(() -> validator.validateCreate(dto));
+
+        verify(accountRepository).existsByAccountNumber(dto.accountNumber());
+    }
+
 
     @Test
     void validateStatusTransitionThrowsWhenSameStatus() {
