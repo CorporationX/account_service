@@ -17,6 +17,15 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+retry:
+  account:
+    close:
+      maxAttempts: 2
+      delay: 1000
+    block:
+      maxAttempts: 2
+      delay: 1000
+
 server:
   port: 8090
 

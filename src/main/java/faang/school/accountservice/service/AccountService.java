@@ -10,9 +10,12 @@ import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.validator.AccountValidator;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +76,9 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttemptsExpression = "${retry.account.block.maxAttempts}",
+            backoff = @Backoff(delayExpression = "${retry.account.block.delay}"))
     public void block(UUID id) {
         log.info("Blocking account by id={}", id);
         Account account = accountRepository.findById(id)
@@ -92,6 +98,9 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockException.class},
+            maxAttemptsExpression = "${retry.account.close.maxAttempts}",
+            backoff = @Backoff(delayExpression = "${retry.account.close.delay}"))
     public void close(UUID id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found by id={}", id));
