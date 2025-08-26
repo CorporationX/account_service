@@ -51,13 +51,13 @@ public class AccountController {
     }
 
     @Operation(summary = "Block account by id")
-    @PostMapping("{id}/block")
+    @PostMapping("/{id}/block")
     public AccountDto block(@PathVariable Long id) {
         return accountService.updateAccountStatus(id, AccountStatus.FROZEN);
     }
 
     @Operation(summary = "Close account by id")
-    @PostMapping("{id}/close")
+    @PostMapping("/{id}/close")
     public AccountDto close(@PathVariable Long id) {
         return accountService.updateAccountStatus(id, AccountStatus.CLOSED);
     }

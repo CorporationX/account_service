@@ -47,8 +47,11 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Retryable(
             retryFor = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, multiplier = 2)
+            maxAttemptsExpression = "${spring.retry.account-update.max-attempts}",
+            backoff = @Backoff(
+                    delayExpression = "${spring.retry.account-update.delay-ms}",
+                    multiplierExpression = "${spring.retry.account-update.multiplier}"
+            )
     )
     @Override
     public AccountDto updateAccountStatus(@NonNull Long id, @NonNull AccountStatus status) {

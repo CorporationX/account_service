@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
 
@@ -21,6 +22,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@TestPropertySource(properties = {
+        "spring.retry.account-update.max-attempts=3",
+        "spring.retry.account-update.delay-ms=10",
+        "spring.retry.account-update.multiplier=1.0"
+})
 @SpringBootTest
 class AccountServiceImplRetryTest {
 

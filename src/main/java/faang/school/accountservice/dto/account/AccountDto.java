@@ -16,6 +16,5 @@ public record AccountDto(
         AccountStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        LocalDateTime closedAt,
-        int version
+        LocalDateTime closedAt
 ) {}
