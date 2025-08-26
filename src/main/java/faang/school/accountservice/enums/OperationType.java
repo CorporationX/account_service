@@ -1,8 +1,10 @@
 package faang.school.accountservice.enums;
 
-public enum RequestType {
+public enum OperationType {
     CREATE,
     UPDATE,
     DELETE,
-    READ
+    TRANSFER,
+    WITHDRAW,
+    DEPOSIT
 }

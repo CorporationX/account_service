@@ -3,14 +3,16 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entity.account.Request;
 import faang.school.accountservice.enums.RequestStatus;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 public interface RequestService {
-    public void createRequest(Request request);
+    Request createRequest(Request request);
 
-    Request updateStatus(Long id, RequestStatus newStatus);
+    Optional<Request> findById(UUID idpToken);
 
-    Request updateFlag(Long id, boolean newFlag);
+    void updateStatus(UUID idpToken, RequestStatus status);
 
-    Request updateContext(Long id, String newContext);
-
-    Request getRequest(Long id) ;
+    void updateContext(UUID idpToken, Map<String, Object> context);
 }

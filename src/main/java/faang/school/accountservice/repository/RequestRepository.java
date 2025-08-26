@@ -1,7 +1,15 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.entity.account.Request;
+import faang.school.accountservice.enums.RequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RequestRepository extends JpaRepository<Request, Long> {
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface RequestRepository extends JpaRepository<Request, UUID> {
+
+    List<Request> findByStatus(RequestStatus status);
 }

@@ -1,13 +1,11 @@
 package faang.school.accountservice.entity.account;
 
+import faang.school.accountservice.enums.OperationType;
 import faang.school.accountservice.enums.RequestStatus;
-import faang.school.accountservice.enums.RequestType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -16,12 +14,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.validator.constraints.UUID;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -32,58 +30,41 @@ import java.util.Map;
 @Table(name = "request")
 public class Request {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "idp_token", columnDefinition = "uuid")
+    private UUID idpToken;
 
-    @Column(name = "request_uuid", nullable = false)
-    private UUID idempotencyToken;
-
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "request_type", nullable = false)
-    private RequestType requestType;
+    @Column(name = "operation_type", nullable = false)
+    private OperationType operationType;
 
-    @Column(name = "lock_value", nullable = false)
+    @Column(name = "lock_value")
     private String lockValue;
 
     @Column(name = "is_open", nullable = false)
-    private boolean isOpen;
+    private Boolean isOpen;
 
-    @Column(name = "request_data", columnDefinition = "JSON")
-    private Map<String, Object> requestData;
+    @Column(name = "input_data", columnDefinition = "jsonb")
+    @Type(JsonType.class)
+    private Map<String, Object> inputData;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private RequestStatus status;
 
-    @Column(name = "status_details", nullable = false)
+    @Column(name = "status_details")
     private String statusDetails;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Version
     @Column(name = "version", nullable = false)
-    private int version;
+    @Version
+    private Integer version;
 
-    public void updateStatus(RequestStatus newStatus, String details) {
-        this.status = newStatus;
-        this.statusDetails = details;
-        this.updatedAt = LocalDateTime.now();
-        this.version++;
-    }
-
-    public void closeRequest() {
-        this.isOpen = false;
-        this.updatedAt = LocalDateTime.now();
-        this.version++;
-    }
 }
