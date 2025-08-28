@@ -11,14 +11,19 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     @Query(nativeQuery = true,
             value = """
-                    DELETE FROM free_account_numbers fan
-                    WHERE fan.type = :type AND fan.account_number = (
-                        SELECT account_number
+                    WITH picked AS (
+                        SELECT type, account_number
                         FROM free_account_numbers
                         WHERE type = :type
+                        ORDER BY account_number
+                        FOR UPDATE SKIP LOCKED
                         LIMIT 1
                     )
-                    RETURNING fan.account_number, fan.type
-            """)
+                    DELETE FROM free_account_numbers f
+                    USING picked
+                    WHERE f.type = picked.type
+                      AND f.account_number = picked.account_number
+                    RETURNING f.type, f.account_number
+                    """)
     FreeAccountNumber retrieveFirst(String type);
 }
