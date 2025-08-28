@@ -44,22 +44,18 @@ public class AccountService {
         return mapper.toDto(newAccount);
     }
 
-
-    @Transactional(readOnly = true)
     public AccountDto findById(UUID id) {
         return accountRepository.findById(id)
                 .map(mapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found by id={}", id));
     }
 
-    @Transactional(readOnly = true)
     public AccountDto findByNumber(String number) {
         return accountRepository.findByNumber(number)
                 .map(mapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found by number={}", number));
     }
 
-    @Transactional(readOnly = true)
     public List<AccountDto> findByUserId(long userId) {
         accountValidator.validateOwner(userId);
         return accountRepository.findByUserId(userId).stream()
@@ -67,7 +63,6 @@ public class AccountService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<AccountDto> findByProjectId(long projectId) {
         accountValidator.validateOwner(projectId);
         return accountRepository.findByProjectId(projectId).stream()
