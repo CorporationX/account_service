@@ -3,7 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.account.AccountCreateDto;
 import faang.school.accountservice.dto.account.AccountUpdateDto;
 import faang.school.accountservice.dto.account.AccountViewDto;
-import faang.school.accountservice.service.AccountServiceImpl;
+import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/accounts")
 public class AccountController {
-    private final AccountServiceImpl service;
+    private final AccountService service;
 
     @PostMapping
     public ResponseEntity<AccountViewDto> createAccount(@RequestBody AccountCreateDto createDto) {
@@ -41,14 +41,9 @@ public class AccountController {
         return ResponseEntity.ok(service.getAccount(id));
     }
 
-    @PutMapping("/{id}/block")
-    public ResponseEntity<AccountViewDto> blockAccount(@PathVariable Long id,
+    @PutMapping("/{id}")
+    public ResponseEntity<AccountViewDto> changeAccountStatus(@PathVariable Long id,
                                                        @RequestBody AccountUpdateDto updateDto) {
-        return ResponseEntity.ok(service.blockAccount(id, updateDto));
-    }
-
-    @PutMapping("/{id}/close")
-    public ResponseEntity<AccountViewDto> closeAccount(@PathVariable Long id) {
-        return ResponseEntity.ok(service.closeAccount(id));
+        return ResponseEntity.ok(service.changeAccountStatus(id, updateDto));
     }
 }

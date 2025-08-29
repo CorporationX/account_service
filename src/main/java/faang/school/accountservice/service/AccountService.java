@@ -28,17 +28,9 @@ public interface AccountService {
     AccountViewDto getAccount(Long id);
 
     /**
-     * Заморозка счета
-     * @param id идентификатор счета
-     * @param updateDto параметры изменения статуса счета
-     * @return {@link AccountViewDto} замороженный счет
-     */
-    AccountViewDto blockAccount(Long id, AccountUpdateDto updateDto);
-
-    /**
      * Закрытие счета
      * @param id идентификатор счета
      * @return {@link AccountViewDto} закрытый счет
      */
-    AccountViewDto closeAccount(Long id);
+    AccountViewDto changeAccountStatus(Long id, AccountUpdateDto updateDto);
 }

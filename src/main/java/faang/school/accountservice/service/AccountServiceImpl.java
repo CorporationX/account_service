@@ -53,29 +53,17 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     @Retryable(retryFor = {ObjectOptimisticLockingFailureException.class}, maxAttempts = 3,
-    backoff = @Backoff(delay = 1000, multiplier = 2))
-    public AccountViewDto blockAccount(Long id, AccountUpdateDto updateDto) {
-        Account account = repository.findByIdOrThrow(id);
-        if (account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new ForbiddenException(String.format("Счет %s уже был закрыт.", account.getId()));
-        }
-        mapper.update(updateDto, account);
-        Account updatedAccount = repository.save(account);
-        return mapper.toViewDto(updatedAccount);
-    }
-
-    @Override
-    @Transactional
-    @Retryable(retryFor = {ObjectOptimisticLockingFailureException.class}, maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2))
-    public AccountViewDto closeAccount(Long id) {
+    public AccountViewDto changeAccountStatus(Long id, AccountUpdateDto updateDto) {
         Account account = repository.findByIdOrThrow(id);
         if (account.getStatus().equals(AccountStatus.CLOSED)) {
             throw new ForbiddenException(String.format("Счет %s уже был закрыт.", account.getId()));
         }
-        account.setStatus(AccountStatus.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
-        Account closedAccount = repository.save(account);
-        return mapper.toViewDto(closedAccount);
+        account.setStatus(updateDto.status());
+        if (updateDto.status().equals(AccountStatus.CLOSED)) {
+            account.setClosedAt(LocalDateTime.now());
+        }
+        repository.save(account);
+        return mapper.toViewDto(account);
     }
 }

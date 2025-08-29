@@ -3,6 +3,7 @@ package faang.school.accountservice.dto.account;
 import faang.school.accountservice.entity.account.AccountType;
 import faang.school.accountservice.entity.account.OwnerType;
 import faang.school.accountservice.enums.Currency;
+import lombok.Builder;
 
 /**
  * DTO для открытия нового счета
@@ -14,6 +15,7 @@ import faang.school.accountservice.enums.Currency;
  * @author mrnght
  * @since 22.08.2025
  */
+@Builder
 public record AccountCreateDto(
         OwnerType type,
         Long ownerId,
