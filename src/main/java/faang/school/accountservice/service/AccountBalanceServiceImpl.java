@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService {
+public class AccountBalanceServiceImpl implements AccountBalanceService {
 
     private final AccountBalanceRepository balanceRepository;
     private final BalanceAuditRepository auditRepository;
