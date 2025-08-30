@@ -91,7 +91,7 @@ public class FreeAccountNumberServiceImplIT {
         freeAccountNumbersRepository.save(new FreeAccountNumber(new FreeAccountId(TYPE, 1L)));
         freeAccountNumbersRepository.save(new FreeAccountNumber(new FreeAccountId(TYPE, 2L)));
 
-        freeAccountNumberService.retrieveAccountNumber(TYPE, freeAccountNumber -> {
+        freeAccountNumberService.retrieveAccountNumbers(TYPE, 1, freeAccountNumber -> {
         });
 
         List<FreeAccountNumber> allFreeNumbers = freeAccountNumbersRepository.findAll();
@@ -115,7 +115,7 @@ public class FreeAccountNumberServiceImplIT {
         assertEquals(0, countFreeNumbersForType());
         long counterBefore = getSequenceCounterForType();
 
-        freeAccountNumberService.retrieveAccountNumber(TYPE, n -> {
+        freeAccountNumberService.retrieveAccountNumbers(TYPE, 1, n -> {
         });
 
         assertEquals(0, countFreeNumbersForType());

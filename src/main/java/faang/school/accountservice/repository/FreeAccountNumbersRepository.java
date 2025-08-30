@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
@@ -17,7 +19,7 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
                         WHERE type = :type
                         ORDER BY account_number
                         FOR UPDATE SKIP LOCKED
-                        LIMIT 1
+                        LIMIT :limit
                     )
                     DELETE FROM free_account_numbers f
                     USING picked
@@ -25,5 +27,5 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
                       AND f.account_number = picked.account_number
                     RETURNING f.type, f.account_number
                     """)
-    FreeAccountNumber retrieveFirst(String type);
+    List<FreeAccountNumber> retrieveNumbers(String type, int limit);
 }

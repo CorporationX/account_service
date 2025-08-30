@@ -6,7 +6,7 @@ public final class DecimalPowers {
 
     private static final int DECIMAL_BASE = 10;
     private static final int MAX_SUPPORTED_EXPONENT = 18;
-    private static final int MIN_EXPONENT = 18;
+    private static final int MIN_EXPONENT = 0;
     private static final int POWERS_ARRAY_SIZE = MAX_SUPPORTED_EXPONENT + 1;
     private static final long[] POWERS_OF_TEN = new long[POWERS_ARRAY_SIZE];
 

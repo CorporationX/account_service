@@ -4,3 +4,5 @@ CREATE TABLE free_account_numbers (
 
     CONSTRAINT free_acc_pk PRIMARY KEY (type, account_number)
 );
+
+CREATE INDEX idx_free_acc_number ON free_account_numbers (account_number);

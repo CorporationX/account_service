@@ -25,7 +25,7 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumberGenerator accountNumberGenerator;
 
-    private static final int SINGLE_NUMBER_BATCH = 1;
+    private static final int MIN_BATCH_SIZE = 0;
 
     @Transactional
     @Override
@@ -44,16 +44,22 @@ public class FreeAccountNumberServiceImpl implements FreeAccountNumberService {
 
     @Transactional
     @Override
-    public void retrieveAccountNumber(AccountType accountType, Consumer<FreeAccountNumber> consumer) {
-        FreeAccountNumber number = freeAccountNumbersRepository.retrieveFirst(accountType.name());
-        if (number == null) {
-            AccountSequence sequence = accountNumbersSequenceRepository.incrementCounter(accountType.name(), SINGLE_NUMBER_BATCH);
-            long generated = accountNumberGenerator.generate(accountType, sequence.getInitialValue());
-            number = new FreeAccountNumber(new FreeAccountId(accountType, generated));
-            log.info("Generated account number {} for type {}", generated, accountType);
+    public void retrieveAccountNumbers(AccountType type, int batchSize, Consumer<List<FreeAccountNumber>> consumer) {
+        List<FreeAccountNumber> retrievedNumbers = new ArrayList<>(batchSize);
+        retrievedNumbers.addAll(freeAccountNumbersRepository.retrieveNumbers(type.name(), batchSize));
+        int remainingToGenerate = batchSize - retrievedNumbers.size();
+        if (remainingToGenerate > MIN_BATCH_SIZE) {
+            AccountSequence sequence = accountNumbersSequenceRepository.incrementCounter(type.name(), remainingToGenerate);
+            long startValue = sequence.getInitialValue();
+            long endValue = sequence.getCounter();
+            for (long currentValue = startValue; currentValue < endValue; currentValue++) {
+                long generatedNumber = accountNumberGenerator.generate(type, currentValue);
+                retrievedNumbers.add(new FreeAccountNumber(new FreeAccountId(type, generatedNumber)));
+            }
+            log.info("Generated {} new account numbers for type {}", remainingToGenerate, type);
         } else {
-            log.debug("Retrieved free account number {} for type {}", number.getId().getAccountNumber(), accountType);
+            log.debug("Retrieved {} free account numbers for type {}", retrievedNumbers.size(), type);
         }
-        consumer.accept(number);
+        consumer.accept(retrievedNumbers);
     }
 }
