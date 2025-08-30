@@ -14,19 +14,19 @@ public class PaymentListeners {
 
     private final AccountService accountService;
 
-    @KafkaListener(topics = "${app.kafka.topics.authorization}", groupId = "account-service")
+    @KafkaListener(topics = "${app.kafka.topics.authorization}", groupId = "account-service-group")
     public void handleAuthorization(PaymentMessageDto message) {
         log.info("Received AUTHORIZATION message: {}", message);
         accountService.processAuthorization(message);
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.cancel}", groupId = "account-service")
+    @KafkaListener(topics = "${app.kafka.topics.cancel}", groupId = "account-service-group")
     public void handleCancel(PaymentMessageDto message) {
         log.info("Received CANCEL message: {}", message);
         accountService.processCancel(message);
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.clearing}", groupId = "account-service")
+    @KafkaListener(topics = "${app.kafka.topics.clearing}", groupId = "account-service-group")
     public void handleClearing(PaymentMessageDto message) {
         log.info("Received CLEARING message: {}", message);
         accountService.processClearing(message);
