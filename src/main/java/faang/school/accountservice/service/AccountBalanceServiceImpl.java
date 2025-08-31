@@ -1,10 +1,13 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.context.UserContext;
-import faang.school.accountservice.model.dto.PaymentMessageDto;
 import faang.school.accountservice.exception.EntityNotFoundException;
+import faang.school.accountservice.mapper.AccountServiceMapper;
 import faang.school.accountservice.model.AccountBalance;
 import faang.school.accountservice.model.BalanceAudit;
+import faang.school.accountservice.model.dto.AccountBalanceDto;
+import faang.school.accountservice.model.dto.BalanceAuditDto;
+import faang.school.accountservice.model.dto.PaymentMessageDto;
 import faang.school.accountservice.repository.AccountBalanceRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +24,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
 
     private final AccountBalanceRepository balanceRepository;
     private final BalanceAuditRepository auditRepository;
+    private final AccountServiceMapper mapper;
     private final UserContext userContext;
 
     @Override
@@ -32,7 +36,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
         balance.setAvailable(oldAvailable.add(message.getAmount()));
         balanceRepository.save(balance);
 
-        auditRepository.save(BalanceAudit.builder()
+        BalanceAudit audit = BalanceAudit.builder()
                 .accountId(balance.getId())
                 .requestId(message.getIdempotencyToken())
                 .changeAmount(message.getAmount())
@@ -41,7 +45,9 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 .newBalance(balance.getAvailable())
                 .eventType("AUTHORIZATION")
                 .createdAt(LocalDateTime.now())
-                .build());
+                .build();
+
+        auditRepository.save(audit);
     }
 
     @Override
@@ -53,7 +59,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
         balance.setAvailable(oldAvailable.subtract(message.getAmount()));
         balanceRepository.save(balance);
 
-        auditRepository.save(BalanceAudit.builder()
+        BalanceAudit audit = BalanceAudit.builder()
                 .accountId(balance.getId())
                 .requestId(message.getIdempotencyToken())
                 .changeAmount(message.getAmount().negate())
@@ -62,7 +68,9 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 .newBalance(balance.getAvailable())
                 .eventType("CANCEL")
                 .createdAt(LocalDateTime.now())
-                .build());
+                .build();
+
+        auditRepository.save(audit);
     }
 
     @Override
@@ -70,7 +78,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     public void processClearing(PaymentMessageDto message) {
         AccountBalance balance = balanceRepository.getByIdOrThrow(message.getToAccountId());
 
-        auditRepository.save(BalanceAudit.builder()
+        BalanceAudit audit = BalanceAudit.builder()
                 .accountId(balance.getId())
                 .requestId(message.getIdempotencyToken())
                 .changeAmount(BigDecimal.ZERO)
@@ -79,21 +87,25 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 .newBalance(balance.getAvailable())
                 .eventType("CLEARING")
                 .createdAt(LocalDateTime.now())
-                .build());
+                .build();
+
+        auditRepository.save(audit);
     }
 
     @Override
     @Transactional
-    public AccountBalance getBalance(Long accountId) {
+    public AccountBalanceDto getBalance(Long accountId) {
         long userId = userContext.getUserId();
-        return balanceRepository.findByIdAndUserId(accountId, userId)
+        AccountBalance balance = balanceRepository.findByIdAndUserId(accountId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found for this user"));
+        return mapper.toDto(balance);
     }
 
     @Override
     @Transactional
-    public List<BalanceAudit> getAudit(Long accountId) {
+    public List<BalanceAuditDto> getAudit(Long accountId) {
         long userId = userContext.getUserId();
-        return auditRepository.getByAccountIdOrThrow(accountId, userId);
+        List<BalanceAudit> audits = auditRepository.getByAccountIdOrThrow(accountId, userId);
+        return mapper.toDtoList(audits);
     }
 }

@@ -1,5 +1,7 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.model.dto.AccountBalanceDto;
+import faang.school.accountservice.model.dto.BalanceAuditDto;
 import faang.school.accountservice.model.dto.PaymentMessageDto;
 import faang.school.accountservice.model.AccountBalance;
 import faang.school.accountservice.model.BalanceAudit;
@@ -52,7 +54,7 @@ public interface AccountBalanceService {
      * @param accountId идентификатор аккаунта
      * @return объект {@link AccountBalance} с текущими данными баланса
      */
-    AccountBalance getBalance(Long accountId);
+    AccountBalanceDto getBalance(Long accountId);
 
     /**
      * Возвращает историю изменений баланса (аудит) для указанного аккаунта.
@@ -60,5 +62,5 @@ public interface AccountBalanceService {
      * @param accountId идентификатор аккаунта
      * @return список объектов {@link BalanceAudit}, отсортированных по времени создания
      */
-    List<BalanceAudit> getAudit(Long accountId);
+    List<BalanceAuditDto> getAudit(Long accountId);
 }

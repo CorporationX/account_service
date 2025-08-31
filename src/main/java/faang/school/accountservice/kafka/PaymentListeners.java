@@ -24,7 +24,7 @@ public class PaymentListeners {
     /**
      * Сервис для работы с аккаунтами пользователя.
      */
-    private final AccountBalanceService accountBalanceService;
+    private final AccountBalanceService service;
 
     /**
      * Обрабатывает сообщения авторизации платежа.
@@ -35,7 +35,7 @@ public class PaymentListeners {
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleAuthorization(PaymentMessageDto message) {
         log.info("Received AUTHORIZATION message: {}", message);
-        accountBalanceService.processAuthorization(message);
+        service.processAuthorization(message);
     }
 
     /**
@@ -47,7 +47,7 @@ public class PaymentListeners {
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleCancel(PaymentMessageDto message) {
         log.info("Received CANCEL message: {}", message);
-        accountBalanceService.processCancel(message);
+        service.processCancel(message);
     }
 
     /**
@@ -59,6 +59,6 @@ public class PaymentListeners {
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleClearing(PaymentMessageDto message) {
         log.info("Received CLEARING message: {}", message);
-        accountBalanceService.processClearing(message);
+        service.processClearing(message);
     }
 }
