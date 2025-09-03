@@ -36,6 +36,9 @@ project-service:
   host: localhost
   port: 8082
 
+account-numbers:
+  size: 1000
+
 logging:
   level:
     root: info
