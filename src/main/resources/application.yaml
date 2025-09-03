@@ -25,6 +25,22 @@ retry:
     block:
       maxAttempts: 2
       delay: 1000
+    accrueInterest:
+      maxAttempts: 2
+      delay: 1000
+
+schedule:
+  cron:
+    interest: 0 0 9 * * ?
+
+thread-pool:
+  scheduled:
+    size: 2
+
+balance:
+  scale: 2
+  divideScale: 5
+  roundingMode: HALF_UP
 
 server:
   port: 8090

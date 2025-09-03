@@ -38,3 +38,15 @@ CREATE TABLE IF NOT EXISTS account
 CREATE INDEX IF NOT EXISTS account_user_id_idx ON account(user_id);
 CREATE INDEX IF NOT EXISTS account_project_id_idx ON account(project_id);
 CREATE INDEX IF NOT EXISTS account_number_idx ON account(number);
+
+CREATE TABLE IF NOT EXISTS savings_account
+(
+    account_id          UUID PRIMARY KEY UNIQUE,
+    balance             NUMERIC(18, 2) DEFAULT 0 NOT NULL,
+    last_interest_at    timestamptz,
+    created_at          timestamptz DEFAULT current_timestamp,
+    updated_at          timestamptz DEFAULT current_timestamp,
+    version             int DEFAULT 0 NOT NULL,
+
+    CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
+);

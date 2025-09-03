@@ -2,4 +2,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/test_V001_initial.sql
   - include:
-      file: db/changelog/changeset/test_V002_insert.sql
+      file: db/changelog/changeset/test_V002_tariff_init.sql
+  - include:
+      file: db/changelog/changeset/test_V003_insert.sql

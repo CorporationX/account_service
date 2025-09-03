@@ -2,13 +2,16 @@ package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.exception.EntityAlreadyBlockedException;
 import faang.school.accountservice.exception.EntityAlreadyClosedException;
+import faang.school.accountservice.exception.EntityAlreadyExistsException;
 import faang.school.accountservice.exception.EntityCancelledException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.exception.MoreOneOwnerException;
 import faang.school.accountservice.exception.NotResourceOwnerException;
 import faang.school.accountservice.exception.OwnerIdNotPresentException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import faang.school.accountservice.dto.Error;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +38,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(httpStatus)
                 .body(new Error(httpStatus.name(), e.getMessage()));
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Error handleConstraintViolation(ConstraintViolationException e) {
+        log.error(e.getMessage(), e);
+        return new Error(HttpStatus.BAD_REQUEST.name(), e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public Error handleEntityAlreadyExists(EntityAlreadyExistsException e) {
+        log.error(e.getMessage(), e);
+        return new Error(HttpStatus.BAD_REQUEST.name(), e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public Error handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        log.error(cause.getMessage(), cause);
+        return new Error(HttpStatus.CONFLICT.name(), cause.getMessage());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
