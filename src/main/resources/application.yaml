@@ -23,3 +23,13 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    batch:
+      size: 3
+    generate:
+      debit:
+        cron: reboot
+      credit:
+        cron: reboot
