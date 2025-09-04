@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 60000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+      show-sql: false
+      properties:
+        hibernate.format_sql: false
+        hibernate.jdbc.batch_size: 20
+        hibernate.order_inserts: true
+        hibernate.order_updates: true
+        hibernate.jdbc.batch_versioned_data: true
+    properties:
+      hibernate.connection.autocommit: false
+  transaction:
+    default-timeout: 30
+  test:
+    database:
+      replace: none
+  liquibase:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.transaction: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    faang.school.accountservice: DEBUG
