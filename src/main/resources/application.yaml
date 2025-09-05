@@ -37,7 +37,7 @@ project-service:
   port: 8082
 
 account-numbers:
-  size: 1000
+  size: 10
 
 logging:
   level:

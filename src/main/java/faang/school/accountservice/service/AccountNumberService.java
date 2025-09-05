@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.AccountNumber;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountNumberRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static faang.school.accountservice.entity.AccountNumber.Status.AVAILABLE;
 
 @Service
 @Slf4j
@@ -36,20 +39,33 @@ public class AccountNumberService {
                 .map(AccountNumber::getAccountNumber)
                 .collect(Collectors.toSet());
 
+        Set<AccountNumber> availableAccounts = accounts.stream()
+                .filter(account -> account.getStatus() == AVAILABLE)
+                .collect(Collectors.toSet());
 
-        while (accounts.size() < accountNumberSize) {
+        Set<String> result = new HashSet<>();
+
+        while (availableAccounts.size() < accountNumberSize) {
             StringBuffer stringBuffer = new StringBuffer(PREFIX);
             for (int i = 0; i < ACCOUNT_LENGTH; i++) {
                 stringBuffer.append(DIGITS.charAt(secureRandom.nextInt(DIGITS.length())));
             }
-
-            AccountNumber accountNumber = new AccountNumber();
-            accountNumber.setAccountNumber(stringBuffer.toString());
-            accountNumber.setType(PREFIX);
-
-            accounts.add(accountNumber);
+            boolean isAdded = accountNumbers.add(stringBuffer.toString());
+            if (isAdded) {
+                System.out.println(1);
+                result.add(stringBuffer.toString());
+            }
         }
 
-        accountNumberRepository.saveAll(accounts);
+        List<AccountNumber> newAccountNumbers = result.stream()
+                .map(accounNumber -> {
+                    AccountNumber newAccountNumber = new AccountNumber();
+                    newAccountNumber.setAccountNumber(accounNumber);
+                    newAccountNumber.setStatus(AVAILABLE);
+                    newAccountNumber.setType(PREFIX);
+                    return newAccountNumber;
+                }).toList();
+
+        accountNumberRepository.saveAll(newAccountNumbers);
     }
 }
