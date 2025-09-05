@@ -17,4 +17,5 @@ public class AccountBalanceDto {
     private BigDecimal available;
     private BigDecimal reserved;
     private String currency;
+    private Long version;
 }

@@ -1,6 +1,7 @@
 package faang.school.accountservice.model.dto;
 
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.PaymentMessageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,11 +16,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentMessageDto {
-
     private UUID idempotencyToken;
     private Long fromAccountId;
     private Long toAccountId;
     private BigDecimal amount;
     private Currency currency;
     private LocalDateTime scheduledAt;
+    private PaymentMessageType type;
 }

@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.enums.PaymentStages;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountServiceMapper;
 import faang.school.accountservice.model.AccountBalance;
@@ -18,6 +19,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Реализация сервиса работы с балансами для DMS:
+ * - Authorization: резервирует средства у плательщика (available -> reserved)
+ * - Cancel: возвращает резерв (reserved -> available)
+ * - Clearing: переводит резерв с плательщика получателю (reserved(payer) -> available(payee))
+ */
 @Service
 @RequiredArgsConstructor
 public class AccountBalanceServiceImpl implements AccountBalanceService {
@@ -30,10 +37,16 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Override
     @Transactional
     public void processAuthorization(PaymentMessageDto message) {
-        AccountBalance balance = balanceRepository.getByIdOrThrow(message.getToAccountId());
+        AccountBalance balance = balanceRepository.getByIdOrThrow(message.getFromAccountId());
         BigDecimal oldAvailable = balance.getAvailable();
+        BigDecimal oldReserved = balance.getReserved();
 
-        balance.setAvailable(oldAvailable.add(message.getAmount()));
+        if (oldAvailable.compareTo(message.getAmount()) < 0) {
+            throw new IllegalArgumentException("Недостаточно средств для авторизации");
+        }
+
+        balance.setAvailable(oldAvailable.subtract(message.getAmount()));
+        balance.setReserved(oldReserved.add(message.getAmount()));
         balanceRepository.save(balance);
 
         BalanceAudit audit = BalanceAudit.builder()
@@ -43,7 +56,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 .currency(balance.getCurrency())
                 .oldBalance(oldAvailable)
                 .newBalance(balance.getAvailable())
-                .eventType("AUTHORIZATION")
+                .eventType(PaymentStages.AUTHORIZED)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -53,10 +66,12 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Override
     @Transactional
     public void processCancel(PaymentMessageDto message) {
-        AccountBalance balance = balanceRepository.getByIdOrThrow(message.getToAccountId());
+        AccountBalance balance = balanceRepository.getByIdOrThrow(message.getFromAccountId());
         BigDecimal oldAvailable = balance.getAvailable();
+        BigDecimal oldReserved = balance.getReserved();
 
-        balance.setAvailable(oldAvailable.subtract(message.getAmount()));
+        balance.setAvailable(oldAvailable.add(message.getAmount()));
+        balance.setReserved(oldReserved.subtract(message.getAmount()));
         balanceRepository.save(balance);
 
         BalanceAudit audit = BalanceAudit.builder()
@@ -66,7 +81,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 .currency(balance.getCurrency())
                 .oldBalance(oldAvailable)
                 .newBalance(balance.getAvailable())
-                .eventType("CANCEL")
+                .eventType(PaymentStages.CANCELED)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -76,20 +91,43 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Override
     @Transactional
     public void processClearing(PaymentMessageDto message) {
-        AccountBalance balance = balanceRepository.getByIdOrThrow(message.getToAccountId());
+        AccountBalance payer = balanceRepository.getByIdOrThrow(message.getFromAccountId());
+        AccountBalance payee = balanceRepository.getByIdOrThrow(message.getToAccountId());
 
-        BalanceAudit audit = BalanceAudit.builder()
-                .accountId(balance.getId())
+        BigDecimal amount = message.getAmount();
+
+        BigDecimal oldPayerReserved = payer.getReserved();
+        BigDecimal oldPayeeAvailable = payee.getAvailable();
+
+        payer.setReserved(oldPayerReserved.subtract(amount));
+        balanceRepository.save(payer);
+
+        payee.setAvailable(oldPayeeAvailable.add(amount));
+        balanceRepository.save(payee);
+
+        BalanceAudit auditPayer = BalanceAudit.builder()
+                .accountId(payer.getId())
                 .requestId(message.getIdempotencyToken())
-                .changeAmount(BigDecimal.ZERO)
-                .currency(balance.getCurrency())
-                .oldBalance(balance.getAvailable())
-                .newBalance(balance.getAvailable())
-                .eventType("CLEARING")
+                .changeAmount(amount.negate())
+                .currency(payer.getCurrency())
+                .oldBalance(oldPayerReserved)
+                .newBalance(payer.getReserved())
+                .eventType(PaymentStages.CLEARED)
                 .createdAt(LocalDateTime.now())
                 .build();
+        auditRepository.save(auditPayer);
 
-        auditRepository.save(audit);
+        BalanceAudit auditPayee = BalanceAudit.builder()
+                .accountId(payee.getId())
+                .requestId(message.getIdempotencyToken())
+                .changeAmount(amount)
+                .currency(payee.getCurrency())
+                .oldBalance(oldPayeeAvailable)
+                .newBalance(payee.getAvailable())
+                .eventType(PaymentStages.CLEARED)
+                .createdAt(LocalDateTime.now())
+                .build();
+        auditRepository.save(auditPayee);
     }
 
     @Override
