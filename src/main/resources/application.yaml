@@ -34,3 +34,21 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    batch:
+      size: 10
+    formats:
+      PERSONAL:
+        prefix: "4200"
+        counterDigits: 12
+      BUSINESS:
+        prefix: "5236"
+        counterDigits: 12
+      FOREX:
+        prefix: "8600"
+        counterDigits: 12
+      SAVINGS:
+        prefix: "5336"
+        counterDigits: 12
