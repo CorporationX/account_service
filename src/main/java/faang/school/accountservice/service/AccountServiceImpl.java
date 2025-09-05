@@ -7,6 +7,7 @@ import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.exception.ClosedAccountOperationException;
 import faang.school.accountservice.exception.CreatorValidationException;
 import faang.school.accountservice.exception.OwnerValidationException;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -108,8 +109,7 @@ public class AccountServiceImpl implements AccountService {
         log.debug("Owner {} found, proceeding with the operation", ownerId);
     }
 
-    private void isAccountCreator(Long accountId) {
-        Account account = accountRepository.findByIdOrThrow(accountId);
+    private void isAccountCreator(Account account) {
         if (!account.getCreatedBy().equals(userContext.getUserId())) {
             throw new OwnerValidationException("Only account creators are allowed to alter account data");
         }
@@ -119,16 +119,23 @@ public class AccountServiceImpl implements AccountService {
     private boolean isAccountClosed(Long accountId) {
         Account account = accountRepository.findByIdOrThrow(accountId);
         if (account.getAccountStatus().equals(AccountStatus.CLOSED)) {
-            log.info("Account {} is closed and cannot be retrieved", accountId);
+            log.info("Account {} is closed and cannot be retrieved", account.getId());
             return true;
         }
         return false;
     }
 
+    private void isAccountClosed(Account account) {
+        if (account.getAccountStatus().equals(AccountStatus.CLOSED)) {
+            log.info("Account {} is closed and cannot be retrieved", account.getId());
+            throw new ClosedAccountOperationException("Account is closed and cannot be retrieved");
+        }
+    }
+
     private Account retrieveAndValidateAccount(Long accountId) {
         Account account = accountRepository.findByIdOrThrow(accountId);
-        isAccountClosed(accountId);
-        isAccountCreator(accountId);
+        isAccountClosed(account);
+        isAccountCreator(account);
         return account;
     }
 
