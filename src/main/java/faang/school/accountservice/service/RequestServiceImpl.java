@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -49,6 +50,42 @@ public class RequestServiceImpl implements RequestService {
         log.info("Создана заявка (new transaction) {} для пользователя {}, тип: {}",
                 saved.getId(), saved.getUserId(), requestType);
         return requestMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public void handleAuthorizationMessage(PaymentMessageDto message) {
+        UUID requestId = message.getIdempotencyToken();
+        try {
+            log.info("Обработка AUTHORIZATION для заявки {}", requestId);
+            updateStatus(requestId, PaymentStages.AUTHORIZED, "Платеж авторизован");
+        } catch (IllegalArgumentException ex) {
+            log.warn("Заявка не найдена для AUTHORIZATION: {}", requestId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handleCancelMessage(PaymentMessageDto message) {
+        UUID requestId = message.getIdempotencyToken();
+        try {
+            log.info("Обработка CANCEL для заявки {}", requestId);
+            updateStatus(requestId, PaymentStages.CANCELED, "Платеж отменен");
+        } catch (IllegalArgumentException ex) {
+            log.warn("Заявка не найдена для CANCEL: {}", requestId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handleClearingMessage(PaymentMessageDto message) {
+        UUID requestId = message.getIdempotencyToken();
+        try {
+            log.info("Обработка CLEARING для заявки {}", requestId);
+            updateStatus(requestId, PaymentStages.CLEARED, "Клиринг проведён");
+        } catch (IllegalArgumentException ex) {
+            log.warn("Заявка не найдена для CLEARING: {}", requestId);
+        }
     }
 
     @Override
@@ -112,11 +149,13 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Map<String, Object> buildInputData(PaymentMessageDto message) {
-        return Map.of(
-                "toAccountId", message.getToAccountId(),
-                "amount", message.getAmount(),
-                "currency", message.getCurrency(),
-                "scheduledAt", message.getScheduledAt()
-        );
+        Map<String, Object> map = new HashMap<>();
+        map.put("toAccountId", message.getToAccountId());
+        map.put("amount", message.getAmount());
+        map.put("currency", message.getCurrency());
+        if (message.getScheduledAt() != null) {
+            map.put("scheduledAt", message.getScheduledAt());
+        }
+        return map;
     }
 }

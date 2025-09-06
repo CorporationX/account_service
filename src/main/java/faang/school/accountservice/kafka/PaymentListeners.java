@@ -2,6 +2,7 @@ package faang.school.accountservice.kafka;
 
 import faang.school.accountservice.model.dto.PaymentMessageDto;
 import faang.school.accountservice.service.AccountBalanceService;
+import faang.school.accountservice.service.RequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -26,6 +27,8 @@ public class PaymentListeners {
      */
     private final AccountBalanceService service;
 
+    private final RequestService requestService;
+
     /**
      * Обрабатывает сообщения авторизации платежа.
      *
@@ -36,6 +39,7 @@ public class PaymentListeners {
     public void handleAuthorization(PaymentMessageDto message) {
         log.info("Получено сообщение AUTHORIZATION: {}", message);
         service.processAuthorization(message);
+        requestService.handleAuthorizationMessage(message);
     }
 
     /**
@@ -48,6 +52,7 @@ public class PaymentListeners {
     public void handleCancel(PaymentMessageDto message) {
         log.info("Получено сообщение CANCEL: {}", message);
         service.processCancel(message);
+        requestService.handleCancelMessage(message);
     }
 
     /**
@@ -60,5 +65,6 @@ public class PaymentListeners {
     public void handleClearing(PaymentMessageDto message) {
         log.info("Получено сообщение CLEARING: {}", message);
         service.processClearing(message);
+        requestService.handleClearingMessage(message);
     }
 }

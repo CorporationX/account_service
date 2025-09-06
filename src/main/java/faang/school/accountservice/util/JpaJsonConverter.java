@@ -3,6 +3,8 @@ package faang.school.accountservice.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
@@ -11,16 +13,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Конвертер Map<String, Object> <-> JSON для JPA
+ * Конвертер Map<String, Object> <-> JSON для JPA с поддержкой LocalDateTime
  */
 @Converter(autoApply = true)
 public class JpaJsonConverter implements AttributeConverter<Map<String, Object>, String> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+
+    public JpaJsonConverter() {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     @Override
     public String convertToDatabaseColumn(Map<String, Object> attribute) {
-        if (attribute == null) return null;
+        if (attribute == null) {
+            return null;
+        }
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
@@ -30,7 +40,9 @@ public class JpaJsonConverter implements AttributeConverter<Map<String, Object>,
 
     @Override
     public Map<String, Object> convertToEntityAttribute(String dbData) {
-        if (dbData == null || dbData.isEmpty()) return new HashMap<>();
+        if (dbData == null || dbData.isEmpty()) {
+            return new HashMap<>();
+        }
         try {
             return objectMapper.readValue(dbData, Map.class);
         } catch (IOException e) {

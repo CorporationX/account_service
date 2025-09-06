@@ -61,8 +61,6 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Transactional
     public void processCancel(PaymentMessageDto message) {
         try {
-            createRequestSafe(message, PaymentMessageType.CANCEL);
-
             AccountBalance balance = balanceRepository.getByIdOrThrow(message.getFromAccountId());
             updateBalance(balance, message.getAmount(), PaymentStages.CANCELED, message);
             log.info("Отмена прошла для аккаунта {} на сумму {} {}", balance.getId(), message.getAmount(), balance.getCurrency());
@@ -77,8 +75,6 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Transactional
     public void processClearing(PaymentMessageDto message) {
         try {
-            createRequestSafe(message, PaymentMessageType.CLEARING);
-
             AccountBalance payer = balanceRepository.getByIdOrThrow(message.getFromAccountId());
             AccountBalance payee = balanceRepository.getByIdOrThrow(message.getToAccountId());
             BigDecimal amount = message.getAmount();

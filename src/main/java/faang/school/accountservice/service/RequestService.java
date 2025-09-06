@@ -18,4 +18,25 @@ public interface RequestService {
     List<RequestDto> findPendingRequestsToClear();
 
     RequestDto createRequestNewTransaction(PaymentMessageDto message, PaymentMessageType requestType, String lockValue);
+
+    /**
+     * Обновляет заявку при получении сообщения авторизации платежа.
+     *
+     * @param message DTO с информацией о платеже
+     */
+    void handleAuthorizationMessage(PaymentMessageDto message);
+
+    /**
+     * Обновляет заявку при получении сообщения отмены платежа.
+     *
+     * @param message DTO с информацией о платеже
+     */
+    void handleCancelMessage(PaymentMessageDto message);
+
+    /**
+     * Обновляет заявку при получении сообщения клиринга (списание платежа).
+     *
+     * @param message DTO с информацией о платеже
+     */
+    void handleClearingMessage(PaymentMessageDto message);
 }

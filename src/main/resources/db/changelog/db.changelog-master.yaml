@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V004_create_request.sql
   - include:
      file: db/changelog/changeset/V005_create_column_comment.sql
+  - include:
+     file: db/changelog/changeset/V006_rename_column_request.sql

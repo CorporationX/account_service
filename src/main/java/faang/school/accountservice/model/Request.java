@@ -1,15 +1,12 @@
 package faang.school.accountservice.model;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import faang.school.accountservice.enums.PaymentMessageType;
 import faang.school.accountservice.enums.PaymentStages;
-import faang.school.accountservice.util.JpaJsonConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -20,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -56,8 +54,8 @@ public class Request {
     @Column(name = "is_open", nullable = false)
     private Boolean isOpen = true;
 
+    @Type(JsonBinaryType.class)
     @Column(name = "input_data", columnDefinition = "jsonb")
-    @Convert(converter = JpaJsonConverter.class)
     private Map<String, Object> inputData;
 
     @Column(name = "status", nullable = false)
