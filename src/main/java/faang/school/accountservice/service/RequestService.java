@@ -16,4 +16,6 @@ public interface RequestService {
     RequestDto getRequest(UUID requestId);
 
     List<RequestDto> findPendingRequestsToClear();
+
+    RequestDto createRequestNewTransaction(PaymentMessageDto message, PaymentMessageType requestType, String lockValue);
 }

@@ -10,6 +10,7 @@ import faang.school.accountservice.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,6 +29,27 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public RequestDto createRequestNewTransaction(PaymentMessageDto message, PaymentMessageType requestType, String lockValue) {
+        Map<String, Object> inputData = buildInputData(message);
+
+        Request request = Request.builder()
+                .id(message.getIdempotencyToken())
+                .userId(message.getFromAccountId())
+                .requestType(requestType)
+                .lockValue(lockValue)
+                .isOpen(true)
+                .status(PaymentStages.PENDING)
+                .inputData(inputData)
+                .build();
+
+        Request saved = requestRepository.save(request);
+        log.info("Создана заявка (new transaction) {} для пользователя {}, тип: {}",
+                saved.getId(), saved.getUserId(), requestType);
+        return requestMapper.toDto(saved);
+    }
 
     @Override
     @Transactional

@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.enums.PaymentMessageType;
 import faang.school.accountservice.enums.PaymentStages;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.kafka.AccountProducer;
@@ -10,23 +11,19 @@ import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.model.dto.AccountBalanceDto;
 import faang.school.accountservice.model.dto.BalanceAuditDto;
 import faang.school.accountservice.model.dto.PaymentMessageDto;
+import faang.school.accountservice.service.RequestService;
 import faang.school.accountservice.repository.AccountBalanceRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Сервис работы с балансами.
- * <p>
- * Методы реализуют логику авторизации, отмены и клиринга платежей.
- * Аудит всех изменений сохраняется в BalanceAudit.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,11 +34,14 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     private final AccountServiceMapper mapper;
     private final UserContext userContext;
     private final AccountProducer accountProducer;
+    private final RequestService requestService;
 
     @Override
     @Transactional
     public void processAuthorization(PaymentMessageDto message) {
         try {
+            createRequestSafe(message, PaymentMessageType.AUTHORIZATION);
+
             AccountBalance balance = balanceRepository.getByIdOrThrow(message.getFromAccountId());
             if (balance.getAvailable().compareTo(message.getAmount()) < 0) {
                 handleFailure(message, "Недостаточно средств для авторизации");
@@ -49,8 +49,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
             }
 
             updateBalance(balance, message.getAmount(), PaymentStages.AUTHORIZED, message);
-            log.info("Авторизация прошла для аккаунта {} на сумму {} {}",
-                    balance.getId(), message.getAmount(), balance.getCurrency());
+            log.info("Авторизация прошла для аккаунта {} на сумму {} {}", balance.getId(), message.getAmount(), balance.getCurrency());
 
         } catch (Exception ex) {
             log.error("Ошибка авторизации платежа: {}", message, ex);
@@ -62,10 +61,11 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Transactional
     public void processCancel(PaymentMessageDto message) {
         try {
+            createRequestSafe(message, PaymentMessageType.CANCEL);
+
             AccountBalance balance = balanceRepository.getByIdOrThrow(message.getFromAccountId());
             updateBalance(balance, message.getAmount(), PaymentStages.CANCELED, message);
-            log.info("Отмена прошла для аккаунта {} на сумму {} {}",
-                    balance.getId(), message.getAmount(), balance.getCurrency());
+            log.info("Отмена прошла для аккаунта {} на сумму {} {}", balance.getId(), message.getAmount(), balance.getCurrency());
 
         } catch (Exception ex) {
             log.error("Ошибка отмены платежа: {}", message, ex);
@@ -77,6 +77,8 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     @Transactional
     public void processClearing(PaymentMessageDto message) {
         try {
+            createRequestSafe(message, PaymentMessageType.CLEARING);
+
             AccountBalance payer = balanceRepository.getByIdOrThrow(message.getFromAccountId());
             AccountBalance payee = balanceRepository.getByIdOrThrow(message.getToAccountId());
             BigDecimal amount = message.getAmount();
@@ -86,14 +88,21 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 return;
             }
 
-            updateBalance(payer, amount.negate(), PaymentStages.CLEARED, message); // снимаем резерв
-            updateBalance(payee, amount, PaymentStages.CLEARED, message); // добавляем получателю
-            log.info("Клиринг проведён: {} → {} сумма {} {}",
-                    payer.getId(), payee.getId(), amount, payer.getCurrency());
+            updateBalance(payer, amount.negate(), PaymentStages.CLEARED, message);
+            updateBalance(payee, amount, PaymentStages.CLEARED, message);
+            log.info("Клиринг проведён: {} → {} сумма {} {}", payer.getId(), payee.getId(), amount, payer.getCurrency());
 
         } catch (Exception ex) {
             log.error("Ошибка клиринга платежа: {}", message, ex);
             handleFailure(message, ex.getMessage());
+        }
+    }
+
+    private void createRequestSafe(PaymentMessageDto message, PaymentMessageType type) {
+        try {
+            requestService.createRequestNewTransaction(message, type, "lock-" + message.getIdempotencyToken());
+        } catch (Exception ex) {
+            log.error("Ошибка при создании заявки для платежа {}: {}", message.getIdempotencyToken(), ex.getMessage(), ex);
         }
     }
 
@@ -111,9 +120,8 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                 balance.setReserved(oldReserved.subtract(change));
             }
             case CLEARED -> {
-                // для клиринга change может быть отрицательным для payer
                 if (change.signum() < 0) {
-                    balance.setReserved(oldReserved.add(change)); // change отрицательный
+                    balance.setReserved(oldReserved.add(change));
                 } else {
                     balance.setAvailable(oldAvailable.add(change));
                 }
@@ -165,8 +173,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
             accountProducer.sendFailed(message);
             log.info("Отправлено сообщение FAILED для платежа {}: {}", message.getIdempotencyToken(), reason);
         } catch (Exception ex) {
-            log.error("Ошибка при обработке FAILED для платежа {}: {}, причина: {}",
-                    message.getIdempotencyToken(), reason, ex.getMessage(), ex);
+            log.error("Ошибка при обработке FAILED для платежа {}: {}, причина: {}", message.getIdempotencyToken(), reason, ex);
         }
     }
 

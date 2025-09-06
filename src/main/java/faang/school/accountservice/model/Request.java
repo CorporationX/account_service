@@ -41,7 +41,6 @@ import java.util.UUID;
 public class Request {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
