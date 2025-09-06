@@ -25,6 +25,12 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Сущность заявки на платёжную операцию.
+ * <p>
+ * Фиксирует параметры запроса, его тип, статус и служебную информацию
+ * для контроля жизненного цикла (от PENDING до завершённых состояний).
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

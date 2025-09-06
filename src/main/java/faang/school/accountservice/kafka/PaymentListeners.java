@@ -34,7 +34,7 @@ public class PaymentListeners {
     @KafkaListener(topics = "${app.kafka.topics.authorization}",
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleAuthorization(PaymentMessageDto message) {
-        log.info("Received AUTHORIZATION message: {}", message);
+        log.info("Получено сообщение AUTHORIZATION: {}", message);
         service.processAuthorization(message);
     }
 
@@ -46,7 +46,7 @@ public class PaymentListeners {
     @KafkaListener(topics = "${app.kafka.topics.cancel}",
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleCancel(PaymentMessageDto message) {
-        log.info("Received CANCEL message: {}", message);
+        log.info("Получено сообщение CANCEL: {}", message);
         service.processCancel(message);
     }
 
@@ -58,7 +58,7 @@ public class PaymentListeners {
     @KafkaListener(topics = "${app.kafka.topics.clearing}",
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleClearing(PaymentMessageDto message) {
-        log.info("Received CLEARING message: {}", message);
+        log.info("Получено сообщение CLEARING: {}", message);
         service.processClearing(message);
     }
 }

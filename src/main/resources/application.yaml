@@ -29,6 +29,7 @@ app:
       authorization: payment-authorization-requests
       cancel: payment-cancel-requests
       clearing: payment-clearing-requests
+      failed: payment-failed-requests
 
 server:
   port: 8090

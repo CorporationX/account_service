@@ -1,0 +1,1 @@
+ALTER TABLE balance_audit ADD COLUMN comment VARCHAR(512);

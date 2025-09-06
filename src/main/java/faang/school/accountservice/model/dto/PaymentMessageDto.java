@@ -1,7 +1,8 @@
 package faang.school.accountservice.model.dto;
 
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.PaymentMessageType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,11 +17,22 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentMessageDto {
+
+    @NotNull(message = "Idempotency token обязателен")
     private UUID idempotencyToken;
+
+    @NotNull(message = "fromAccountId обязателен")
     private Long fromAccountId;
+
+    @NotNull(message = "toAccountId обязателен")
     private Long toAccountId;
+
+    @NotNull(message = "amount обязателен")
+    @Positive(message = "Сумма должна быть больше нуля")
     private BigDecimal amount;
-    private Currency currency;
+
+    @NotBlank(message = "currency обязателен")
+    private String currency;
+
     private LocalDateTime scheduledAt;
-    private PaymentMessageType type;
 }

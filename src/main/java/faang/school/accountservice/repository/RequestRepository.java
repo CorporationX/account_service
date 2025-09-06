@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface RequestRepository extends JpaRepository<Request, UUID> {
 
     List<Request> findByIsOpenAndStatus(boolean b, PaymentStages paymentStages);
+
+    List<Request> findByStatus(PaymentStages status);
 }

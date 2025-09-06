@@ -47,6 +47,9 @@ public class BalanceAudit {
     @Column(name = "change_amount", nullable = false)
     private BigDecimal changeAmount;
 
+    @Column(name = "comment", length = 512)
+    private String comment;
+
     @Column(name = "currency", length = 3, nullable = false)
     private String currency;
 
