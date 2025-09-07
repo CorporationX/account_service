@@ -43,7 +43,7 @@ public class AccountController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AccountViewDto> changeAccountStatus(@PathVariable Long id,
-                                                       @RequestBody AccountUpdateDto updateDto) {
+                                                              @RequestBody AccountUpdateDto updateDto) {
         return ResponseEntity.ok(service.changeAccountStatus(id, updateDto));
     }
 }

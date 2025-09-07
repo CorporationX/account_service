@@ -14,6 +14,12 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Конфигурационный класс для настройки Kafka Producer в приложении.
+ * <p>
+ * Определяет бины {@link KafkaTemplate} и {@link ProducerFactory} для отправки сообщений типа {@link PaymentMessageDto}.
+ * Настройки включают указание серверов Kafka, сериализаторы ключей и значений, а также поддержку идемпотентной отправки сообщений.
+ */
 @Configuration
 public class KafkaProducerConfig {
 

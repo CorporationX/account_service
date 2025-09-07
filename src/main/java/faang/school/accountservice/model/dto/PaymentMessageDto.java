@@ -12,6 +12,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * DTO, представляющий платежное сообщение.
+ * <p>
+ * Используется для передачи информации о платеже между сервисами.
+ */
 @Data
 @Builder
 @NoArgsConstructor

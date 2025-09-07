@@ -19,7 +19,7 @@ public class RequestDto {
     private String requestType;
     private String lockValue;
     private boolean isOpen;
-    private Map<String,Object> inputData;
+    private Map<String, Object> inputData;
     private String status;
     private String statusDetails;
     private LocalDateTime createdAt;

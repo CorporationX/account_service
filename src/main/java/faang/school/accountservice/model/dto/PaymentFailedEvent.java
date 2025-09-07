@@ -6,6 +6,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+/**
+ * Событие, которое публикуется при неудачной обработке платежа (FAILED).
+ * <p>
+ * Содержит информацию о заявке, DTO платежа и причине ошибки.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

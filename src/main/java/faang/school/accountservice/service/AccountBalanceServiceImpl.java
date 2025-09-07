@@ -4,7 +4,6 @@ import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.enums.PaymentMessageType;
 import faang.school.accountservice.enums.PaymentStages;
 import faang.school.accountservice.exception.EntityNotFoundException;
-import faang.school.accountservice.kafka.AccountProducer;
 import faang.school.accountservice.mapper.AccountServiceMapper;
 import faang.school.accountservice.model.AccountBalance;
 import faang.school.accountservice.model.BalanceAudit;
