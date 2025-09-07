@@ -56,11 +56,28 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public void handleAuthorizationMessage(PaymentMessageDto message) {
         UUID requestId = message.getIdempotencyToken();
+        RequestDto request = requestRepository.findById(requestId)
+                .map(requestMapper::toDto)
+                .orElse(null);
+
+        if (request == null) {
+            log.warn("Заявка не найдена для AUTHORIZATION: {}", requestId);
+            return;
+        }
+
+        PaymentStages status = PaymentStages.valueOf(request.getStatus());
+        if (PaymentStages.FAILED.equals(status)
+            || PaymentStages.CLEARED.equals(status)
+            || PaymentStages.CANCELED.equals(status)) {
+            log.warn("Заявка {} в финальном статусе {}, пропускаем AUTHORIZATION", requestId, status);
+            return;
+        }
+
         try {
             log.info("Обработка AUTHORIZATION для заявки {}", requestId);
             updateStatus(requestId, PaymentStages.AUTHORIZED, "Платеж авторизован");
-        } catch (IllegalArgumentException ex) {
-            log.warn("Заявка не найдена для AUTHORIZATION: {}", requestId);
+        } catch (Exception ex) {
+            log.error("Ошибка при обработке AUTHORIZATION для заявки {}: {}", requestId, ex.getMessage(), ex);
         }
     }
 
@@ -68,11 +85,28 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public void handleCancelMessage(PaymentMessageDto message) {
         UUID requestId = message.getIdempotencyToken();
+        RequestDto request = requestRepository.findById(requestId)
+                .map(requestMapper::toDto)
+                .orElse(null);
+
+        if (request == null) {
+            log.warn("Заявка не найдена для CANCEL: {}", requestId);
+            return;
+        }
+
+        PaymentStages status = PaymentStages.valueOf(request.getStatus());
+        if (PaymentStages.FAILED.equals(status)
+            || PaymentStages.CLEARED.equals(status)
+            || PaymentStages.CANCELED.equals(status)) {
+            log.warn("Заявка {} в финальном статусе {}, пропускаем CANCEL", requestId, status);
+            return;
+        }
+
         try {
             log.info("Обработка CANCEL для заявки {}", requestId);
             updateStatus(requestId, PaymentStages.CANCELED, "Платеж отменен");
-        } catch (IllegalArgumentException ex) {
-            log.warn("Заявка не найдена для CANCEL: {}", requestId);
+        } catch (Exception ex) {
+            log.error("Ошибка при обработке CANCEL для заявки {}: {}", requestId, ex.getMessage(), ex);
         }
     }
 
@@ -80,11 +114,28 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public void handleClearingMessage(PaymentMessageDto message) {
         UUID requestId = message.getIdempotencyToken();
+        RequestDto request = requestRepository.findById(requestId)
+                .map(requestMapper::toDto)
+                .orElse(null);
+
+        if (request == null) {
+            log.warn("Заявка не найдена для CLEARING: {}", requestId);
+            return;
+        }
+
+        PaymentStages status = PaymentStages.valueOf(request.getStatus());
+        if (PaymentStages.FAILED.equals(status)
+            || PaymentStages.CLEARED.equals(status)
+            || PaymentStages.CANCELED.equals(status)) {
+            log.warn("Заявка {} в финальном статусе {}, пропускаем CLEARING", requestId, status);
+            return;
+        }
+
         try {
             log.info("Обработка CLEARING для заявки {}", requestId);
             updateStatus(requestId, PaymentStages.CLEARED, "Клиринг проведён");
-        } catch (IllegalArgumentException ex) {
-            log.warn("Заявка не найдена для CLEARING: {}", requestId);
+        } catch (Exception ex) {
+            log.error("Ошибка при обработке CLEARING для заявки {}: {}", requestId, ex.getMessage(), ex);
         }
     }
 
@@ -109,7 +160,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RequestDto updateStatus(UUID requestId, PaymentStages newStatus, String statusDetails) {
         Request request = getRequestOrThrow(requestId);
         request.setStatus(newStatus);

@@ -10,15 +10,15 @@ import faang.school.accountservice.model.AccountBalance;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.model.dto.AccountBalanceDto;
 import faang.school.accountservice.model.dto.BalanceAuditDto;
+import faang.school.accountservice.model.dto.PaymentFailedEvent;
 import faang.school.accountservice.model.dto.PaymentMessageDto;
-import faang.school.accountservice.service.RequestService;
 import faang.school.accountservice.repository.AccountBalanceRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,7 +33,7 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
     private final BalanceAuditRepository auditRepository;
     private final AccountServiceMapper mapper;
     private final UserContext userContext;
-    private final AccountProducer accountProducer;
+    private final ApplicationEventPublisher eventPublisher;
     private final RequestService requestService;
 
     @Override
@@ -166,8 +166,13 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                     .build();
             auditRepository.save(audit);
 
-            accountProducer.sendFailed(message);
-            log.info("Отправлено сообщение FAILED для платежа {}: {}", message.getIdempotencyToken(), reason);
+            eventPublisher.publishEvent(new PaymentFailedEvent(
+                    message.getIdempotencyToken(),
+                    message,
+                    reason
+            ));
+
+            log.info("FAILED обработан для платежа {}: {}, статус реквеста и аудит обновлены", message.getIdempotencyToken(), reason);
         } catch (Exception ex) {
             log.error("Ошибка при обработке FAILED для платежа {}: {}, причина: {}", message.getIdempotencyToken(), reason, ex);
         }
