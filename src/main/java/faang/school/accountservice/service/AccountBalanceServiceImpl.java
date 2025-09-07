@@ -48,6 +48,9 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
             }
 
             updateBalance(balance, message.getAmount(), PaymentStages.AUTHORIZED, message);
+
+            requestService.updateStatus(message.getIdempotencyToken(), PaymentStages.AUTHORIZED, "Платёж авторизован");
+
             log.info("Авторизация прошла для аккаунта {} на сумму {} {}", balance.getId(), message.getAmount(), balance.getCurrency());
 
         } catch (Exception ex) {
@@ -62,6 +65,9 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
         try {
             AccountBalance balance = balanceRepository.getByIdOrThrow(message.getFromAccountId());
             updateBalance(balance, message.getAmount(), PaymentStages.CANCELED, message);
+
+            requestService.updateStatus(message.getIdempotencyToken(), PaymentStages.CANCELED, "Платёж отменён");
+
             log.info("Отмена прошла для аккаунта {} на сумму {} {}", balance.getId(), message.getAmount(), balance.getCurrency());
 
         } catch (Exception ex) {
@@ -85,6 +91,9 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
 
             updateBalance(payer, amount.negate(), PaymentStages.CLEARED, message);
             updateBalance(payee, amount, PaymentStages.CLEARED, message);
+
+            requestService.updateStatus(message.getIdempotencyToken(), PaymentStages.CLEARED, "Клиринг проведён");
+
             log.info("Клиринг проведён: {} → {} сумма {} {}", payer.getId(), payee.getId(), amount, payer.getCurrency());
 
         } catch (Exception ex) {
@@ -164,6 +173,8 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
                     .comment(reason)
                     .build();
             auditRepository.save(audit);
+
+            requestService.updateStatus(message.getIdempotencyToken(), PaymentStages.FAILED, reason);
 
             eventPublisher.publishEvent(new PaymentFailedEvent(
                     message.getIdempotencyToken(),

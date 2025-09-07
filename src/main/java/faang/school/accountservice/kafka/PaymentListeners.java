@@ -37,7 +37,7 @@ public class PaymentListeners {
     @KafkaListener(topics = "${app.kafka.topics.authorization}",
             groupId = "account-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void handleAuthorization(PaymentMessageDto message) {
-        log.info("Получено сообщение AUTHORIZATION: {}", message);
+        log.info("Получено сообщение PENDING: {}", message);
         service.processAuthorization(message);
         requestService.handleAuthorizationMessage(message);
     }
