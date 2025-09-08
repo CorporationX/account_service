@@ -1,5 +1,13 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account.sql
+      file: db/changelog/changeset/V001_create_balance_table.sql
   - include:
-      file: db/changelog/changeset/V002__account-service_payment-account.sql
+      file: db/changelog/changeset/V002_create_audit.sql
+  - include:
+      file: db/changelog/changeset/V003_create_column_version.sql
+  - include:
+      file: db/changelog/changeset/V004_create_request.sql
+  - include:
+     file: db/changelog/changeset/V005_create_column_comment.sql
+  - include:
+     file: db/changelog/changeset/V006_rename_column_request.sql

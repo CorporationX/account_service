@@ -17,9 +17,26 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: account-service-group
+      auto-offset-reset: earliest
+
+app:
+  kafka:
+    topics:
+      authorization: payment-authorization-requests
+      cancel: payment-cancel-requests
+      clearing: payment-clearing-requests
+      failed: payment-failed-requests
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+
+payment-service:
+  host: http://localhost:9090

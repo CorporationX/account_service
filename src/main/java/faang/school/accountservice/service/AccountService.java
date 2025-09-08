@@ -15,6 +15,7 @@ public interface AccountService {
 
     /**
      * Открытие счета
+     *
      * @param createDto параметры создаваемого счета
      * @return {@link AccountViewDto} открытый счет
      */
@@ -22,6 +23,7 @@ public interface AccountService {
 
     /**
      * Получение платежного счета
+     *
      * @param id идентификатор счета
      * @return {@link AccountViewDto} платежный счет
      */
@@ -29,6 +31,7 @@ public interface AccountService {
 
     /**
      * Закрытие счета
+     *
      * @param id идентификатор счета
      * @return {@link AccountViewDto} закрытый счет
      */

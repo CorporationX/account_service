@@ -18,6 +18,7 @@ dependencies {
      */
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
     implementation("org.springframework.retry:spring-retry:2.0.12")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -31,6 +32,11 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+
+    /**
+     * kafka
+     */
+    implementation("org.springframework.kafka:spring-kafka")
 
     /**
      * Utils & Logging
