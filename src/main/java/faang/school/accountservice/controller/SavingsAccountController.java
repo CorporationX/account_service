@@ -18,7 +18,7 @@ import java.util.UUID;
 public class SavingsAccountController {
     private final SavingsAccountService service;
 
-    @PostMapping("{accountId}/tariffs/{tariffId}")
+    @PostMapping("/{accountId}/tariffs/{tariffId}")
     public SavingsAccountDto create(@PathVariable UUID accountId,
                                     @PathVariable long tariffId) {
         return service.create(accountId, tariffId);
