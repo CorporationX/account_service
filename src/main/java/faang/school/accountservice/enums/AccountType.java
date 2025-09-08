@@ -29,7 +29,10 @@ public enum AccountType {
         String accountNumber = prefix + sequenceStr;
 
         if (accountNumber.length() > 20) {
-            throw new IllegalStateException("Generated account number exceeds maximum length of 20 characters: " + accountNumber);
+            throw new IllegalStateException(
+                    "Generated account number exceeds maximum length of 20 characters: "
+                            + accountNumber
+            );
         }
 
         return accountNumber;
