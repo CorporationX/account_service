@@ -9,7 +9,7 @@ public enum AccountType {
     PERSONAL_CURRENT("Расчетный счет для физ. лиц"),
     BUSINESS_CURRENT("Расчетный счет для юр. лиц"),
     CURRENCY("Валютный счет"),
-    SAVING("Сберегательный счет")
+    SAVINGS("Накопительный счет")
     ;
 
     private final String description;
