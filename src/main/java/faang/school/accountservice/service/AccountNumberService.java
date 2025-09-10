@@ -1,16 +1,18 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.AccountNumber;
-import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.repository.AccountNumberRepository;
-import lombok.AllArgsConstructor;
+import faang.school.accountservice.utils.CalculateExecutionTime;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,8 +33,60 @@ public class AccountNumberService {
     private static final String DIGITS = "0123456789";
     private static final SecureRandom secureRandom = new SecureRandom();
 
-    @Scheduled(fixedRate = 60000)
+//    @Scheduled(fixedRate = 60000 * 5)
+    @CalculateExecutionTime
     public void processAccountNumber() {
+        List<String> prefixes = List.of("BANK", "ACCOUNT", "DEPOSIT", "PAYMENT");
+
+        prefixes.forEach(prefix -> {
+            Collection<String> result = createUniqueAccountNumber(prefix, accountNumberSize,
+                    20 - prefix.length());
+
+            List<AccountNumber> newAccountNumbers = result.stream()
+                    .map(accounNumber -> {
+                        AccountNumber newAccountNumber = new AccountNumber();
+                        newAccountNumber.setAccountNumber(accounNumber);
+                        newAccountNumber.setStatus(AVAILABLE);
+                        newAccountNumber.setType(prefix);
+                        return newAccountNumber;
+                    }).toList();
+
+            accountNumberRepository.saveAllAndFlush(newAccountNumbers);
+        });
+    }
+
+    public Collection<String> generateAccountNumber(@Nullable String prefix,
+                                                    Integer size,
+                                                    Integer accountLength) {
+        Collection<String> result = createUniqueAccountNumber(prefix, size, accountLength);
+        List<AccountNumber> newAccountNumbers = result.stream()
+                .map(accounNumber -> {
+                    AccountNumber newAccountNumber = new AccountNumber();
+                    newAccountNumber.setAccountNumber(accounNumber);
+                    newAccountNumber.setStatus(AVAILABLE);
+                    newAccountNumber.setType(PREFIX);
+                    return newAccountNumber;
+                }).toList();
+
+        accountNumberRepository.saveAll(newAccountNumbers);
+
+        return result;
+    }
+
+    public Collection<String> getUniqueAccountNumber(String prefix, Integer size) {
+        Page<AccountNumber> accounts = accountNumberRepository.findAllByAccountNumberStartsWithAndStatus(prefix,
+                AVAILABLE,
+                PageRequest.of(0, size));
+
+        return accounts.stream()
+                .map(account -> account.getAccountNumber())
+                .toList();
+    }
+
+
+    private Collection<String> createUniqueAccountNumber(@Nullable String prefix,
+                                                         Integer size,
+                                                         Integer accountLength) {
         List<AccountNumber> accounts = accountNumberRepository.findAll();
 
         Set<String> accountNumbers = accounts.stream()
@@ -45,27 +99,24 @@ public class AccountNumberService {
 
         Set<String> result = new HashSet<>();
 
-        while (availableAccounts.size() < accountNumberSize) {
-            StringBuffer stringBuffer = new StringBuffer(PREFIX);
-            for (int i = 0; i < ACCOUNT_LENGTH; i++) {
-                stringBuffer.append(DIGITS.charAt(secureRandom.nextInt(DIGITS.length())));
-            }
-            boolean isAdded = accountNumbers.add(stringBuffer.toString());
-            if (isAdded) {
-                System.out.println(1);
-                result.add(stringBuffer.toString());
+//        int needSize = size - availableAccounts.size();
+        int needSize = 1;
+        log.info("Нужно создать " + needSize + " счетов");
+        int k = 0;
+
+        if (needSize > 0) {
+            while (k < 10000) {
+                StringBuffer stringBuffer = new StringBuffer((prefix == null || prefix == "") ? PREFIX : prefix);
+                for (int i = 0; i < accountLength; i++) {
+                    stringBuffer.append(DIGITS.charAt(secureRandom.nextInt(DIGITS.length())));
+                }
+                boolean isAdded = accountNumbers.add(stringBuffer.toString());
+                if (isAdded) {
+                    k++;
+                    result.add(stringBuffer.toString());
+                }
             }
         }
-
-        List<AccountNumber> newAccountNumbers = result.stream()
-                .map(accounNumber -> {
-                    AccountNumber newAccountNumber = new AccountNumber();
-                    newAccountNumber.setAccountNumber(accounNumber);
-                    newAccountNumber.setStatus(AVAILABLE);
-                    newAccountNumber.setType(PREFIX);
-                    return newAccountNumber;
-                }).toList();
-
-        accountNumberRepository.saveAll(newAccountNumbers);
+        return result;
     }
 }
