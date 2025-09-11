@@ -51,7 +51,7 @@ public class FreeAccountNumbersService {
     @Transactional
     public List<FreeAccountNumbers> generateFreeAccountNumbers(AccountType accountType, int count) {
         if (count <= 0) {
-            throw new IllegalArgumentException("Count must be positive: " + count);
+            throw new AccountNumberGenerationException("Count must be positive: " + count);
         }
 
         log.info("Generating {} free account numbers for type {}", count, accountType);
@@ -248,7 +248,7 @@ public class FreeAccountNumbersService {
     @Transactional
     public int ensureMinimumFreeNumbers(AccountType accountType, int minCount) {
         if (minCount <= 0) {
-            throw new IllegalArgumentException("Minimum count must be positive: " + minCount);
+            throw new AccountNumberGenerationException("Minimum count must be positive: " + minCount);
         }
 
         long currentCount = countFreeAccountNumbers(accountType);
@@ -276,7 +276,7 @@ public class FreeAccountNumbersService {
     @Transactional
     public void generateFreeNumbersForAllTypes(int countPerType) {
         if (countPerType <= 0) {
-            throw new IllegalArgumentException("Count per type must be positive: " + countPerType);
+            throw new AccountNumberGenerationException("Count per type must be positive: " + countPerType);
         }
 
         log.info("Generating {} free numbers for all account types", countPerType);

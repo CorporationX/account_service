@@ -3,6 +3,8 @@ package faang.school.accountservice.repository;
 import faang.school.accountservice.entity.AccountNumbersSequence;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.exception.AccountNumberGenerationException;
+import faang.school.accountservice.exception.SequenceAlreadyExistsException;
+import faang.school.accountservice.exception.SequenceLockException;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -22,7 +24,7 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
 
     default AccountNumbersSequence createSequenceForType(AccountType accountType) {
         if (existsById(accountType)) {
-            throw new IllegalStateException("Sequence already exists for account type: " + accountType);
+            throw new SequenceAlreadyExistsException(accountType);
         }
 
         AccountNumbersSequence sequence = new AccountNumbersSequence(accountType);
@@ -56,7 +58,9 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
                     Thread.sleep(1 + attempt * 2);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    throw new AccountNumberGenerationException("Thread interrupted while waiting for retry", ie);
+                    throw new SequenceLockException(
+                            "Failed to reserve sequence block for " + accountType + " after " + maxRetries + " attempts", e
+                    );
                 }
             }
         }
@@ -72,8 +76,9 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
                 return incrementSequenceWithOptimisticLock(accountType);
             } catch (OptimisticLockException e) {
                 if (attempt == maxRetries - 1) {
-                    throw new AccountNumberGenerationException(
-                            "Failed to get next sequence value after " + maxRetries + " attempts", e);
+                    throw new SequenceLockException(
+                            "Failed to reserve sequence block for " + accountType + " after " + maxRetries + " attempts", e
+                    );
                 }
 
                 try {

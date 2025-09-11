@@ -1,5 +1,8 @@
 package faang.school.accountservice.enums;
 
+import faang.school.accountservice.exception.AccountNumberGenerationException;
+import faang.school.accountservice.exception.InvalidAccountNumberException;
+import faang.school.accountservice.exception.UnsupportedAccountTypeException;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -25,12 +28,12 @@ public enum AccountType {
      */
     public String generateAccountNumber(long sequence) {
         requirePrefix();
-        if (sequence <= 0) throw new IllegalArgumentException("Sequence must be positive: " + sequence);
+        if (sequence <= 0) throw new AccountNumberGenerationException("Sequence must be positive: " + sequence);
 
         String accountNumber = prefix + String.format("%08d", sequence);
 
         if (accountNumber.length() > 20)
-            throw new IllegalStateException("Generated account number exceeds 20 characters: " + accountNumber);
+            throw new AccountNumberGenerationException("Generated account number exceeds 20 characters: " + accountNumber);
 
         return accountNumber;
     }
@@ -49,7 +52,7 @@ public enum AccountType {
         try {
             return Long.parseLong(numberPart) > 0;
         } catch (NumberFormatException e) {
-            return false;
+            throw new InvalidAccountNumberException("Account number contains invalid sequence part: " + accountNumber, e);
         }
     }
 
@@ -88,7 +91,7 @@ public enum AccountType {
      */
     private void requirePrefix() {
         if (prefix == null) {
-            throw new UnsupportedOperationException("Account type " + this + " does not support account numbers.");
+            throw new UnsupportedAccountTypeException("Account type " + this + " does not support account numbers.");
         }
     }
 }

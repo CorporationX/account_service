@@ -3,6 +3,7 @@ package faang.school.accountservice.repository;
 import faang.school.accountservice.entity.FreeAccountNumberId;
 import faang.school.accountservice.entity.FreeAccountNumbers;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.exception.InvalidAccountNumberException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,7 +35,7 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     default FreeAccountNumbers createFreeAccountNumber(AccountType accountType, String accountNumber) {
         if (!accountType.isValidAccountNumber(accountNumber)) {
-            throw new IllegalArgumentException("Invalid account number: " + accountNumber);
+            throw new InvalidAccountNumberException(accountNumber);
         }
 
         FreeAccountNumbers freeNumber = new FreeAccountNumbers(accountType, accountNumber);
