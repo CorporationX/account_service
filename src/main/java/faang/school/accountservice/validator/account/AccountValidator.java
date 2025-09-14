@@ -22,12 +22,6 @@ public class AccountValidator {
         checkDuplicateAccountNum(createAccountDto.accountNumber());
     }
 
-    private void checkDuplicateAccountNum(@NonNull String accountNumber) {
-        if(accountRepository.existsByAccountNumber(accountNumber)){
-            throw new DataValidationException("AccountNumber must be unique");
-        }
-    }
-
     public void validateStatusTransition(Account account, AccountStatus newStatus) {
         if (account.getStatus() == newStatus) {
             throw new IllegalStatusTransitionException("Account already in this status");
@@ -36,6 +30,12 @@ public class AccountValidator {
             throw new IllegalStatusTransitionException("Account closed. Further updates not allowed");
         }
 
+    }
+
+    private void checkDuplicateAccountNum(@NonNull String accountNumber) {
+        if(accountRepository.existsByAccountNumber(accountNumber)){
+            throw new DataValidationException("AccountNumber must be unique");
+        }
     }
 
     private void checkOwnership(CreateAccountDto createAccountDto) {

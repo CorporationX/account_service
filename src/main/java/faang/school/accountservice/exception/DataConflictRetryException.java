@@ -11,7 +11,6 @@ public class DataConflictRetryException extends ApiException {
         super(message, debugMessage);
     }
 
-
     @Override
     protected HttpStatus getDefaultStatus() {
         return HttpStatus.CONFLICT;
