@@ -23,10 +23,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DirtiesContext
 @Testcontainers
 @ActiveProfiles("test")
+@Sql(scripts = "/db/script/account_insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "/db/script/account_cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 class AccountServiceIntTest {
     @Autowired
     private AccountService service;

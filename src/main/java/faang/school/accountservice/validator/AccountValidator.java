@@ -6,8 +6,12 @@ import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.CreateAccountDto;
 import faang.school.accountservice.dto.ProjectDto;
 import faang.school.accountservice.dto.UserDto;
+import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.ErrorType;
 import faang.school.accountservice.enums.ProjectStatus;
+import faang.school.accountservice.exception.EntityAlreadyBlockedException;
+import faang.school.accountservice.exception.EntityAlreadyClosedException;
 import faang.school.accountservice.exception.EntityCancelledException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.exception.MoreOneOwnerException;
@@ -27,13 +31,7 @@ public class AccountValidator {
 
     public void validateDto(CreateAccountDto accountDto) {
         log.info("Start account validation: {}", accountDto);
-        if (accountDto.userId() == null && accountDto.projectId() == null) {
-            throw new OwnerIdNotPresentException(ErrorType.OWNER_ID_NOT_PRESENT);
-        }
-
-        if (accountDto.userId() != null && accountDto.projectId() != null) {
-            throw new MoreOneOwnerException(ErrorType.MORE_ONE_OWNER);
-        }
+        validateOwnerIds(accountDto.userId(), accountDto.projectId());
 
         if (accountDto.userId() != null) {
             validateUser(accountDto.userId());
@@ -42,6 +40,20 @@ public class AccountValidator {
         }
 
         log.info("Account is valid: {}", accountDto);
+    }
+
+    public void validateOwnerIds(Long userId, Long projectId) {
+        log.debug("Start owner ids validation with userId={}, projectIds={}", userId, projectId);
+        if (userId == null && projectId == null) {
+            throw new OwnerIdNotPresentException(ErrorType.OWNER_ID_NOT_PRESENT);
+        }
+
+        if (userId != null && projectId != null) {
+            throw new MoreOneOwnerException(ErrorType.MORE_ONE_OWNER);
+        }
+
+        validateOwner(userId);
+        validateOwner(projectId);
     }
 
     public void validateProject(Long projectId) {
@@ -73,6 +85,16 @@ public class AccountValidator {
         long currentId = userContext.getUserId();
         if (ownerId != null && currentId != ownerId) {
             throw new NotResourceOwnerException("Id={} is not owner account with id={}", currentId, ownerId);
+        }
+    }
+
+    public void validateAccountStatus(Account account) {
+        if (account.getStatus() == AccountStatus.CLOSED) {
+            throw new EntityAlreadyClosedException("Failed. Cause: account id={} is already closed", account.getId());
+        }
+
+        if (account.getStatus() == AccountStatus.FROZEN) {
+            throw new EntityAlreadyBlockedException("Failed. Cause: account id={} is already blocked", account.getId());
         }
     }
 }

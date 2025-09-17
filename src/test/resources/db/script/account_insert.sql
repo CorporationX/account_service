@@ -1,9 +1,3 @@
-INSERT INTO users (username)
-VALUES ('JohnDoe');
-
-INSERT INTO project (name)
-VALUES ('project');
-
 INSERT INTO account (id, number, user_id, project_id, account_type, currency, status)
 VALUES
 ('11111111-1111-1111-1111-111111111111', '12345678912345', 1, null, 'PERSONAL_CURRENT', 'RUB', 'ACTIVE'),
