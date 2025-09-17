@@ -11,7 +11,6 @@ import faang.school.accountservice.exception.EntityAlreadyClosedException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

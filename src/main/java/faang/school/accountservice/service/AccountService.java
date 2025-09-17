@@ -9,7 +9,6 @@ import faang.school.accountservice.exception.EntityAlreadyClosedException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.validator.AccountValidator;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
