@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = AccountNumberValidator.class)
 public @interface ValidAccountNumber {
 
     String message() default "Размер счета с префиксом не может быть больше 20 знаков и меньше 12";

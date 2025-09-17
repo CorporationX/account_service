@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.exception.EntityAlreadyExistsException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.repository.SavingsAccountRepository;
+import faang.school.accountservice.validator.AccountValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

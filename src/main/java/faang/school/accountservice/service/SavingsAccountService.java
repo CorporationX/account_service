@@ -8,6 +8,7 @@ import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
+import faang.school.accountservice.validator.AccountValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

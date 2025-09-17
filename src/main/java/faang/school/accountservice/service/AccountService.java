@@ -9,6 +9,7 @@ import faang.school.accountservice.exception.EntityAlreadyClosedException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.validator.AccountValidator;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,6 @@ public class AccountService {
 
     public AccountDto create(CreateAccountDto accountDto) {
         log.info("Creating a new account");
-        accountValidator.validateDto(accountDto);
 
         Account account = mapper.toEntity(accountDto);
         account.setStatus(AccountStatus.ACTIVE);
