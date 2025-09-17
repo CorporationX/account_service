@@ -53,7 +53,10 @@ project-service:
   port: 8082
 
 account-numbers:
-  size: 10000
+  size: 10
+  base-prefixes: BANK, ACCOUNT, DEPOSIT, PAYMENT
+  digits: 0123456789
+  scheduled: 0 0 0 * * *
 
 logging:
   level:
