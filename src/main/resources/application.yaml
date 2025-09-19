@@ -14,6 +14,16 @@ spring:
       hibernate:
         format_sql: true
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+  retry:
+    account-update:
+      max-attempts: 3
+      delay-ms: 50
+      multiplier: 2
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
