@@ -24,6 +24,13 @@ logging:
   level:
     root: info
 
+account:
+  generation:
+    max-retry-attempts: 5
+    default-batch-size: 100
+    max-duplicate-retries: 3
+    min-pool-size: 50
+
 project-service:
   host: localhost
   port: 8082
