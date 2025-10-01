@@ -33,7 +33,6 @@ public class AccountService {
 
     public AccountDto create(CreateAccountDto accountDto) {
         log.info("Creating a new account");
-        accountValidator.validateDto(accountDto);
 
         Account account = mapper.toEntity(accountDto);
         account.setStatus(AccountStatus.ACTIVE);

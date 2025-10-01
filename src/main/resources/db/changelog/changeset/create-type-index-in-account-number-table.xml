@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-type-index-in-account-number-table" author="avzag1">
+        <preConditions>
+            <tableExists tableName="account_number"/>
+            <and>
+                <not>
+                    <indexExists indexName="idx_type_account_number"/>
+                </not>
+            </and>
+        </preConditions>
+        <createIndex tableName="account_number" indexName="idx_type_account_number">
+            <column name="type"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

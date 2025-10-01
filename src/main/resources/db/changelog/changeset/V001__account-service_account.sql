@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS account
     version int DEFAULT 0 NOT NULL,
 
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_project_id FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
+--     CONSTRAINT fk_project_id FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
     CONSTRAINT check_min_number_length CHECK (LENGTH(number) >= 12),
     CONSTRAINT check_owner_is_present
         CHECK (
@@ -25,5 +25,5 @@ CREATE TABLE IF NOT EXISTS account
 );
 
 CREATE INDEX IF NOT EXISTS account_user_id_idx ON account(user_id);
-CREATE INDEX IF NOT EXISTS account_project_id_idx ON account(project_id);
+-- CREATE INDEX IF NOT EXISTS account_project_id_idx ON account(project_id);
 CREATE INDEX IF NOT EXISTS account_number_idx ON account(number);
