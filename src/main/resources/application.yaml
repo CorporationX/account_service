@@ -24,6 +24,11 @@ logging:
   level:
     root: info
 
+account:
+  number:
+    batch:
+      size: 100
+
 services:
   user-service:
     host: http://localhost
