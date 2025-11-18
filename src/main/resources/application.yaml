@@ -1,9 +1,15 @@
 spring:
+  config:
+    import: optional:classpath:application.properties
+
+  jackson:
+    default-property-inclusion: non_null
+
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
-    password: password
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -17,9 +23,13 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  profiles:
+    active: ${APP_ENV}
+
 server:
   port: 8090
 
 logging:
   level:
     root: info
+
