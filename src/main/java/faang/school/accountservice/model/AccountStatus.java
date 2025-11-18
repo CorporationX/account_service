@@ -1,5 +1,5 @@
 package faang.school.accountservice.model;
 
 public enum AccountStatus {
-    ACTIVE, INACTIVE, FROZEN;
+    ACTIVE, CLOSED, FROZEN;
 }
