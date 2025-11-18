@@ -62,6 +62,6 @@ public class Account {
     private LocalDateTime closedAt;
 
     @Column(name = "account_version")
-    private String accountVersion;
+    private Long accountVersion;
 
 }
