@@ -2,6 +2,7 @@ package faang.school.accountservice.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,8 @@ public class GlobalExceptionHandler {
             ForbiddenException.class, HttpStatus.FORBIDDEN,
             MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST,
             IllegalArgumentException.class, HttpStatus.BAD_REQUEST,
-            ConstraintViolationException.class, HttpStatus.BAD_REQUEST
+            ConstraintViolationException.class, HttpStatus.BAD_REQUEST,
+            OptimisticLockException.class, HttpStatus.CONFLICT
     );
 
     @ExceptionHandler(FeignException.class)

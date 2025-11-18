@@ -57,12 +57,13 @@ public class UserHeaderFilter implements Filter {
             return;
         }
 
-        userContext.setUserId(userId);
-        UserDto user = null;
+        UserDto user;
         try {
+            userContext.setUserId(userId);
             user = userServiceClient.getUser(userId);
         } catch (FeignException e) {
             sendErrorFeignException(res, req, e);
+            return;
         }
 
         userContext.setUser(user);
