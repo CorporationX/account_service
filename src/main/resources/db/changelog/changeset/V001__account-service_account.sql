@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS account
     closed_at           TIMESTAMP,
     account_version     BIGINT DEFAULT 0
  );
+CREATE INDEX IF NOT EXISTS idx_account_owner ON account(owner);
