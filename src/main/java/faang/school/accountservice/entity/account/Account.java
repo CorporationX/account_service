@@ -26,7 +26,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "account")
+@Table(name = "accounts")
 public class Account {
 
     @Id
@@ -50,7 +50,7 @@ public class Account {
     private String currency;
 
     @Column(name = "status", length = 16, nullable = false)
-    private String status;
+    private String status = "active";
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -67,5 +67,5 @@ public class Account {
 
     @Version
     @Column(name = "version", nullable = false)
-    private Integer version;
+    private Integer version = 1;
 }

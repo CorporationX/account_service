@@ -8,11 +8,11 @@ CREATE TABLE account
     project_id BIGINT,
     type VARCHAR(16) NOT NULL,
     currency VARCHAR(3) NOT NULL,
-    status VARCHAR(16) NOT NULL DEFAULT 'active',
+    status VARCHAR(16) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closed_at TIMESTAMP,
-    version INTEGER NOT NULL DEFAULT 1,
+    version INTEGER NOT NULL,
 
     CONSTRAINT check_account_number_length
         CHECK (length(account_number) BETWEEN 12 AND 20),
