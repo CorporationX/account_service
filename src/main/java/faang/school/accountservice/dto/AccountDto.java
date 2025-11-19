@@ -12,19 +12,16 @@ import java.time.LocalDateTime;
 
 public record AccountDto(
         Long id,
-
         @Min(12)
         @Max(20)
         @NotNull
         String accountNumber,
-
+        Long balance,
+        @NotNull
         Owner owner,
-
         @NotNull
         AccountType accountType,
-
         Currency currency,
-
         AccountStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,

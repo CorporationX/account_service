@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.exception.EntityNotFoundException;
+import faang.school.accountservice.exception.ForbiddenException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
@@ -22,7 +23,12 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
 
     @Override
-    public AccountDto getAccount(String accountNumber) {
+    public AccountDto getById(Long id) {
+        return accountMapper.mapToDto(accountRepository.getByIdOrThrow(id));
+    }
+
+    @Override
+    public AccountDto getByAccountNumber(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         log.info("Account with number {} found", accountNumber);
 
@@ -63,6 +69,42 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(AccountStatus.CLOSED);
         incrementAccountVersion(account);
         return accountMapper.mapToDto(accountRepository.save(account));
+    }
+
+    @Override
+    @Transactional
+    public AccountDto withdraw(String accountNumber, double amount) {
+        Account account = validateAccountNumber(accountNumber);
+        double currentBalance = account.getBalance();
+        if (account.getStatus().equals(AccountStatus.ACTIVE)
+                && currentBalance >= amount) {
+            account.setBalance(currentBalance - amount);
+            log.info("Account with number {} withdrawn {}", accountNumber, amount);
+        } else {
+            log.error("Account with number {} is not active or balance is insufficient", accountNumber);
+            throw new ForbiddenException("Account is not active or balance is insufficient");
+        }
+        return accountMapper.mapToDto(account);
+    }
+
+    @Override
+    public AccountDto deposit(String accountNumber, double amount) {
+        Account account = validateAccountNumber(accountNumber);
+        double currentBalance = account.getBalance();
+        if (account.getStatus().equals(AccountStatus.ACTIVE)) {
+            account.setBalance(currentBalance + amount);
+            log.info("Account with number {} deposited {}", accountNumber, amount);
+        } else {
+            log.error("Account with number {} is not active", accountNumber);
+            throw new ForbiddenException("Account is not active");
+        }
+        return accountMapper.mapToDto(account);
+    }
+
+    @Override
+    public Double getBalance(String accountNumber) {
+        Account account = validateAccountNumber(accountNumber);
+        return account.getBalance();
     }
 
     private Account validateAccountNumber(String accountNumber) {

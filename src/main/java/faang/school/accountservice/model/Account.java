@@ -38,6 +38,9 @@ public class Account {
     @Column(name = "account_number")
     private String accountNumber;
 
+    @Column(name = "balance")
+    private Double balance;
+
     @OneToOne(mappedBy = "account")
     private Owner owner;
 
