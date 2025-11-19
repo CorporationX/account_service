@@ -43,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto blockAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         account.setStatus(AccountStatus.FROZEN);
+        incrementAccountVersion(account);
         return accountMapper.mapToDto(accountRepository.save(account));
     }
 
@@ -51,13 +52,16 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto unblockAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         account.setStatus(AccountStatus.ACTIVE);
+        incrementAccountVersion(account);
         return accountMapper.mapToDto(accountRepository.save(account));
     }
 
     @Override
+    @Transactional
     public AccountDto closeAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         account.setStatus(AccountStatus.CLOSED);
+        incrementAccountVersion(account);
         return accountMapper.mapToDto(accountRepository.save(account));
     }
 
@@ -68,5 +72,13 @@ public class AccountServiceImpl implements AccountService {
             throw new EntityNotFoundException("Account not found");
         }
         return optionalAccount.get();
+    }
+
+    @Transactional
+    private void incrementAccountVersion(Account account) {
+        long version = account.getAccountVersion();
+        account.setAccountVersion(++version);
+        accountRepository.save(account);
+        log.info("Account version incremented to {}", version);
     }
 }
