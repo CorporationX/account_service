@@ -48,7 +48,7 @@ public class Account {
     private Currency currency;
 
     @Column(name = "balance")
-    private Long balance;
+    private Double balance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false, length = 16)
