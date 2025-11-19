@@ -50,9 +50,6 @@ public class Account {
     @Column(name = "currency", nullable = false, length = 16)
     private Currency currency;
 
-    @Column(name = "balance")
-    private Double balance;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false, length = 16)
     private AccountStatus accountStatus;
