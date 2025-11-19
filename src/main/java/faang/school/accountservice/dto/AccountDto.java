@@ -17,14 +17,11 @@ public record AccountDto(
         @Max(20)
         @NotNull
         String accountNumber,
-
         Owner owner,
-
         @NotNull
         AccountType accountType,
-
         Currency currency,
-
+        Long balance,
         AccountStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,

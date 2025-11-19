@@ -8,9 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -35,21 +33,26 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number")
+    @Column(name = "account_number", nullable = false, length = 20)
     private String accountNumber;
 
     @OneToOne(mappedBy = "account")
     private Owner owner;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type")
+    @Column(name = "account_type", nullable = false, length = 16)
     private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "currency", nullable = false, length = 16)
     private Currency currency;
 
+    @Column(name = "balance")
+    private Long balance;
+
     @Enumerated(EnumType.STRING)
-    private AccountStatus status;
+    @Column(name = "account_status", nullable = false, length = 16)
+    private AccountStatus accountStatus;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
