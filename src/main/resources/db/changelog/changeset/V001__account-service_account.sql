@@ -1,14 +1,16 @@
 CREATE TABLE IF NOT EXISTS account
 (
     id                  BIGSERIAL PRIMARY KEY,
-    account_number      VARCHAR(32) NOT NULL UNIQUE,
+    account_number      VARCHAR(20) NOT NULL UNIQUE,
     account_type        VARCHAR(16) NOT NULL,
     currency            VARCHAR(16) NOT NULL DEFAULT 'RUB',
+    balance             DECIMAL(19,2) DEFAULT 0.00,
     account_status      VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     closed_at           TIMESTAMP,
     account_version     BIGINT DEFAULT 0
+
 
  );
 

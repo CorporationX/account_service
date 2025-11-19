@@ -16,7 +16,7 @@ public record AccountDto(
         @Max(20)
         @NotNull
         String accountNumber,
-        Long balance,
+        Double balance,
         @NotNull
         Owner owner,
         @NotNull
