@@ -7,8 +7,9 @@ import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,8 +17,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "account")
-@Data
+@Table(name = "accounts")
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -70,23 +72,14 @@ public class Account {
     @Builder.Default
     private Long version = 0L;
 
-    /**
-     * Проверяет, активен ли счет
-     */
     public boolean isActive() {
         return status == AccountStatus.ACTIVE;
     }
 
-    /**
-     * Проверяет, заморожен ли счет
-     */
     public boolean isFrozen() {
         return status == AccountStatus.FROZEN || status == AccountStatus.BLOCKED;
     }
 
-    /**
-     * Проверяет, закрыт ли счет
-     */
     public boolean isClosed() {
         return status == AccountStatus.CLOSED;
     }
