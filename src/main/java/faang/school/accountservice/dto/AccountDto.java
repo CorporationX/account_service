@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record AccountDto(
@@ -21,11 +22,11 @@ public record AccountDto(
         @NotNull
         AccountType accountType,
         Currency currency,
-        Long balance,
+        BigDecimal balance,
         AccountStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime closedAt,
         Long accountVersion
-        ) {
+) {
 }

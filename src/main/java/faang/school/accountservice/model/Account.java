@@ -19,6 +19,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,7 +34,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", nullable = false, length = 20)
+    @Column(name = "account_number", nullable = false, length = 32)
     private String accountNumber;
 
     @OneToOne(mappedBy = "account")
@@ -48,7 +49,7 @@ public class Account {
     private Currency currency;
 
     @Column(name = "balance")
-    private Double balance;
+    private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false, length = 16)
