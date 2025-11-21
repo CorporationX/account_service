@@ -62,12 +62,7 @@ public class AccountServiceImpl implements AccountService {
 
         log.info("Received request to open a new account for userId: {}, projectId: {}", createAccountDto.userId(),
                 createAccountDto.projectId());
-        Account account = new Account();
-        account.setAccountNumber(createAccountDto.accountNumber());
-        account.setType(createAccountDto.type());
-        account.setCurrency(createAccountDto.currency());
-        account.setUserId(createAccountDto.userId());
-        account.setProjectId(createAccountDto.projectId());
+        Account account = accountMapper.toEntity(createAccountDto);
         account.setStatus(AccountStatus.OPENED);
         account.setCreatedAt(LocalDateTime.now());
         account.setUpdatedAt(LocalDateTime.now());
