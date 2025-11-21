@@ -49,18 +49,15 @@ public class UserHeaderFilter implements Filter {
         }
 
         Long userId;
+        UserDto user;
+
         try {
             userId = Long.parseLong(userIdHeader);
-        } catch (NumberFormatException e) {
-            sendErrorResponse(res, req, HttpStatus.BAD_REQUEST,
-                    "Invalid user ID format", IllegalArgumentException.class);
-            return;
-        }
-
-        UserDto user;
-        try {
             userContext.setUserId(userId);
             user = userServiceClient.getUser(userId);
+        } catch (NumberFormatException e) {
+            sendErrorResponse(res, req, HttpStatus.BAD_REQUEST, "Invalid user ID format", IllegalArgumentException.class);
+            return;
         } catch (FeignException e) {
             sendErrorFeignException(res, req, e);
             return;

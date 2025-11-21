@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -32,17 +33,21 @@ class AccountServiceTest {
     private UserContext userContext;
     @Mock
     private AccountRepository accountRepository;
+    @Mock
+    private FreeAccountNumbersService freeAccountNumbersService;
     @InjectMocks
     private AccountService accountService;
     @Captor
     private ArgumentCaptor<Account> accountArgumentCaptor;
 
     private final long userId = 1L;
-    private final long accountId = 2L;
+    private final UUID accountId = UUID.randomUUID();
+    private final String accountNumber = "12345678901234567890";
 
     @Test
     void openAccount_shouldCreateAccount() {
         when(userContext.getUserId()).thenReturn(userId);
+        when(freeAccountNumbersService.generateAccountNumber()).thenReturn(accountNumber);
 
         AccountCreateDto accountCreateDto = new AccountCreateDto(
                 AccountType.INDIVIDUAL_CURRENCY,
@@ -72,12 +77,7 @@ class AccountServiceTest {
         TestUtils.assertTimestamp(accountDto.updatedAt());
         TestUtils.validateAccountNumber(accountDto.accountNumber());
 
-        assertNull(accountDto.blockedAt());
-        assertNull(accountDto.blockReason());
-        assertNull(accountDto.closedAt());
-        assertNull(accountDto.closeReason());
-        assertNull(accountDto.frozenAt());
-        assertNull(accountDto.frozenReason());
+        assertNull(accountDto.statusChangeReason());
     }
 
 

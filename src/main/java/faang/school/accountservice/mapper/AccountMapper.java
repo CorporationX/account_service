@@ -7,24 +7,19 @@ import faang.school.accountservice.entity.Account;
 public class AccountMapper {
 
     public static AccountDto toDto(Account account) {
-        return new AccountDto(
-                account.getId(),
-                account.getAccountNumber(),
-                account.getUserId(),
-                account.getType(),
-                account.getCurrency(),
-                account.getStatus(),
-                account.getCreatedAt(),
-                account.getUpdatedAt(),
-                account.getClosedAt(),
-                account.getFrozenAt(),
-                account.getBlockedAt(),
-                account.getBalance(),
-                account.getDescription(),
-                account.getCloseReason(),
-                account.getFrozenReason(),
-                account.getBlockReason()
-        );
+        return AccountDto.builder()
+                .id(account.getId())
+                .accountNumber(account.getAccountNumber())
+                .userId(account.getUserId())
+                .type(account.getType())
+                .currency(account.getCurrency())
+                .status(account.getStatus())
+                .createdAt(account.getCreatedAt())
+                .updatedAt(account.getUpdatedAt())
+                .balance(account.getBalance())
+                .description(account.getDescription())
+                .statusChangeReason(account.getStatusChangeReason())
+                .build();
     }
 
     public static Account toEntity(AccountCreateDto dto) {

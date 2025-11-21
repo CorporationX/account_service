@@ -3,12 +3,15 @@ package faang.school.accountservice.dto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Builder
 public record AccountDto(
-        Long id,
+        UUID id,
         String accountNumber,
         Long userId,
         AccountType type,
@@ -16,13 +19,8 @@ public record AccountDto(
         AccountStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        LocalDateTime closedAt,
-        LocalDateTime frozenAt,
-        LocalDateTime blockedAt,
         BigDecimal balance,
         String description,
-        String closeReason,
-        String frozenReason,
-        String blockReason
+        String statusChangeReason
 ) {
 }

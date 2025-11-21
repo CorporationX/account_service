@@ -3,33 +3,39 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.AccountCreateDto;
 import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.dto.AccountReasonDto;
+import faang.school.accountservice.dto.ChangeAccountStatusReasonDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.exception.ForbiddenException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
-import java.time.LocalDateTime;
-import java.util.Random;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class AccountService {
     private final UserContext userContext;
     private final AccountRepository accountRepository;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
-    public AccountDto getMyAccount(Long accountId) {
+    @Transactional(readOnly = true)
+    public AccountDto getMyAccount(UUID accountId) {
         long userId = userContext.getUserId();
-        Account account = accountRepository.getByIdAndUserIdOrThrow(accountId, userId);
+        Account account = accountRepository.findAccountByIdOrThrow(accountId);
+        validateAccountOwner(account, userId);
         return AccountMapper.toDto(account);
     }
 
+    @Transactional
     public AccountDto openAccount(AccountCreateDto accountCreateDto) {
         long userId = userContext.getUserId();
-        String accountNumber = generateAccountNumber();
+        String accountNumber = freeAccountNumbersService.generateAccountNumber();
 
         Account account = AccountMapper.toEntity(accountCreateDto);
         account.setStatus(AccountStatus.ACTIVE);
@@ -41,73 +47,52 @@ public class AccountService {
         return AccountMapper.toDto(savedAccount);
     }
 
-    public AccountDto blockAccount(Long accountId, AccountReasonDto dto) {
+    @Transactional
+    public AccountDto blockAccount(UUID accountId, ChangeAccountStatusReasonDto dto) {
         long userId = userContext.getUserId();
-        Account account = accountRepository.getByIdAndUserIdOrThrow(accountId, userId);
+        Account account = accountRepository.findAccountByIdOrThrow(accountId);
+        validateAccountOwner(account, userId);
+
         changeAccountStatus(account, AccountStatus.BLOCKED, dto.reason());
         Account savedAccount = accountRepository.save(account);
         return AccountMapper.toDto(savedAccount);
     }
 
-    public AccountDto freezeAccount(Long accountId, AccountReasonDto dto) {
+    @Transactional
+    public AccountDto freezeAccount(UUID accountId, ChangeAccountStatusReasonDto dto) {
         long userId = userContext.getUserId();
-        Account account = accountRepository.getByIdAndUserIdOrThrow(accountId, userId);
+        Account account = accountRepository.findAccountByIdOrThrow(accountId);
+        validateAccountOwner(account, userId);
+
         changeAccountStatus(account, AccountStatus.FROZEN, dto.reason());
         Account savedAccount = accountRepository.save(account);
         return AccountMapper.toDto(savedAccount);
     }
 
-    public AccountDto closeAccount(Long accountId, AccountReasonDto dto) {
+    @Transactional
+    public AccountDto closeAccount(UUID accountId, ChangeAccountStatusReasonDto dto) {
         long userId = userContext.getUserId();
-        Account account = accountRepository.getByIdAndUserIdOrThrow(accountId, userId);
+        Account account = accountRepository.findAccountByIdOrThrow(accountId);
+        validateAccountOwner(account, userId);
+
         changeAccountStatus(account, AccountStatus.CLOSED, dto.reason());
         Account savedAccount = accountRepository.save(account);
         return AccountMapper.toDto(savedAccount);
     }
 
+    private void validateAccountOwner(Account account, long userId) {
+        if (!ObjectUtils.nullSafeEquals(account.getUserId(), userId)) {
+            throw new ForbiddenException("User %d is not the owner of account %s".formatted(userId, account.getId()));
+        }
+    }
+
     private void changeAccountStatus(Account account, AccountStatus newStatus, String reason) {
         if (account.getStatus() == newStatus) {
             throw new DataValidationException(
-                    String.format("Account %d is already %s", account.getId(), newStatus.name().toLowerCase()));
+                    String.format("Account %s is already %s", account.getId(), newStatus.name()));
         }
 
         account.setStatus(newStatus);
-        clearAllStatusFields(account);
-
-        switch (newStatus) {
-            case BLOCKED -> {
-                account.setBlockedAt(LocalDateTime.now());
-                account.setBlockReason(reason);
-            }
-            case FROZEN -> {
-                account.setFrozenAt(LocalDateTime.now());
-                account.setFrozenReason(reason);
-            }
-            case CLOSED -> {
-                account.setClosedAt(LocalDateTime.now());
-                account.setCloseReason(reason);
-            }
-        }
+        account.setStatusChangeReason(reason);
     }
-
-    private void clearAllStatusFields(Account account) {
-        account.setBlockedAt(null);
-        account.setBlockReason(null);
-        account.setFrozenAt(null);
-        account.setFrozenReason(null);
-        account.setClosedAt(null);
-        account.setCloseReason(null);
-    }
-
-    //todo: временно решение, пока не сделана задача "Генерация уникальных номеров счетов"
-    private String generateAccountNumber() {
-        Random random = new Random();
-
-        StringBuilder accountNumber = new StringBuilder();
-        for (int i = 0; i < 20; i++) {
-            accountNumber.append(random.nextInt(10));
-        }
-        return accountNumber.toString();
-    }
-
 }
