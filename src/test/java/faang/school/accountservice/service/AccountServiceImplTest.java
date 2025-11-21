@@ -1,5 +1,7 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.client.ProjectServiceClient;
+import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.dto.account.ResponseAccountDto;
 import faang.school.accountservice.entity.account.Account;
@@ -42,6 +44,12 @@ public class AccountServiceImplTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private UserServiceClient userServiceClient;
+
+    @Mock
+    private ProjectServiceClient projectServiceClient;
+
     @Spy
     private final AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
 
@@ -66,8 +74,9 @@ public class AccountServiceImplTest {
         Account testAccount = createTestAccountUser();
         when(accountRepository.findByAccountNumber(ACCOUNT_NUMBER)).thenReturn(Optional.empty());
         when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
+        when(userServiceClient.getUser(USER_ID)).thenReturn(null);
 
-        ResponseAccountDto response = accountService.createAccount(createAccountDto, USER_ID, null);
+        ResponseAccountDto response = accountService.createAccount(createAccountDto);
 
         assertNotNull(response);
         assertEquals(AccountStatus.OPENED, response.status());
@@ -75,6 +84,7 @@ public class AccountServiceImplTest {
 
         verify(accountRepository).findByAccountNumber(ACCOUNT_NUMBER);
         verify(accountRepository).save(any(Account.class));
+        verify(userServiceClient).getUser(USER_ID);
     }
 
     @Test
@@ -83,7 +93,7 @@ public class AccountServiceImplTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
         when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
 
-        ResponseAccountDto response = accountService.blockAccount(ACCOUNT_ID, USER_ID, null);
+        ResponseAccountDto response = accountService.blockAccount(ACCOUNT_ID);
 
         assertEquals(AccountStatus.BLOCKED, response.status());
         assertUserAccount(response);
@@ -99,7 +109,7 @@ public class AccountServiceImplTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
         when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
 
-        ResponseAccountDto response = accountService.closeAccount(ACCOUNT_ID, USER_ID, null);
+        ResponseAccountDto response = accountService.closeAccount(ACCOUNT_ID);
 
         assertEquals(AccountStatus.CLOSED, response.status());
         assertUserAccount(response);
@@ -116,7 +126,7 @@ public class AccountServiceImplTest {
         when(accountRepository.findByAccountNumber(ACCOUNT_NUMBER)).thenReturn(Optional.empty());
         when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
 
-        ResponseAccountDto response = accountService.createAccount(createAccountDto, null, PROJECT_ID);
+        ResponseAccountDto response = accountService.createAccount(createAccountDto);
 
         assertNotNull(response);
         assertEquals(ACCOUNT_NUMBER, response.accountNumber());
@@ -137,7 +147,7 @@ public class AccountServiceImplTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> accountService.closeAccount(ACCOUNT_ID, null, PROJECT_ID));
+                () -> accountService.closeAccount(ACCOUNT_ID));
 
         assertEquals("Account is already closed", exception.getMessage());
 
@@ -150,7 +160,7 @@ public class AccountServiceImplTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> accountService.blockAccount(ACCOUNT_ID, USER_ID, null));
+                () -> accountService.blockAccount(ACCOUNT_ID));
 
         assertEquals(String.format("Account not found with id: %s", ACCOUNT_ID), exception.getMessage());
 
@@ -165,7 +175,7 @@ public class AccountServiceImplTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> accountService.blockAccount(ACCOUNT_ID, USER_ID, null));
+                () -> accountService.blockAccount(ACCOUNT_ID));
 
         assertEquals("Account is already blocked", exception.getMessage());
 
@@ -184,7 +194,7 @@ public class AccountServiceImplTest {
         );
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> accountService.createAccount(invalidDto, USER_ID, PROJECT_ID));
+                () -> accountService.createAccount(invalidDto));
 
         assertEquals("Must specify exactly one owner: userId or projectId", exception.getMessage());
 

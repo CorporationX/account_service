@@ -34,34 +34,28 @@ public interface AccountService {
     /**
      * Создать новый платежный счет
      *
-     * @param projectId ID проекта, к которому относится счет
      * @param CreateAccountDto DTO с данными для создания счета
-     * @param userId ID владельца счета
      * @return созданный счет в виде DTO
      * @throws IllegalArgumentException если проект не существует
      * @throws IllegalArgumentException если пользователь не существует
      */
-    ResponseAccountDto createAccount(CreateAccountDto createAccountDto, Long userId, Long projectId);
+    ResponseAccountDto createAccount(CreateAccountDto createAccountDto);
 
     /**
      * Заблокировать счет
      *
      * @param accountId ID счета
-     * @param userId ID владельца счета
-     * @param projectId ID проекта счета
      * @return обновленный DTO счета
      * @throws IllegalArgumentException если счет не найден или не принадлежит владельцу
      */
-    ResponseAccountDto blockAccount(UUID accountId, Long userId, Long projectId);
+    ResponseAccountDto blockAccount(UUID accountId);
 
     /**
      * Закрыть счет
      *
      * @param accountId ID счета
-     * @param userId ID владельца счета
-     * @param projectId ID проекта счета
      * @return обновленный DTO счета
      * @throws IllegalArgumentException если счет не найден или не принадлежит владельцу
      */
-    ResponseAccountDto closeAccount(UUID accountId, Long userId, Long projectId);
+    ResponseAccountDto closeAccount(UUID accountId);
 }

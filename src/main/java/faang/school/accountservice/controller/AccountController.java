@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,23 +43,20 @@ public class AccountController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseAccountDto createAccount(@Valid @RequestBody CreateAccountDto createAccountDto,  @RequestParam(required = false) Long userId,
-                                            @RequestParam(required = false) Long projectId) {
-        log.info("Creating account for user {} or project {}", userId, projectId);
-        return accountService.createAccount(createAccountDto, userId, projectId);
+    public ResponseAccountDto createAccount(@Valid @RequestBody CreateAccountDto createAccountDto) {
+        log.info("Creating account for user {} or project {}", createAccountDto.userId(), createAccountDto.projectId());
+        return accountService.createAccount(createAccountDto);
     }
 
     @PatchMapping("/{accountId}/block")
-    public ResponseAccountDto blockAccount(@PathVariable UUID accountId,  @RequestParam(required = false) Long userId,
-                                           @RequestParam(required = false) Long projectId) {
+    public ResponseAccountDto blockAccount(@PathVariable UUID accountId) {
         log.info("Blocking account {}", accountId);
-        return accountService.blockAccount(accountId, userId, projectId);
+        return accountService.blockAccount(accountId);
     }
 
     @PatchMapping("/{accountId}/close")
-    public ResponseAccountDto closeAccount(@PathVariable UUID accountId,  @RequestParam(required = false) Long userId,
-                                           @RequestParam(required = false) Long projectId) {
+    public ResponseAccountDto closeAccount(@PathVariable UUID accountId) {
         log.info("Closing account {}", accountId);
-        return accountService.closeAccount(accountId, userId, projectId);
+        return accountService.closeAccount(accountId);
     }
 }
