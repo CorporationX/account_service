@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.CreateAccountDto;
 
 public interface AccountService {
 
@@ -8,7 +9,7 @@ public interface AccountService {
 
     AccountDto getByAccountNumber(String accountNumber);
 
-    AccountDto openAccount(AccountDto accountDto);
+    AccountDto openAccount(CreateAccountDto accountDto);
 
     AccountDto blockAccount(String accountNumber);
 
