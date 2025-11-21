@@ -1,18 +1,18 @@
 package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.model.AccountType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record AccountDto(
         Long id,
         @JsonProperty("account_number")
         String accountNumber,
-        Double balance,
+        BigDecimal balance,
         OwnerDto owner,
         @JsonProperty("account_type")
         AccountType accountType,

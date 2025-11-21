@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS account
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     closed_at           TIMESTAMP,
-    account_version     BIGINT DEFAULT 0
+    account_version     BIGINT DEFAULT 1
 
 
  );

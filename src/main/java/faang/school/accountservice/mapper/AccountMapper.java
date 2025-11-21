@@ -13,8 +13,6 @@ public interface AccountMapper {
 
     AccountDto mapToDto(Account account);
 
-    Account mapToEntity(AccountDto accountDto);
-
     Account createAccountDtoToAccount(CreateAccountDto accountDto);
 
     OwnerDto mapToOwnerDto(Owner owner);

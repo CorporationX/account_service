@@ -14,13 +14,17 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OptimisticLockType;
+import org.hibernate.annotations.OptimisticLocking;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -29,6 +33,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "account")
+@OptimisticLocking(type = OptimisticLockType.VERSION)
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,9 +43,9 @@ public class Account {
     private String accountNumber;
 
     @Column(name = "balance")
-    private Double balance;
+    private BigDecimal balance;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Owner owner;
 
     @Enumerated(EnumType.STRING)
@@ -69,6 +74,7 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Version
     @Column(name = "account_version")
     private Long accountVersion;
 

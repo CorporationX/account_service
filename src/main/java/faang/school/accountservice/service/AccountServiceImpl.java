@@ -9,12 +9,13 @@ import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.model.Owner;
 import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.OwnerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -24,7 +25,6 @@ import java.util.Random;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
-    private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
 
     @Override
@@ -46,10 +46,11 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountMapper.createAccountDtoToAccount(accountDto);
         account.setAccountStatus(AccountStatus.ACTIVE);
+
+        //в дальнейшем будут генерироваться уникальные номера
         account.setAccountNumber(generateAccountNumber());
         account.setAccountStatus(AccountStatus.ACTIVE);
         account = accountRepository.save(account);
-        incrementAccountVersion(account);
         Owner owner = Owner.builder()
                 .personId(accountDto.ownerId())
                 .ownerPerson(accountDto.ownerPerson())
@@ -66,8 +67,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto blockAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         account.setAccountStatus(AccountStatus.FROZEN);
-        incrementAccountVersion(account);
-        return accountMapper.mapToDto(accountRepository.save(account));
+        return accountMapper.mapToDto(account);
     }
 
     @Override
@@ -75,27 +75,34 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto unblockAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         account.setAccountStatus(AccountStatus.ACTIVE);
-        incrementAccountVersion(account);
-        return accountMapper.mapToDto(accountRepository.save(account));
+        return accountMapper.mapToDto(account);
     }
 
     @Override
     @Transactional
     public AccountDto closeAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
+        if (account.getAccountStatus().equals(AccountStatus.CLOSED)) {
+            log.error("Account with number {} is already closed", accountNumber);
+            throw new ForbiddenException("Account is already closed");
+        }
+        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            log.error("Account with number {} has a non-zero balance", accountNumber);
+            throw new ForbiddenException("Account has a non-zero balance");
+        }
         account.setAccountStatus(AccountStatus.CLOSED);
-        incrementAccountVersion(account);
-        return accountMapper.mapToDto(accountRepository.save(account));
+        account.setClosedAt(LocalDateTime.now());
+        return accountMapper.mapToDto(account);
     }
 
     @Override
     @Transactional
-    public AccountDto withdraw(String accountNumber, double amount) {
+    public AccountDto withdraw(String accountNumber, BigDecimal amount) {
         Account account = validateAccountNumber(accountNumber);
-        double currentBalance = account.getBalance();
+        BigDecimal currentBalance = account.getBalance();
         if (account.getAccountStatus().equals(AccountStatus.ACTIVE)
-                && currentBalance >= amount) {
-            account.setBalance(currentBalance - amount);
+                && currentBalance.compareTo(amount) > 0) {
+            account.setBalance(currentBalance.subtract(amount));
             log.info("Account with number {} withdrawn {}", accountNumber, amount);
         } else {
             log.error("Account with number {} is not active or balance is insufficient", accountNumber);
@@ -105,11 +112,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto deposit(String accountNumber, double amount) {
+    @Transactional
+    public AccountDto deposit(String accountNumber, BigDecimal amount) {
         Account account = validateAccountNumber(accountNumber);
-        double currentBalance = account.getBalance();
+        BigDecimal currentBalance = account.getBalance();
         if (account.getAccountStatus().equals(AccountStatus.ACTIVE)) {
-            account.setBalance(currentBalance + amount);
+            account.setBalance(currentBalance.add(amount));
             log.info("Account with number {} deposited {}", accountNumber, amount);
         } else {
             log.error("Account with number {} is not active", accountNumber);
@@ -119,7 +127,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Double getBalance(String accountNumber) {
+    public BigDecimal getBalance(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
         return account.getBalance();
     }
@@ -133,17 +141,7 @@ public class AccountServiceImpl implements AccountService {
         return optionalAccount.get();
     }
 
-    @Transactional
-    private void incrementAccountVersion(Account account) {
-        if (account.getAccountVersion() == null) {
-            account.setAccountVersion(0L);
-        }
-        long version = account.getAccountVersion();
-        account.setAccountVersion(++version);
-        accountRepository.save(account);
-        log.info("Account version incremented to {}", version);
-    }
-
+    //временный метод заглушка
     private String generateAccountNumber() {
         String prefix = "408";
         StringBuilder base = new StringBuilder(prefix);

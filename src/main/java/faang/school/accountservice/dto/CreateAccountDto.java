@@ -5,9 +5,11 @@ import faang.school.accountservice.model.AccountType;
 import faang.school.accountservice.model.OwnerPerson;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
+
 public record CreateAccountDto(
         @NotNull
-        Double balance,
+        BigDecimal balance,
         @NotNull
         Long ownerId,
         @NotNull
