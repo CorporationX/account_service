@@ -19,7 +19,16 @@ spring:
 
 server:
   port: 8090
+  shutdown: graceful
+
+springdoc:
+  swagger-ui:
+    persist-authorization: true
 
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
