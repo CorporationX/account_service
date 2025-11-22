@@ -33,9 +33,9 @@ public class Owner {
     @Column(name = "person_id")
     private Long personId;
 
-    @Column(name = "owner_person")
+    @Column(name = "owner_type")
     @Enumerated(EnumType.STRING)
-    private OwnerPerson ownerPerson;
+    private OwnerType ownerType;
 
     @OneToOne
     @JoinColumn(name = "account_id")

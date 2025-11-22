@@ -39,7 +39,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", nullable = false, length = 20)
+    @Column(name = "account_number", nullable = false, length = 32)
     private String accountNumber;
 
     @Column(name = "balance")
