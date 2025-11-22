@@ -1,5 +1,6 @@
 package faang.school.accountservice.client;
 
+import faang.school.accountservice.dto.user.UserDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +12,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UserServiceClient {
 
     @GetMapping("/users/{userId}")
-    ResponseEntity<Object> getUser(@PathVariable long userId);
-
-    @GetMapping("/users/{userId}/exists")
-    ResponseEntity<Boolean> userExists(@PathVariable long userId);
+    ResponseEntity<UserDto> getUser(@PathVariable long userId);
 }

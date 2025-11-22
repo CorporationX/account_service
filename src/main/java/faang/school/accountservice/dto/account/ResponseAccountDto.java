@@ -17,7 +17,6 @@ public record ResponseAccountDto(
         AccountStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        LocalDateTime closedAt,
-        Integer version
+        LocalDateTime closedAt
 ) {
 }

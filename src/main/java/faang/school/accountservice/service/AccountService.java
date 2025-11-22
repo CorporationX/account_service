@@ -2,7 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.account.CreateAccountDto;
 import faang.school.accountservice.dto.account.ResponseAccountDto;
-import org.springframework.data.domain.Pageable;
+import faang.school.accountservice.enums.AccountStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,25 +19,20 @@ public interface AccountService {
      * Получить счета конкретного пользователя
      *
      * @param userId ID владельца счета
-     * @return список DTO счетов пользователя
-     */
-    List<ResponseAccountDto> getAccountsByUserId(Long userId, Pageable pageable);
-
-    /**
-     * Получить счета конкретного проекта
-     *
      * @param projectId ID проекта счета
-     * @return список DTO счетов проекта
+     * @return список DTO счетов пользователя
+     * @throws EntityNotFoundException если проект не существует
+     * @throws EntityNotFoundException если пользователь не существует
      */
-    List<ResponseAccountDto> getAccountsByProjectId(Long projectId, Pageable pageable);
+    List<ResponseAccountDto> getAccounts(Long userId, Long projectId);
 
     /**
      * Создать новый платежный счет
      *
-     * @param CreateAccountDto DTO с данными для создания счета
+     * @param createAccountDto DTO с данными для создания счета
      * @return созданный счет в виде DTO
-     * @throws IllegalArgumentException если проект не существует
-     * @throws IllegalArgumentException если пользователь не существует
+     * @throws EntityNotFoundException если проект не существует
+     * @throws EntityNotFoundException если пользователь не существует
      */
     ResponseAccountDto createAccount(CreateAccountDto createAccountDto);
 
@@ -45,17 +40,10 @@ public interface AccountService {
      * Заблокировать счет
      *
      * @param accountId ID счета
+     * @param status статус счета
      * @return обновленный DTO счета
-     * @throws IllegalArgumentException если счет не найден или не принадлежит владельцу
+     * @throws EntityNotFoundException если счет не найден
+     *  @throws IllegalStateException если переход статуса невозможен
      */
-    ResponseAccountDto blockAccount(UUID accountId);
-
-    /**
-     * Закрыть счет
-     *
-     * @param accountId ID счета
-     * @return обновленный DTO счета
-     * @throws IllegalArgumentException если счет не найден или не принадлежит владельцу
-     */
-    ResponseAccountDto closeAccount(UUID accountId);
+    ResponseAccountDto updateAccountStatus(UUID accountId, AccountStatus status);
 }
