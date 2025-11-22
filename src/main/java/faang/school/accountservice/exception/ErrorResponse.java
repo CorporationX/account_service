@@ -1,25 +1,19 @@
 package faang.school.accountservice.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.time.LocalDateTime;
 
-@Data
-@Builder
-@AllArgsConstructor
-public class ErrorResponse {
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timeStamp;
-
-    private String url;
-    private int status;
-    private String error;
-    private String message;
-
-    public ErrorResponse(String message) {
-        this.message = message;
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"timestamp", "status_code", "message", "path", "details"})
+public record ErrorResponse(
+        @JsonProperty("status_code")
+        int status,
+        String message,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+        LocalDateTime timestamp,
+        String path) {
 }
