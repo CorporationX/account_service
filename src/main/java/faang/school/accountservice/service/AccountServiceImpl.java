@@ -8,6 +8,7 @@ import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.model.Owner;
+import faang.school.accountservice.model.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -29,7 +31,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getById(Long id) {
-        return accountMapper.mapToDto(accountRepository.getByIdOrThrow(id));
+        return accountMapper.mapToDto(accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found")));
     }
 
     @Override
@@ -53,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
         account = accountRepository.save(account);
         Owner owner = Owner.builder()
                 .personId(accountDto.ownerId())
-                .ownerPerson(accountDto.ownerPerson())
+                .ownerType(accountDto.ownerType())
                 .account(account)
                 .build();
         account.setOwner(owner);
@@ -66,6 +69,9 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountDto blockAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
+        if (!account.getAccountStatus().equals(AccountStatus.ACTIVE)) {
+            throw new ForbiddenException("Account is not active");
+        }
         account.setAccountStatus(AccountStatus.FROZEN);
         return accountMapper.mapToDto(account);
     }
@@ -74,6 +80,9 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountDto unblockAccount(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
+        if (!account.getAccountStatus().equals(AccountStatus.FROZEN)) {
+            throw new ForbiddenException("Account is not frozen");
+        }
         account.setAccountStatus(AccountStatus.ACTIVE);
         return accountMapper.mapToDto(account);
     }
@@ -87,8 +96,7 @@ public class AccountServiceImpl implements AccountService {
             throw new ForbiddenException("Account is already closed");
         }
         if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
-            log.error("Account with number {} has a non-zero balance", accountNumber);
-            throw new ForbiddenException("Account has a non-zero balance");
+            throw new ForbiddenException(String.format("Account with number %s has a non-zero balance", accountNumber));
         }
         account.setAccountStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
@@ -101,12 +109,12 @@ public class AccountServiceImpl implements AccountService {
         Account account = validateAccountNumber(accountNumber);
         BigDecimal currentBalance = account.getBalance();
         if (account.getAccountStatus().equals(AccountStatus.ACTIVE)
-                && currentBalance.compareTo(amount) > 0) {
+                && currentBalance.compareTo(amount) > -1) {
             account.setBalance(currentBalance.subtract(amount));
             log.info("Account with number {} withdrawn {}", accountNumber, amount);
         } else {
-            log.error("Account with number {} is not active or balance is insufficient", accountNumber);
-            throw new ForbiddenException("Account is not active or balance is insufficient");
+            throw new ForbiddenException(
+                    String.format("Account with number %s is not active or balance is insufficient", accountNumber));
         }
         return accountMapper.mapToDto(account);
     }
@@ -120,8 +128,7 @@ public class AccountServiceImpl implements AccountService {
             account.setBalance(currentBalance.add(amount));
             log.info("Account with number {} deposited {}", accountNumber, amount);
         } else {
-            log.error("Account with number {} is not active", accountNumber);
-            throw new ForbiddenException("Account is not active");
+            throw new ForbiddenException(String.format("Account with number %s is not active", accountNumber));
         }
         return accountMapper.mapToDto(account);
     }
@@ -129,14 +136,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public BigDecimal getBalance(String accountNumber) {
         Account account = validateAccountNumber(accountNumber);
+        if (account.getAccountStatus().equals(AccountStatus.CLOSED)) {
+            throw new ForbiddenException(String.format("Account with number %s is closed", accountNumber));
+        }
         return account.getBalance();
+    }
+
+    @Override
+    public List<AccountDto> getAccountsByOwner(Long personId, OwnerType ownerType) {
+        return accountMapper.mapToDtos(accountRepository.findByPersonIdAndOwnerType(personId, ownerType));
     }
 
     private Account validateAccountNumber(String accountNumber) {
         Optional<Account> optionalAccount = accountRepository.findByAccountNumber(accountNumber);
         if (optionalAccount.isEmpty()) {
-            log.error("Account with number {} not found", accountNumber);
-            throw new EntityNotFoundException("Account not found");
+            throw new EntityNotFoundException(String.format("Account with number %s not found", accountNumber));
         }
         return optionalAccount.get();
     }

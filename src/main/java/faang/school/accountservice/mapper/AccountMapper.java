@@ -8,6 +8,8 @@ import faang.school.accountservice.model.Owner;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
 
@@ -16,4 +18,6 @@ public interface AccountMapper {
     Account createAccountDtoToAccount(CreateAccountDto accountDto);
 
     OwnerDto mapToOwnerDto(Owner owner);
+
+    List<AccountDto> mapToDtos(List<Account> accounts);
 }

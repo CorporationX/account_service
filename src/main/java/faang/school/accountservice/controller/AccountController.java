@@ -2,6 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.CreateAccountDto;
+import faang.school.accountservice.model.OwnerType;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,12 +31,12 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping("/{id}")
+    @GetMapping("id/{id}")
     public AccountDto getAccount(@PathVariable Long id) {
         return accountService.getById(id);
     }
 
-    @GetMapping("/{number}")
+    @GetMapping("number/{number}")
     public AccountDto getAccountByNumber(@NotNull @PathVariable String number) {
         return accountService.getByAccountNumber(number);
     }
@@ -42,6 +44,12 @@ public class AccountController {
     @GetMapping("/{number}/balance")
     public BigDecimal getBalance(@NotNull @PathVariable String number) {
         return accountService.getBalance(number);
+    }
+
+    @GetMapping("/owner-accounts")
+    public List<AccountDto> getAccountsByOwner(@RequestParam Long id,
+                                               @RequestParam OwnerType type) {
+        return accountService.getAccountsByOwner(id, type);
     }
 
     @PostMapping
