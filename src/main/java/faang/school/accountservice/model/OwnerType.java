@@ -1,6 +1,6 @@
 package faang.school.accountservice.model;
 
-public enum OwnerPerson {
+public enum OwnerType {
     USER,
     PROJECT
 }

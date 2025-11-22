@@ -7,7 +7,7 @@ public record OwnerDto(
         @NotNull
         Long ownerId,
         @NotNull
-        OwnerPerson ownerPerson
+        OwnerType ownerType
 
 ) {
 }

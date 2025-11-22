@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 
 public record AccountDto(
         Long id,
-
         @Min(12)
         @Max(20)
         @NotNull
