@@ -1,0 +1,14 @@
+CREATE TABLE balance (
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+
+    account_id UUID NOT NULL UNIQUE
+        REFERENCES account(id) ON DELETE CASCADE,
+
+    authorized_balance NUMERIC(19,4) NOT NULL,
+    actual_balance NUMERIC(19,4) NOT NULL,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    version BIGINT NOT NULL DEFAULT 0
+);
