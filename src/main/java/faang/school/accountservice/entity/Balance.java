@@ -6,10 +6,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,15 +22,19 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "balances")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account accountId;
+    @OneToOne
+    @JoinColumn(name = "account_id", nullable = false, unique = true)
+    private Account account;
 
     @Column(name = "authorization_balance", nullable = false)
     @Builder.Default
@@ -45,7 +53,6 @@ public class Balance {
     private LocalDateTime updatedAt;
 
     @Version
-    @Column(name = "version")
-    @Builder.Default
+    @Column(name = "version", nullable = false)
     private long version = 0L;
 }
