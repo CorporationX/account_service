@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.BalanceAlreadyExistsException;
 import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.exception.OperationNotAllowed;
 import faang.school.accountservice.repository.AccountRepository;
@@ -28,6 +29,10 @@ public class BalanceService {
 
         log.info("Creating balance for account {}", accountId);
 
+        if (balanceRepository.existsByAccountId(accountId)) {
+            throw new BalanceAlreadyExistsException(accountId);
+        }
+
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
 
@@ -44,10 +49,9 @@ public class BalanceService {
         return saved;
     }
 
+    @Transactional(readOnly = true)
     public Balance getBalance(UUID accountId) {
-
         log.debug("Fetching balance for account {}", accountId);
-
         return balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new BalanceNotFoundException(accountId));
     }
@@ -57,7 +61,7 @@ public class BalanceService {
 
         log.info("Authorizing {} for account {}", amount, accountId);
 
-        Balance balance = balanceRepository.findByAccountIdForUpdate(accountId)
+        Balance balance = balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new BalanceNotFoundException(accountId));
 
         validateEnoughActual(balance, amount);
@@ -68,7 +72,7 @@ public class BalanceService {
         log.info("Authorization completed for account {}. Authorized: {}, Actual: {}",
                 accountId, balance.getAuthorizedBalance(), balance.getActualBalance());
 
-        return balance;
+        return balanceRepository.save(balance);
     }
 
     @Transactional
@@ -76,7 +80,7 @@ public class BalanceService {
 
         log.info("Clearing {} for account {}", amount, accountId);
 
-        Balance balance = balanceRepository.findByAccountIdForUpdate(accountId)
+        Balance balance = balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new BalanceNotFoundException(accountId));
 
         validateEnoughAuthorized(balance, amount);
@@ -86,15 +90,15 @@ public class BalanceService {
         log.info("Clearing finished for account {}. New authorized balance: {}",
                 accountId, balance.getAuthorizedBalance());
 
-        return balance;
+        return balanceRepository.save(balance);
     }
 
     @Transactional
-    public Balance voidAuthorization(UUID accountId, BigDecimal amount) {
+    public Balance cancelAuthorization(UUID accountId, BigDecimal amount) {
 
         log.info("Voiding authorization {} for account {}", amount, accountId);
 
-        Balance balance = balanceRepository.findByAccountIdForUpdate(accountId)
+        Balance balance = balanceRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new BalanceNotFoundException(accountId));
 
         validateEnoughAuthorized(balance, amount);
@@ -105,7 +109,7 @@ public class BalanceService {
         log.info("Authorization voided for account {}. Authorized: {}, Actual: {}",
                 accountId, balance.getAuthorizedBalance(), balance.getActualBalance());
 
-        return balance;
+        return balanceRepository.save(balance);
     }
 
     public void validateEnoughActual(Balance balance, BigDecimal amount) {

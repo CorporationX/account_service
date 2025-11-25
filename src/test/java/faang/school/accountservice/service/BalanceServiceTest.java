@@ -4,6 +4,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.exception.AccountNotFoundException;
+import faang.school.accountservice.exception.BalanceAlreadyExistsException;
 import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.exception.OperationNotAllowed;
 import faang.school.accountservice.repository.AccountRepository;
@@ -59,17 +60,32 @@ class BalanceServiceTest {
     }
 
     @Test
+    void createBalance_alreadyExists() {
+        UUID accountId = UUID.randomUUID();
+
+        when(balanceRepository.existsByAccountId(accountId)).thenReturn(true);
+
+        assertThrows(BalanceAlreadyExistsException.class,
+                () -> balanceService.createBalance(accountId)
+        );
+
+        verify(balanceRepository).existsByAccountId(accountId);
+        verifyNoMoreInteractions(accountRepository);
+    }
+
+    @Test
     void createBalance_accountNotFound() {
         UUID accountId = UUID.randomUUID();
 
+        when(balanceRepository.existsByAccountId(accountId)).thenReturn(false);
         when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class,
                 () -> balanceService.createBalance(accountId)
         );
 
+        verify(balanceRepository).existsByAccountId(accountId);
         verify(accountRepository).findById(accountId);
-        verifyNoMoreInteractions(balanceRepository);
     }
 
     @Test
@@ -104,12 +120,15 @@ class BalanceServiceTest {
         balance.setActualBalance(new BigDecimal("100"));
         balance.setAuthorizedBalance(BigDecimal.ZERO);
 
-        when(balanceRepository.findByAccountIdForUpdate(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.save(balance)).thenReturn(balance);
 
         Balance result = balanceService.authorize(accountId, new BigDecimal("30"));
 
         assertEquals(new BigDecimal("70"), result.getActualBalance());
         assertEquals(new BigDecimal("30"), result.getAuthorizedBalance());
+
+        verify(balanceRepository).save(balance);
     }
 
     @Test
@@ -119,7 +138,7 @@ class BalanceServiceTest {
         Balance balance = new Balance();
         balance.setActualBalance(new BigDecimal("10"));
 
-        when(balanceRepository.findByAccountIdForUpdate(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         assertThrows(OperationNotAllowed.class,
                 () -> balanceService.authorize(accountId, new BigDecimal("50"))
@@ -133,11 +152,13 @@ class BalanceServiceTest {
         Balance balance = new Balance();
         balance.setAuthorizedBalance(new BigDecimal("40"));
 
-        when(balanceRepository.findByAccountIdForUpdate(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.save(balance)).thenReturn(balance);
 
         Balance result = balanceService.clearing(accountId, new BigDecimal("10"));
 
         assertEquals(new BigDecimal("30"), result.getAuthorizedBalance());
+        verify(balanceRepository).save(balance);
     }
 
     @Test
@@ -147,7 +168,7 @@ class BalanceServiceTest {
         Balance balance = new Balance();
         balance.setAuthorizedBalance(new BigDecimal("10"));
 
-        when(balanceRepository.findByAccountIdForUpdate(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         assertThrows(OperationNotAllowed.class,
                 () -> balanceService.clearing(accountId, new BigDecimal("50"))
@@ -162,12 +183,15 @@ class BalanceServiceTest {
         balance.setAuthorizedBalance(new BigDecimal("30"));
         balance.setActualBalance(new BigDecimal("100"));
 
-        when(balanceRepository.findByAccountIdForUpdate(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.save(balance)).thenReturn(balance);
 
-        Balance result = balanceService.voidAuthorization(accountId, new BigDecimal("20"));
+        Balance result = balanceService.cancelAuthorization(accountId, new BigDecimal("20"));
 
         assertEquals(new BigDecimal("10"), result.getAuthorizedBalance());
         assertEquals(new BigDecimal("120"), result.getActualBalance());
+
+        verify(balanceRepository).save(balance);
     }
 
     @Test
@@ -177,10 +201,10 @@ class BalanceServiceTest {
         Balance balance = new Balance();
         balance.setAuthorizedBalance(new BigDecimal("10"));
 
-        when(balanceRepository.findByAccountIdForUpdate(accountId)).thenReturn(Optional.of(balance));
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
 
         assertThrows(OperationNotAllowed.class,
-                () -> balanceService.voidAuthorization(accountId, new BigDecimal("50"))
+                () -> balanceService.cancelAuthorization(accountId, new BigDecimal("50"))
         );
     }
 }

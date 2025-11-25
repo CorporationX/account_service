@@ -1,14 +1,14 @@
 CREATE TABLE balance (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+      id                  UUID             PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    account_id UUID NOT NULL UNIQUE
-        REFERENCES account(id) ON DELETE CASCADE,
+      account_id          UUID             NOT NULL UNIQUE
+                                          REFERENCES account(id) ON DELETE RESTRICT,
 
-    authorized_balance NUMERIC(19,4) NOT NULL,
-    actual_balance NUMERIC(19,4) NOT NULL,
+      authorized_balance  NUMERIC(19,4)    NOT NULL,
+      actual_balance      NUMERIC(19,4)    NOT NULL,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      created_at          TIMESTAMPTZ      NOT NULL,
+      updated_at          TIMESTAMPTZ      NOT NULL,
 
-    version BIGINT NOT NULL DEFAULT 0
+      version             BIGINT           NOT NULL DEFAULT 0
 );

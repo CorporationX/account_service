@@ -31,8 +31,8 @@ public class BalanceFacade {
         return balanceMapper.toDto(balance);
     }
 
-    public BalanceDto voidAuthorization(UUID accountId, BigDecimal amount) {
-        Balance balance = balanceService.voidAuthorization(accountId, amount);
+    public BalanceDto cancelAuthorization(UUID accountId, BigDecimal amount) {
+        Balance balance = balanceService.cancelAuthorization(accountId, amount);
         return balanceMapper.toDto(balance);
     }
 }

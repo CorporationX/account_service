@@ -38,8 +38,8 @@ public class BalanceController {
     }
 
     @PostMapping("/{accountId}/cancel")
-    public BalanceDto voidAuthorization(@PathVariable UUID accountId,
+    public BalanceDto cancelAuthorization(@PathVariable UUID accountId,
                              @RequestParam BigDecimal amount) {
-        return balanceFacade.voidAuthorization(accountId, amount);
+        return balanceFacade.cancelAuthorization(accountId, amount);
     }
 }

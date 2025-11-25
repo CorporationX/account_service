@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public class BalanceNotFoundException extends RuntimeException {
     public BalanceNotFoundException(UUID accountId) {
-        super("Balance for account " + accountId + " not found");
+        super("Balance for account " + accountId + "not found");
     }
 }
