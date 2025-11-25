@@ -21,22 +21,18 @@ public class BalanceFacade {
         return balanceMapper.toDto(balanceService.getBalance(accountId));
     }
 
-    public BalanceDto createBalance(UUID accountId) {
-        return balanceMapper.toDto(balanceService.createBalance(accountId));
-    }
-
     public BalanceDto authorize(UUID accountId, BigDecimal amount) {
         Balance balance = balanceService.authorize(accountId, amount);
         return balanceMapper.toDto(balance);
     }
 
-    public BalanceDto clear(UUID accountId, BigDecimal amount) {
-        Balance balance = balanceService.clear(accountId, amount);
+    public BalanceDto clearing(UUID accountId, BigDecimal amount) {
+        Balance balance = balanceService.clearing(accountId, amount);
         return balanceMapper.toDto(balance);
     }
 
-    public BalanceDto cancelAuthorization(UUID accountId, BigDecimal amount) {
-        Balance balance = balanceService.cancelAuthorization(accountId, amount);
+    public BalanceDto voidAuthorization(UUID accountId, BigDecimal amount) {
+        Balance balance = balanceService.voidAuthorization(accountId, amount);
         return balanceMapper.toDto(balance);
     }
 }

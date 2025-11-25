@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class BalanceController {
 
     private final BalanceFacade balanceFacade;
@@ -30,14 +32,14 @@ public class BalanceController {
     }
 
     @PostMapping("/{accountId}/clear")
-    public BalanceDto clear(@PathVariable UUID accountId,
+    public BalanceDto clearing(@PathVariable UUID accountId,
                             @RequestParam BigDecimal amount) {
-        return balanceFacade.clear(accountId, amount);
+        return balanceFacade.clearing(accountId, amount);
     }
 
     @PostMapping("/{accountId}/cancel")
-    public BalanceDto cancel(@PathVariable UUID accountId,
+    public BalanceDto voidAuthorization(@PathVariable UUID accountId,
                              @RequestParam BigDecimal amount) {
-        return balanceFacade.cancelAuthorization(accountId, amount);
+        return balanceFacade.voidAuthorization(accountId, amount);
     }
 }

@@ -33,7 +33,9 @@ public class GlobalExceptionHandler {
             IllegalArgumentException.class, HttpStatus.BAD_REQUEST,
             ConstraintViolationException.class, HttpStatus.BAD_REQUEST,
             OptimisticLockException.class, HttpStatus.CONFLICT,
-            OperationNotAllowed.class, HttpStatus.CONFLICT
+            OperationNotAllowed.class, HttpStatus.CONFLICT,
+            AccountNotFoundException.class, HttpStatus.NOT_FOUND,
+            BalanceNotFoundException.class, HttpStatus.NOT_FOUND
     );
 
     @ExceptionHandler(FeignException.class)

@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,6 +79,4 @@ class AccountServiceTest {
 
         assertNull(accountDto.statusChangeReason());
     }
-
-
 }
