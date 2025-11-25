@@ -19,6 +19,24 @@ spring:
     enabled: true
     drop-first: false
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channel:
+        requestAndOperations: follower_channel
+
+notification:
+  templates:
+    request-created: "Ваш запрос (%s) создан. Статус: %s"
+    request-status-updated: "Статус вашего запроса (%s) изменён на: %s"
+    request-flag-updated: "Флаг open вашего запроса (%s) изменён на: %s"
+    request-context-updated: "Контекст запроса (%s) был обновлён"
+
+scheduler:
+  notification:
+    delay: 10000
+
 server:
   port: 8090
 
