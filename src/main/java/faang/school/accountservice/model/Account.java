@@ -44,8 +44,13 @@ public class Account {
     @Enumerated(EnumType.ORDINAL)
     private AccountStatusType status;
 
-    @Column(name = "balance", nullable = false)
-    private long balance;
+    @OneToOne(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private Balance balance;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
