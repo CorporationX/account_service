@@ -28,12 +28,12 @@ import java.util.UUID;
 public class Balance {
 
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false, unique = true)
+    @JoinColumn(name = "account", nullable = false, unique = true)
     private Account account;
 
     @Column(name = "authorization_amount", nullable = false)
