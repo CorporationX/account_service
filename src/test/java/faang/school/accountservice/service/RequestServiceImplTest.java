@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.RequestResponseDto;
 import faang.school.accountservice.dto.RequestUpdateContextDto;
 import faang.school.accountservice.dto.RequestUpdateFlagDto;
 import faang.school.accountservice.dto.RequestUpdateStatusDto;
+import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.model.NotificationType;
 import faang.school.accountservice.model.Request;
 import faang.school.accountservice.model.RequestStatus;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -40,9 +42,26 @@ public class RequestServiceImplTest {
     private MessagePublisher messagePublisher;
     @Mock
     private NotificationMessageFactory messageFactory;
-
+    @Mock
+    private RequestMapper mapper;
     @InjectMocks
     private RequestServiceImpl requestService;
+
+    @BeforeEach
+    void setUp() {
+        when(mapper.toDto(any())).thenAnswer(invocation -> {
+            Request req = invocation.getArgument(0);
+            return new RequestResponseDto(
+                    req.getIdempotencyKey(),
+                    req.getUserId(),
+                    req.getRequestType(),
+                    req.getRequestStatus(),
+                    req.isOpen(),
+                    req.getInputRequest(),
+                    req.getStatusDetails()
+            );
+        });
+    }
 
     @Test
     void shouldReturnRequestResponseDto() {
@@ -67,7 +86,6 @@ public class RequestServiceImplTest {
         assertNotNull(response);
         assertEquals(saved.getUserId(), response.userId());
     }
-
 
     @Test
     void shouldUpdateStatus() {

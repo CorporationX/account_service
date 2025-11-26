@@ -7,11 +7,19 @@ import faang.school.accountservice.model.RequestType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RequestMapperTest {
+    private RequestMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new RequestMapperImpl();
+    }
+
     @Test
     void toDto_shouldMapAllFieldsCorrectly() {
         UUID idempotencyKey = UUID.randomUUID();
@@ -32,7 +40,7 @@ public class RequestMapperTest {
         request.setInputRequest(inputRequest);
         request.setStatusDetails(statusDetails);
 
-        RequestResponseDto dto = RequestMapper.toDto(request);
+        RequestResponseDto dto = mapper.toDto(request);
 
         assertEquals(idempotencyKey, dto.idempotencyKey());
         assertEquals(userId, dto.userId());

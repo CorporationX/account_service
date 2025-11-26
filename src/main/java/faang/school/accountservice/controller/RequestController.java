@@ -6,9 +6,10 @@ import faang.school.accountservice.dto.RequestUpdateContextDto;
 import faang.school.accountservice.dto.RequestUpdateFlagDto;
 import faang.school.accountservice.dto.RequestUpdateStatusDto;
 import faang.school.accountservice.service.RequestService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,41 +18,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/requests")
+@RequestMapping("/api/v1/requests")
 @RequiredArgsConstructor
+@Validated
 public class RequestController {
     private final RequestService requestService;
 
     @PostMapping
-    public ResponseEntity<RequestResponseDto> createRequest(@RequestBody RequestCreateDto requestCreateDto) {
-        RequestResponseDto response = requestService.createRequest(requestCreateDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public RequestResponseDto createRequest(@Valid @RequestBody RequestCreateDto requestCreateDto) {
+        return requestService.createRequest(requestCreateDto);
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<RequestResponseDto> updateStatus(
-            @PathVariable("id") long id,
-            @RequestBody RequestUpdateStatusDto statusDto
+    public RequestResponseDto updateStatus(
+            @PathVariable("id") @Positive long id,
+            @Valid @RequestBody RequestUpdateStatusDto statusDto
     ) {
-        RequestResponseDto response = requestService.updateStatusRequest(id, statusDto);
-        return ResponseEntity.ok(response);
+        return requestService.updateStatusRequest(id, statusDto);
     }
 
     @PatchMapping("/{id}/flag")
-    public ResponseEntity<RequestResponseDto> updateFlag(
-            @PathVariable("id") long id,
-            @RequestBody RequestUpdateFlagDto flagDto
+    public RequestResponseDto updateFlag(
+            @PathVariable("id") @Positive long id,
+            @Valid @RequestBody RequestUpdateFlagDto flagDto
     ) {
-        RequestResponseDto response = requestService.updateFlagRequest(id, flagDto);
-        return ResponseEntity.ok(response);
+        return requestService.updateFlagRequest(id, flagDto);
     }
 
     @PatchMapping("/{id}/context")
-    public ResponseEntity<RequestResponseDto> updateContext(
-            @PathVariable("id") long id,
-            @RequestBody RequestUpdateContextDto contextDto
+    public RequestResponseDto updateContext(
+            @PathVariable("id") @Positive long id,
+            @Valid @RequestBody RequestUpdateContextDto contextDto
     ) {
-        RequestResponseDto response = requestService.updateContextRequest(id, contextDto);
-        return ResponseEntity.ok(response);
+        return requestService.updateContextRequest(id, contextDto);
     }
 }

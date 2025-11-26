@@ -5,18 +5,16 @@ import faang.school.accountservice.repository.RequestRepository;
 import faang.school.accountservice.service.notification.publisher.MessagePublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationSchedulerService {
+public class NotificationPendingService {
 
     private final RequestRepository requestRepository;
     private final MessagePublisher messagePublisher;
     private final NotificationMessageFactory messageFactory;
 
-    @Scheduled(fixedDelayString = "${scheduler.notification.delay}")
     @Async
     public void processPendingNotifications() {
         requestRepository.findByNotificationPendingTrue()
