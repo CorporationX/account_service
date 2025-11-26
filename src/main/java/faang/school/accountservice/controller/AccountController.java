@@ -31,12 +31,12 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping("id/{id}")
+    @GetMapping("/id/{id}")
     public AccountDto getAccount(@PathVariable Long id) {
         return accountService.getById(id);
     }
 
-    @GetMapping("number/{number}")
+    @GetMapping("/number/{number}")
     public AccountDto getAccountByNumber(@NotNull @PathVariable String number) {
         return accountService.getByAccountNumber(number);
     }
@@ -47,7 +47,7 @@ public class AccountController {
     }
 
     @GetMapping("/owner-accounts")
-    public List<AccountDto> getAccountsByOwner(@RequestParam Long id,
+    public List<AccountDto> getAccountsByOwner(@RequestParam @Positive Long id,
                                                @RequestParam OwnerType type) {
         return accountService.getAccountsByOwner(id, type);
     }

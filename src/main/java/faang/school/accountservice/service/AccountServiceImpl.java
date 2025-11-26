@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -52,7 +51,6 @@ public class AccountServiceImpl implements AccountService {
 
         //в дальнейшем будут генерироваться уникальные номера
         account.setAccountNumber(generateAccountNumber());
-        account.setAccountStatus(AccountStatus.ACTIVE);
         account = accountRepository.save(account);
         Owner owner = Owner.builder()
                 .personId(accountDto.ownerId())
@@ -148,11 +146,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Account validateAccountNumber(String accountNumber) {
-        Optional<Account> optionalAccount = accountRepository.findByAccountNumber(accountNumber);
-        if (optionalAccount.isEmpty()) {
-            throw new EntityNotFoundException(String.format("Account with number %s not found", accountNumber));
-        }
-        return optionalAccount.get();
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Account with number %s not found", accountNumber)));
     }
 
     //временный метод заглушка
