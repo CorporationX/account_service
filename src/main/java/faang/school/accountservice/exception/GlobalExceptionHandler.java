@@ -1,5 +1,6 @@
 package faang.school.accountservice.exception;
 
+import faang.school.accountservice.dto.Error;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,42 +8,36 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<ApiError> handleAccountNotFound(AccountNotFoundException e) {
+    public ResponseEntity<Error> handleAccountNotFound(AccountNotFoundException e) {
         log.error("Account not found: {}", e.getMessage());
-        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "ACCOUNT_NOT_FOUND", e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+        Error error = new Error("ACCOUNT_NOT_FOUND", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(InvalidAccountOperationException.class)
-    public ResponseEntity<ApiError> handleInvalidOperation(InvalidAccountOperationException e) {
+    public ResponseEntity<Error> handleInvalidOperation(InvalidAccountOperationException e) {
         log.error("Invalid account operation: {}", e.getMessage());
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "INVALID_OPERATION", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+        Error error = new Error("INVALID_OPERATION", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationError(MethodArgumentNotValidException e) {
+    public ResponseEntity<Error> handleValidationError(MethodArgumentNotValidException e) {
         log.error("Validation error: {}", e.getMessage());
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getFieldErrors().forEach(err ->
-                errors.put(err.getField(), err.getDefaultMessage()));
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "VALIDATION_ERROR", errors.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+        String message = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        Error error = new Error("VALIDATION_ERROR", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGenericError(Exception e) {
-        log.error("Unexpected error: ", e);
-        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            "INTERNAL_ERROR", "An unexpected error occurred");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+    public ResponseEntity<Error> handleGenericError(Exception e) {
+        log.error("Unexpected error: {}", e.getMessage(), e);
+        Error error = new Error("INTERNAL_ERROR", "An unexpected error occurred");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

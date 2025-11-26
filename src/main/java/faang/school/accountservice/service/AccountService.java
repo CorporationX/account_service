@@ -1,6 +1,5 @@
 package faang.school.accountservice.service;
 
-
 import faang.school.accountservice.dto.AccountResponse;
 import faang.school.accountservice.dto.OpenAccountRequest;
 import faang.school.accountservice.entity.Account;
@@ -12,6 +11,7 @@ import faang.school.accountservice.exception.InvalidAccountOperationException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.AccountNumberGenerator;
+import faang.school.accountservice.validator.AccountValidator;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final AccountNumberGenerator accountNumberGenerator;
-
-    private static final int MAX_ACCOUNTS_PER_OWNER = 10;
+    private final AccountValidator accountValidator;
 
     @Transactional(readOnly = true)
     public AccountResponse getAccount(Long accountId) {
@@ -43,6 +42,8 @@ public class AccountService {
     @Transactional(readOnly = true)
     public AccountResponse getAccountByNumber(String accountNumber) {
         log.info("Getting account with number: {}", accountNumber);
+        accountValidator.validateAccountNumber(accountNumber);
+
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(
                         "Account not found with number: " + accountNumber));
@@ -63,9 +64,15 @@ public class AccountService {
         log.info("Opening new account for owner: {} of type: {}",
                 request.ownerId(), request.ownerType());
 
-        validateAccountLimit(request.ownerId(), request.ownerType());
+        accountValidator.validateAccountOpening(
+                request.ownerId(),
+                request.ownerType(),
+                request.currency()
+        );
 
+        // Генерация уникального номера счета с проверкой в БД
         String accountNumber = accountNumberGenerator.generate();
+        log.debug("Generated unique account number: {}", accountNumber);
 
         Account account = Account.builder()
                 .accountNumber(accountNumber)
@@ -89,27 +96,13 @@ public class AccountService {
 
         Account account = findAccountById(accountId);
 
-        if (account.isClosed()) {
-            throw new InvalidAccountOperationException(
-                    "Cannot block a closed account: " + accountId);
-        }
-
-        if (account.getStatus() == AccountStatus.BLOCKED) {
-            throw new InvalidAccountOperationException(
-                    "Account is already blocked: " + accountId);
-        }
+        accountValidator.validateBlockAccount(account);
 
         account.setStatus(AccountStatus.BLOCKED);
 
-        try {
-            Account updatedAccount = accountRepository.save(account);
-            log.info("Successfully blocked account: {}", accountId);
-            return accountMapper.toResponse(updatedAccount);
-        } catch (OptimisticLockingFailureException | OptimisticLockException e) {
-            log.error("Optimistic lock error while blocking account: {}", accountId);
-            throw new InvalidAccountOperationException(
-                    "Account was modified by another process. Please try again.");
-        }
+        Account updatedAccount = saveWithOptimisticLock(account, "blocking");
+        log.info("Successfully blocked account: {}", accountId);
+        return accountMapper.toResponse(updatedAccount);
     }
 
     @Transactional
@@ -118,27 +111,13 @@ public class AccountService {
 
         Account account = findAccountById(accountId);
 
-        if (account.isClosed()) {
-            throw new InvalidAccountOperationException(
-                    "Cannot freeze a closed account: " + accountId);
-        }
-
-        if (account.getStatus() == AccountStatus.FROZEN) {
-            throw new InvalidAccountOperationException(
-                    "Account is already frozen: " + accountId);
-        }
+        accountValidator.validateFreezeAccount(account);
 
         account.setStatus(AccountStatus.FROZEN);
 
-        try {
-            Account updatedAccount = accountRepository.save(account);
-            log.info("Successfully frozen account: {}", accountId);
-            return accountMapper.toResponse(updatedAccount);
-        } catch (OptimisticLockingFailureException | OptimisticLockException e) {
-            log.error("Optimistic lock error while freezing account: {}", accountId);
-            throw new InvalidAccountOperationException(
-                    "Account was modified by another process. Please try again.");
-        }
+        Account updatedAccount = saveWithOptimisticLock(account, "freezing");
+        log.info("Successfully frozen account: {}", accountId);
+        return accountMapper.toResponse(updatedAccount);
     }
 
     @Transactional
@@ -147,22 +126,13 @@ public class AccountService {
 
         Account account = findAccountById(accountId);
 
-        if (!account.isFrozen()) {
-            throw new InvalidAccountOperationException(
-                    "Account is not frozen: " + accountId);
-        }
+        accountValidator.validateUnfreezeAccount(account);
 
         account.setStatus(AccountStatus.ACTIVE);
 
-        try {
-            Account updatedAccount = accountRepository.save(account);
-            log.info("Successfully unfrozen account: {}", accountId);
-            return accountMapper.toResponse(updatedAccount);
-        } catch (OptimisticLockingFailureException | OptimisticLockException e) {
-            log.error("Optimistic lock error while unfreezing account: {}", accountId);
-            throw new InvalidAccountOperationException(
-                    "Account was modified by another process. Please try again.");
-        }
+        Account updatedAccount = saveWithOptimisticLock(account, "unfreezing");
+        log.info("Successfully unfrozen account: {}", accountId);
+        return accountMapper.toResponse(updatedAccount);
     }
 
     @Transactional
@@ -171,30 +141,14 @@ public class AccountService {
 
         Account account = findAccountById(accountId);
 
-        if (account.isClosed()) {
-            throw new InvalidAccountOperationException(
-                    "Account is already closed: " + accountId);
-        }
-
-        // Проверка, что баланс нулевой
-        if (account.getBalance().compareTo(java.math.BigDecimal.ZERO) != 0) {
-            throw new InvalidAccountOperationException(
-                    "Cannot close account with non-zero balance. Current balance: "
-                            + account.getBalance());
-        }
+        accountValidator.validateCloseAccount(account);
 
         account.setStatus(AccountStatus.CLOSED);
         account.setClosedAt(LocalDateTime.now());
 
-        try {
-            Account updatedAccount = accountRepository.save(account);
-            log.info("Successfully closed account: {}", accountId);
-            return accountMapper.toResponse(updatedAccount);
-        } catch (OptimisticLockingFailureException | OptimisticLockException e) {
-            log.error("Optimistic lock error while closing account: {}", accountId);
-            throw new InvalidAccountOperationException(
-                    "Account was modified by another process. Please try again.");
-        }
+        Account updatedAccount = saveWithOptimisticLock(account, "closing");
+        log.info("Successfully closed account: {}", accountId);
+        return accountMapper.toResponse(updatedAccount);
     }
 
     @Transactional(readOnly = true)
@@ -219,12 +173,14 @@ public class AccountService {
                         "Account not found with id: " + accountId));
     }
 
-    private void validateAccountLimit(Long ownerId, OwnerType ownerType) {
-        long accountCount = accountRepository.countActiveAccountsByOwner(ownerId, ownerType);
-        if (accountCount >= MAX_ACCOUNTS_PER_OWNER) {
+    private Account saveWithOptimisticLock(Account account, String operation) {
+        try {
+            return accountRepository.save(account);
+        } catch (OptimisticLockingFailureException | OptimisticLockException e) {
+            log.error("Optimistic lock error while {} account: {}", operation, account.getId());
             throw new InvalidAccountOperationException(
-                    String.format("Owner %d has reached the maximum limit of %d active accounts",
-                            ownerId, MAX_ACCOUNTS_PER_OWNER));
+                    String.format("Account %d was modified by another process. " +
+                            "Please refresh and try again.", account.getId()));
         }
     }
 }

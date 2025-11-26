@@ -1,6 +1,7 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             @Param("ownerId") Long ownerId,
             @Param("ownerType") OwnerType ownerType
     );
+
+    boolean existsByOwnerIdAndOwnerTypeAndCurrencyAndStatus(Long ownerId, OwnerType ownerType,
+                                                            Currency currency, AccountStatus accountStatus);
 }
