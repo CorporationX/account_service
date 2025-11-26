@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -25,14 +26,18 @@ public class GlobalExceptionHandler {
 
     private final ObjectMapper objectMapper;
 
-    private static final Map<Class<? extends Exception>, HttpStatus> EXCEPTION_STATUS_MAP = Map.of(
-            DataValidationException.class, HttpStatus.BAD_REQUEST,
-            EntityNotFoundException.class, HttpStatus.NOT_FOUND,
-            ForbiddenException.class, HttpStatus.FORBIDDEN,
-            MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST,
-            IllegalArgumentException.class, HttpStatus.BAD_REQUEST,
-            ConstraintViolationException.class, HttpStatus.BAD_REQUEST,
-            OptimisticLockException.class, HttpStatus.CONFLICT
+    private static final Map<Class<? extends Exception>, HttpStatus> EXCEPTION_STATUS_MAP = Map.ofEntries(
+            Map.entry(DataValidationException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(EntityNotFoundException.class, HttpStatus.NOT_FOUND),
+            Map.entry(ForbiddenException.class, HttpStatus.FORBIDDEN),
+            Map.entry(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(IllegalArgumentException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(ConstraintViolationException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(OptimisticLockException.class, HttpStatus.CONFLICT),
+            Map.entry(OperationNotAllowed.class, HttpStatus.CONFLICT),
+            Map.entry(AccountNotFoundException.class, HttpStatus.NOT_FOUND),
+            Map.entry(BalanceNotFoundException.class, HttpStatus.NOT_FOUND),
+            Map.entry(BalanceAlreadyExistsException.class, HttpStatus.CONFLICT)
     );
 
     @ExceptionHandler(FeignException.class)

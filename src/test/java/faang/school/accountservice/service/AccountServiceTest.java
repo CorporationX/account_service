@@ -79,6 +79,4 @@ class AccountServiceTest {
 
         assertNull(accountDto.statusChangeReason());
     }
-
-
 }
