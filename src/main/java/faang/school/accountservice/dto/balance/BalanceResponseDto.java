@@ -1,10 +1,13 @@
 package faang.school.accountservice.dto.balance;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
+@Builder
 public record BalanceResponseDto(
-        Long accountId,
         LocalDateTime updatedAt,
-        Long authorizationAmount
+        Long authorizationAmount,
+        LocalDateTime createdAt
 ) {
 }
