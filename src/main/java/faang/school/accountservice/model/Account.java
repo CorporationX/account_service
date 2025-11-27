@@ -42,7 +42,7 @@ public class Account {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    private AccountStatusType status;
+    private AccountStatusType status = AccountStatusType.ACTIVE;
 
     @OneToOne(
             mappedBy = "account",
