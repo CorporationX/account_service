@@ -80,5 +80,5 @@ public class Account {
 
     @Version
     @Column(name = "version", nullable = false)
-    private Integer version = 1;
+    private Integer version;
 }

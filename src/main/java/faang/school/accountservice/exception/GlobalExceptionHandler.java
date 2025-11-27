@@ -72,10 +72,25 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("external_service_error", "External service error occurred");
     }
 
+    /**
+     * Исключение, возникающее при попытке выполнить некорректный переход статуса запроса.
+     * Возвращает 400 BAD_REQUEST.
+     */
     @ExceptionHandler(IllegalStatusTransitionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalStatusTransitionException(IllegalStatusTransitionException ex) {
         log.warn("Illegal status transition: {}", ex.getMessage());
         return new ErrorResponse("illegal_status_transition", ex.getMessage());
+    }
+
+    /**
+     * Обработка ошибок нарушения уникальности (дубликаты lockValue или idempotencyToken).
+     * Возвращает 409 CONFLICT.
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateKeyException(DuplicateKeyException  ex) {
+        log.warn("Duplicate key violation: {}", ex.getMessage());
+        return new ErrorResponse("duplicate_key", ex.getMessage());
     }
 }
