@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.money;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.enums.Currency;

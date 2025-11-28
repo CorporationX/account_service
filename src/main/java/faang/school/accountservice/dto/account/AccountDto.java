@@ -1,8 +1,8 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.account;
 
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.model.AccountStatus;
-import faang.school.accountservice.model.AccountType;
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.Owner;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
