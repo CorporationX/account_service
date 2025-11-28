@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -77,6 +78,7 @@ public class Account {
     private Long version = 0L;
 
     @OneToOne(mappedBy = "account")
+    @JsonIgnore
     private Balance balance;
 
     public boolean isActive() {
