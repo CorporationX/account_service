@@ -27,6 +27,7 @@ public class KafkaConfig {
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-service");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
@@ -40,7 +41,7 @@ public class KafkaConfig {
 
     @Bean("paymentKafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            @Qualifier("eventConsumerFactory") ConsumerFactory<String, Object> consumerFactory) {
+            @Qualifier("paymentConsumerFactory") ConsumerFactory<String, Object> consumerFactory) {
 
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();

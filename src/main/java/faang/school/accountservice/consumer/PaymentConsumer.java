@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.payment.PaymentDto;
 import faang.school.accountservice.service.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -19,10 +20,15 @@ public class PaymentConsumer {
     private final BalanceService balanceService;
     private final ObjectMapper objectMapper;
 
+    @KafkaListener(
+            topics = "${spring.kafka.topic.payments}",
+            containerFactory = "paymentKafkaListenerContainerFactory"
+    )
     public void handlePaymentListener(@Payload Map<String, Object> message, Acknowledgment ack) {
 
         PaymentDto paymentDto = objectMapper.convertValue(message, PaymentDto.class);
-
+        log.info("Message processed! AccountId - {}, amount - {}, type - {}",
+                paymentDto.accountId(), paymentDto.amount(), paymentDto.typeOperation());
         paymentDto.typeOperation().process(balanceService, paymentDto);
 
         ack.acknowledge();
