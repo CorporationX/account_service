@@ -112,13 +112,13 @@ public class BalanceService {
         return balanceRepository.save(balance);
     }
 
-    public void validateEnoughActual(Balance balance, BigDecimal amount) {
+    private void validateEnoughActual(Balance balance, BigDecimal amount) {
         if (balance.getActualBalance().compareTo(amount) < 0) {
             throw new OperationNotAllowed("Not enough funds for authorization");
         }
     }
 
-    public void validateEnoughAuthorized(Balance balance, BigDecimal amount) {
+    private void validateEnoughAuthorized(Balance balance, BigDecimal amount) {
         if (balance.getAuthorizedBalance().compareTo(amount) < 0) {
             throw new OperationNotAllowed("Not enough authorized funds");
         }
