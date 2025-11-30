@@ -23,10 +23,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-import static faang.school.accountservice.enums.request.RequestStatus.CANCELLED;
-import static faang.school.accountservice.enums.request.RequestStatus.COMPLETED;
-import static faang.school.accountservice.enums.request.RequestStatus.FAILED;
-
 @Getter
 @Setter
 @Builder
@@ -66,17 +62,10 @@ public class Request {
     @Column(name = "request_status", nullable = false)
     private RequestStatus requestStatus = RequestStatus.PENDING;
 
-    public void setRequestStatus(RequestStatus status) {
-        this.requestStatus = status;
-        this.isOpen = !isFinalStatus(status);
-    }
-
-    public Boolean isOpen() {
-        return isOpen;
-    }
-
-    private boolean isFinalStatus(RequestStatus status) {
-        return status == COMPLETED || status == FAILED || status == CANCELLED;
+    public void changeStatus(RequestStatus newStatus, String details) {
+        this.requestStatus = newStatus;
+        this.isOpen = !newStatus.isFinal();
+        this.statusDetails = details;
     }
 
     @Column(name = "status_details")

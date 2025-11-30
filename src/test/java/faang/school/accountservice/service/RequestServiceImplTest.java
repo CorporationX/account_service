@@ -6,11 +6,11 @@ import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.enums.request.OperationType;
 import faang.school.accountservice.enums.request.RequestStatus;
 import faang.school.accountservice.exception.EntityNotFoundException;
+import faang.school.accountservice.exception.IllegalStatusTransitionException;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.publisher.RequestStatusPublisher;
 import faang.school.accountservice.repository.RequestRepository;
-import faang.school.accountservice.service.operation.OperationHandler;
-import faang.school.accountservice.service.operation.OperationHandlerRegistry;
+import faang.school.accountservice.service.operation.AsyncRequestProcessor;
 import faang.school.accountservice.service.request.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,10 +48,7 @@ public class RequestServiceImplTest {
     private RequestRepository requestRepository;
 
     @Mock
-    private OperationHandlerRegistry operationHandlerRegistry;
-
-    @Mock
-    private OperationHandler operationHandler;
+    private AsyncRequestProcessor asyncRequestProcessor;
 
     @Mock
     private RequestStatusPublisher requestStatusPublisher;
@@ -63,6 +60,7 @@ public class RequestServiceImplTest {
     private RequestServiceImpl requestService;
 
     private CreateRequestDto createRequestDto;
+    private Request request;
 
     @BeforeEach
     public void setUp() {
@@ -73,32 +71,48 @@ public class RequestServiceImplTest {
                 "lock-123",
                 Map.of("amount", 1000, "currency", "USD")
         );
+
+        request = new Request();
+        request.setIdempotencyToken(IDEMPOTENCY_TOKEN);
+        request.setUserId(USER_ID);
+        request.setOperationType(OperationType.ACCOUNT_CREATE);
+        request.setLockValue("lock-123");
+        request.setInputData(Map.of("amount", 1000));
+        request.setRequestStatus(RequestStatus.PENDING);
+        request.setIsOpen(true);
+    }
+
+    private ResponseRequestDto createResponseRequestDto(RequestStatus status, String statusDetails) {
+        return new ResponseRequestDto(
+                IDEMPOTENCY_TOKEN,
+                USER_ID,
+                null,
+                OperationType.ACCOUNT_CREATE,
+                "lock-123",
+                Map.of("amount", 1000),
+                status,
+                statusDetails,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
     }
 
     @Test
     public void createRequest_WithValidUserRequest_RequestCreatedSuccessfully() {
-        Request pendingRequest = createTestRequestUser();
-        Request completedRequest = createTestRequestUser();
-        completedRequest.setRequestStatus(RequestStatus.COMPLETED);
-        completedRequest.setStatusDetails("Success");
-        completedRequest.setIsOpen(false);
-
         when(requestRepository.findById(IDEMPOTENCY_TOKEN)).thenReturn(Optional.empty());
-        when(requestRepository.existsByLockValueAndIsOpenTrue("lock-123")).thenReturn(false);
-        when(requestRepository.save(any(Request.class))).thenReturn(completedRequest)
-                .thenReturn(completedRequest);
-        when(operationHandlerRegistry.getHandler(OperationType.ACCOUNT_CREATE))
-                .thenReturn(operationHandler);
+        when(requestMapper.toEntity(createRequestDto)).thenReturn(request);
+        when(requestRepository.save(request)).thenReturn(request);
 
-        ResponseRequestDto response = requestService.createRequest(IDEMPOTENCY_TOKEN, createRequestDto);
+        ResponseRequestDto responseDto = createResponseRequestDto(RequestStatus.PENDING, null);
 
-        assertNotNull(response);
-        assertEquals(RequestStatus.COMPLETED, response.requestStatus());
-        assertUserRequest(response);
+        when(requestMapper.toResponseRequestDto(request)).thenReturn(responseDto);
 
-        verify(requestRepository, times(2)).save(any(Request.class));
-        verify(operationHandler).execute(any(Request.class));
-        verify(requestStatusPublisher).publish(any());
+        ResponseRequestDto result = requestService.createRequest(IDEMPOTENCY_TOKEN, createRequestDto);
+
+        assertNotNull(result);
+        assertEquals(RequestStatus.PENDING, result.requestStatus());
+
+        verify(asyncRequestProcessor).processAsync(IDEMPOTENCY_TOKEN);
     }
 
     @Test
@@ -106,10 +120,14 @@ public class RequestServiceImplTest {
         Request testRequest = createTestRequestUser();
         testRequest.setRequestStatus(RequestStatus.PENDING);
 
+        ResponseRequestDto responseDto = createResponseRequestDto(RequestStatus.CANCELLED,
+                "Request cancelled by user");
+
         when(requestRepository.findById(IDEMPOTENCY_TOKEN)).thenReturn(Optional.of(testRequest));
         when(requestRepository.save(any(Request.class))).thenReturn(testRequest);
+        when(requestMapper.toResponseRequestDto(testRequest)).thenReturn(responseDto);
 
-        requestService.updateRequestStatus(
+        ResponseRequestDto result = requestService.updateRequestStatus(
                 IDEMPOTENCY_TOKEN,
                 RequestStatus.CANCELLED,
                 "Request cancelled by user"
@@ -117,6 +135,7 @@ public class RequestServiceImplTest {
 
         assertEquals(RequestStatus.CANCELLED, testRequest.getRequestStatus());
         assertEquals(false, testRequest.getIsOpen());
+        assertEquals(RequestStatus.CANCELLED, result.requestStatus());
 
         verify(requestRepository).findById(IDEMPOTENCY_TOKEN);
         verify(requestRepository).save(testRequest);
@@ -127,8 +146,12 @@ public class RequestServiceImplTest {
         Request testRequest = createTestRequestUser();
         testRequest.setRequestStatus(RequestStatus.PENDING);
 
+        ResponseRequestDto responseDto = createResponseRequestDto(RequestStatus.COMPLETED,
+                "Operation completed");
+
         when(requestRepository.findById(IDEMPOTENCY_TOKEN)).thenReturn(Optional.of(testRequest));
         when(requestRepository.save(any(Request.class))).thenReturn(testRequest);
+        when(requestMapper.toResponseRequestDto(testRequest)).thenReturn(responseDto);
 
         ResponseRequestDto response = requestService.updateRequestStatus(
                 IDEMPOTENCY_TOKEN,
@@ -138,6 +161,7 @@ public class RequestServiceImplTest {
 
         assertEquals(RequestStatus.COMPLETED, testRequest.getRequestStatus());
         assertEquals(false, testRequest.getIsOpen());
+        assertEquals(RequestStatus.COMPLETED, response.requestStatus());
 
         verify(requestRepository).findById(IDEMPOTENCY_TOKEN);
         verify(requestRepository).save(testRequest);
@@ -145,11 +169,7 @@ public class RequestServiceImplTest {
 
     @Test
     public void createRequest_WithValidProjectRequest_RequestCreatedSuccessfully() {
-        final Request pendingRequest = createTestRequestUser();
-        Request completedRequest = createTestRequestProject();
-        completedRequest.setRequestStatus(RequestStatus.COMPLETED);
-        completedRequest.setStatusDetails("Success");
-        completedRequest.setIsOpen(false);
+        Request pendingRequest = createTestRequestProject();
 
         CreateRequestDto projectRequestDto = new CreateRequestDto(
                 null,
@@ -159,22 +179,32 @@ public class RequestServiceImplTest {
                 Map.of("amount", 1000, "currency", "USD")
         );
 
+        ResponseRequestDto responseDto = new ResponseRequestDto(
+                IDEMPOTENCY_TOKEN,
+                null,
+                PROJECT_ID,
+                OperationType.ACCOUNT_CREATE,
+                "lock-123",
+                Map.of("amount", 1000, "currency", "USD"),
+                RequestStatus.PENDING,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
         when(requestRepository.findById(IDEMPOTENCY_TOKEN)).thenReturn(Optional.empty());
-        when(requestRepository.existsByLockValueAndIsOpenTrue("lock-123")).thenReturn(false);
-        when(requestRepository.save(any(Request.class))).thenReturn(pendingRequest)
-                .thenReturn(completedRequest);
-        when(operationHandlerRegistry.getHandler(OperationType.ACCOUNT_CREATE))
-                .thenReturn(operationHandler);
+        when(requestMapper.toEntity(projectRequestDto)).thenReturn(pendingRequest);
+        when(requestRepository.save(any(Request.class))).thenReturn(pendingRequest);
+        when(requestMapper.toResponseRequestDto(pendingRequest)).thenReturn(responseDto);
 
         ResponseRequestDto response = requestService.createRequest(IDEMPOTENCY_TOKEN, projectRequestDto);
 
         assertNotNull(response);
         assertProjectRequest(response);
-        assertEquals(RequestStatus.COMPLETED, response.requestStatus());
+        assertEquals(RequestStatus.PENDING, response.requestStatus());
 
-        verify(requestRepository, times(2)).save(any(Request.class));
-        verify(operationHandler).execute(any(Request.class));
-        verify(requestStatusPublisher).publish(any());
+        verify(requestRepository, times(1)).save(any(Request.class));
+        verify(asyncRequestProcessor).processAsync(IDEMPOTENCY_TOKEN);
     }
 
     @Test
@@ -199,7 +229,7 @@ public class RequestServiceImplTest {
 
         when(requestRepository.findById(IDEMPOTENCY_TOKEN)).thenReturn(Optional.of(testRequest));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
+        IllegalStatusTransitionException exception = assertThrows(IllegalStatusTransitionException.class,
                 () -> requestService.updateRequestStatus(IDEMPOTENCY_TOKEN,
                         RequestStatus.FAILED, "test"));
 
@@ -231,10 +261,21 @@ public class RequestServiceImplTest {
     @Test
     public void createRequest_WhenRequestWithTokenAlreadyExists_ReturnsExistingRequest() {
         Request existingRequest = createTestRequestUser();
+        ResponseRequestDto responseDto = createResponseRequestDto(RequestStatus.PENDING, null);
+
+        CreateRequestDto sameRequestDto = new CreateRequestDto(
+                USER_ID,
+                null,
+                OperationType.ACCOUNT_CREATE,
+                "lock-123",
+                Map.of("amount", 1000)
+        );
+
         when(requestRepository.findById(IDEMPOTENCY_TOKEN))
                 .thenReturn(Optional.of(existingRequest));
+        when(requestMapper.toResponseRequestDto(existingRequest)).thenReturn(responseDto);
 
-        ResponseRequestDto response = requestService.createRequest(IDEMPOTENCY_TOKEN, createRequestDto);
+        ResponseRequestDto response = requestService.createRequest(IDEMPOTENCY_TOKEN, sameRequestDto);
 
         assertNotNull(response);
         assertEquals(existingRequest.getIdempotencyToken(), response.idempotencyToken());
@@ -243,7 +284,6 @@ public class RequestServiceImplTest {
 
         verify(requestRepository).findById(IDEMPOTENCY_TOKEN);
         verify(requestRepository, never()).save(any(Request.class));
-        verifyNoInteractions(operationHandlerRegistry);
     }
 
     private Request createTestRequestUser() {

@@ -35,6 +35,8 @@ app:
   kafka:
     topics:
       request-status-events: request-status-events-topic
+    publisher:
+      timeout-seconds: 10
 
 server:
   port: 8090

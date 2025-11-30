@@ -29,6 +29,7 @@ public class AccountCreateHandler implements OperationHandler {
 
     @Override
     public void execute(Request request) {
+
         log.info("Account creation started: user={}, project={}, requestId={}",
                 request.getUserId(), request.getProjectId(), request.getIdempotencyToken());
 

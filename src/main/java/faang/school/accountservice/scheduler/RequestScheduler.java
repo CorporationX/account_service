@@ -24,14 +24,20 @@ public class RequestScheduler {
     public void publishOpenRequestEvents() {
         List<Request> openRequests = requestRepository.findAllByIsOpen(true);
         for (Request request : openRequests) {
-            requestStatusPublisher.publish(new RequestEventDto(
-                    request.getIdempotencyToken(),
-                    request.getUserId(),
-                    request.getOperationType(),
-                    request.getRequestStatus(),
-                    LocalDateTime.now()
-            ));
-            log.info("Published event for open request: {}", request.getIdempotencyToken());
+            if (shouldRepublish(request)) {
+                requestStatusPublisher.publish(new RequestEventDto(
+                        request.getIdempotencyToken(),
+                        request.getUserId(),
+                        request.getOperationType(),
+                        request.getRequestStatus(),
+                        LocalDateTime.now()
+                ));
+                log.info("Published event for open request: {}", request.getIdempotencyToken());
+            }
         }
+    }
+
+    private boolean shouldRepublish(Request request) {
+        return request.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5));
     }
 }
