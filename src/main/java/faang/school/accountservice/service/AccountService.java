@@ -2,7 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.CreateAccountDto;
-import faang.school.accountservice.model.OwnerType;
+import faang.school.accountservice.enums.OwnerType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,7 +28,4 @@ public interface AccountService {
     BigDecimal getBalance(String accountNumber);
 
     List<AccountDto> getAccountsByOwner(Long ownerId, OwnerType ownerType);
-
-
-
 }

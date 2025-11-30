@@ -7,17 +7,18 @@ import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.exception.ForbiddenException;
 import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.AccountStatus;
-import faang.school.accountservice.model.AccountType;
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.model.Owner;
-import faang.school.accountservice.model.OwnerType;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.OwnerRepository;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -40,10 +41,12 @@ public class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private OwnerRepository ownerRepository;
+
     @Spy
     private AccountMapperImpl accountMapper;
 
-    @InjectMocks
     private AccountServiceImpl accountService;
 
     @Captor
@@ -61,8 +64,19 @@ public class AccountServiceTest {
                 .build();
     }
 
+    @BeforeEach
+    void setUp() {
+        OperationValidator realOperationValidator = new OperationValidator(accountRepository);
+        accountService = new AccountServiceImpl(
+                accountRepository,
+                accountMapper,
+                ownerRepository,
+                realOperationValidator
+        );
+    }
+
     @Test
-    public void testGeyById() {
+    public void testGeyByIdException() {
         assertThrows(EntityNotFoundException.class, () -> accountService.getById(anyLong()));
     }
 

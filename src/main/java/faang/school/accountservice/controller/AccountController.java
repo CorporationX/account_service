@@ -2,7 +2,7 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.CreateAccountDto;
-import faang.school.accountservice.model.OwnerType;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +31,7 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public AccountDto getAccount(@PathVariable Long id) {
         return accountService.getById(id);
     }
@@ -47,9 +47,9 @@ public class AccountController {
     }
 
     @GetMapping("/owner-accounts")
-    public List<AccountDto> getAccountsByOwner(@RequestParam @Positive Long id,
+    public List<AccountDto> getAccountsByOwner(@RequestParam @Positive Long ownerId,
                                                @RequestParam OwnerType type) {
-        return accountService.getAccountsByOwner(id, type);
+        return accountService.getAccountsByOwner(ownerId, type);
     }
 
     @PostMapping

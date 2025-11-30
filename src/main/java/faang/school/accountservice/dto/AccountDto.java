@@ -2,8 +2,8 @@ package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.model.AccountStatus;
-import faang.school.accountservice.model.AccountType;
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,8 +24,6 @@ public record AccountDto(
         @JsonProperty("updated_at")
         LocalDateTime updatedAt,
         @JsonProperty("closed_at")
-        LocalDateTime closedAt,
-        @JsonProperty("account_version")
-        Long accountVersion
+        LocalDateTime closedAt
 ) {
 }

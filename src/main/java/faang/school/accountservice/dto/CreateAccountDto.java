@@ -2,8 +2,8 @@ package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.model.AccountType;
-import faang.school.accountservice.model.OwnerType;
+import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.OwnerType;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;

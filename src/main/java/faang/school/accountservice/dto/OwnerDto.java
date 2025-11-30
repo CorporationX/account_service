@@ -1,7 +1,7 @@
 package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import faang.school.accountservice.model.OwnerType;
+import faang.school.accountservice.enums.OwnerType;
 
 public record OwnerDto(
         @JsonProperty("type")
