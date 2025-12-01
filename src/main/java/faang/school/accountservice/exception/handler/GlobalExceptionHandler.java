@@ -1,9 +1,11 @@
 package faang.school.accountservice.exception.handler;
 
+import faang.school.accountservice.dto.Error;
 import faang.school.accountservice.dto.exception.ErrorResponse;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.exception.InsufficientBalanceException;
+import faang.school.accountservice.exception.InvalidAccountOperationException;
 import faang.school.accountservice.exception.InvalidBalanceOperationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -21,6 +23,13 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(InvalidAccountOperationException.class)
+    public ResponseEntity<faang.school.accountservice.dto.Error> handleInvalidOperation(InvalidAccountOperationException e) {
+        log.error("Invalid account operation: {}", e.getMessage());
+        faang.school.accountservice.dto.Error error = new faang.school.accountservice.dto.Error("INVALID_OPERATION", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex,

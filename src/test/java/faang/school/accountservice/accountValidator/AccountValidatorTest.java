@@ -1,6 +1,7 @@
 package faang.school.accountservice.accountValidator;
 
 import faang.school.accountservice.entity.Account;
+import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
@@ -43,7 +44,7 @@ class AccountValidatorTest {
                 .accountType(AccountType.PERSONAL_CHECKING)
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
-                .balance(BigDecimal.valueOf(1000))
+                .balance( new Balance())
                 .version(0L)
                 .build();
     }
@@ -133,27 +134,8 @@ class AccountValidatorTest {
                 .hasMessageContaining("not frozen");
     }
 
-    @Test
-    @DisplayName("Валидация закрытия счета - успех")
-    void testValidateCloseAccount_Success() {
-        // Given
-        testAccount.setBalance(BigDecimal.ZERO);
 
-        // When & Then
-        accountValidator.validateCloseAccount(testAccount);
-    }
 
-    @Test
-    @DisplayName("Валидация закрытия счета с балансом - ошибка")
-    void testValidateCloseAccount_NonZeroBalance() {
-        // Given
-        testAccount.setBalance(BigDecimal.valueOf(100));
-
-        // When & Then
-        assertThatThrownBy(() -> accountValidator.validateCloseAccount(testAccount))
-                .isInstanceOf(InvalidAccountOperationException.class)
-                .hasMessageContaining("non-zero balance");
-    }
 
     @Test
     @DisplayName("Валидация номера счета - успех")

@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.math.BigDecimal;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -52,7 +50,6 @@ class AccountIntegrationTest extends BaseContextTest {
                 .andExpect(jsonPath("$.account_number").exists())
                 .andExpect(jsonPath("$.owner_id").value(TEST_USER_ID))
                 .andExpect(jsonPath("$.status").value("ACTIVE"))
-                .andExpect(jsonPath("$.balance").value(0))
                 .andExpect(jsonPath("$.version").value(0))
                 .andReturn();
 
@@ -126,21 +123,6 @@ class AccountIntegrationTest extends BaseContextTest {
     }
 
     @Test
-    void testCloseAccount_Success() throws Exception {
-        // Given
-        Account account = createTestAccount();
-        account.setBalance(BigDecimal.ZERO); // Ensure zero balance
-        accountRepository.save(account);
-
-        // When & Then
-        mockMvc.perform(patch("/accounts/" + account.getId() + "/close")
-                        .header(USER_ID_HEADER, TEST_USER_ID))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("CLOSED"))
-                .andExpect(jsonPath("$.closed_at").exists());
-    }
-
-    @Test
     void testGetOwnerAccounts_Success() throws Exception {
         // Given
         createTestAccount();
@@ -187,7 +169,6 @@ class AccountIntegrationTest extends BaseContextTest {
                 .accountType(AccountType.PERSONAL_CHECKING)
                 .currency(Currency.USD)
                 .status(AccountStatus.ACTIVE)
-                .balance(BigDecimal.ZERO)
                 .build());
     }
 

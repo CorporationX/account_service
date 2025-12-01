@@ -79,7 +79,7 @@ public class AccountValidator {
                     String.format("Account is already closed: %d", account.getId()));
         }
 
-        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+        if (account.getBalance().getActualBalance().compareTo(BigDecimal.ZERO) != 0) {
             throw new InvalidAccountOperationException(
                     String.format("Cannot close account with non-zero balance. " +
                                     "Account: %d, Current balance: %s",
