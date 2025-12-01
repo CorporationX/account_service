@@ -25,8 +25,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             Currency currency
     );
 
-    @Query("SELECT COUNT(a) FROM Account a WHERE a.ownerId = :ownerId " +
-            "AND a.ownerType = :ownerType AND a.status = 'ACTIVE'")
+    @Query("SELECT COUNT(a) FROM Account a WHERE a.ownerId = :ownerId "
+            + "AND a.ownerType = :ownerType AND a.status = 'ACTIVE'")
     long countActiveAccountsByOwner(
             @Param("ownerId") Long ownerId,
             @Param("ownerType") OwnerType ownerType
