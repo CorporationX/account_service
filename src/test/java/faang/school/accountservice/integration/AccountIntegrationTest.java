@@ -44,7 +44,7 @@ class AccountIntegrationTest extends BaseContextTest {
         );
 
         // When
-        MvcResult result = mockMvc.perform(post("/api/v1/accounts")
+        MvcResult result = mockMvc.perform(post("/accounts")
                         .header(USER_ID_HEADER, TEST_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -70,7 +70,7 @@ class AccountIntegrationTest extends BaseContextTest {
         Account account = createTestAccount();
 
         // When & Then
-        mockMvc.perform(get("/api/v1/accounts/" + account.getId())
+        mockMvc.perform(get("/accounts/" + account.getId())
                         .header(USER_ID_HEADER, TEST_USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(account.getId()))
@@ -84,7 +84,7 @@ class AccountIntegrationTest extends BaseContextTest {
         Account account = createTestAccount();
 
         // When & Then
-        mockMvc.perform(patch("/api/v1/accounts/" + account.getId() + "/block")
+        mockMvc.perform(patch("/accounts/" + account.getId() + "/block")
                         .header(USER_ID_HEADER, TEST_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reason\": \"Suspicious activity\"}"))
@@ -104,7 +104,7 @@ class AccountIntegrationTest extends BaseContextTest {
         Account account = createTestAccount();
 
         // When & Then
-        mockMvc.perform(patch("/api/v1/accounts/" + account.getId() + "/freeze")
+        mockMvc.perform(patch("/accounts/" + account.getId() + "/freeze")
                         .header(USER_ID_HEADER, TEST_USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("FROZEN"))
@@ -119,7 +119,7 @@ class AccountIntegrationTest extends BaseContextTest {
         accountRepository.save(account);
 
         // When & Then
-        mockMvc.perform(patch("/api/v1/accounts/" + account.getId() + "/unfreeze")
+        mockMvc.perform(patch("/accounts/" + account.getId() + "/unfreeze")
                         .header(USER_ID_HEADER, TEST_USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
@@ -133,7 +133,7 @@ class AccountIntegrationTest extends BaseContextTest {
         accountRepository.save(account);
 
         // When & Then
-        mockMvc.perform(patch("/api/v1/accounts/" + account.getId() + "/close")
+        mockMvc.perform(patch("/accounts/" + account.getId() + "/close")
                         .header(USER_ID_HEADER, TEST_USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CLOSED"))
@@ -147,7 +147,7 @@ class AccountIntegrationTest extends BaseContextTest {
         createTestAccount();
 
         // When & Then
-        mockMvc.perform(get("/api/v1/accounts/owner/" + TEST_USER_ID)
+        mockMvc.perform(get("/accounts/owner/" + TEST_USER_ID)
                         .header(USER_ID_HEADER, TEST_USER_ID)
                         .param("owner_type", "USER"))
                 .andExpect(status().isOk())

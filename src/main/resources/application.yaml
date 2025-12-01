@@ -20,12 +20,10 @@ spring:
     defaultSchema: ${DB_SCHEMA:public}
     liquibaseSchema: ${DB_SCHEMA:public}
 
-api:
-  base:
-    path: /api/v1
-
 server:
   port: 8090
+  servlet:
+    context-path: /api/v1
 
 logging:
   level:
