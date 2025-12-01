@@ -52,7 +52,7 @@ public class RequestServiceImplTest {
         when(mapper.toDto(any())).thenAnswer(invocation -> {
             Request req = invocation.getArgument(0);
             return new RequestResponseDto(
-                    req.getIdempotencyKey(),
+                    req.getId(),
                     req.getUserId(),
                     req.getRequestType(),
                     req.getRequestStatus(),
@@ -91,7 +91,7 @@ public class RequestServiceImplTest {
     void shouldUpdateStatus() {
         long id = 1L;
         Request request = new Request();
-        request.setIdempotencyKey(UUID.randomUUID());
+        request.setId(UUID.randomUUID());
         request.setUserId(1L);
         request.setRequestStatus(RequestStatus.TO_DO);
 
@@ -114,7 +114,7 @@ public class RequestServiceImplTest {
     void shouldUpdateFlagRequest() {
         long id = 1L;
         Request request = new Request();
-        request.setIdempotencyKey(UUID.randomUUID());
+        request.setId(UUID.randomUUID());
         request.setOpen(true);
 
         when(requestRepository.findById(id)).thenReturn(Optional.of(request));
@@ -135,7 +135,7 @@ public class RequestServiceImplTest {
     void shouldUpdateInputRequest() {
         long id = 1L;
         Request request = new Request();
-        request.setIdempotencyKey(UUID.randomUUID());
+        request.setId(UUID.randomUUID());
         request.setInputRequest(new HashMap<>());
 
         when(requestRepository.findById(id)).thenReturn(Optional.of(request));

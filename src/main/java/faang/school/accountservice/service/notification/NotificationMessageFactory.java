@@ -13,7 +13,7 @@ public class NotificationMessageFactory {
     public String buildCreatedMessage(Request request) {
         return String.format(
                 templates.getRequestCreated(),
-                request.getIdempotencyKey(),
+                request.getId(),
                 request.getRequestStatus()
         );
     }
@@ -21,7 +21,7 @@ public class NotificationMessageFactory {
     public String buildStatusUpdatedMessage(Request request) {
         return String.format(
                 templates.getRequestStatusUpdated(),
-                request.getIdempotencyKey(),
+                request.getId(),
                 request.getRequestStatus()
         );
     }
@@ -29,7 +29,7 @@ public class NotificationMessageFactory {
     public String buildFlagUpdatedMessage(Request request) {
         return String.format(
                 templates.getRequestFlagUpdated(),
-                request.getIdempotencyKey(),
+                request.getId(),
                 request.isOpen()
         );
     }
@@ -37,7 +37,7 @@ public class NotificationMessageFactory {
     public String buildContextUpdatedMessage(Request request) {
         return String.format(
                 templates.getRequestContextUpdated(),
-                request.getIdempotencyKey()
+                request.getId()
         );
     }
 }

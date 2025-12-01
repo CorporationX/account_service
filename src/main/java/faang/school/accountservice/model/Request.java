@@ -1,10 +1,12 @@
 package faang.school.accountservice.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @AllArgsConstructor
@@ -32,7 +34,7 @@ public class Request {
     @Id
     @GeneratedValue
     @Column(name = "idempotency_key", nullable = false)
-    private UUID idempotencyKey;
+    private UUID id;
 
     @Column(name = "user_id", nullable = false)
     private long userId;
@@ -48,6 +50,7 @@ public class Request {
     private boolean open;
 
     @Type(JsonBinaryType.class)
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "input_request", nullable = false, columnDefinition = "jsonb")
     private Map<String, Object> inputRequest;
 

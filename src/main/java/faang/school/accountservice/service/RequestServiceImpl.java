@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.RequestResponseDto;
 import faang.school.accountservice.dto.RequestUpdateContextDto;
 import faang.school.accountservice.dto.RequestUpdateFlagDto;
 import faang.school.accountservice.dto.RequestUpdateStatusDto;
+import faang.school.accountservice.exception.RequestNotFoundException;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.model.NotificationType;
 import faang.school.accountservice.model.Request;
@@ -34,7 +35,6 @@ public class RequestServiceImpl implements RequestService {
                 .inputRequest(requestCreateDto.inputRequest())
                 .open(true)
                 .requestStatus(RequestStatus.TO_DO)
-                .statusDetails("Created")
                 .notificationPending(true)
                 .pendingNotificationType(NotificationType.CREATED)
                 .build();
@@ -48,38 +48,47 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public RequestResponseDto updateStatusRequest(long id, RequestUpdateStatusDto statusDto) {
         Request request = getRequest(id);
-        request.setRequestStatus(statusDto.requestStatus());
-        request.setStatusDetails(statusDto.statusDetails());
-        request.setNotificationPending(true);
-        request.setPendingNotificationType(NotificationType.STATUS_UPDATED);
 
-        return mapper.toDto(requestRepository.save(request));
+        Request updated = request.toBuilder()
+                .requestStatus(statusDto.requestStatus())
+                .statusDetails(statusDto.statusDetails())
+                .notificationPending(true)
+                .pendingNotificationType(NotificationType.STATUS_UPDATED)
+                .build();
+
+        return mapper.toDto(requestRepository.save(updated));
     }
 
     @Override
     @Transactional
     public RequestResponseDto updateFlagRequest(long id, RequestUpdateFlagDto dto) {
         Request request = getRequest(id);
-        request.setOpen(dto.isOpen());
-        request.setNotificationPending(true);
-        request.setPendingNotificationType(NotificationType.FLAG_UPDATED);
 
-        return mapper.toDto(requestRepository.save(request));
+        Request updated = request.toBuilder()
+                .open(dto.isOpen())
+                .notificationPending(true)
+                .pendingNotificationType(NotificationType.FLAG_UPDATED)
+                .build();
+
+        return mapper.toDto(requestRepository.save(updated));
     }
 
     @Override
     @Transactional
     public RequestResponseDto updateContextRequest(long id, RequestUpdateContextDto dto) {
         Request request = getRequest(id);
-        request.setInputRequest(dto.inputRequest());
-        request.setNotificationPending(true);
-        request.setPendingNotificationType(NotificationType.CONTEXT_UPDATED);
 
-        return mapper.toDto(requestRepository.save(request));
+        Request updated = request.toBuilder()
+                .inputRequest(dto.inputRequest())
+                .notificationPending(true)
+                .pendingNotificationType(NotificationType.CONTEXT_UPDATED)
+                .build();
+
+        return mapper.toDto(requestRepository.save(updated));
     }
 
     private Request getRequest(long id) {
         return requestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Request not found: %d".formatted(id)));
+                .orElseThrow(() -> new RequestNotFoundException(id));
     }
 }

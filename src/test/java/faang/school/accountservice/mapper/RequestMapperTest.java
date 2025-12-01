@@ -32,7 +32,7 @@ public class RequestMapperTest {
         String statusDetails = "Created";
 
         Request request = new Request();
-        request.setIdempotencyKey(idempotencyKey);
+        request.setId(idempotencyKey);
         request.setUserId(userId);
         request.setRequestType(requestType);
         request.setRequestStatus(requestStatus);
