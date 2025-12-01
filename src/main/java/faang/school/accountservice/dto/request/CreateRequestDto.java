@@ -12,9 +12,6 @@ public record CreateRequestDto(
         OperationType operationType,
 
         @NotNull
-        String lockValue,
-
-        @NotNull
         Map<String, Object> inputData
 ) {
 }

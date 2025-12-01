@@ -18,7 +18,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,7 +41,9 @@ public class RequestServiceImpl implements RequestService {
             return handleIdempotentRequest(existingOpt.get(), dto);
         }
 
-        Request request = createAndSaveRequest(idempotencyToken, dto);
+        String lockValue = resolveLockValue(dto);
+
+        Request request = createAndSaveRequest(idempotencyToken, dto, lockValue);
 
         asyncRequestProcessor.processAsync(request.getIdempotencyToken());
 
@@ -97,17 +98,18 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toResponseRequestDto(existing);
     }
 
-    private Request createAndSaveRequest(UUID idempotencyToken, CreateRequestDto dto) {
+    private Request createAndSaveRequest(UUID idempotencyToken, CreateRequestDto dto, String lockValue) {
         try {
             Request request = requestMapper.toEntity(dto);
             request.setIdempotencyToken(idempotencyToken);
+            request.setLockValue(lockValue);
             request.changeStatus(RequestStatus.PENDING, null);
 
             return requestRepository.save(request);
 
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException(
-                    String.format("Open request with lock value already exists: %s", dto.lockValue()), e
+                    String.format("Open request with lock value already exists: %s", lockValue), e
             );
         }
     }
@@ -118,7 +120,17 @@ public class RequestServiceImpl implements RequestService {
                 request.getUserId(),
                 request.getOperationType(),
                 request.getRequestStatus(),
-                LocalDateTime.now()
+                request.getUpdatedAt()
         ));
+    }
+
+    private String resolveLockValue(CreateRequestDto dto) {
+        if (dto.userId() != null) {
+            return String.format("USER:%d", dto.userId());
+        }
+        if (dto.projectId() != null) {
+            return String.format("PROJECT:%d", dto.projectId());
+        }
+        throw new IllegalArgumentException("Invalid owner");
     }
 }

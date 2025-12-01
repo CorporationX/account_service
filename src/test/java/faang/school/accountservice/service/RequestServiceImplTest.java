@@ -43,6 +43,8 @@ public class RequestServiceImplTest {
     private static final UUID IDEMPOTENCY_TOKEN = UUID.randomUUID();
     private static final Long USER_ID = 1L;
     private static final Long PROJECT_ID = 2L;
+    private static final String USER_LOCK_VALUE = "USER:1";
+    private static final String PROJECT_LOCK_VALUE = "PROJECT:2";
 
     @Mock
     private RequestRepository requestRepository;
@@ -68,7 +70,6 @@ public class RequestServiceImplTest {
                 USER_ID,
                 null,
                 OperationType.ACCOUNT_CREATE,
-                "lock-123",
                 Map.of("amount", 1000, "currency", "USD")
         );
 
@@ -76,10 +77,9 @@ public class RequestServiceImplTest {
         request.setIdempotencyToken(IDEMPOTENCY_TOKEN);
         request.setUserId(USER_ID);
         request.setOperationType(OperationType.ACCOUNT_CREATE);
-        request.setLockValue("lock-123");
+        request.setLockValue(USER_LOCK_VALUE);
         request.setInputData(Map.of("amount", 1000));
-        request.setRequestStatus(RequestStatus.PENDING);
-        request.setIsOpen(true);
+        request.changeStatus(RequestStatus.PENDING, null);
     }
 
     private ResponseRequestDto createResponseRequestDto(RequestStatus status, String statusDetails) {
@@ -88,7 +88,7 @@ public class RequestServiceImplTest {
                 USER_ID,
                 null,
                 OperationType.ACCOUNT_CREATE,
-                "lock-123",
+                USER_LOCK_VALUE,
                 Map.of("amount", 1000),
                 status,
                 statusDetails,
@@ -111,6 +111,7 @@ public class RequestServiceImplTest {
 
         assertNotNull(result);
         assertEquals(RequestStatus.PENDING, result.requestStatus());
+        assertUserRequest(result);
 
         verify(asyncRequestProcessor).processAsync(IDEMPOTENCY_TOKEN);
     }
@@ -118,7 +119,7 @@ public class RequestServiceImplTest {
     @Test
     public void updateRequestStatus_ToCancelled_RequestCancelledSuccessfully() {
         Request testRequest = createTestRequestUser();
-        testRequest.setRequestStatus(RequestStatus.PENDING);
+        testRequest.changeStatus(RequestStatus.PENDING, null);
 
         ResponseRequestDto responseDto = createResponseRequestDto(RequestStatus.CANCELLED,
                 "Request cancelled by user");
@@ -144,7 +145,7 @@ public class RequestServiceImplTest {
     @Test
     public void updateRequestStatus_ToCompleted_RequestClosedSuccessfully() {
         Request testRequest = createTestRequestUser();
-        testRequest.setRequestStatus(RequestStatus.PENDING);
+        testRequest.changeStatus(RequestStatus.PENDING,  null);
 
         ResponseRequestDto responseDto = createResponseRequestDto(RequestStatus.COMPLETED,
                 "Operation completed");
@@ -175,7 +176,6 @@ public class RequestServiceImplTest {
                 null,
                 PROJECT_ID,
                 OperationType.ACCOUNT_CREATE,
-                "lock-123",
                 Map.of("amount", 1000, "currency", "USD")
         );
 
@@ -184,7 +184,7 @@ public class RequestServiceImplTest {
                 null,
                 PROJECT_ID,
                 OperationType.ACCOUNT_CREATE,
-                "lock-123",
+                PROJECT_LOCK_VALUE,
                 Map.of("amount", 1000, "currency", "USD"),
                 RequestStatus.PENDING,
                 null,
@@ -225,7 +225,7 @@ public class RequestServiceImplTest {
     @Test
     public void updateRequestStatus_WhenRequestAlreadyCompleted_ThrowsException() {
         Request testRequest = createTestRequestUser();
-        testRequest.setRequestStatus(RequestStatus.COMPLETED);
+        testRequest.changeStatus(RequestStatus.COMPLETED, "Already completed");
 
         when(requestRepository.findById(IDEMPOTENCY_TOKEN)).thenReturn(Optional.of(testRequest));
 
@@ -246,7 +246,6 @@ public class RequestServiceImplTest {
                 USER_ID,
                 PROJECT_ID,
                 OperationType.ACCOUNT_CREATE,
-                "lock-123",
                 Map.of("amount", 1000)
         );
 
@@ -267,7 +266,6 @@ public class RequestServiceImplTest {
                 USER_ID,
                 null,
                 OperationType.ACCOUNT_CREATE,
-                "lock-123",
                 Map.of("amount", 1000)
         );
 
@@ -292,10 +290,9 @@ public class RequestServiceImplTest {
         request.setUserId(USER_ID);
         request.setProjectId(null);
         request.setOperationType(OperationType.ACCOUNT_CREATE);
-        request.setLockValue("lock-123");
+        request.setLockValue("USER:1");
         request.setInputData(Map.of("amount", 1000));
-        request.setRequestStatus(RequestStatus.PENDING);
-        request.setIsOpen(true);
+        request.changeStatus(RequestStatus.PENDING, null);
         request.setCreatedAt(LocalDateTime.now());
         request.setUpdatedAt(LocalDateTime.now());
         return request;
@@ -307,10 +304,9 @@ public class RequestServiceImplTest {
         request.setUserId(null);
         request.setProjectId(PROJECT_ID);
         request.setOperationType(OperationType.ACCOUNT_CREATE);
-        request.setLockValue("lock-123");
+        request.setLockValue("PROJECT:2");
         request.setInputData(Map.of("amount", 1000, "currency", "USD"));
-        request.setRequestStatus(RequestStatus.PENDING);
-        request.setIsOpen(true);
+        request.changeStatus(RequestStatus.PENDING, null);
         request.setCreatedAt(LocalDateTime.now());
         request.setUpdatedAt(LocalDateTime.now());
         return request;
@@ -320,13 +316,13 @@ public class RequestServiceImplTest {
         assertEquals(USER_ID, response.userId());
         assertNull(response.projectId());
         assertEquals(OperationType.ACCOUNT_CREATE, response.operationType());
-        assertEquals("lock-123", response.lockValue());
+        assertEquals(USER_LOCK_VALUE, response.lockValue());
     }
 
     private void assertProjectRequest(ResponseRequestDto response) {
         assertNull(response.userId());
         assertEquals(PROJECT_ID, response.projectId());
         assertEquals(OperationType.ACCOUNT_CREATE, response.operationType());
-        assertEquals("lock-123", response.lockValue());
+        assertEquals(PROJECT_LOCK_VALUE, response.lockValue());
     }
 }

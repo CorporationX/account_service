@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -56,7 +55,7 @@ public class RequestProcessor {
                     request.getUserId(),
                     request.getOperationType(),
                     request.getRequestStatus(),
-                    LocalDateTime.now()
+                    request.getUpdatedAt()
             ));
         } catch (Exception e) {
             log.error("Failed to publish event for request {}", request.getIdempotencyToken(), e);
