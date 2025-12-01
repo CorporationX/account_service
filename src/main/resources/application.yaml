@@ -16,6 +16,7 @@ spring:
         default_schema: ${DB_SCHEMA:public}
 
   liquibase:
+    clear-checksums: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
     defaultSchema: ${DB_SCHEMA:public}
     liquibaseSchema: ${DB_SCHEMA:public}
@@ -28,3 +29,19 @@ server:
 logging:
   level:
     root: info
+
+account:
+  number:
+    batch.size: 10
+    schedule:
+      personal-checking: "0 0 0 * * *"
+      business-checking: "0 0 0 * * *"
+      savings: "0 0 0 2 * *"
+      currency: "0 0 0 14 * *"
+      deposit: "0 0 0 5 * *"
+    prefix:
+      personal-checking: 4200000000000000
+      business-checking: 4300000000000000
+      savings: 5236000000000000
+      currency: 5500000000000000
+      deposit: 6500000000000000
