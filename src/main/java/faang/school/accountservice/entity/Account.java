@@ -1,10 +1,20 @@
 package faang.school.accountservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +23,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -52,10 +61,6 @@ public class Account {
     @Builder.Default
     private AccountStatus status = AccountStatus.ACTIVE;
 
-    @Column(name = "balance", nullable = false, precision = 19, scale = 2)
-    @Builder.Default
-    private BigDecimal balance = BigDecimal.ZERO;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -71,6 +76,10 @@ public class Account {
     @Column(name = "version", nullable = false)
     @Builder.Default
     private Long version = 0L;
+
+    @OneToOne(mappedBy = "account")
+    @JsonIgnore
+    private Balance balance;
 
     public boolean isActive() {
         return status == AccountStatus.ACTIVE;
