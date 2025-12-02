@@ -3,3 +3,16 @@ account:
     batch:
       size: 10
     max-retries: 100
+
+spring:
+  liquibase:
+    enabled: true   # run migrations in Testcontainers DB
+  jpa:
+    hibernate:
+      ddl-auto: none   # Liquibase manages schema
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+logging:
+  level:
+    root: WARN

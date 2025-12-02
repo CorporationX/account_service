@@ -4,47 +4,34 @@ import faang.school.accountservice.config.AccountNumberProperties;
 import faang.school.accountservice.entity.account.AccountSeq;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
+import faang.school.accountservice.util.BaseContextTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @Testcontainers
-class AccountSequenceServiceTest {
-
-    @Container
-    static final PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:16-alpine")
-                    .withDatabaseName("account_service_test")
-                    .withUsername("test")
-                    .withPassword("test");
-
-    @DynamicPropertySource
-    static void configureDatasource(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-        registry.add("account.number.batch.size", () -> "10");
-        registry.add("account.number.max-retries", () -> "100");
-    }
+class AccountSequenceServiceTest extends BaseContextTest {
 
     @Autowired
     private AccountSequenceService accountSequenceService;

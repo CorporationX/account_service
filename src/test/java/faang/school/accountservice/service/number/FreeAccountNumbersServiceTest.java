@@ -21,8 +21,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FreeAccountNumbersServiceTest {
@@ -151,8 +154,6 @@ class FreeAccountNumbersServiceTest {
     void shouldGenerateNewAccountNumberWhenNoFreeAvailable() {
         AccountType type = AccountType.SAVING;
         long prefix = 5236_0000_0000_0000L;
-        long seq = 101L;
-        String expectedNumber = Long.toString(prefix + seq);
 
         Map<AccountType, Long> prefixMap = new EnumMap<>(AccountType.class);
         prefixMap.put(type, prefix);
@@ -161,6 +162,7 @@ class FreeAccountNumbersServiceTest {
         when(freeAccountNumbersRepository.findFirstForUpdate(type.name()))
                 .thenReturn(null);
 
+        long seq = 101L;
         when(accountSequenceService.incrementCounter(type, 1))
                 .thenReturn(new AccountPeriod(seq, seq));
 
@@ -168,6 +170,7 @@ class FreeAccountNumbersServiceTest {
 
         freeAccountNumbersService.retrieveAccountNumber(type, captured::set);
 
+        String expectedNumber = Long.toString(prefix + seq);
         assertThat(captured.get()).isEqualTo(expectedNumber);
 
         verify(freeAccountNumbersRepository).findFirstForUpdate(type.name());
