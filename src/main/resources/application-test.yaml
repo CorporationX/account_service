@@ -1,0 +1,5 @@
+account:
+  number:
+    batch:
+      size: 10
+    max-retries: 100
