@@ -10,6 +10,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,8 @@ public class BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final AccountRepository accountRepository;
+
+    private final DefaultErrorAttributes errorAttributes;
 
     @Transactional
     public Balance createBalance(UUID accountId) {
@@ -108,6 +111,21 @@ public class BalanceService {
 
         log.info("Authorization voided for account {}. Authorized: {}, Actual: {}",
                 accountId, balance.getAuthorizedBalance(), balance.getActualBalance());
+
+        return balanceRepository.save(balance);
+    }
+
+    @Transactional
+    public Balance admission(UUID accountId, BigDecimal amount) {
+        log.info("admission {} for account {}", amount, accountId);
+
+        Balance balance = balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new BalanceNotFoundException(accountId));
+
+        balance.setActualBalance(balance.getActualBalance().add(amount));
+
+        log.info("Admission finished for account {}. New authorized balance: {}",
+                accountId, balance.getAuthorizedBalance());
 
         return balanceRepository.save(balance);
     }
