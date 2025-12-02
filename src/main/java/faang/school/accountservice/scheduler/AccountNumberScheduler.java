@@ -4,7 +4,6 @@ import faang.school.accountservice.config.AccountNumberProperties;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.service.number.FreeAccountNumbersServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
