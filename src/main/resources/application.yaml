@@ -16,7 +16,7 @@ spring:
         default_schema: ${DB_SCHEMA:public}
 
   liquibase:
-    clear-checksums: true
+    # clear-checksums: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
     defaultSchema: ${DB_SCHEMA:public}
     liquibaseSchema: ${DB_SCHEMA:public}
