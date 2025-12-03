@@ -134,7 +134,7 @@ public class RequestServiceImplTest {
                 "Request cancelled by user"
         );
 
-        assertEquals(RequestStatus.CANCELLED, testRequest.getRequestStatus());
+        assertEquals(RequestStatus.CANCELLED, testRequest.getStatus());
         assertEquals(false, testRequest.getIsOpen());
         assertEquals(RequestStatus.CANCELLED, result.requestStatus());
 
@@ -160,7 +160,7 @@ public class RequestServiceImplTest {
                 "Operation completed"
         );
 
-        assertEquals(RequestStatus.COMPLETED, testRequest.getRequestStatus());
+        assertEquals(RequestStatus.COMPLETED, testRequest.getStatus());
         assertEquals(false, testRequest.getIsOpen());
         assertEquals(RequestStatus.COMPLETED, response.requestStatus());
 
@@ -278,7 +278,7 @@ public class RequestServiceImplTest {
         assertNotNull(response);
         assertEquals(existingRequest.getIdempotencyToken(), response.idempotencyToken());
         assertEquals(existingRequest.getUserId(), response.userId());
-        assertEquals(existingRequest.getRequestStatus(), response.requestStatus());
+        assertEquals(existingRequest.getStatus(), response.requestStatus());
 
         verify(requestRepository).findById(IDEMPOTENCY_TOKEN);
         verify(requestRepository, never()).save(any(Request.class));

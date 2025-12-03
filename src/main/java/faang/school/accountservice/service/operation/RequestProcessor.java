@@ -54,7 +54,7 @@ public class RequestProcessor {
                     request.getIdempotencyToken(),
                     request.getUserId(),
                     request.getOperationType(),
-                    request.getRequestStatus(),
+                    request.getStatus(),
                     request.getUpdatedAt()
             ));
         } catch (Exception e) {

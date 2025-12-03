@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -22,19 +21,18 @@ public class RequestScheduler {
 
     @Scheduled(cron = "${request.scheduler.cron}")
     public void publishOpenRequestEvents() {
-        List<Request> openRequests = requestRepository.findAllByIsOpen(true);
-        for (Request request : openRequests) {
-            if (shouldRepublish(request)) {
-                requestStatusPublisher.publish(new RequestEventDto(
-                        request.getIdempotencyToken(),
-                        request.getUserId(),
-                        request.getOperationType(),
-                        request.getRequestStatus(),
-                        LocalDateTime.now()
-                ));
-                log.info("Published event for open request: {}", request.getIdempotencyToken());
-            }
-        }
+        requestRepository.findAllByIsOpen(true).stream()
+                .filter(this::shouldRepublish)
+                .forEach(request -> {
+                    requestStatusPublisher.publish(new RequestEventDto(
+                            request.getIdempotencyToken(),
+                            request.getUserId(),
+                            request.getOperationType(),
+                            request.getStatus(),
+                            LocalDateTime.now()
+                    ));
+                    log.info("Published event for open request: {}", request.getIdempotencyToken());
+                });
     }
 
     private boolean shouldRepublish(Request request) {

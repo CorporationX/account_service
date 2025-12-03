@@ -59,14 +59,8 @@ public class Request {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "request_status", nullable = false)
-    private RequestStatus requestStatus = RequestStatus.PENDING;
-
-    public void changeStatus(RequestStatus newStatus, String details) {
-        this.requestStatus = newStatus;
-        this.isOpen = !newStatus.isFinal();
-        this.statusDetails = details;
-    }
+    @Column(name = "status", nullable = false)
+    private RequestStatus status = RequestStatus.PENDING;
 
     @Column(name = "status_details")
     private String statusDetails;
@@ -76,6 +70,10 @@ public class Request {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Integer version;
 
     @PrePersist
     public void prePersist() {
@@ -88,7 +86,9 @@ public class Request {
         this.updatedAt = LocalDateTime.now();
     }
 
-    @Version
-    @Column(name = "version", nullable = false)
-    private Integer version;
+    public void changeStatus(RequestStatus newStatus, String details) {
+        this.status = newStatus;
+        this.isOpen = !newStatus.isFinal();
+        this.statusDetails = details;
+    }
 }

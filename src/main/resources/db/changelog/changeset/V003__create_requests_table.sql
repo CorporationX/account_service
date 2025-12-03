@@ -9,7 +9,7 @@ CREATE TABLE requests
     lock_value VARCHAR(255) NOT NULL,
     is_open BOOLEAN NOT NULL DEFAULT true,
     input_data JSONB NOT NULL,
-    request_status VARCHAR(32) NOT NULL,
+    status VARCHAR(32) NOT NULL,
     status_details TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

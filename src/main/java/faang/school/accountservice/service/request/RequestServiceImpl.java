@@ -36,9 +36,9 @@ public class RequestServiceImpl implements RequestService {
     public ResponseRequestDto createRequest(UUID idempotencyToken, CreateRequestDto dto) {
         validateOwner(dto);
 
-        Optional<Request> existingOpt = requestRepository.findById(idempotencyToken);
-        if (existingOpt.isPresent()) {
-            return handleIdempotentRequest(existingOpt.get(), dto);
+        Optional<Request> existingOptRequest = requestRepository.findById(idempotencyToken);
+        if (existingOptRequest.isPresent()) {
+            return handleIdempotentRequest(existingOptRequest.get(), dto, idempotencyToken);
         }
 
         String lockValue = resolveLockValue(dto);
@@ -60,9 +60,9 @@ public class RequestServiceImpl implements RequestService {
                         String.format("Request with idempotencyToken %s not found", idempotencyToken)
                 ));
 
-        if (request.getRequestStatus().isFinal()) {
+        if (request.getStatus().isFinal()) {
             throw new IllegalStatusTransitionException(
-                    String.format("Cannot change status of final request: %s", request.getRequestStatus())
+                    String.format("Cannot change status of final request: %s", request.getStatus())
             );
         }
 
@@ -82,14 +82,15 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
-    private ResponseRequestDto handleIdempotentRequest(Request existing, CreateRequestDto newRequest) {
+    private ResponseRequestDto handleIdempotentRequest(Request existing, CreateRequestDto newRequest,
+                                                       UUID idempotencyToken) {
         if (!Objects.equals(existing.getInputData(), newRequest.inputData())
                 || !Objects.equals(existing.getUserId(), newRequest.userId())
                 || !Objects.equals(existing.getProjectId(), newRequest.projectId())
                 || existing.getOperationType() != newRequest.operationType()) {
 
             throw new DuplicateKeyException(
-                    "Idempotency token already used with different request data"
+                    String.format("Idempotency token %s already used with different request data", idempotencyToken)
             );
         }
 
@@ -119,7 +120,7 @@ public class RequestServiceImpl implements RequestService {
                 request.getIdempotencyToken(),
                 request.getUserId(),
                 request.getOperationType(),
-                request.getRequestStatus(),
+                request.getStatus(),
                 request.getUpdatedAt()
         ));
     }
