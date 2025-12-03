@@ -30,7 +30,7 @@ public class BalanceServiceImpl implements BalanceService {
     public BalanceResponseDto createBalance(long accountId) {
         validateAccount(accountId);
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Account not found" + accountId));
         if (account.getBalance() != null) {
             throw new ForbiddenException("There is already a balance on the account");
         }
