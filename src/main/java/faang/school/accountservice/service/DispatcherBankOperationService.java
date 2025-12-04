@@ -34,11 +34,11 @@ import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.SERVER
 @Service
 public class DispatcherBankOperationService {
 
-    @Value("{$spring.kafka.topic.payments.authorization.response}")
+    @Value("${spring.kafka.topic.payments.authorization.response}")
     private String topicAuthorizationResponse;
-    @Value("{$spring.kafka.topic.payments.clearing.response}")
+    @Value("${spring.kafka.topic.payments.clearing.response}")
     private String topicClearingResponse;
-    @Value("{$spring.kafka.topic.payments.cancel.response}")
+    @Value("${spring.kafka.topic.payments.cancel.response}")
     private String topicCancelResponse;
 
     private final KafkaProducer kafkaProducer;
@@ -59,11 +59,9 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = AUTHORIZATION_ERROR;
             description = e.getMessage();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = e.getMessage();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentAuthorizationResponseDto paymentAuthorizationResponseDto = new PaymentAuthorizationResponseDto(operationId,
                 paymentStatus, description);
@@ -120,11 +118,9 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = CANCEL_ERROR;
             description = e.getMessage();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = e.getMessage();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentCancelResponseDto paymentCancelResponseDto = new PaymentCancelResponseDto(operationId,
                 paymentStatus, description);
