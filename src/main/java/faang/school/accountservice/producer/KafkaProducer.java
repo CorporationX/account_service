@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class PaymentProducer {
+public class KafkaProducer {
 
     public final KafkaTemplate<String, Object> kafkaTemplate;
 

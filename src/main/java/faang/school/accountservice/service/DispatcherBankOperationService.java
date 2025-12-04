@@ -9,13 +9,14 @@ import faang.school.accountservice.dto.payment.kafka.PaymentClearingResponseDto;
 import faang.school.accountservice.dto.payment.kafka.PaymentStatus;
 import faang.school.accountservice.exception.BalanceNotFoundException;
 import faang.school.accountservice.exception.OperationNotAllowed;
-import faang.school.accountservice.producer.PaymentProducer;
+import faang.school.accountservice.producer.KafkaProducer;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class DispatcherBankOperationService {
     @Value("{$spring.kafka.topic.payments.cancel.response}")
     private String topicCancelResponse;
 
-    private final PaymentProducer paymentProducer;
+    private final KafkaProducer kafkaProducer;
     private final BalanceService balanceService;
 
     public PaymentAuthorizationResponseDto authorizationOperation(PaymentAuthorizationRequestDto paymentAuthorizationRequestDto) {
@@ -58,19 +59,21 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = AUTHORIZATION_ERROR;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentAuthorizationResponseDto paymentAuthorizationResponseDto = new PaymentAuthorizationResponseDto(operationId,
                 paymentStatus, description);
 
-        paymentProducer.sendMessage(topicAuthorizationResponse, paymentAuthorizationResponseDto);
+        kafkaProducer.sendMessage(topicAuthorizationResponse, paymentAuthorizationResponseDto);
 
         return paymentAuthorizationResponseDto;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public PaymentClearingResponseDto clearingOperation(PaymentClearingRequestDto paymentClearingRequestDto) {
         UUID operationId = paymentClearingRequestDto.operationId();
         UUID senderAccountId = paymentClearingRequestDto.senderAccountId();
@@ -87,15 +90,17 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = CLEARING_ERROR;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
         PaymentClearingResponseDto paymentClearingResponseDto = new PaymentClearingResponseDto(operationId,
                 paymentStatus, description);
 
-        paymentProducer.sendMessage(topicClearingResponse, paymentClearingResponseDto);
+        kafkaProducer.sendMessage(topicClearingResponse, paymentClearingResponseDto);
 
         return paymentClearingResponseDto;
     }
@@ -115,15 +120,18 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = CANCEL_ERROR;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentCancelResponseDto paymentCancelResponseDto = new PaymentCancelResponseDto(operationId,
                 paymentStatus, description);
 
-        paymentProducer.sendMessage(topicCancelResponse, paymentCancelResponseDto);
+        kafkaProducer.sendMessage(topicCancelResponse, paymentCancelResponseDto);
 
         return paymentCancelResponseDto;
     }
+
 }
