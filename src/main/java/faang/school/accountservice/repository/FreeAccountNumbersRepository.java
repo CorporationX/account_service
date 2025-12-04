@@ -7,24 +7,25 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
 	@Query(nativeQuery = true,
 			value = """
-					DELETE FROM free_account_numbers
-					WHERE type = :type
-					AND account_number IN (
-					    SELECT  account_number
-					    FROM free_account_numbers
-					    WHERE type = :type
-						ORDER BY account_number
-					    LIMIT 1
+					WITH deleted AS (
+						DELETE FROM free_account_numbers
+						WHERE type = :type
+						AND account_number IN (
+							SELECT  account_number
+							FROM free_account_numbers
+							WHERE type = :type
+							ORDER BY account_number
+							LIMIT 1
+					    )
+					    RETURNING account_number
 					)
-					RETURNING account_number
+					SELECT account_number FROM deleted
 					""")
 	@Modifying
-	List<Long> pollFirst(String type);
+	Long pollFirst(String type);
 }
