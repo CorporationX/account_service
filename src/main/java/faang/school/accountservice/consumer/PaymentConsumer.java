@@ -7,7 +7,6 @@ import faang.school.accountservice.dto.payment.kafka.PaymentCancelRequestDto;
 import faang.school.accountservice.dto.payment.kafka.PaymentCancelResponseDto;
 import faang.school.accountservice.dto.payment.kafka.PaymentClearingRequestDto;
 import faang.school.accountservice.dto.payment.kafka.PaymentClearingResponseDto;
-import faang.school.accountservice.service.BalanceService;
 import faang.school.accountservice.service.DispatcherBankOperationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +35,12 @@ public class PaymentConsumer {
         PaymentAuthorizationRequestDto paymentAuthorizationRequestDto = objectMapper.convertValue(message, PaymentAuthorizationRequestDto.class);
 
         log.info("Message processed on Authorization! OperationId - {}, amount - {}",
-                paymentAuthorizationRequestDto.operationId(), paymentAuthorizationRequestDto.amount());
+                paymentAuthorizationRequestDto.transferId(), paymentAuthorizationRequestDto.amount());
 
         PaymentAuthorizationResponseDto result = dispatcherBankOperationService.authorizationOperation(paymentAuthorizationRequestDto);
         ack.acknowledge();
         log.info("Message from kafka commit successfully! Operation - Authorization, id - {}! Status - {}! Description - {}",
-                result.operationId(), result.paymentStatus(), result.description());
+                result.transferId(), result.paymentStatus(), result.description());
     }
 
     @KafkaListener(
@@ -53,13 +52,13 @@ public class PaymentConsumer {
 
         PaymentClearingRequestDto paymentClearingRequestDto = objectMapper.convertValue(message, PaymentClearingRequestDto.class);
         log.info("Message processed on Clearing! OperationId - {}, amount - {}",
-                paymentClearingRequestDto.operationId(), paymentClearingRequestDto.amount());
+                paymentClearingRequestDto.transferId(), paymentClearingRequestDto.amount());
 
         PaymentClearingResponseDto result = dispatcherBankOperationService.clearingOperation(paymentClearingRequestDto);
 
         ack.acknowledge();
         log.info("Message from kafka commit successfully! Operation - Clearing, id - {}! Status - {}! Description - {}",
-                result.operationId(), result.paymentStatus(), result.description());
+                result.transferId(), result.paymentStatus(), result.description());
     }
 
     @KafkaListener(
@@ -71,12 +70,12 @@ public class PaymentConsumer {
 
         PaymentCancelRequestDto paymentCancelRequestDto = objectMapper.convertValue(message, PaymentCancelRequestDto.class);
         log.info("Message processed on Cancel!  OperationId - {}, amount - {}",
-                paymentCancelRequestDto.operationId(), paymentCancelRequestDto.amount());
+                paymentCancelRequestDto.transferId(), paymentCancelRequestDto.amount());
 
         PaymentCancelResponseDto result= dispatcherBankOperationService.cancelOperation(paymentCancelRequestDto);
 
         ack.acknowledge();
         log.info("Message from kafka commit successfully! Operation - Cancel, id - {}! Status - {}! Description - {}",
-                result.operationId(), result.paymentStatus(), result.description());
+                result.transferId(), result.paymentStatus(), result.description());
     }
 }

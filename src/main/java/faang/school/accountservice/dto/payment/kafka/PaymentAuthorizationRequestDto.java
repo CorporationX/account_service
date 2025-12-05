@@ -6,6 +6,6 @@ import java.util.UUID;
 public record PaymentAuthorizationRequestDto(
         UUID accountId,
         BigDecimal amount,
-        UUID operationId
+        UUID transferId
 ) {
 }

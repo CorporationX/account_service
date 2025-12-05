@@ -6,6 +6,6 @@ import java.util.UUID;
 public record PaymentCancelRequestDto(
         UUID accountId,
         BigDecimal amount,
-        UUID operationId
+        UUID transferId
 ) {
 }

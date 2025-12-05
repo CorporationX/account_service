@@ -7,6 +7,6 @@ public record PaymentClearingRequestDto(
         UUID senderAccountId,
         UUID recipientAccountId,
         BigDecimal amount,
-        UUID operationId
+        UUID transferId
 ) {
 }

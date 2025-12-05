@@ -72,10 +72,12 @@ public class BalanceService {
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
 
-        log.info("Authorization completed for account {}. Authorized: {}, Actual: {}",
-                accountId, balance.getAuthorizedBalance(), balance.getActualBalance());
+        Balance result = balanceRepository.save(balance);
 
-        return balanceRepository.save(balance);
+        log.info("Authorization completed for account {}. Authorized: {}, Actual: {}",
+                accountId, result.getAuthorizedBalance(), result.getActualBalance());
+
+        return result;
     }
 
     @Transactional

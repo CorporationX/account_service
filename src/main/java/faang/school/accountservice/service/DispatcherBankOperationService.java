@@ -21,11 +21,11 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.AUTHORIZATION_ERROR;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.AUTHORIZATION_FAIL;
 import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.AUTHORIZATION_SUCCESS;
-import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CANCEL_ERROR;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CANCEL_FAIL;
 import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CANCEL_SUCCESS;
-import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CLEARING_ERROR;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CLEARING_FAIL;
 import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CLEARING_SUCCESS;
 import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.SERVER_ERROR;
 
@@ -44,8 +44,9 @@ public class DispatcherBankOperationService {
     private final KafkaProducer kafkaProducer;
     private final BalanceService balanceService;
 
+    @Transactional
     public PaymentAuthorizationResponseDto authorizationOperation(PaymentAuthorizationRequestDto paymentAuthorizationRequestDto) {
-        UUID operationId = paymentAuthorizationRequestDto.operationId();
+        UUID operationId = paymentAuthorizationRequestDto.transferId();
         UUID accountId = paymentAuthorizationRequestDto.accountId();
         BigDecimal amount = paymentAuthorizationRequestDto.amount();
 
@@ -57,11 +58,11 @@ public class DispatcherBankOperationService {
             paymentStatus = AUTHORIZATION_SUCCESS;
             description = "Successful authorization";
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
-            paymentStatus = AUTHORIZATION_ERROR;
+            paymentStatus = AUTHORIZATION_FAIL;
             description = e.getMessage();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
-            description = e.getMessage();
+            description = "server internal error";
         }
         PaymentAuthorizationResponseDto paymentAuthorizationResponseDto = new PaymentAuthorizationResponseDto(operationId,
                 paymentStatus, description);
@@ -71,27 +72,30 @@ public class DispatcherBankOperationService {
         return paymentAuthorizationResponseDto;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public PaymentClearingResponseDto clearingOperation(PaymentClearingRequestDto paymentClearingRequestDto) {
-        UUID operationId = paymentClearingRequestDto.operationId();
+        UUID operationId = paymentClearingRequestDto.transferId();
         UUID senderAccountId = paymentClearingRequestDto.senderAccountId();
         UUID recipientAccountId = paymentClearingRequestDto.recipientAccountId();
         BigDecimal amount = paymentClearingRequestDto.amount();
 
         String description;
         PaymentStatus paymentStatus;
+        //todo сделать интеграционный тест
+        // на оптимистик лок для (одновременной авторизации) и (одновременного клиринга и отмены)
+        //todo вынести в один общий метод  ????
         try {
             balanceService.clearing(senderAccountId, amount);
             balanceService.admission(recipientAccountId, amount);
             paymentStatus = CLEARING_SUCCESS;
             description = "Successful clearing";
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
-            paymentStatus = CLEARING_ERROR;
+            paymentStatus = CLEARING_FAIL;
             description = e.getMessage();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
-            description = e.getMessage();
+            description = "server internal error";
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
@@ -103,8 +107,9 @@ public class DispatcherBankOperationService {
         return paymentClearingResponseDto;
     }
 
+    @Transactional
     public PaymentCancelResponseDto cancelOperation(PaymentCancelRequestDto paymentCancelRequestDto) {
-        UUID operationId = paymentCancelRequestDto.operationId();
+        UUID operationId = paymentCancelRequestDto.transferId();
         UUID accountId = paymentCancelRequestDto.accountId();
         BigDecimal amount = paymentCancelRequestDto.amount();
 
@@ -116,11 +121,11 @@ public class DispatcherBankOperationService {
             paymentStatus = CANCEL_SUCCESS;
             description = "Successful cancel";
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
-            paymentStatus = CANCEL_ERROR;
+            paymentStatus = CANCEL_FAIL;
             description = e.getMessage();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
-            description = e.getMessage();
+            description = "server internal error";
         }
         PaymentCancelResponseDto paymentCancelResponseDto = new PaymentCancelResponseDto(operationId,
                 paymentStatus, description);
