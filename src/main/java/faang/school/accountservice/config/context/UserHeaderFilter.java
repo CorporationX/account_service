@@ -27,6 +27,10 @@ public class UserHeaderFilter implements Filter {
         } else {
             throw new IllegalArgumentException("Missing required header 'x-user-id'. Please include 'x-user-id' header with a valid user ID in your request.");
         }
+        String userRole = req.getHeader("x-user-role");
+        if (userRole != null) {
+            userContext.setUserRole(userRole);
+        }
         try {
             chain.doFilter(request, response);
         } finally {
