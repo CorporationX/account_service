@@ -54,6 +54,12 @@ public class BaseContextTest {
         registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
         registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
 
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+
+        registry.add("spring.liquibase.url", POSTGRESQL_CONTAINER::getJdbcUrl);
+        registry.add("spring.liquibase.user", POSTGRESQL_CONTAINER::getUsername);
+        registry.add("spring.liquibase.password", POSTGRESQL_CONTAINER::getPassword);
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
