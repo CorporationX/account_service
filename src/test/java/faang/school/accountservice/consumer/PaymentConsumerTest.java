@@ -7,8 +7,6 @@ import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.hibernate.validator.cfg.defs.DecimalMaxDef;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
