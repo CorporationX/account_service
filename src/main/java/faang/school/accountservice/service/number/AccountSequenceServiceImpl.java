@@ -4,9 +4,9 @@ import faang.school.accountservice.config.AccountNumberProperties;
 import faang.school.accountservice.entity.account.AccountSeq;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /*
     incrementCounte should be called from not transactional service,

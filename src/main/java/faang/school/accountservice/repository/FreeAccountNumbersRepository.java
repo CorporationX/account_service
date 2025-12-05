@@ -5,6 +5,7 @@ import faang.school.accountservice.entity.account.FreeAccountNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /*
@@ -28,5 +29,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
         DELETE FROM free_account_numbers
         WHERE type = :type AND account_number = :accountNumber
         """, nativeQuery = true)
-    int deleteByTypeAndAccountNumber(String type, String accountNumber);
+    int deleteByTypeAndAccountNumber(@Param("type") String type,
+                                     @Param("accountNumber") String accountNumber);
 }

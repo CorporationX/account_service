@@ -11,7 +11,8 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "account.number")
 public class AccountNumberProperties {
-    private Map<AccountType, Long> prefix;
-    private int batchSize = 1;
-    private int maxRetries = 10;
+    private Map<AccountType, String> prefix;
+    private int bodyLength;
+    private int batchSize;
+    private int maxRetries;
 }

@@ -15,13 +15,23 @@ public class AccountNumberScheduler {
 
     private final FreeAccountNumbersServiceImpl freeAccountNumbersService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void generateDebitAccountNumbers() {
         freeAccountNumbersService.generateAccountNumbers(AccountType.CURRENT, props.getBatchSize());
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 2 * * *")
     public void generateCreditAccountNumbers() {
         freeAccountNumbersService.generateAccountNumbers(AccountType.CREDIT, props.getBatchSize());
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    public void generateSavingAccountNumbers() {
+        freeAccountNumbersService.generateAccountNumbers(AccountType.SAVING, props.getBatchSize());
+    }
+
+    @Scheduled(cron = "0 0 4 * * *")
+    public void generateCurrencyAccountNumbers() {
+        freeAccountNumbersService.generateAccountNumbers(AccountType.CURRENCY, props.getBatchSize());
     }
 }

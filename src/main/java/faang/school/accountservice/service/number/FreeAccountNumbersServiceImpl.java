@@ -5,9 +5,9 @@ import faang.school.accountservice.entity.account.FreeAccountId;
 import faang.school.accountservice.entity.account.FreeAccountNumber;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
-public class FreeAccountNumbersServiceImpl {
+public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService {
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountSequenceService accountSequenceService;
@@ -44,8 +44,8 @@ public class FreeAccountNumbersServiceImpl {
         return new FreeAccountNumber(id);
     }
 
-    private long getPrefix(AccountType type) {
-        Long prefix = accountNumberProperties.getPrefix().get(type);
+    private String getPrefix(AccountType type) {
+        String prefix = accountNumberProperties.getPrefix().get(type);
         if (prefix == null) {
             throw new IllegalStateException("Prefix not configured for account type: " + type);
         }
@@ -53,8 +53,14 @@ public class FreeAccountNumbersServiceImpl {
     }
 
     private String buildAccountNumber(AccountType type, long sequenceNumber) {
-        long full = getPrefix(type) + sequenceNumber;
-        return Long.toString(full);
+        String prefix = getPrefix(type);
+
+        String body = String.format("%0" + accountNumberProperties.getBodyLength() + "d", sequenceNumber);
+        if (body.length() > accountNumberProperties.getBodyLength()) {
+            throw new IllegalStateException("Sequence overflow for type " + type + ": " + sequenceNumber);
+        }
+
+        return prefix + body;
     }
 
     @Transactional
