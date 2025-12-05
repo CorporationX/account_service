@@ -17,6 +17,27 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+        group-id: account-service-group
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        properties:
+          spring.json.trusted.packages: '*'
+    listener:
+        ack-mode: manual_immediate
+app:
+  kafka:
+    topics:
+      request-status-events: request-status-events-topic
+    publisher:
+      timeout-seconds: 10
+
 server:
   port: 8090
   servlet:
@@ -35,3 +56,7 @@ project-service:
 logging:
   level:
     root: info
+
+request:
+  scheduler:
+    cron: 0 * * * * * # every minute

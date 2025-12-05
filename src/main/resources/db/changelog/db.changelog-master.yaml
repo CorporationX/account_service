@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V001__create_account-table.sql
   - include:
       file: db/changelog/changeset/V002_add_indexes.sql
+  - include:
+      file: db/changelog/changeset/V003__create_requests_table.sql

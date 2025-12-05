@@ -72,10 +72,36 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("external_service_error", "External service error occurred");
     }
 
+    /**
+     * Исключение, возникающее при попытке выполнить некорректный переход статуса запроса.
+     * Возвращает 400 BAD_REQUEST.
+     */
     @ExceptionHandler(IllegalStatusTransitionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalStatusTransitionException(IllegalStatusTransitionException ex) {
         log.warn("Illegal status transition: {}", ex.getMessage());
         return new ErrorResponse("illegal_status_transition", ex.getMessage());
+    }
+
+    /**
+     * Обработка ошибок нарушения уникальности (дубликаты lockValue или idempotencyToken).
+     * Возвращает 409 CONFLICT.
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateKeyException(DuplicateKeyException  ex) {
+        log.warn("Duplicate key violation: {}", ex.getMessage());
+        return new ErrorResponse("duplicate_key", ex.getMessage());
+    }
+
+    /**
+     * Обработка ошибок публикации событий в Kafka.
+     * Возвращает 500 INTERNAL_SERVER_ERROR.
+     */
+    @ExceptionHandler(EventPublishException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleEventPublishException(EventPublishException ex) {
+        log.error("Event publishing failed: {}", ex.getMessage());
+        return new ErrorResponse("event_publish_error", "Failed to publish notification event");
     }
 }

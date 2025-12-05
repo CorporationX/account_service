@@ -1,0 +1,137 @@
+package faang.school.accountservice.service.request;
+
+import faang.school.accountservice.dto.request.CreateRequestDto;
+import faang.school.accountservice.dto.request.RequestEventDto;
+import faang.school.accountservice.dto.request.ResponseRequestDto;
+import faang.school.accountservice.entity.request.Request;
+import faang.school.accountservice.enums.request.RequestStatus;
+import faang.school.accountservice.exception.DuplicateKeyException;
+import faang.school.accountservice.exception.EntityNotFoundException;
+import faang.school.accountservice.exception.IllegalStatusTransitionException;
+import faang.school.accountservice.mapper.RequestMapper;
+import faang.school.accountservice.publisher.RequestStatusPublisher;
+import faang.school.accountservice.repository.RequestRepository;
+import faang.school.accountservice.service.operation.AsyncRequestProcessor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class RequestServiceImpl implements RequestService {
+    private final RequestRepository requestRepository;
+    private final RequestMapper requestMapper;
+    private final AsyncRequestProcessor asyncRequestProcessor;
+    private final RequestStatusPublisher requestStatusPublisher;
+
+    @Override
+    @Transactional
+    public ResponseRequestDto createRequest(UUID idempotencyToken, CreateRequestDto dto) {
+        validateOwner(dto);
+
+        Optional<Request> existingOptRequest = requestRepository.findById(idempotencyToken);
+        if (existingOptRequest.isPresent()) {
+            return handleIdempotentRequest(existingOptRequest.get(), dto, idempotencyToken);
+        }
+
+        String lockValue = resolveLockValue(dto);
+
+        Request request = createAndSaveRequest(idempotencyToken, dto, lockValue);
+
+        asyncRequestProcessor.processAsync(request.getIdempotencyToken());
+
+        return requestMapper.toResponseRequestDto(request);
+    }
+
+
+    @Override
+    @Transactional
+    public ResponseRequestDto updateRequestStatus(UUID idempotencyToken, RequestStatus status, String statusDetails) {
+
+        Request request = requestRepository.findById(idempotencyToken)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Request with idempotencyToken %s not found", idempotencyToken)
+                ));
+
+        if (request.getStatus().isFinal()) {
+            throw new IllegalStatusTransitionException(
+                    String.format("Cannot change status of final request: %s", request.getStatus())
+            );
+        }
+
+        request.changeStatus(status, statusDetails);
+        request = requestRepository.save(request);
+
+        publishEvent(request);
+
+        return requestMapper.toResponseRequestDto(request);
+    }
+
+    private void validateOwner(CreateRequestDto dto) {
+        boolean hasUser = dto.userId() != null;
+        boolean hasProject = dto.projectId() != null;
+        if (hasUser == hasProject) {
+            throw new IllegalArgumentException("Must specify exactly one owner: userId or projectId");
+        }
+    }
+
+    private ResponseRequestDto handleIdempotentRequest(Request existing, CreateRequestDto newRequest,
+                                                       UUID idempotencyToken) {
+        if (!Objects.equals(existing.getInputData(), newRequest.inputData())
+                || !Objects.equals(existing.getUserId(), newRequest.userId())
+                || !Objects.equals(existing.getProjectId(), newRequest.projectId())
+                || existing.getOperationType() != newRequest.operationType()) {
+
+            throw new DuplicateKeyException(
+                    String.format("Idempotency token %s already used with different request data", idempotencyToken)
+            );
+        }
+
+        log.info("Idempotent request found by token {}, returning existing result.",
+                existing.getIdempotencyToken());
+        return requestMapper.toResponseRequestDto(existing);
+    }
+
+    private Request createAndSaveRequest(UUID idempotencyToken, CreateRequestDto dto, String lockValue) {
+        try {
+            Request request = requestMapper.toEntity(dto);
+            request.setIdempotencyToken(idempotencyToken);
+            request.setLockValue(lockValue);
+            request.changeStatus(RequestStatus.PENDING, null);
+
+            return requestRepository.save(request);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateKeyException(
+                    String.format("Open request with lock value already exists: %s", lockValue), e
+            );
+        }
+    }
+
+    private void publishEvent(Request request) {
+        requestStatusPublisher.publish(new RequestEventDto(
+                request.getIdempotencyToken(),
+                request.getUserId(),
+                request.getOperationType(),
+                request.getStatus(),
+                request.getUpdatedAt()
+        ));
+    }
+
+    private String resolveLockValue(CreateRequestDto dto) {
+        if (dto.userId() != null) {
+            return String.format("USER:%d", dto.userId());
+        }
+        if (dto.projectId() != null) {
+            return String.format("PROJECT:%d", dto.projectId());
+        }
+        throw new IllegalArgumentException("Invalid owner");
+    }
+}
