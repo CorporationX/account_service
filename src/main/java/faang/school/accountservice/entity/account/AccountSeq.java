@@ -20,7 +20,6 @@ public class AccountSeq {
 
     @Id
     @Enumerated(EnumType.STRING)
-
     @Column(name = "type", nullable = false, length = 16)
     private AccountType type;
 

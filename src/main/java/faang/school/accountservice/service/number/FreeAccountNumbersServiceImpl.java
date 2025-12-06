@@ -38,6 +38,12 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         freeAccountNumbersRepository.saveAll(freeAccountNumbers);
     }
 
+    @Transactional
+    public void retrieveAccountNumber(AccountType type, Consumer<String> consumer) {
+        String accountNumber = getOrGenerateAccountNumber(type);
+        consumer.accept(accountNumber);
+    }
+
     private FreeAccountNumber createFreeAccountNumber(AccountType type, long sequenceNumber) {
         String accountNumber = buildAccountNumber(type, sequenceNumber);
         FreeAccountId id = new FreeAccountId(type, accountNumber);
@@ -61,12 +67,6 @@ public class FreeAccountNumbersServiceImpl implements FreeAccountNumbersService 
         }
 
         return prefix + body;
-    }
-
-    @Transactional
-    public void retrieveAccountNumber(AccountType type, Consumer<String> consumer) {
-        String accountNumber = getOrGenerateAccountNumber(type);
-        consumer.accept(accountNumber);
     }
 
     private String getOrGenerateAccountNumber(AccountType type) {
