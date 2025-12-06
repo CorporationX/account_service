@@ -2,6 +2,8 @@ package faang.school.accountservice.consumer;
 
 import faang.school.accountservice.AccountServiceApplicationTests;
 import faang.school.accountservice.dto.payment.kafka.PaymentAuthorizationRequestDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentCancelRequestDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentClearingRequestDto;
 import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.repository.AccountRepository;
@@ -56,6 +58,7 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
     private UUID uuidTransferId;
     private UUID uuidTransferId2;
     private Account save;
+    private Account saveTwo;
 
     @BeforeEach
     void setUp() {
@@ -74,8 +77,19 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
                 .description("testing")
                 .version(0L)
                 .build();
-
         save = accountRepository.save(account);
+
+        Account accountTwo = Account.builder()
+                .accountNumber("14122001374784868111")
+                .userId(1L)
+                .type(INDIVIDUAL_CURRENCY)
+                .currency(RUB)
+                .status(ACTIVE)
+                .description("testing2")
+                .version(0L)
+                .build();
+        saveTwo = accountRepository.save(accountTwo);
+
 
         Balance balance = Balance.builder()
                 .account(save)
@@ -83,11 +97,19 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
                 .actualBalance(new BigDecimal(100))
                 .version(0L)
                 .build();
-
         balanceRepository.save(balance);
 
+        Balance balanceTwo = Balance.builder()
+                .account(saveTwo)
+                .authorizedBalance(new BigDecimal(0))
+                .actualBalance(new BigDecimal(0))
+                .version(0L)
+                .build();
+        balanceRepository.save(balanceTwo);
     }
 
+    // после отправления в кафку, делаю слип, чтобы сообщение успело дойти
+    // не знаю, стоит ли так делать
     @Test
     public void optimisticLock_simultaneousAuthorization() throws InterruptedException {
         PaymentAuthorizationRequestDto paymentAuthorizationRequestDto = new PaymentAuthorizationRequestDto(
@@ -99,7 +121,7 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
         sendKafkaMessage(topicsAuthorizationRequest, paymentAuthorizationRequestDto);
         sendKafkaMessage(topicsAuthorizationRequest, paymentAuthorizationRequestDto2);
 
-        Thread.sleep(3000);
+        Thread.sleep(1000);
 
         Balance result;
         Optional<Balance> resultOpt = balanceRepository.findByAccountId(save.getId());
@@ -108,8 +130,43 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
             assertThat(result.getActualBalance()).isEqualByComparingTo(new BigDecimal("30"));
             assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("70"));
         } else {
-            throw new RuntimeException();
+            throw new RuntimeException("Optional is null");
         }
+    }
+
+    @Test
+    public void pessimisticLock_simultaneouslyClearingAndCancel() throws InterruptedException {
+        PaymentAuthorizationRequestDto paymentAuthorizationRequestDto = new PaymentAuthorizationRequestDto(
+                save.getId(), new BigDecimal(70), uuidTransferId);
+        sendKafkaMessage(topicsAuthorizationRequest, paymentAuthorizationRequestDto);
+
+        Thread.sleep(1000);
+
+        PaymentClearingRequestDto paymentClearingRequestDto = new PaymentClearingRequestDto(save.getId(), saveTwo.getId(),
+                new BigDecimal(70), uuidTransferId);
+        PaymentCancelRequestDto paymentCancelRequestDto = new PaymentCancelRequestDto(save.getId(),
+                new BigDecimal(70), uuidTransferId);
+
+        sendKafkaMessage(topicsClearingRequest, paymentClearingRequestDto);
+        sendKafkaMessage(topicsCancelRequest, paymentCancelRequestDto);
+
+        Thread.sleep(1000);
+
+        Balance result;
+        Balance resultTwo;
+        Optional<Balance> resultOpt = balanceRepository.findByAccountId(save.getId());
+        Optional<Balance> resultOptTwo = balanceRepository.findByAccountId(saveTwo.getId());
+
+        if(resultOpt.isPresent() && resultOptTwo.isPresent()) {
+            resultTwo = resultOptTwo.get();
+            result = resultOpt.get();
+            assertThat(result.getActualBalance()).isEqualByComparingTo(new BigDecimal("30"));
+            assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("0"));
+            assertThat(resultTwo.getActualBalance()).isEqualByComparingTo(new BigDecimal("70"));
+        } else {
+            throw new RuntimeException("Optional is null");
+        }
+
     }
 
     private void sendKafkaMessage(String topic, Object objectToSend) {

@@ -60,9 +60,11 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = AUTHORIZATION_FAIL;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = "server internal error";
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentAuthorizationResponseDto paymentAuthorizationResponseDto = new PaymentAuthorizationResponseDto(operationId,
                 paymentStatus, description);
@@ -81,9 +83,6 @@ public class DispatcherBankOperationService {
 
         String description;
         PaymentStatus paymentStatus;
-        //todo сделать интеграционный тест
-        // на оптимистик лок для (одновременной авторизации) и (одновременного клиринга и отмены)
-        //todo вынести в один общий метод  ????
         try {
             balanceService.clearing(senderAccountId, amount);
             balanceService.admission(recipientAccountId, amount);
@@ -123,9 +122,11 @@ public class DispatcherBankOperationService {
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = CANCEL_FAIL;
             description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
             description = "server internal error";
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentCancelResponseDto paymentCancelResponseDto = new PaymentCancelResponseDto(operationId,
                 paymentStatus, description);
