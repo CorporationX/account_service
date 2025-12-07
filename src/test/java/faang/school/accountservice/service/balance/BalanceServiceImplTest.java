@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,9 @@ public class BalanceServiceImplTest {
     @Mock
     AccountRepository accountRepository;
 
+    @Spy
+    ValidateAccount validateAccount;
+
     @InjectMocks
     BalanceServiceImpl service;
 
@@ -69,6 +73,7 @@ public class BalanceServiceImplTest {
     @Test
     public void createBalance_responseDtoHasClosed_shouldThrowAccountValidateException() {
         AccountDto dto = AccountDto.builder()
+                .id(1L)
                 .status(AccountStatusType.CLOSED)
                 .build();
 
@@ -205,7 +210,7 @@ public class BalanceServiceImplTest {
                 .build();
 
         when(accountService.getAccount(accountId)).thenReturn(accountDto);
-        when(balanceRepository.findByAccountId(accountId)).thenReturn(existingBalance);
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(existingBalance));
         when(balanceRepository.save(any(Balance.class))).thenReturn(savedBalance);
         when(balanceMapper.toDto(savedBalance)).thenReturn(expectedDto);
 
@@ -231,7 +236,7 @@ public class BalanceServiceImplTest {
                 .createdAt(balance.getCreatedAt())
                 .updatedAt(balance.getUpdatedAt())
                 .build();
-        when(balanceRepository.findByAccountId(accountId)).thenReturn(balance);
+        when(balanceRepository.findByAccountId(accountId)).thenReturn(Optional.of(balance));
         when(balanceMapper.toDto(balance)).thenReturn(expectedDto);
 
         BalanceResponseDto actualDto = service.getBalance(accountId);

@@ -1,20 +1,17 @@
 package faang.school.accountservice.service.balance;
 
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.balance.BalanceResponseDto;
 import faang.school.accountservice.dto.balance.BalanceUpdateDto;
-import faang.school.accountservice.exception.AccountValidateException;
 import faang.school.accountservice.exception.EntityNotFoundException;
+import faang.school.accountservice.exception.ExclusionOfFundsException;
 import faang.school.accountservice.exception.ForbiddenException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.AccountStatusType;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -22,13 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
-    private final AccountServiceImpl accountService;
+    private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final ValidateAccount validateAccount;
 
 
+    @Transactional
     @Override
     public BalanceResponseDto createBalance(long accountId) {
-        validateAccount(accountId);
+        validateAccount.validateAccount(accountService.getAccount(accountId));
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found" + accountId));
         if (account.getBalance() != null) {
@@ -40,29 +39,29 @@ public class BalanceServiceImpl implements BalanceService {
         return balanceMapper.toDto(balanceRepository.save(newBalance));
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     @Override
     public BalanceResponseDto updateBalance(long accountId, BalanceUpdateDto balanceUpdateDto) {
-        validateAccount(accountId);
-        Balance balance = balanceRepository.findByAccountId(accountId);
+        validateAccount.validateAccount(accountService.getAccount(accountId));
+        Balance balance = getBalanceByAccountIdOrThrow(accountId);
         long authorizationAmount =
                 Math.addExact(balance.getAuthorizationAmount(), balanceUpdateDto.authorizationAmount());
+        if (authorizationAmount <= 0) {
+            throw new ExclusionOfFundsException("Insufficient funds on the balance");
+        }
         balance.setAuthorizationAmount(authorizationAmount);
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(readOnly = true)
     @Override
     public BalanceResponseDto getBalance(long accountId) {
-        Balance balance = balanceRepository.findByAccountId(accountId);
+        Balance balance = getBalanceByAccountIdOrThrow(accountId);
         return balanceMapper.toDto(balance);
     }
 
-    private void validateAccount(long accountId) {
-        AccountDto dto = accountService.getAccount(accountId);
-        if (dto.status().equals(AccountStatusType.CLOSED)
-                || dto.status().equals(AccountStatusType.FROZEN)) {
-            throw new AccountValidateException("Account status is invalid %s".formatted(dto.status()));
-        }
+    private Balance getBalanceByAccountIdOrThrow(long accountId) {
+        return balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Balance not fount"));
     }
 }
