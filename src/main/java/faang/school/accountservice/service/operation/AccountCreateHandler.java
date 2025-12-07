@@ -6,7 +6,6 @@ import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.request.OperationType;
-import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import java.util.Map;
 public class AccountCreateHandler implements OperationHandler {
 
     private final AccountService accountService;
-    private final AccountMapper accountMapper;
 
     @Override
     public OperationType getSupportedOperationType() {
@@ -33,10 +31,7 @@ public class AccountCreateHandler implements OperationHandler {
         log.info("Account creation started: user={}, project={}, requestId={}",
                 request.getUserId(), request.getProjectId(), request.getIdempotencyToken());
 
-        String accountNumber = generateAccountNumber();
-
         CreateAccountDto createDto = new CreateAccountDto(
-                accountNumber,
                 request.getUserId(),
                 request.getProjectId(),
                 AccountType.valueOf((String) request.getInputData().get("accountType")),
@@ -52,7 +47,4 @@ public class AccountCreateHandler implements OperationHandler {
         log.info("Account created: id={}, number={}", responseDto.accountId(), responseDto.accountNumber());
     }
 
-    private String generateAccountNumber() {
-        return String.valueOf(System.currentTimeMillis());
-    }
 }

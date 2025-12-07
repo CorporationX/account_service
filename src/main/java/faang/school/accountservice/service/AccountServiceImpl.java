@@ -7,6 +7,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.IllegalStatusTransitionException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.number.FreeAccountNumbersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,6 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final FreeAccountNumbersService accountNumbersService;
 
     @Override
     public List<ResponseAccountDto> getAccounts(Long userId, Long projectId) {
@@ -52,7 +54,7 @@ public class AccountServiceImpl implements AccountService {
                 createAccountDto.projectId());
         Account account = accountMapper.toEntity(createAccountDto);
         account.setStatus(AccountStatus.OPENED);
-
+        accountNumbersService.retrieveAccountNumber(account.getType(), account::setAccountNumber);
         Account savedAccount = accountRepository.save(account);
         log.info("Account with id: {} successfully created for userId: {} and projectId: {}", savedAccount.getId(),
                 createAccountDto.userId(), createAccountDto.projectId());
@@ -88,9 +90,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void validateStatusTransition(AccountStatus current, AccountStatus next) {
-        if (current == AccountStatus.CLOSED) {
-            throw new IllegalStatusTransitionException("Cannot modify closed account");
-        }
 
         if (next == AccountStatus.BLOCKED && current == AccountStatus.CLOSED) {
             throw new IllegalStatusTransitionException("Cannot block closed account");
@@ -98,6 +97,10 @@ public class AccountServiceImpl implements AccountService {
 
         if (next == AccountStatus.OPENED && current == AccountStatus.CLOSED) {
             throw new IllegalStatusTransitionException("Cannot reopen closed account");
+        }
+
+        if (current == AccountStatus.CLOSED) {
+            throw new IllegalStatusTransitionException("Cannot modify closed account");
         }
     }
 

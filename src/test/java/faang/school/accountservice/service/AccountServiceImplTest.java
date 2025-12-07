@@ -11,6 +11,7 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.exception.IllegalStatusTransitionException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.service.number.FreeAccountNumbersService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +52,9 @@ public class AccountServiceImplTest {
     @Mock
     private ProjectServiceClient projectServiceClient;
 
+    @Mock
+    private FreeAccountNumbersService freeAccountNumbersService;
+
     @Spy
     private final AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
 
@@ -62,7 +66,6 @@ public class AccountServiceImplTest {
     @BeforeEach
     public void setUp() {
         createAccountDto = new CreateAccountDto(
-                ACCOUNT_NUMBER,
                 USER_ID,
                 null,
                 AccountType.CURRENT,
@@ -181,7 +184,6 @@ public class AccountServiceImplTest {
     @Test
     public void createAccount_WhenBothUserIdAndProjectId_ThrowsException() {
         CreateAccountDto invalidDto = new CreateAccountDto(
-                ACCOUNT_NUMBER,
                 USER_ID,
                 PROJECT_ID,
                 AccountType.CURRENT,
