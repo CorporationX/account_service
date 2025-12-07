@@ -18,24 +18,24 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/accounts")
 @RestController
 @Validated
 public class BalanceController {
     private final BalanceService balanceService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/account/{accountId}/balance")
+    @PostMapping("/{accountId}/balance")
     public BalanceResponseDto create(
-            @Positive(message = "Account cannot be negative")
+            @Positive(message = "Account id cannot be less than zero")
             @PathVariable
             Long accountId) {
         return balanceService.createBalance(accountId);
     }
 
-    @PutMapping("/balance/{accountId}")
+    @PutMapping("/{accountId}/balance")
     public BalanceResponseDto update(
-            @Positive(message = "Account cannot be negative")
+            @Positive(message = "Account id cannot be less than zero")
             @PathVariable
             Long accountId,
             @RequestBody
@@ -44,9 +44,9 @@ public class BalanceController {
         return balanceService.updateBalance(accountId, balanceUpdateDto);
     }
 
-    @GetMapping("/account/{accountId}/balance")
+    @GetMapping("/{accountId}/balance")
     public BalanceResponseDto getBalance(
-            @Positive(message = "Account cannot be negative")
+            @Positive(message = "Account id cannot be less than zero")
             @PathVariable
             Long accountId) {
         return balanceService.getBalance(accountId);
