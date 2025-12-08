@@ -7,4 +7,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V003__create_requests_table.sql
   - include:
       file: db/changelog/changeset/V004_add_free_account_numbers.sql
-
+  - include:
+      file: db/changelog/changeset/V005_init_account_number_sequence.sql
