@@ -6,6 +6,8 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.exception.AccessDeniedException;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.AccountOperationException;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -40,13 +42,13 @@ public class AccountServiceImpl implements AccountService {
     private final AccountProperties accountProperties;
     private final AccountNumberGenerator accountNumberGenerator;
     private final BalanceService balanceService;
+    private final UserContext userContext;
 
     @Override
     @Transactional(readOnly = true)
     public AccountResponseDto get(@NotNull Long id) {
         log.debug("Getting account by id: {}", id);
-        Account account = findAccountById(id);
-        return accountMapper.toDto(account);
+        return accountMapper.toDto(findAccountById(id));
     }
 
     @Override
@@ -67,12 +69,14 @@ public class AccountServiceImpl implements AccountService {
             @NotNull OwnerType ownerType,
             @NotNull Pageable pageable) {
 
+        validateAccess(ownerId);
+
         log.debug("Getting accounts for owner type: {}, page: {}", ownerType, pageable.getPageNumber());
 
         Page<Account> accounts = accountRepository.findByOwnerIdAndOwnerType(
                 ownerId, ownerType, pageable);
 
-        return accounts.map(accountMapper::toDto);
+        return accountMapper.toPageDto(accounts);
     }
 
     @Override
@@ -88,7 +92,7 @@ public class AccountServiceImpl implements AccountService {
         Page<Account> accounts = accountRepository.findByOwnerIdAndOwnerTypeAndStatus(
                 ownerId, ownerType, AccountStatus.ACTIVE, pageable);
 
-        return accounts.map(accountMapper::toDto);
+        return accountMapper.toPageDto(accounts);
     }
 
     @Override
@@ -105,7 +109,7 @@ public class AccountServiceImpl implements AccountService {
         Page<Account> accounts = accountRepository.findByOwnerIdAndOwnerTypeAndCurrencyAndStatus(
                 ownerId, ownerType, currency, AccountStatus.ACTIVE, pageable);
 
-        return accounts.map(accountMapper::toDto);
+        return accountMapper.toPageDto(accounts);
     }
 
     @Override
@@ -180,6 +184,17 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
     }
 
+    private void validateAccess(Long ownerId) {
+        boolean isAdmin = userContext.hasRole("ADMIN");
+        Long currentUserId = userContext.getUserId();
+        boolean isOwner = currentUserId != null && ownerId.equals(currentUserId);
+
+        if (!isAdmin && !isOwner) {
+            log.warn("Access denied for user {} to owner {} accounts", currentUserId, ownerId);
+            throw new AccessDeniedException("Access denied. Only ADMIN role or account owner can access this resource.");
+        }
+    }
+
     private void validateAccountLimit(Long ownerId, OwnerType ownerType) {
         long activeAccountsCount = accountRepository.countByOwnerIdAndOwnerTypeAndStatus(
                 ownerId, ownerType, AccountStatus.ACTIVE);
@@ -222,32 +237,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void validateZeroBalance(Long accountId) {
-        // Используем pessimistic lock для предотвращения race condition
-        // между проверкой баланса и закрытием счета
+        
         BigDecimal balance = balanceService.getBalanceWithLock(accountId);
 
         if (balance.compareTo(BigDecimal.ZERO) != 0) {
             log.warn("Attempt to close account with non-zero balance");
             throw new AccountOperationException("Cannot close account with non-zero balance");
         }
-    }
-
-    private String maskAccountNumber(String accountNumber) {
-        if (accountNumber == null || accountNumber.length() < 4) {
-            return "****";
-        }
-        int visibleStart = 4;
-        int visibleEnd = 4;
-        int maskLength = Math.max(accountNumber.length() - visibleStart - visibleEnd, 4);
-        
-        if (accountNumber.length() <= visibleStart + visibleEnd) {
-            return accountNumber.substring(0, Math.min(visibleStart, accountNumber.length())) + 
-                   "*".repeat(maskLength);
-        }
-        
-        return accountNumber.substring(0, visibleStart) + 
-               "*".repeat(maskLength) + 
-               accountNumber.substring(accountNumber.length() - visibleEnd);
     }
 
     private void createInitialBalance(Account account) {

@@ -1,10 +1,10 @@
 package faang.school.accountservice.service.account;
 
-import faang.school.accountservice.config.properties.AccountNumberGeneratorProperties;
 import faang.school.accountservice.exception.AccountOperationException;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -16,7 +16,8 @@ public class AccountNumberGenerator {
 
     private static final int ACCOUNT_NUMBER_LENGTH = 16;
     private final AccountRepository accountRepository;
-    private final AccountNumberGeneratorProperties properties;
+    @Value("${account-number-generator.max-generation-attempts}")
+    private int maxGenerationAttempts;
 
     public String generate() {
         int attempts = 0;
@@ -26,10 +27,10 @@ public class AccountNumberGenerator {
             candidate = generateUuidBased();
             attempts++;
 
-            if (attempts >= properties.getMaxGenerationAttempts()) {
+            if (attempts >= maxGenerationAttempts) {
                 throw new AccountOperationException(
                         String.format("Failed to generate unique account number after %d attempts",
-                                properties.getMaxGenerationAttempts()));
+                                maxGenerationAttempts));
             }
         } while (accountRepository.existsByNumber(candidate));
 

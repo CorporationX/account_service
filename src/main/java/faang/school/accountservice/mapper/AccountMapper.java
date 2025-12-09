@@ -5,6 +5,7 @@ import faang.school.accountservice.entity.Account;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
@@ -21,5 +22,9 @@ public interface AccountMapper {
     @Mapping(target = "closedAt", source = "closedAt")
     @Mapping(target = "version", source = "version")
     AccountResponseDto toDto(Account account);
+
+    default Page<AccountResponseDto> toPageDto(Page<Account> accounts) {
+        return accounts.map(this::toDto);
+    }
 }
 

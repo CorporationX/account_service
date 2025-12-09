@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.account;
 
+import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.config.properties.AccountProperties;
 import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.dto.OpenAccountDto;
@@ -57,6 +58,9 @@ class AccountServiceImplTest {
 
     @Mock
     private AccountBalanceRepository accountBalanceRepository;
+
+    @Mock
+    private UserContext userContext;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -150,11 +154,12 @@ class AccountServiceImplTest {
 
         AccountResponseDto dto1 = createTestDto(1L);
         AccountResponseDto dto2 = createTestDto(2L);
+        Page<AccountResponseDto> expectedPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
+        when(userContext.hasRole("ADMIN")).thenReturn(true);
         when(accountRepository.findByOwnerIdAndOwnerType(ownerId, ownerType, pageable))
                 .thenReturn(accountPage);
-        when(accountMapper.toDto(account1)).thenReturn(dto1);
-        when(accountMapper.toDto(account2)).thenReturn(dto2);
+        when(accountMapper.toPageDto(accountPage)).thenReturn(expectedPage);
 
         // When
         Page<AccountResponseDto> result = accountService.getByOwner(ownerId, ownerType, pageable);
@@ -178,11 +183,12 @@ class AccountServiceImplTest {
         Page<Account> accountPage = new PageImpl<>(accounts, pageable, 1);
 
         AccountResponseDto dto = createTestDto(1L);
+        Page<AccountResponseDto> expectedPage = new PageImpl<>(List.of(dto), pageable, 1);
 
         when(accountRepository.findByOwnerIdAndOwnerTypeAndStatus(
                 ownerId, ownerType, AccountStatus.ACTIVE, pageable))
                 .thenReturn(accountPage);
-        when(accountMapper.toDto(account)).thenReturn(dto);
+        when(accountMapper.toPageDto(accountPage)).thenReturn(expectedPage);
 
         // When
         Page<AccountResponseDto> result = accountService.getActiveByOwner(ownerId, ownerType, pageable);
@@ -208,11 +214,12 @@ class AccountServiceImplTest {
         Page<Account> accountPage = new PageImpl<>(accounts, pageable, 1);
 
         AccountResponseDto dto = createTestDto(1L);
+        Page<AccountResponseDto> expectedPage = new PageImpl<>(List.of(dto), pageable, 1);
 
         when(accountRepository.findByOwnerIdAndOwnerTypeAndCurrencyAndStatus(
                 ownerId, ownerType, currency, AccountStatus.ACTIVE, pageable))
                 .thenReturn(accountPage);
-        when(accountMapper.toDto(account)).thenReturn(dto);
+        when(accountMapper.toPageDto(accountPage)).thenReturn(expectedPage);
 
         // When
         Page<AccountResponseDto> result = accountService.getActiveByOwnerAndCurrency(
