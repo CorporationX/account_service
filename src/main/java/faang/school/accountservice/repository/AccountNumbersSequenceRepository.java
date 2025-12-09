@@ -25,4 +25,12 @@ public interface AccountNumbersSequenceRepository
     int tryIncrementCounter(@Param("type") AccountType type,
                             @Param("expected") long expected,
                             @Param("delta") int delta);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = """
+            INSERT INTO account_number_sequence(type, counter)
+            VALUES (:type, 0)
+            ON CONFLICT (type) DO NOTHING
+            """, nativeQuery = true)
+    int initIfAbsent(@Param("type") AccountType type);
 }

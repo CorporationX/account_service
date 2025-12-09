@@ -4,7 +4,6 @@ import faang.school.accountservice.config.AccountNumberProperties;
 import faang.school.accountservice.entity.account.AccountSeq;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +20,9 @@ public class AccountSequenceServiceImpl implements AccountSequenceService {
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     private final AccountNumberProperties props;
 
+    /*
+        Optimistic DB lock counter with retries
+     */
     @Override
     @Transactional
     public AccountPeriod incrementCounter(AccountType type, int batchSize) {
@@ -31,9 +33,14 @@ public class AccountSequenceServiceImpl implements AccountSequenceService {
         int maxRetries = Math.max(1, props.getMaxRetries());
 
         for (int attempt = 0; attempt < maxRetries; attempt++) {
-            AccountSeq seq = accountNumbersSequenceRepository.findById(type)
-                    .orElseThrow(() -> new IllegalStateException("Sequence not initialized: " + type));
+            var optionalSeq = accountNumbersSequenceRepository.findById(type);
 
+            if (optionalSeq.isEmpty()) {
+                accountNumbersSequenceRepository.initIfAbsent(type);
+                continue;
+            }
+
+            AccountSeq seq = optionalSeq.get();
             long current = seq.getCounter();
             long initial = current + 1;
             long newCounter = current + batchSize;
@@ -48,12 +55,4 @@ public class AccountSequenceServiceImpl implements AccountSequenceService {
         throw new IllegalStateException("Failed to increment counter for: " + type);
     }
 
-    @PostConstruct
-    public void validateSequences() {
-        for (AccountType type : AccountType.values()) {
-            if (accountNumbersSequenceRepository.findById(type).isEmpty()) {
-                throw new IllegalStateException("No sequence row for type: " + type);
-            }
-        }
-    }
 }
