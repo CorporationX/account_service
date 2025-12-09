@@ -32,5 +32,5 @@ public interface AccountNumbersSequenceRepository
             VALUES (:type, 0)
             ON CONFLICT (type) DO NOTHING
             """, nativeQuery = true)
-    int initIfAbsent(@Param("type") AccountType type);
+    int initIfAbsent(@Param("type") String type);
 }

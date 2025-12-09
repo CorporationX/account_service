@@ -36,7 +36,7 @@ public class AccountSequenceServiceImpl implements AccountSequenceService {
             var optionalSeq = accountNumbersSequenceRepository.findById(type);
 
             if (optionalSeq.isEmpty()) {
-                accountNumbersSequenceRepository.initIfAbsent(type);
+                accountNumbersSequenceRepository.initIfAbsent(type.name());
                 continue;
             }
 
