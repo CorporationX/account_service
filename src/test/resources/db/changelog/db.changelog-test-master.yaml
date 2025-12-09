@@ -1,5 +1,7 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__account-service_account_test.sql
+      file: db/changelog/changeset/V000_init_user_db.sql
   - include:
-      file: db/changelog/changeset/V002_account-service_balance_test.sql
+      file: ../main/db/changelog/changeset/V001__account-service_account.sql
+  - include:
+      file: ../main/db/changelog/changeset/V002_account-service_balance.sql

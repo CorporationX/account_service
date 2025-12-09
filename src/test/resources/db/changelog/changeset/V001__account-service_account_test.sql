@@ -10,7 +10,8 @@ CREATE TABLE account (
     version              BIGINT         NOT NULL DEFAULT 0,
     balance              NUMERIC(19, 4) NOT NULL DEFAULT 0,
     description          VARCHAR(255),
-    status_change_reason VARCHAR(255)
+    status_change_reason VARCHAR(255),
+    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE INDEX idx_account_user_id ON account (user_id);

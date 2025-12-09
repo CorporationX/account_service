@@ -26,7 +26,10 @@ import java.util.concurrent.CompletableFuture;
 import static faang.school.accountservice.enums.AccountStatus.ACTIVE;
 import static faang.school.accountservice.enums.AccountType.INDIVIDUAL_CURRENCY;
 import static faang.school.accountservice.enums.Currency.RUB;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 
 @SpringBootTest
@@ -110,6 +113,7 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
 
     // после отправления в кафку, делаю слип, чтобы сообщение успело дойти
     // не знаю, стоит ли так делать
+    // todo добавить миграции user
     @Test
     public void optimisticLock_simultaneousAuthorization() throws InterruptedException {
         PaymentAuthorizationRequestDto paymentAuthorizationRequestDto = new PaymentAuthorizationRequestDto(
@@ -121,7 +125,16 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
         sendKafkaMessage(topicsAuthorizationRequest, paymentAuthorizationRequestDto);
         sendKafkaMessage(topicsAuthorizationRequest, paymentAuthorizationRequestDto2);
 
-        Thread.sleep(1000);
+        await().atMost(5, SECONDS)
+                .pollInterval(100, MILLISECONDS)
+                .untilAsserted(() -> {
+                    Optional<Balance> resultOpt = balanceRepository.findByAccountId(save.getId());
+                    assertThat(resultOpt).isPresent();
+
+                    Balance result = resultOpt.get();
+                    assertThat(result.getActualBalance()).isEqualByComparingTo(new BigDecimal("30"));
+                    assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("70"));
+                });
 
         Balance result;
         Optional<Balance> resultOpt = balanceRepository.findByAccountId(save.getId());
@@ -140,7 +153,13 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
                 save.getId(), new BigDecimal(70), uuidTransferId);
         sendKafkaMessage(topicsAuthorizationRequest, paymentAuthorizationRequestDto);
 
-        Thread.sleep(1000);
+        await().atMost(3, SECONDS)
+                .pollInterval(100, MILLISECONDS)
+                .until(() -> {
+                    Optional<Balance> balanceOpt = balanceRepository.findByAccountId(save.getId());
+                    return balanceOpt.isPresent() &&
+                            balanceOpt.get().getAuthorizedBalance().compareTo(new BigDecimal("70")) == 0;
+                });
 
         PaymentClearingRequestDto paymentClearingRequestDto = new PaymentClearingRequestDto(save.getId(), saveTwo.getId(),
                 new BigDecimal(70), uuidTransferId);
@@ -150,23 +169,18 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
         sendKafkaMessage(topicsClearingRequest, paymentClearingRequestDto);
         sendKafkaMessage(topicsCancelRequest, paymentCancelRequestDto);
 
-        Thread.sleep(1000);
+        await().atMost(5, SECONDS)
+                .pollInterval(100, MILLISECONDS)
+                .untilAsserted(() -> {
+                    Balance result = balanceRepository.findByAccountId(save.getId())
+                            .orElseThrow(() -> new RuntimeException("Balance not found for save account"));
+                    Balance resultTwo = balanceRepository.findByAccountId(saveTwo.getId())
+                            .orElseThrow(() -> new RuntimeException("Balance not found for saveTwo account"));
 
-        Balance result;
-        Balance resultTwo;
-        Optional<Balance> resultOpt = balanceRepository.findByAccountId(save.getId());
-        Optional<Balance> resultOptTwo = balanceRepository.findByAccountId(saveTwo.getId());
-
-        if(resultOpt.isPresent() && resultOptTwo.isPresent()) {
-            resultTwo = resultOptTwo.get();
-            result = resultOpt.get();
-            assertThat(result.getActualBalance()).isEqualByComparingTo(new BigDecimal("30"));
-            assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("0"));
-            assertThat(resultTwo.getActualBalance()).isEqualByComparingTo(new BigDecimal("70"));
-        } else {
-            throw new RuntimeException("Optional is null");
-        }
-
+                    assertThat(result.getActualBalance()).isEqualByComparingTo(new BigDecimal("30"));
+                    assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("0"));
+                    assertThat(resultTwo.getActualBalance()).isEqualByComparingTo(new BigDecimal("70"));
+                });
     }
 
     private void sendKafkaMessage(String topic, Object objectToSend) {
