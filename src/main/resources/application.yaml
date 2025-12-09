@@ -60,3 +60,14 @@ logging:
 request:
   scheduler:
     cron: 0 * * * * * # every minute
+
+account:
+  number:
+    batchSize: 10
+    maxRetries: 10
+    prefix:
+      CURRENT: "4200"
+      SAVING:  "5236"
+      CREDIT:  "6011"
+      CURRENCY: "7000"
+    body-length: 12

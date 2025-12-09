@@ -4,6 +4,5 @@ public enum AccountType {
     CURRENT,
     SAVING,
     CURRENCY,
-    CREDIT,
-    ;
+    CREDIT
 }
