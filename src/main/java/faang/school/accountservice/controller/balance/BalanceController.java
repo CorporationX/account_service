@@ -1,6 +1,5 @@
 package faang.school.accountservice.controller.balance;
 
-import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.CreateBalanceDto;
 import faang.school.accountservice.dto.balance.UpdateBalanceDto;
@@ -21,25 +20,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BalanceController {
     private final BalanceService balanceService;
-    private final UserContext userContext;
 
     @PostMapping
     public BalanceDto create(@RequestBody @Valid CreateBalanceDto createBalanceDto) {
-        return balanceService.create(userContext.getUserId(), createBalanceDto);
+        return balanceService.create(createBalanceDto);
     }
 
     @PutMapping("/{balanceId}")
     public BalanceDto update(@PathVariable Long balanceId, @RequestBody @Valid UpdateBalanceDto updateBalanceDto) {
-        return balanceService.update(userContext.getUserId(), balanceId, updateBalanceDto);
+        return balanceService.update(balanceId, updateBalanceDto);
     }
 
     @GetMapping("/{balanceId}")
     public BalanceDto getById(@PathVariable Long balanceId) {
-        return balanceService.getById(userContext.getUserId(), balanceId);
+        return balanceService.getById(balanceId);
     }
 
     @DeleteMapping("/{balanceId}")
     public void delete(@PathVariable Long balanceId) {
-        balanceService.delete(userContext.getUserId(), balanceId);
+        balanceService.delete(balanceId);
     }
 }

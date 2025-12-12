@@ -1,6 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.client.ProjectServiceClient;
+import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.CreateBalanceDto;
 import faang.school.accountservice.dto.balance.UpdateBalanceDto;
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,9 @@ public class BalanceServiceImplTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private UserContext userContext;
 
     private long anyLong;
     private long anyDifferentLong;
@@ -81,8 +86,8 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyLong);
 
-        assertThrows(DataValidationException.class, () -> balanceServiceImpl.create(anyLong, anyCreateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(CreateBalanceDto.class));
+        assertThrows(DataValidationException.class, () -> balanceServiceImpl.create(anyCreateBalanceDto));
+        verify(balanceMapper, never()).toBalance(any(CreateBalanceDto.class));
     }
 
     @Test
@@ -91,9 +96,10 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyDifferentLong);
 
         when(accountRepository.findById(anyCreateBalanceDto.accountId())).thenReturn(Optional.of(anyAccount));
+        when(userContext.getUserId()).thenReturn(1L);
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.create(anyLong, anyCreateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(CreateBalanceDto.class));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.create(anyCreateBalanceDto));
+        verify(balanceMapper, never()).toBalance(any(CreateBalanceDto.class));
         verify(accountRepository, times(1)).findById(anyCreateBalanceDto.accountId());
     }
 
@@ -102,10 +108,11 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.PROJECT);
         anyOwner.setPersonId(anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(accountRepository.findById(anyCreateBalanceDto.accountId())).thenReturn(Optional.of(anyAccount));
 
-        assertThrows(DataValidationException.class, () -> balanceServiceImpl.create(anyLong, anyCreateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(CreateBalanceDto.class));
+        assertThrows(DataValidationException.class, () -> balanceServiceImpl.create(anyCreateBalanceDto));
+        verify(balanceMapper, never()).toBalance(any(CreateBalanceDto.class));
         verify(accountRepository, times(1)).findById(anyCreateBalanceDto.accountId());
     }
 
@@ -115,11 +122,12 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyDifferentLong);
         anyProjectDto = new ProjectDto(anyLong, anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(accountRepository.findById(anyCreateBalanceDto.accountId())).thenReturn(Optional.of(anyAccount));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.create(anyLong, anyCreateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(CreateBalanceDto.class));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.create(anyCreateBalanceDto));
+        verify(balanceMapper, never()).toBalance(any(CreateBalanceDto.class));
         verify(accountRepository, times(1)).findById(anyCreateBalanceDto.accountId());
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());
     }
@@ -129,11 +137,12 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceMapper.toBalance(any(CreateBalanceDto.class))).thenReturn(anyBalance);
         when(accountRepository.findById(anyCreateBalanceDto.accountId())).thenReturn(Optional.of(anyAccount));
         when(balanceRepository.save(anyBalance)).thenReturn(anyBalance);
 
-        balanceServiceImpl.create(anyRequesterId, anyCreateBalanceDto);
+        balanceServiceImpl.create(anyCreateBalanceDto);
 
         verify(balanceMapper, times(1)).toBalance(any(CreateBalanceDto.class));
         verify(accountRepository, times(1)).findById(anyCreateBalanceDto.accountId());
@@ -147,12 +156,13 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyLong);
         anyProjectDto = new ProjectDto(anyLong, anyLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceMapper.toBalance(any(CreateBalanceDto.class))).thenReturn(anyBalance);
         when(accountRepository.findById(anyCreateBalanceDto.accountId())).thenReturn(Optional.of(anyAccount));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
         when(balanceRepository.save(anyBalance)).thenReturn(anyBalance);
 
-        balanceServiceImpl.create(anyRequesterId, anyCreateBalanceDto);
+        balanceServiceImpl.create(anyCreateBalanceDto);
 
         verify(balanceMapper, times(1)).toBalance(any(CreateBalanceDto.class));
         verify(accountRepository, times(1)).findById(anyCreateBalanceDto.accountId());
@@ -166,10 +176,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyDifferentLong);
 
-        when(balanceMapper.toBalance(any(UpdateBalanceDto.class))).thenReturn(anyBalance);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(balanceRepository.findById(any(Long.class))).thenReturn(Optional.of(anyBalance));
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.update(anyLong, anyLong, anyUpdateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(UpdateBalanceDto.class));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.update(anyLong, anyUpdateBalanceDto));
     }
 
     @Test
@@ -177,10 +187,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.PROJECT);
         anyOwner.setPersonId(anyDifferentLong);
 
-        when(balanceMapper.toBalance(any(UpdateBalanceDto.class))).thenReturn(anyBalance);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(balanceRepository.findById(any(Long.class))).thenReturn(Optional.of(anyBalance));
 
-        assertThrows(DataValidationException.class, () -> balanceServiceImpl.update(anyLong, anyLong, anyUpdateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(UpdateBalanceDto.class));
+        assertThrows(DataValidationException.class, () -> balanceServiceImpl.update(anyLong, anyUpdateBalanceDto));
     }
 
     @Test
@@ -189,11 +199,11 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyDifferentLong);
         anyProjectDto = new ProjectDto(anyLong, anyDifferentLong);
 
-        when(balanceMapper.toBalance(any(UpdateBalanceDto.class))).thenReturn(anyBalance);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(balanceRepository.findById(any(Long.class))).thenReturn(Optional.of(anyBalance));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.update(anyLong, anyLong, anyUpdateBalanceDto));
-        verify(balanceMapper, times(1)).toBalance(any(UpdateBalanceDto.class));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.update(anyLong, anyUpdateBalanceDto));
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());
     }
 
@@ -202,13 +212,14 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyLong);
 
-        when(balanceMapper.toBalance(any(UpdateBalanceDto.class))).thenReturn(anyBalance);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(balanceRepository.findById(any(Long.class))).thenReturn(Optional.of(anyBalance));
         when(balanceRepository.save(anyBalance)).thenReturn(anyBalance);
 
-        balanceServiceImpl.update(anyRequesterId, anyLong, anyUpdateBalanceDto);
+        balanceServiceImpl.update(anyRequesterId, anyUpdateBalanceDto);
 
-        verify(balanceMapper, times(1)).toBalance(any(UpdateBalanceDto.class));
         verify(balanceRepository, times(1)).save(anyBalance);
+        verify(balanceMapper, times(1)).update(anyUpdateBalanceDto, anyBalance);
         verify(balanceMapper, times(1)).toBalanceDto(anyBalance);
     }
 
@@ -218,13 +229,14 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyLong);
         anyProjectDto = new ProjectDto(anyLong, anyLong);
 
-        when(balanceMapper.toBalance(any(UpdateBalanceDto.class))).thenReturn(anyBalance);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(balanceRepository.findById(any(Long.class))).thenReturn(Optional.of(anyBalance));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
         when(balanceRepository.save(anyBalance)).thenReturn(anyBalance);
 
-        balanceServiceImpl.update(anyRequesterId, anyLong, anyUpdateBalanceDto);
+        balanceServiceImpl.update(anyRequesterId, anyUpdateBalanceDto);
 
-        verify(balanceMapper, times(1)).toBalance(any(UpdateBalanceDto.class));
+        verify(balanceMapper, times(1)).update(anyUpdateBalanceDto, anyBalance);
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());
         verify(balanceRepository, times(1)).save(anyBalance);
         verify(balanceMapper, times(1)).toBalanceDto(anyBalance);
@@ -232,7 +244,9 @@ public class BalanceServiceImplTest {
 
     @Test
     public void getByIdNonexistentBalance() {
-        assertThrows(EntityNotFoundException.class, () -> balanceServiceImpl.getById(anyLong, anyLong));
+        when(userContext.getUserId()).thenReturn(1L);
+
+        assertThrows(EntityNotFoundException.class, () -> balanceServiceImpl.getById(anyLong));
 
         verify(balanceRepository, times(1)).findById(anyLong);
     }
@@ -242,9 +256,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.getById(anyLong, anyLong));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.getById(anyLong));
         verify(balanceRepository, times(1)).findById(anyLong);
     }
 
@@ -253,9 +268,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.PROJECT);
         anyOwner.setPersonId(anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
 
-        assertThrows(DataValidationException.class, () -> balanceServiceImpl.getById(anyLong, anyLong));
+        assertThrows(DataValidationException.class, () -> balanceServiceImpl.getById(anyLong));
         verify(balanceRepository, times(1)).findById(anyLong);
     }
 
@@ -265,10 +281,11 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyDifferentLong);
         anyProjectDto = new ProjectDto(anyLong, anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.getById(anyLong, anyLong));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.getById(anyLong));
         verify(balanceRepository, times(1)).findById(anyLong);
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());
     }
@@ -278,9 +295,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
 
-        balanceServiceImpl.getById(anyLong, anyLong);
+        balanceServiceImpl.getById(anyLong);
 
         verify(balanceRepository, times(1)).findById(anyLong);
         verify(balanceMapper, times(1)).toBalanceDto(anyBalance);
@@ -292,10 +310,11 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyLong);
         anyProjectDto = new ProjectDto(anyLong, anyLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
 
-        balanceServiceImpl.getById(anyLong, anyLong);
+        balanceServiceImpl.getById(anyLong);
 
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());
         verify(balanceRepository, times(1)).findById(anyLong);
@@ -304,7 +323,9 @@ public class BalanceServiceImplTest {
 
     @Test
     public void deleteNonexistentBalance() {
-        assertThrows(EntityNotFoundException.class, () -> balanceServiceImpl.delete(anyLong, anyLong));
+        when(userContext.getUserId()).thenReturn(1L);
+
+        assertThrows(EntityNotFoundException.class, () -> balanceServiceImpl.delete(anyLong));
 
         verify(balanceRepository, times(1)).findById(anyLong);
     }
@@ -314,9 +335,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.delete(anyLong, anyLong));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.delete(anyLong));
         verify(balanceRepository, times(1)).findById(anyLong);
     }
 
@@ -325,9 +347,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.PROJECT);
         anyOwner.setPersonId(anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
 
-        assertThrows(DataValidationException.class, () -> balanceServiceImpl.delete(anyLong, anyLong));
+        assertThrows(DataValidationException.class, () -> balanceServiceImpl.delete(anyLong));
         verify(balanceRepository, times(1)).findById(anyLong);
     }
 
@@ -337,10 +360,11 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyDifferentLong);
         anyProjectDto = new ProjectDto(anyLong, anyDifferentLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
 
-        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.delete(anyLong, anyLong));
+        assertThrows(ForbiddenException.class, () -> balanceServiceImpl.delete(anyLong));
         verify(balanceRepository, times(1)).findById(anyLong);
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());
     }
@@ -350,9 +374,10 @@ public class BalanceServiceImplTest {
         anyOwner.setOwnerType(OwnerType.USER);
         anyOwner.setPersonId(anyLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
 
-        balanceServiceImpl.delete(anyLong, anyLong);
+        balanceServiceImpl.delete(anyLong);
 
         verify(balanceRepository, times(1)).findById(anyLong);
         verify(balanceRepository, times(1)).deleteById(anyLong);
@@ -364,10 +389,11 @@ public class BalanceServiceImplTest {
         anyOwner.setPersonId(anyLong);
         anyProjectDto = new ProjectDto(anyLong, anyLong);
 
+        when(userContext.getUserId()).thenReturn(1L);
         when(balanceRepository.findById(anyLong)).thenReturn(Optional.of(anyBalance));
         when(projectServiceClient.getById(anyOwner.getPersonId())).thenReturn(anyProjectDto);
 
-        balanceServiceImpl.delete(anyLong, anyLong);
+        balanceServiceImpl.delete(anyLong);
 
         verify(balanceRepository, times(1)).findById(anyLong);
         verify(projectServiceClient, times(1)).getById(anyOwner.getPersonId());

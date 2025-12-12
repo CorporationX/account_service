@@ -5,11 +5,11 @@ import faang.school.accountservice.dto.balance.CreateBalanceDto;
 import faang.school.accountservice.dto.balance.UpdateBalanceDto;
 
 public interface BalanceService {
-    BalanceDto create(long requesterId, CreateBalanceDto createBalanceDto);
+    BalanceDto create(CreateBalanceDto createBalanceDto);
 
-    BalanceDto update(long requesterId, long balanceId, UpdateBalanceDto updateBalanceDto);
+    BalanceDto update(long balanceId, UpdateBalanceDto updateBalanceDto);
 
-    BalanceDto getById(long requesterId, long balanceId);
+    BalanceDto getById(long balanceId);
 
-    void delete(long requesterId, long balanceId);
+    void delete(long balanceId);
 }
