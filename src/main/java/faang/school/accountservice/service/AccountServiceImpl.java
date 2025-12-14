@@ -49,7 +49,6 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setStatus(AccountStatusType.FROZEN);
-        accountRepository.save(account);
     }
 
     @Override
