@@ -8,6 +8,7 @@ import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.exception.AccessDeniedException;
+import faang.school.accountservice.service.role.RoleService;
 import faang.school.accountservice.exception.AccountNotFoundException;
 import faang.school.accountservice.exception.AccountOperationException;
 import faang.school.accountservice.mapper.AccountMapper;
@@ -43,6 +44,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountNumberGenerator accountNumberGenerator;
     private final BalanceService balanceService;
     private final UserContext userContext;
+    private final RoleService roleService;
 
     @Override
     @Transactional(readOnly = true)
@@ -185,8 +187,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void validateAccess(Long ownerId) {
-        boolean isAdmin = userContext.hasRole("ADMIN");
         Long currentUserId = userContext.getUserId();
+        boolean isAdmin = roleService.isAdmin(currentUserId);
         boolean isOwner = currentUserId != null && ownerId.equals(currentUserId);
 
         if (!isAdmin && !isOwner) {
@@ -251,8 +253,3 @@ public class AccountServiceImpl implements AccountService {
         accountBalanceRepository.save(balance);
     }
 }
-
-
-
-
-

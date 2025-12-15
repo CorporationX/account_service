@@ -2,6 +2,7 @@ package faang.school.accountservice.service.account;
 
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.config.properties.AccountProperties;
+import faang.school.accountservice.service.role.RoleService;
 import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.dto.OpenAccountDto;
 import faang.school.accountservice.entity.Account;
@@ -61,6 +62,9 @@ class AccountServiceImplTest {
 
     @Mock
     private UserContext userContext;
+
+    @Mock
+    private RoleService roleService;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -156,7 +160,8 @@ class AccountServiceImplTest {
         AccountResponseDto dto2 = createTestDto(2L);
         Page<AccountResponseDto> expectedPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
-        when(userContext.hasRole("ADMIN")).thenReturn(true);
+        when(userContext.getUserId()).thenReturn(100L);
+        when(roleService.isAdmin(100L)).thenReturn(true);
         when(accountRepository.findByOwnerIdAndOwnerType(ownerId, ownerType, pageable))
                 .thenReturn(accountPage);
         when(accountMapper.toPageDto(accountPage)).thenReturn(expectedPage);
