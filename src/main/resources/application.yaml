@@ -23,3 +23,9 @@ server:
 logging:
   level:
     root: info
+
+account:
+  max-active-accounts-per-owner: 10
+
+account-number-generator:
+  max-generation-attempts: 100
