@@ -56,14 +56,15 @@ public class DispatcherBankOperationService {
         try {
             balanceService.authorize(accountId, amount);
             paymentStatus = AUTHORIZATION_SUCCESS;
-            description = "Successful authorization";
+            description = AUTHORIZATION_SUCCESS.getDescription();
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = AUTHORIZATION_FAIL;
-            description = e.getMessage();
+            description =  e.getMessage();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
-            description = "server internal error";
+            description = SERVER_ERROR.getDescription();
+            log.error(e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentAuthorizationResponseDto paymentAuthorizationResponseDto = new PaymentAuthorizationResponseDto(operationId,
@@ -85,16 +86,17 @@ public class DispatcherBankOperationService {
         PaymentStatus paymentStatus;
         try {
             balanceService.clearing(senderAccountId, amount);
-            balanceService.admission(recipientAccountId, amount);
+            balanceService.deposit(recipientAccountId, amount);
             paymentStatus = CLEARING_SUCCESS;
-            description = "Successful clearing";
+            description = CLEARING_SUCCESS.getDescription();
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = CLEARING_FAIL;
             description = e.getMessage();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
-            description = "server internal error";
+            description = SERVER_ERROR.getDescription();
+            log.error(e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
@@ -118,14 +120,15 @@ public class DispatcherBankOperationService {
         try {
             balanceService.cancelAuthorization(accountId, amount);
             paymentStatus = CANCEL_SUCCESS;
-            description = "Successful cancel";
+            description = CANCEL_SUCCESS.getDescription();
         } catch (OperationNotAllowed | BalanceNotFoundException e) {
             paymentStatus = CANCEL_FAIL;
             description = e.getMessage();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } catch (Exception e) {
             paymentStatus = SERVER_ERROR;
-            description = "server internal error";
+            description = SERVER_ERROR.getDescription();
+            log.error(e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         PaymentCancelResponseDto paymentCancelResponseDto = new PaymentCancelResponseDto(operationId,

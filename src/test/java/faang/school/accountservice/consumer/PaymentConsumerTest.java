@@ -8,20 +8,26 @@ import faang.school.accountservice.entity.Account;
 import faang.school.accountservice.entity.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.service.BalanceService;
+import jakarta.persistence.OptimisticLockException;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static faang.school.accountservice.enums.AccountStatus.ACTIVE;
 import static faang.school.accountservice.enums.AccountType.INDIVIDUAL_CURRENCY;
@@ -30,10 +36,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.*;
 
-
+@DirtiesContext
 @SpringBootTest
-@ActiveProfiles("test")
 public class PaymentConsumerTest extends AccountServiceApplicationTests {
 
     @Value("${spring.kafka.topic.payments.authorization.request}")
@@ -58,6 +64,9 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
     @Autowired
     private BalanceRepository balanceRepository;
 
+    @Autowired
+    private BalanceService balanceService;
+
     private UUID uuidTransferId;
     private UUID uuidTransferId2;
     private Account save;
@@ -70,6 +79,8 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
 
         uuidTransferId = UUID.fromString("3d0393c2-5bc3-4079-9263-95e3be8c7886");
         uuidTransferId2 = UUID.fromString("3d0393c3-5bc3-4079-9263-95e3be8c7886");
+
+
 
         Account account = Account.builder()
                 .accountNumber("14122001374784868680")
@@ -111,11 +122,9 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
         balanceRepository.save(balanceTwo);
     }
 
-    // после отправления в кафку, делаю слип, чтобы сообщение успело дойти
-    // не знаю, стоит ли так делать
-    // todo добавить миграции user
     @Test
     public void optimisticLock_simultaneousAuthorization() throws InterruptedException {
+        AtomicInteger attemptCounter = new AtomicInteger(0);
         PaymentAuthorizationRequestDto paymentAuthorizationRequestDto = new PaymentAuthorizationRequestDto(
                 save.getId(), new BigDecimal(70), uuidTransferId);
 
@@ -128,12 +137,14 @@ public class PaymentConsumerTest extends AccountServiceApplicationTests {
         await().atMost(5, SECONDS)
                 .pollInterval(100, MILLISECONDS)
                 .untilAsserted(() -> {
+
                     Optional<Balance> resultOpt = balanceRepository.findByAccountId(save.getId());
                     assertThat(resultOpt).isPresent();
 
                     Balance result = resultOpt.get();
                     assertThat(result.getActualBalance()).isEqualByComparingTo(new BigDecimal("30"));
                     assertThat(result.getAuthorizedBalance()).isEqualByComparingTo(new BigDecimal("70"));
+
                 });
 
         Balance result;

@@ -25,8 +25,6 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final AccountRepository accountRepository;
 
-    private final DefaultErrorAttributes errorAttributes;
-
     @Transactional
     public Balance createBalance(UUID accountId) {
 
@@ -118,7 +116,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public Balance admission(UUID accountId, BigDecimal amount) {
+    public Balance deposit(UUID accountId, BigDecimal amount) {
         log.info("admission {} for account {}", amount, accountId);
 
         Balance balance = balanceRepository.findByAccountId(accountId)

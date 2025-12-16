@@ -28,7 +28,7 @@ public class PaymentConsumer {
     @KafkaListener(
             topics = "${spring.kafka.topic.payments.authorization.request}",
             containerFactory = "paymentKafkaListenerContainerFactory",
-            groupId = "payment-service-authorization"
+            groupId = "${spring.kafka.topic.payments.authorization.groupId}"
     )
     public void handlePaymentListenerAuthorizationRequest(@Payload Map<String, Object> message, Acknowledgment ack) {
 
@@ -46,7 +46,7 @@ public class PaymentConsumer {
     @KafkaListener(
             topics = "${spring.kafka.topic.payments.clearing.request}",
             containerFactory = "paymentKafkaListenerContainerFactory",
-            groupId = "payment-service-clearing"
+            groupId = "${spring.kafka.topic.payments.clearing.groupId}"
     )
     public void handlePaymentListenerClearingRequest(@Payload Map<String, Object> message, Acknowledgment ack) {
 
@@ -64,7 +64,7 @@ public class PaymentConsumer {
     @KafkaListener(
             topics = "${spring.kafka.topic.payments.cancel.request}",
             containerFactory = "paymentKafkaListenerContainerFactory",
-            groupId = "payment-service-cancel"
+            groupId =  "${spring.kafka.topic.payments.cancel.groupId}"
     )
     public void handlePaymentListenerCancelRequest(@Payload Map<String, Object> message, Acknowledgment ack) {
 

@@ -34,7 +34,6 @@ public class AccountServiceApplicationTests {
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
 
         registry.add("spring.kafka.bootstrap-servers", KAFKA_CONTAINER::getBootstrapServers);
-        registry.add("spring.kafka.admin.properties.auto.create.topics.enable", () -> "true");
 
         registry.add("spring.liquibase.change-log", () -> "classpath:db/changelog/db.changelog-test-master.yaml");
 

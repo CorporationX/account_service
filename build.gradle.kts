@@ -52,6 +52,7 @@ dependencies {
     testImplementation("org.testcontainers:kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
+    testImplementation ("io.github.hakky54:logcaptor:2.9.0")
 
     /**
      * Tests
