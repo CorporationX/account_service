@@ -1,0 +1,142 @@
+package faang.school.accountservice.service;
+
+import faang.school.accountservice.dto.payment.kafka.PaymentAuthorizationRequestDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentAuthorizationResponseDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentCancelRequestDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentCancelResponseDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentClearingRequestDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentClearingResponseDto;
+import faang.school.accountservice.dto.payment.kafka.PaymentStatus;
+import faang.school.accountservice.exception.BalanceNotFoundException;
+import faang.school.accountservice.exception.OperationNotAllowed;
+import faang.school.accountservice.producer.KafkaProducer;
+import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.AUTHORIZATION_FAIL;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.AUTHORIZATION_SUCCESS;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CANCEL_FAIL;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CANCEL_SUCCESS;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CLEARING_FAIL;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.CLEARING_SUCCESS;
+import static faang.school.accountservice.dto.payment.kafka.PaymentStatus.SERVER_ERROR;
+
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class DispatcherBankOperationService {
+
+    @Value("${spring.kafka.topic.payments.authorization.response}")
+    private String topicAuthorizationResponse;
+    @Value("${spring.kafka.topic.payments.clearing.response}")
+    private String topicClearingResponse;
+    @Value("${spring.kafka.topic.payments.cancel.response}")
+    private String topicCancelResponse;
+
+    private final KafkaProducer kafkaProducer;
+    private final BalanceService balanceService;
+
+    @Transactional
+    public PaymentAuthorizationResponseDto authorizationOperation(PaymentAuthorizationRequestDto paymentAuthorizationRequestDto) {
+        UUID operationId = paymentAuthorizationRequestDto.transferId();
+        UUID accountId = paymentAuthorizationRequestDto.accountId();
+        BigDecimal amount = paymentAuthorizationRequestDto.amount();
+
+        String description;
+        PaymentStatus paymentStatus;
+
+        try {
+            balanceService.authorize(accountId, amount);
+            paymentStatus = AUTHORIZATION_SUCCESS;
+            description = AUTHORIZATION_SUCCESS.getDescription();
+        } catch (OperationNotAllowed | BalanceNotFoundException e) {
+            paymentStatus = AUTHORIZATION_FAIL;
+            description =  e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } catch (Exception e) {
+            paymentStatus = SERVER_ERROR;
+            description = SERVER_ERROR.getDescription();
+            log.error(e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+        PaymentAuthorizationResponseDto paymentAuthorizationResponseDto = new PaymentAuthorizationResponseDto(operationId,
+                paymentStatus, description);
+
+        kafkaProducer.sendMessage(topicAuthorizationResponse, paymentAuthorizationResponseDto);
+
+        return paymentAuthorizationResponseDto;
+    }
+
+    @Transactional
+    public PaymentClearingResponseDto clearingOperation(PaymentClearingRequestDto paymentClearingRequestDto) {
+        UUID operationId = paymentClearingRequestDto.transferId();
+        UUID senderAccountId = paymentClearingRequestDto.senderAccountId();
+        UUID recipientAccountId = paymentClearingRequestDto.recipientAccountId();
+        BigDecimal amount = paymentClearingRequestDto.amount();
+
+        String description;
+        PaymentStatus paymentStatus;
+        try {
+            balanceService.clearing(senderAccountId, amount);
+            balanceService.deposit(recipientAccountId, amount);
+            paymentStatus = CLEARING_SUCCESS;
+            description = CLEARING_SUCCESS.getDescription();
+        } catch (OperationNotAllowed | BalanceNotFoundException e) {
+            paymentStatus = CLEARING_FAIL;
+            description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } catch (Exception e) {
+            paymentStatus = SERVER_ERROR;
+            description = SERVER_ERROR.getDescription();
+            log.error(e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+
+        PaymentClearingResponseDto paymentClearingResponseDto = new PaymentClearingResponseDto(operationId,
+                paymentStatus, description);
+
+        kafkaProducer.sendMessage(topicClearingResponse, paymentClearingResponseDto);
+
+        return paymentClearingResponseDto;
+    }
+
+    @Transactional
+    public PaymentCancelResponseDto cancelOperation(PaymentCancelRequestDto paymentCancelRequestDto) {
+        UUID operationId = paymentCancelRequestDto.transferId();
+        UUID accountId = paymentCancelRequestDto.accountId();
+        BigDecimal amount = paymentCancelRequestDto.amount();
+
+        String description;
+        PaymentStatus paymentStatus;
+
+        try {
+            balanceService.cancelAuthorization(accountId, amount);
+            paymentStatus = CANCEL_SUCCESS;
+            description = CANCEL_SUCCESS.getDescription();
+        } catch (OperationNotAllowed | BalanceNotFoundException e) {
+            paymentStatus = CANCEL_FAIL;
+            description = e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } catch (Exception e) {
+            paymentStatus = SERVER_ERROR;
+            description = SERVER_ERROR.getDescription();
+            log.error(e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+        PaymentCancelResponseDto paymentCancelResponseDto = new PaymentCancelResponseDto(operationId,
+                paymentStatus, description);
+
+        kafkaProducer.sendMessage(topicCancelResponse, paymentCancelResponseDto);
+
+        return paymentCancelResponseDto;
+    }
+
+}

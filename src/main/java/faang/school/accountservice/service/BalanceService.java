@@ -10,6 +10,7 @@ import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,10 +70,12 @@ public class BalanceService {
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
         balance.setAuthorizedBalance(balance.getAuthorizedBalance().add(amount));
 
-        log.info("Authorization completed for account {}. Authorized: {}, Actual: {}",
-                accountId, balance.getAuthorizedBalance(), balance.getActualBalance());
+        Balance result = balanceRepository.save(balance);
 
-        return balanceRepository.save(balance);
+        log.info("Authorization completed for account {}. Authorized: {}, Actual: {}",
+                accountId, result.getAuthorizedBalance(), result.getActualBalance());
+
+        return result;
     }
 
     @Transactional
@@ -112,13 +115,28 @@ public class BalanceService {
         return balanceRepository.save(balance);
     }
 
-    public void validateEnoughActual(Balance balance, BigDecimal amount) {
+    @Transactional
+    public Balance deposit(UUID accountId, BigDecimal amount) {
+        log.info("admission {} for account {}", amount, accountId);
+
+        Balance balance = balanceRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new BalanceNotFoundException(accountId));
+
+        balance.setActualBalance(balance.getActualBalance().add(amount));
+
+        log.info("Admission finished for account {}. New authorized balance: {}",
+                accountId, balance.getAuthorizedBalance());
+
+        return balanceRepository.save(balance);
+    }
+
+    private void validateEnoughActual(Balance balance, BigDecimal amount) {
         if (balance.getActualBalance().compareTo(amount) < 0) {
             throw new OperationNotAllowed("Not enough funds for authorization");
         }
     }
 
-    public void validateEnoughAuthorized(Balance balance, BigDecimal amount) {
+    private void validateEnoughAuthorized(Balance balance, BigDecimal amount) {
         if (balance.getAuthorizedBalance().compareTo(amount) < 0) {
             throw new OperationNotAllowed("Not enough authorized funds");
         }

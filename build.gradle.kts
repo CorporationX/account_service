@@ -49,7 +49,10 @@ dependencies {
     implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:kafka")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
+    testImplementation ("io.github.hakky54:logcaptor:2.9.0")
 
     /**
      * Tests
@@ -57,6 +60,14 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    /**
+     * Kafka
+     */
+    dependencies {
+        implementation("org.springframework.kafka:spring-kafka:3.0.6")
+        implementation("org.apache.kafka:kafka-clients:3.6.0")
+    }
 }
 
 tasks.withType<Test> {

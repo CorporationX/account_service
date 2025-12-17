@@ -14,6 +14,35 @@ spring:
       hibernate:
         format_sql: true
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.add.type.headers: false
+    properties:
+      acks: 1
+      retries: 1
+      enable.idempotence: false
+      request.timeout.ms: 30000
+      max.block.ms: 60000
+    topic:
+      payments:
+          authorization:
+            groupId: payment-service-authorization
+            request: payment.authorization-request
+            response: payment.authorization-response
+          clearing:
+            groupId: payment-service-clearing
+            request: payment.clearing-request
+            response: payment.clearing-response
+          cancel:
+            groupId: payment-service-cancel
+            request: payment.cancel-request
+            response: payment.cancel-response
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
