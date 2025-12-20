@@ -3,7 +3,9 @@ package faang.school.accountservice.service.balance;
 import faang.school.accountservice.dto.balance.UpdateBalanceDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.exception.BalanceInvariantViolationException;
 import faang.school.accountservice.exception.DuplicateEntityException;
+import faang.school.accountservice.exception.ServiceUnavailableException;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.exception.InsufficientFundsException;
 import faang.school.accountservice.mapper.BalanceUpdateMapper;
@@ -13,9 +15,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -36,15 +41,146 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceUpdateMapper balanceUpdateMapper;
 
     /**
-     * Возвращает баланс по идентификатору аккаунта с блокировкой для последующего изменения.
+     * Вычисляет доступный остаток средств для расходования.
+     * <p>
+     * Используется модель <b>ledger + hold</b>:
+     * <ul>
+     *   <li>{@code actualBalance} — фактический (ledger) баланс счёта;</li>
+     *   <li>{@code authBalance} — сумма удержаний (резервов) по авторизациям;</li>
+     * </ul>
+     * Доступный баланс определяется как разность между фактическим балансом и удержанными средствами:
+     * <pre>{@code
+     * available = actualBalance - authBalance
+     * }</pre>
      *
-     * @param accountId идентификатор аккаунта, не {@code null}
-     * @return сущность баланса
-     * @throws EntityNotFoundException если баланс для аккаунта не найден
+     * @param balance сущность баланса, содержащая значения ledger и удержаний; не {@code null}
+     * @return доступный баланс (сумма средств, которую можно дополнительно авторизовать или списать)
      */
+    private BigDecimal getAvailableBalance(Balance balance) {
+        return balance.getActualBalance().subtract(balance.getAuthBalance());
+    }
+
+    /**
+     * Проверяет, достаточно ли доступных средств для операции.
+     * <p>
+     * В модели баланса:
+     * <ul>
+     *   <li>{@code actualBalance} — фактический (ledger) баланс;</li>
+     *   <li>{@code authBalance} — удержанные (заблокированные) средства;</li>
+     *   <li>доступный баланс рассчитывается как {@code actualBalance - authBalance}.</li>
+     * </ul>
+     *
+     * @param balance баланс для проверки
+     * @param amount  сумма операции; не должна быть отрицательной
+     * @throws InsufficientFundsException если доступных средств меньше, чем {@code amount}
+     */
+
+    private void ensureSufficientAvailableBalance(Balance balance, BigDecimal amount) {
+        BigDecimal available = getAvailableBalance(balance);
+        if (available.compareTo(amount) < 0) {
+            throw new InsufficientFundsException(
+                "Insufficient available funds. Available: %s, Requested: %s".formatted(available, amount));
+        }
+    }
+
+    /**
+     * Выполняет клиринг (final capture) ранее авторизованной суммы: подтверждает списание и финализирует удержание.
+     * <p>
+     * Модель баланса:
+     * <ul>
+     *   <li>{@code authBalance} — удержанные (заблокированные) средства по авторизациям;</li>
+     *   <li>{@code actualBalance} — фактический (ledger) баланс;</li>
+     *   <li>доступный баланс рассчитывается как {@code actualBalance - authBalance}.</li>
+     * </ul>
+     * <p>
+     * Операция подтверждает списание на сумму {@code amount} и освобождает остаток удержания:
+     * <ul>
+     *   <li>уменьшает {@code actualBalance} на {@code amount};</li>
+     *   <li>уменьшает {@code authBalance} на {@code amount} и затем освобождает оставшееся удержание
+     *       (после выполнения метода {@code authBalance = 0}).</li>
+     * </ul>
+     *
+     * @param accountId идентификатор аккаунта; не {@code null}
+     * @param amount    сумма списания; не {@code null} и не отрицательная
+     * @return обновлённая сущность {@link Balance} после клиринга
+     * @throws IllegalArgumentException   если {@code amount} отрицательная
+     * @throws EntityNotFoundException    если баланс для указанного {@code accountId} не найден
+     * @throws InsufficientFundsException если {@code authBalance} меньше, чем {@code amount}
+     */
+    public Balance clearing(@NonNull UUID accountId, @NonNull BigDecimal amount) {
+        validateNonNegativeAmount(amount,
+                                  "The amount of the authorized balance to "
+                                      + "be written off must not be negative.");
+        Balance balance = getBalanceAndLockByAccount(accountId);
+
+        if (balance.getAuthBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException(
+                "the authorized balance %s is less than the write-off amount %s"
+                    .formatted(balance.getAuthBalance(), amount));
+        }
+
+        balance.setAuthBalance(BigDecimal.ZERO);
+        balance.setActualBalance(balance.getActualBalance().subtract(amount));
+        return balanceRepository.save(balance);
+    }
+
+    /**
+     * Получает баланс по идентификатору аккаунта с эксклюзивной блокировкой записи
+     * для выполнения последующих модифицирующих операций.
+     * <p>
+     * Метод использует {@link jakarta.persistence.LockModeType#PESSIMISTIC_WRITE}
+     * для предотвращения конкурентных изменений баланса несколькими транзакциями
+     * одновременно.
+     * <p>
+     * В случае невозможности получить блокировку (например, при высокой конкуренции)
+     * операция может быть автоматически повторена в соответствии с настройками retry:
+     * <ul>
+     *   <li>максимальное количество попыток задаётся параметром
+     *       {@code app.balance.retry.max-attempts};</li>
+     *   <li>задержка между попытками и стратегия backoff настраиваются через
+     *       {@code app.balance.retry.backoff-delay} и {@code app.balance.retry.max-delay}.</li>
+     * </ul>
+     * <p>
+     * Если после исчерпания всех попыток блокировку получить не удалось,
+     * выполнение передаётся в метод {@code @Recover}, который преобразует
+     * техническую ошибку конкурентного доступа в сервисное исключение.
+     *
+     * @param accountId идентификатор аккаунта; не {@code null}
+     * @return сущность {@link Balance}, заблокированная для записи
+     *
+     * @throws EntityNotFoundException если баланс для указанного {@code accountId} не найден
+     * @throws ServiceUnavailableException если баланс временно недоступен
+     *         из-за высокой конкурентной нагрузки
+     */
+    @Retryable(
+        retryFor = { PessimisticLockingFailureException.class },
+        maxAttemptsExpression = "${app.balance.retry.max-attempts:2}",
+        backoff = @Backoff(
+            delayExpression = "${app.balance.retry.backoff-delay:200}",
+            maxDelayExpression = "${app.balance.retry.max-delay:5000}",
+            multiplier = 2.0
+            )
+    )
     private Balance getBalanceAndLockByAccount(@NonNull UUID accountId) {
         return balanceRepository.findAndLockByAccountId(accountId)
             .orElseThrow(() -> new EntityNotFoundException("Balance not found for account %s".formatted(accountId)));
+    }
+
+    /**
+     * Обработчик восстановления, вызываемый при невозможности получить
+     * pessimistic lock после исчерпания всех попыток retry.
+     * <p>
+     * Преобразует техническое исключение блокировки в сервисное исключение,
+     * сигнализирующее о временной недоступности ресурса.
+     *
+     * @param e исходное исключение конкурентной блокировки
+     * @param accountId идентификатор аккаунта, доступ к балансу которого не был получен
+     * @return никогда не возвращает значение
+     * @throws ServiceUnavailableException всегда выбрасывается
+     */
+    @Recover
+    public Balance recover(PessimisticLockingFailureException e, UUID accountId) {
+        throw new ServiceUnavailableException("No access to balance by accountId %s".formatted(accountId), e);
     }
 
     /**
@@ -74,12 +210,8 @@ public class BalanceServiceImpl implements BalanceService {
         validateNonNegativeAmount(amountToAuthorize,
                                   "The authorization balance replenishment amount should not be negative");
         Balance balance = getBalanceAndLockByAccount(accountId);
-        BigDecimal actualDelta = balance.getActualBalance().subtract(amountToAuthorize);
-        if (actualDelta.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientFundsException("insufficient funds");
-        }
+        ensureSufficientAvailableBalance(balance, amountToAuthorize);
         balance.setAuthBalance(balance.getAuthBalance().add(amountToAuthorize));
-        balance.setActualBalance(actualDelta);
         return balanceRepository.save(balance);
     }
 
@@ -93,10 +225,43 @@ public class BalanceServiceImpl implements BalanceService {
      * @throws EntityNotFoundException  если баланс не найден
      */
     public Balance topUpActualBalance(@NonNull UUID accountId, @NonNull BigDecimal actualAmount) {
-        validateNonNegativeAmount(actualAmount, "The actual balance replenishment amount should not be negative.");
+        validateNonNegativeAmount(actualAmount, "The actual balance replenishment "
+            + "amount should not be negative.");
 
         Balance balance = getBalanceAndLockByAccount(accountId);
         balance.setActualBalance(balance.getActualBalance().add(actualAmount));
+        return balanceRepository.save(balance);
+    }
+
+    /**
+     * Списывает указанную сумму с фактического баланса аккаунта.
+     * <p>
+     * Используемая модель баланса:
+     * <ul>
+     *   <li>{@code actualBalance} — фактический (ledger) баланс аккаунта;</li>
+     *   <li>{@code authBalance} — удержанные (заблокированные) средства по авторизациям;</li>
+     *   <li>доступный баланс рассчитывается как {@code actualBalance - authBalance}.</li>
+     * </ul>
+     * <p>
+     * Операция уменьшает {@code actualBalance} на {@code actualAmount}. Перед списанием проверяется, что доступных
+     * средств достаточно, то есть выполняется условие {@code actualBalance - authBalance >= actualAmount}.
+     * <p>
+     * Операция выполняется под блокировкой записи баланса (pessimistic write lock), чтобы корректно обрабатывать
+     * конкурентные запросы и не допустить перерасхода.
+     *
+     * @param accountId    идентификатор аккаунта; не {@code null}
+     * @param actualAmount сумма списания; не {@code null} и не отрицательная
+     * @return обновлённая сущность {@link Balance} после списания
+     * @throws IllegalArgumentException   если {@code actualAmount} отрицательная
+     * @throws EntityNotFoundException    если баланс для указанного {@code accountId} не найден
+     * @throws InsufficientFundsException если доступных средств недостаточно для списания (то есть
+     *                                    {@code actualBalance - authBalance < actualAmount})
+     */
+    public Balance withdrawActualBalance(@NonNull UUID accountId, @NonNull BigDecimal actualAmount) {
+        validateNonNegativeAmount(actualAmount, "The withdrawal amount should not be negative.");
+        Balance balance = getBalanceAndLockByAccount(accountId);
+        ensureSufficientAvailableBalance(balance, actualAmount);
+        balance.setActualBalance(balance.getActualBalance().subtract(actualAmount));
         return balanceRepository.save(balance);
     }
 
@@ -131,46 +296,75 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     /**
-     * Переводит указанную сумму из авторизованного баланса в фактический.
+     * Освобождает часть удержания (уменьшает {@code authBalance}) на указанную сумму.
+     * <p>
+     * Метод изменяет состояние переданной сущности {@link Balance} и не выполняет сохранение.
      *
-     * @param accountId                   идентификатор аккаунта, не {@code null}
-     * @param amountFromAuthorizeToActual сумма для перевода, не {@code null}, не отрицательная
+     * @param accountId идентификатор аккаунта, не {@code null}.
+     * @param amountToRelease сумма освобождения; не {@code null} и не отрицательная
      * @return обновлённый баланс
-     * @throws IllegalArgumentException   если сумма отрицательная
-     * @throws EntityNotFoundException    если баланс не найден
-     * @throws InsufficientFundsException если на авторизованном балансе недостаточно средств
+     * @throws IllegalArgumentException   если {@code amountToRelease} отрицательная
+     * @throws InsufficientFundsException если {@code authBalance} меньше, чем {@code amountToRelease}
      */
-    private Balance releaseAuthBalance(@NonNull UUID accountId, @NonNull BigDecimal amountFromAuthorizeToActual) {
-        validateNonNegativeAmount(amountFromAuthorizeToActual,
+    private Balance releaseAuthBalance(@NonNull UUID accountId, @NonNull BigDecimal amountToRelease) {
+        validateNonNegativeAmount(amountToRelease,
                                   "The amountFromAuthorizeToActual parameter should not be negative.");
         Balance balance = getBalanceAndLockByAccount(accountId);
-        if (balance.getAuthBalance().compareTo(amountFromAuthorizeToActual) < 0) {
+        if (balance.getAuthBalance().compareTo(amountToRelease) < 0) {
             throw new InsufficientFundsException("Insufficient funds");
         }
-        balance.setActualBalance(balance.getActualBalance().add(amountFromAuthorizeToActual));
-        balance.setAuthBalance(balance.getAuthBalance().subtract(amountFromAuthorizeToActual));
+        balance.setAuthBalance(balance.getAuthBalance().subtract(amountToRelease));
         return balanceRepository.save(balance);
     }
 
     /**
      * Обновляет авторизованный и/или фактический баланс аккаунта на основе переданного DTO.
      *
+     * <p>Поддерживает частичное обновление: {@code null} в поле DTO означает «не менять значение».</p>
+     * <p>Дополнительно проверяет инвариант: фактический баланс не может быть меньше авторизованного
+     * (то есть {@code actualBalance >= authBalance}).</p>
+     *
      * @param accountId        идентификатор аккаунта, для которого обновляется баланс; не {@code null}
      * @param updateBalanceDto DTO с новыми значениями баланса; оба поля могут быть {@code null}, но не одновременно
      * @return обновлённая сущность {@link Balance}
-     * @throws IllegalArgumentException если оба поля DTO равны {@code null} или если одно из полей содержит
-     *                                  отрицательное значение
-     * @throws EntityNotFoundException  если баланс для указанного аккаунта не найден
+     * @throws IllegalArgumentException           если оба поля DTO равны {@code null} или если одно из полей содержит
+     *                                            отрицательное значение
+     * @throws EntityNotFoundException            если баланс для указанного аккаунта не найден
+     * @throws BalanceInvariantViolationException если после обновления нарушается инвариант *
+     *                                            {@code actualBalance >= authBalance}
      */
     public Balance update(@NonNull UUID accountId, @NonNull UpdateBalanceDto updateBalanceDto) {
         if (updateBalanceDto.authBalance() == null && updateBalanceDto.actualBalance() == null) {
-            throw new IllegalArgumentException(
-                "The authorized balance and the current actual balance cannot both be zero.");
+            throw new BalanceInvariantViolationException("Authorized balance and actual balance cannot both be null.");
         }
+
+        BigDecimal newAuthBalance = updateBalanceDto.authBalance();
+        BigDecimal newActualBalance = updateBalanceDto.actualBalance();
+
+        validateNonNegativeAmount(newAuthBalance, "The authorization balance must not be negative");
+        validateNonNegativeAmount(newActualBalance, "The actual balance should not be negative");
+
         Balance balance = getBalanceAndLockByAccount(accountId);
 
-        validateNonNegativeAmount(updateBalanceDto.authBalance(), "The authorization balance must not be negative");
-        validateNonNegativeAmount(updateBalanceDto.actualBalance(), "The actual balance should not be negative");
+        if (newActualBalance == null) {
+            if (balance.getActualBalance().compareTo(newAuthBalance) < 0) {
+                throw new BalanceInvariantViolationException(
+                    "Invariant violated: actualBalance=%s must be >= newAuthBalance=%s".formatted(
+                        balance.getActualBalance(), newAuthBalance));
+            }
+        } else if (newAuthBalance == null) {
+            if (newActualBalance.compareTo(balance.getAuthBalance()) < 0) {
+                throw new BalanceInvariantViolationException(
+                    "Invariant violated: newActualBalance=%s must be >= currentAuthBalance=%s".formatted(
+                        newActualBalance, balance.getAuthBalance()));
+            }
+        } else {
+            if (newActualBalance.compareTo(newAuthBalance) < 0) {
+                throw new BalanceInvariantViolationException(
+                    "Invariant violated: newActualBalance=%s must be >= newAuthBalance=%s".formatted(newActualBalance,
+                                                                                                     newAuthBalance));
+            }
+        }
 
         balanceUpdateMapper.updateBalanceFromDto(updateBalanceDto, balance);
         return balanceRepository.save(balance);

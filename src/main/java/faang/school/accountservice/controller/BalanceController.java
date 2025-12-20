@@ -3,7 +3,6 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.balance.CreateBalanceDto;
 import faang.school.accountservice.dto.balance.ResponseBalanceDto;
 import faang.school.accountservice.dto.balance.UpdateBalanceDto;
-import faang.school.accountservice.entity.balance.Balance;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.validation.Valid;
@@ -40,8 +39,8 @@ public class BalanceController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Balance createBalance(@Valid @RequestBody CreateBalanceDto createBalanceDto) {
-        return balanceService.create(createBalanceDto.accountId(), createBalanceDto.actualAmount());
+    public void createBalance(@Valid @RequestBody CreateBalanceDto createBalanceDto) {
+        balanceService.create(createBalanceDto.accountId(), createBalanceDto.actualAmount());
     }
 
     @PatchMapping("/{accountId}")

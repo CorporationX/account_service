@@ -6,6 +6,7 @@ spring:
     password: password
 
   jpa:
+
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
@@ -13,6 +14,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+      jakarta:
+        persistence:
+          lock:
+            timeout: "${APP_DB_LOCK_TIMEOUT:1000}"
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -37,6 +42,11 @@ app:
       request-status-events: request-status-events-topic
     publisher:
       timeout-seconds: 10
+  balance:
+    retry:
+      max-attempts: 2
+      backoff-delay: 500
+      max-delay: 3000
 
 server:
   port: 8090
