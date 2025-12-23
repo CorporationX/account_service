@@ -41,26 +41,6 @@ public class BalanceServiceImpl implements BalanceService {
     private final BalanceUpdateMapper balanceUpdateMapper;
 
     /**
-     * Вычисляет доступный остаток средств для расходования.
-     * <p>
-     * Используется модель <b>ledger + hold</b>:
-     * <ul>
-     *   <li>{@code actualBalance} — фактический (ledger) баланс счёта;</li>
-     *   <li>{@code authBalance} — сумма удержаний (резервов) по авторизациям;</li>
-     * </ul>
-     * Доступный баланс определяется как разность между фактическим балансом и удержанными средствами:
-     * <pre>{@code
-     * available = actualBalance - authBalance
-     * }</pre>
-     *
-     * @param balance сущность баланса, содержащая значения ledger и удержаний; не {@code null}
-     * @return доступный баланс (сумма средств, которую можно дополнительно авторизовать или списать)
-     */
-    private BigDecimal getAvailableBalance(Balance balance) {
-        return balance.getActualBalance().subtract(balance.getAuthBalance());
-    }
-
-    /**
      * Проверяет, достаточно ли доступных средств для операции.
      * <p>
      * В модели баланса:
@@ -76,7 +56,7 @@ public class BalanceServiceImpl implements BalanceService {
      */
 
     private void ensureSufficientAvailableBalance(Balance balance, BigDecimal amount) {
-        BigDecimal available = getAvailableBalance(balance);
+        BigDecimal available = balance.getActualBalance().subtract(balance.getAuthBalance());
         if (available.compareTo(amount) < 0) {
             throw new InsufficientFundsException(
                 "Insufficient available funds. Available: %s, Requested: %s".formatted(available, amount));

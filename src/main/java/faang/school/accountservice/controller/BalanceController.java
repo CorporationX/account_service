@@ -43,7 +43,7 @@ public class BalanceController {
         balanceService.create(createBalanceDto.accountId(), createBalanceDto.actualAmount());
     }
 
-    @PatchMapping("/{accountId}")
+    @PatchMapping("/account/{accountId}")
     public ResponseBalanceDto updateBalance(@PathVariable UUID accountId,
                                             @Valid @RequestBody UpdateBalanceDto updateBalanceDto) {
         return balanceMapper.toDto(balanceService.update(accountId, updateBalanceDto));

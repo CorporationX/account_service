@@ -2,7 +2,7 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__create_account-table.sql
   - include:
-      file: db/changelog/changeset/V001__create_balances_table.sql
+      file: db/changelog/changeset/V005__create_balances_table.sql
   - include:
       file: db/changelog/changeset/V002_add_indexes.sql
   - include:
