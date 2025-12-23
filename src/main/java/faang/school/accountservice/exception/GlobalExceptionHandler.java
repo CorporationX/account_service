@@ -61,6 +61,13 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("entity_not_found", ex.getMessage());
     }
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse handleServiceUnavailableException(ServiceUnavailableException ex) {
+        log.warn("The system is overloaded: {}", ex.getMessage());
+        return new ErrorResponse("The system is overloaded. Please try again later.", ex.getMessage());
+    }
+
     /**
      * Ошибки внешних сервисов (user-service, project-service).
      * Возвращает 500 Internal Server Error.
