@@ -2,7 +2,7 @@ package faang.school.accountservice.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
-import faang.school.accountservice.AccountServiceApplication;
+import faang.school.accountservice.service.application.AccountServiceApplication;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
