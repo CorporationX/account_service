@@ -1,4 +1,4 @@
-package faang.school.accountservice;
+package faang.school.accountservice.service.application;
 
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
