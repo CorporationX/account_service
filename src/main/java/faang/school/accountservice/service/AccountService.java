@@ -35,7 +35,7 @@ public class AccountService {
         account.setUpdatedAt(LocalDateTime.now());
         account.setVersion(1);
         account = accountRepository.save(account);
-        return accountMapper.toDto(account);
+        return accountMapper.toDto(accountRepository.save(account));
     }
 
     @Transactional
@@ -46,8 +46,6 @@ public class AccountService {
             throw new RuntimeException("Account already frozen!");
         }
         account.setStatus(AccountStatus.FROZEN);
-        account.setUpdatedAt(LocalDateTime.now());
-        account.setVersion(account.getVersion() + 1);
         account = accountRepository.save(account);
         return accountMapper.toDto(account);
     }
@@ -60,10 +58,6 @@ public class AccountService {
             throw new RuntimeException("Account already closed!");
         }
         account.setStatus(AccountStatus.CLOSED);
-        account.setClosedAt(LocalDateTime.now());
-        account.setUpdatedAt(LocalDateTime.now());
-        account.setVersion(account.getVersion() + 1);
-        account = accountRepository.save(account);
-        return accountMapper.toDto(account);
+        return accountMapper.toDto(accountRepository.save(account));
     }
 }
