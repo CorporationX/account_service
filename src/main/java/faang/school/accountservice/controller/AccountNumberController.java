@@ -3,6 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.AccountNumberResponse;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.service.FreeAccountNumberService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,10 @@ public class AccountNumberController {
     private final FreeAccountNumberService freeAccountNumberService;
 
     @PostMapping("/generate")
+    @Operation(
+            summary = "Generate account numbers",
+            description = "Generates a specified number of account numbers for the given account type"
+    )
     public ResponseEntity<String> generateAccountNumbers(
             @RequestParam AccountType type,
             @RequestParam(defaultValue = "100") int batchSize) {
@@ -33,6 +38,10 @@ public class AccountNumberController {
     }
 
     @PostMapping("/retrieve")
+    @Operation(
+            summary = "Retrieve a free account number",
+            description = "Retrieves a free account number of the specified type"
+    )
     public ResponseEntity<AccountNumberResponse> retrieveAccountNumber(
             @RequestParam AccountType type) {
 
